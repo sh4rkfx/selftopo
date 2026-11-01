@@ -3424,6 +3424,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       4: [T("Oberkörper B"), [["Overhead Press (Barbell)", "main"], ["Pull Up (Weighted)", "main"], ["Bench Press (Barbell)", "main"]]],
       6: [T("Unterkörper B"), [["Deadlift (Barbell)", "main"], ["Bulgarian Split Squat (Dumbbell)", "acc"]]],
     };
+    // By weekday, not by title: titles are translated, and the sample data must not depend on the language
+    const LOWER_DAYS = new Set([2, 6]);
     const TARGET = {
       "Bench Press (Barbell)": [91, 99], "Squat (Barbell)": [117, 127], "Deadlift (Barbell)": [147, 158],
       "Overhead Press (Barbell)": [57, 61], "Pull Up (Weighted)": [109, 115],
@@ -3537,7 +3539,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       if (!sick && !(i >= 120 && i <= 126)) {
         const month = new Date(t).getUTCMonth();
         if (tonnage > 0 && rnd() > 0.06) { // the watch is sometimes forgotten
-          const lower = plan[0].startsWith("Unterkörper");
+          const lower = LOWER_DAYS.has(wd);
           addActivity("strength_training", "Strength", 18, 60 + rnd() * 15 + (lower ? 8 : 0),
             { hr: 104 + Math.round(gauss() * 4) + (lower ? 6 : 0), load: 38 + rnd() * 18 + (lower ? 16 : 0), te: 1.6 + rnd() * 0.8, ate: 0.8 + rnd() * 0.6, moving: 0.55, kcal: 6 });
         }
@@ -3584,7 +3586,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       }
       prevTonnage = tonnage;
       prevLoad = garminLoad;
-      prevLower = tonnage > 0 && plan[0].startsWith("Unterkörper");
+      prevLower = tonnage > 0 && LOWER_DAYS.has(wd);
     }
     // Own random stream, so the data above (and the analysis result built from it) stays the same
     const climbRnd = mulberry32(53);

@@ -10,6 +10,9 @@ shows it all on a static dashboard in German or English.
 
 There is no selftopo server. Your data stays in your private repository and in your browser.
 
+**[Live demo](https://sh4rkfx.github.io/selftopo/dashboard/)**: the dashboard with invented sample
+data, no login or account needed.
+
 ![Overview with the notable values of the week](docs/images/overview.png)
 
 | | |
