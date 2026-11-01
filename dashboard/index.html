@@ -190,6 +190,7 @@ button { font: inherit; }
   .top h1 { font-size: 22px; }
   .top-tools { gap: 6px; }
   .top-tools .icon-btn { width: 40px; height: 40px; }
+  .top-tools [data-action="help"] { display: none; } /* reachable from the footer and the settings */
   .top-tools .range-select { height: 40px; padding: 0 26px 0 10px; background-position: right 7px center; }
 }
 .top-tools .icon-btn { width: 44px; height: 44px; }
@@ -585,6 +586,25 @@ kbd { font-family: var(--font-mono); font-size: 11.5px; border: 1px solid var(--
 .token-help a { color: var(--s1); }
 .notice-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 
+/* Settings overlay: header and tabs stay, the panes scroll; full screen on phones */
+dialog.prefs { width: min(720px, calc(100vw - 32px)); height: min(820px, calc(100vh - 48px)); overflow: hidden; }
+dialog.prefs[open] { display: flex; flex-direction: column; }
+.prefs-head { padding: 18px 20px 12px; display: grid; gap: 14px; border-bottom: 1px solid var(--ring); }
+.prefs-tabs { display: flex; width: 100%; }
+.prefs-tabs button { flex: 1; }
+.seg button[aria-selected="true"] { background: var(--ink); color: var(--surface); font-weight: 500; }
+.prefs-body { flex: 1; min-height: 0; overflow-y: auto; padding: 0 20px 24px; overscroll-behavior: contain; }
+.prefs-pane { display: grid; gap: 26px; padding-top: 18px; }
+.prefs-group { display: grid; gap: 10px; align-content: start; }
+.prefs-group h3 { margin: 0; font-size: 15px; }
+.prefs-group .seg { justify-self: start; }
+@media (max-width: 759px) {
+  dialog.prefs { width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh; margin: 0; border: 0; border-radius: 0; }
+  .prefs-head { padding: max(14px, env(safe-area-inset-top, 0px)) 16px 10px; }
+  .prefs-body { padding: 0 16px max(24px, env(safe-area-inset-bottom, 0px)); }
+  .prefs-tabs button { padding-inline: 4px; }
+}
+
 /* Setup guide */
 .setup-names { display: grid; gap: 10px 16px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
 .setup-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
@@ -662,6 +682,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     <symbol id="i-flat" viewBox="0 0 24 24"><path d="M5 12h14M15 8l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-target" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/></g></symbol>
     <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18h10a4 4 0 0 0 .5-8 6 6 0 0 0-11.5 1.5A3.3 3.3 0 0 0 7 18z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24"><g fill="none" stroke="currentColor"><circle cx="12" cy="12" r="6" stroke-width="1.8"/><circle cx="12" cy="12" r="2.3" stroke-width="1.8"/><path d="M12 3.4v2.6M12 18v2.6M3.4 12h2.6M18 12h2.6M5.9 5.9l1.85 1.85M16.25 16.25l1.85 1.85M5.9 18.1l1.85-1.85M16.25 7.75l1.85-1.85" stroke-width="2.6"/></g></symbol>
     <symbol id="i-info" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.5"/></g></symbol>
     <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 3L5 14h6l-1 7 8-11h-6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
     <symbol id="i-chevron" viewBox="0 0 20 20"><path d="M5.5 8l4.5 4.5L14.5 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
@@ -686,6 +707,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     <div class="seg-host"><div class="seg small" role="group" aria-label="Zeitraum" data-range></div></div>
     <button class="icon-btn" id="install" data-action="install" type="button" hidden aria-label="Als App installieren" title="Als App installieren"><svg class="ic" aria-hidden="true"><use href="#i-install"/></svg></button>
     <button class="icon-btn" id="refresh" data-action="refresh" type="button" aria-label="Daten neu laden" title="Daten neu laden (Taste R)"><svg class="ic" aria-hidden="true"><use href="#i-refresh"/></svg></button>
+    <button class="icon-btn" id="prefs-open" data-action="settings" type="button" aria-haspopup="dialog" aria-label="Einstellungen" title="Einstellungen"><svg class="ic" aria-hidden="true"><use href="#i-gear"/></svg></button>
     <button class="icon-btn" id="help-open" data-action="help" type="button" aria-haspopup="dialog" aria-label="Hilfe und Tastenkürzel" title="Hilfe und Tastenkürzel (Taste ?)">?</button>
   </div>
 </div>
@@ -702,6 +724,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
         <select id="range-select" class="range-select"></select>
         <button class="icon-btn" data-action="install" type="button" hidden aria-label="Als App installieren" title="Als App installieren"><svg class="ic" aria-hidden="true"><use href="#i-install"/></svg></button>
         <button class="icon-btn" data-action="refresh" type="button" aria-label="Daten neu laden" title="Daten neu laden"><svg class="ic" aria-hidden="true"><use href="#i-refresh"/></svg></button>
+        <button class="icon-btn" data-action="settings" type="button" aria-haspopup="dialog" aria-label="Einstellungen" title="Einstellungen"><svg class="ic" aria-hidden="true"><use href="#i-gear"/></svg></button>
         <button class="icon-btn" data-action="help" type="button" aria-haspopup="dialog" aria-label="Hilfe" title="Hilfe">?</button>
       </div>
     </div>
@@ -1007,7 +1030,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       <div class="card span2" data-group="kraft" data-tab="e1RM" data-icon="trend">
         <div class="card-head"><h3>Geschätztes 1RM der Hauptübungen</h3><p class="sub">Bester Satz je Einheit, auf 1 Wiederholung umgerechnet</p></div>
         <div class="info" hidden>
-          <p>Epley-Formel: Last × (1 + Wiederholungen / 30), aus Sätzen mit bis zu 10 Wiederholungen, ohne Aufwärmsätze. Bei Klimmzügen und Dips zählt das Körpergewicht mit. Welche Übungen hier stehen, wählst du über „Übungen wählen“. Ohne Auswahl in diesem Browser gelten die Hauptübungen aus den Einstellungen (Daten → Einstellungen), und ohne Treffer dort erscheinen die vier häufigsten.</p>
+          <p>Epley-Formel: Last × (1 + Wiederholungen / 30), aus Sätzen mit bis zu 10 Wiederholungen, ohne Aufwärmsätze. Bei Klimmzügen und Dips zählt das Körpergewicht mit. Welche Übungen hier stehen, wählst du über „Übungen wählen“. Ohne Auswahl in diesem Browser gelten die Hauptübungen aus den Einstellungen (Zahnrad oben), und ohne Treffer dort erscheinen die vier häufigsten.</p>
           <p class="source">Quelle: hevy_sets.csv · weight_kg, reps, set_type · Körpergewicht aus garmin_daily.csv</p>
         </div>
         <div class="card-tools">
@@ -1063,7 +1086,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       <div class="card span2" data-group="kraft" data-tab="Handkraft" data-icon="hand">
         <div class="card-head"><h3>Handkraft</h3><p class="sub" id="grip-sub"></p></div>
         <div class="info" hidden>
-          <p>Bester Satz je Hand und Tag aus den Hevy-Übungen, die unter Daten → Einstellungen als Handkraft eingetragen sind, ohne Eintrag „Right-hand Grip Strength“ und „Left-hand Grip Strength“. Der Wert des Messers steht als Gewicht in kg. Ein Handkraftmesser misst den vollen Faustschluss mit Daumen. Beim Bouldern hältst du Leisten und Sloper meist offen oder aufgestellt und ohne Daumen; der Wert zeigt deshalb allgemeine Kraft, keine bouldertypische Fingerkraft.</p>
+          <p>Bester Satz je Hand und Tag aus den Hevy-Übungen, die in den Einstellungen (Zahnrad oben) als Handkraft eingetragen sind, ohne Eintrag „Right-hand Grip Strength“ und „Left-hand Grip Strength“. Der Wert des Messers steht als Gewicht in kg. Ein Handkraftmesser misst den vollen Faustschluss mit Daumen. Beim Bouldern hältst du Leisten und Sloper meist offen oder aufgestellt und ohne Daumen; der Wert zeigt deshalb allgemeine Kraft, keine bouldertypische Fingerkraft.</p>
           <p>Vergleichbar ist er nur bei gleicher Haltung, gleicher Griffweite und gleichem Zeitpunkt, am besten nach dem Aufwärmen und vor dem Bouldern. Die Messungen zählen nicht als Arbeitssätze und gehen weder in Tonnage noch in das e1RM ein.</p>
           <p class="source">Quelle: hevy_sets.csv · weight_kg · Übungsnamen in settings.json („grip_exercises“)</p>
         </div>
@@ -1199,7 +1222,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       <div class="card span2" data-tab="Schritte" data-icon="steps">
         <div class="card-head"><h3>Schritte pro Tag</h3><p class="sub" id="steps-sub"></p></div>
         <div class="info" hidden>
-          <p>Die gestrichelte Linie ist dein Ziel von <span data-step-goal>8.000</span> Schritten (Daten → Einstellungen). Bei Erwachsenen unter 60 Jahren flacht der Nutzen für die Lebenserwartung zwischen etwa 8.000 und 10.000 Schritten pro Tag ab.</p>
+          <p>Die gestrichelte Linie ist dein Ziel von <span data-step-goal>8.000</span> Schritten (einstellbar über das Zahnrad oben). Bei Erwachsenen unter 60 Jahren flacht der Nutzen für die Lebenserwartung zwischen etwa 8.000 und 10.000 Schritten pro Tag ab.</p>
           <p class="source">Quelle: garmin_daily.csv · steps</p>
         </div>
         <div class="legend"><span><i class="key-line" style="background:var(--s1)"></i>Ø 7 Tage</span><span><i class="key-dot" style="background:var(--s1)"></i>Tageswert</span><span><i class="key-dash"></i>Ziel</span></div>
@@ -1308,46 +1331,6 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
         <div class="card-tools" id="connection"></div>
         <ul class="rows" id="sources"></ul>
       </div>
-      <div class="card span2" id="einstellungen" data-tab="Einstellungen" data-icon="slider">
-        <div class="card-head"><h3>Einstellungen</h3><p class="sub" id="settings-sub"></p></div>
-        <div class="info" hidden>
-          <p>Deine persönlichen Einstellungen stehen in der Datei settings.json in deinem Daten-Repository. Dashboard und täglicher Abruf lesen dieselbe Datei; Zeitzone und Handkraft-Übungen gelten also auch beim Abruf.</p>
-          <p>Die Seite darf dein Repository nur lesen. Gespeichert wird deshalb auf GitHub: Der Knopf öffnet die Datei dort, du bestätigst mit „Commit changes“ und tippst hier danach auf Aktualisieren.</p>
-          <p><b>Zeitzone</b>: für Kalendertage, Schlafzeiten und die Uhrzeit von Hevy-Workouts. Ohne Eintrag nimmt die Seite die Zeitzone dieses Browsers, der Abruf auf GitHub aber UTC. <b>Schrittziel</b>: Ziellinie und Zielquote bei den Schritten. <b>Hauptübungen</b>: die e1RM-Diagramme unter Sport → Kraft; übernommen wird die Auswahl, die dort gerade gilt. <b>Handkraft</b>: Hevy-Übungen mit den Werten des Handkraftmessers, mehrere Namen durch Komma getrennt.</p>
-          <p class="source">Datei: settings.json · gelesen vom Dashboard und von selftopo/config.py</p>
-        </div>
-        <ul class="settings-problems" id="settings-problems" hidden></ul>
-        <form class="settings-grid" id="settings-form" novalidate>
-          <div class="field">
-            <label for="set-tz">Zeitzone</label>
-            <input id="set-tz" type="text" list="set-tz-list" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Europe/Berlin">
-            <datalist id="set-tz-list"></datalist>
-            <span class="sub" id="set-tz-note"></span>
-          </div>
-          <div class="field">
-            <label for="set-steps">Schrittziel pro Tag</label>
-            <input id="set-steps" type="number" min="1000" max="50000" step="500" inputmode="numeric">
-          </div>
-          <div class="field">
-            <label for="set-grip-left">Handkraft links (Hevy-Übung)</label>
-            <input id="set-grip-left" type="text" autocomplete="off" spellcheck="false">
-          </div>
-          <div class="field">
-            <label for="set-grip-right">Handkraft rechts (Hevy-Übung)</label>
-            <input id="set-grip-right" type="text" autocomplete="off" spellcheck="false">
-          </div>
-        </form>
-        <p class="settings-lifts" id="settings-lifts"></p>
-        <div class="picker-actions">
-          <a class="primary-btn" id="settings-github" target="_blank" rel="noopener" hidden>Auf GitHub speichern</a>
-          <button class="ghost-btn" type="button" id="settings-copy">Inhalt kopieren</button>
-          <span class="sub" id="settings-status" role="status" aria-live="polite"></span>
-        </div>
-        <details class="token-help">
-          <summary>settings.json ansehen</summary>
-          <pre class="code settings-json" id="settings-json"></pre>
-        </details>
-      </div>
       <div class="card span2" data-tab="Wochen" data-icon="table">
         <div class="card-head"><h3>Wochenübersicht</h3><p class="sub">Neueste oben</p></div>
         <div class="info" hidden>
@@ -1443,58 +1426,135 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   </div>
 </dialog>
 
-<dialog class="help" id="setup" aria-labelledby="setup-title">
-  <div class="help-in">
+<dialog class="help prefs" id="prefs" aria-labelledby="prefs-title">
+  <div class="prefs-head">
     <div class="help-head">
-      <h2 id="setup-title">Eigene Daten einrichten</h2>
-      <button class="ghost-btn" type="button" id="setup-close">Schließen</button>
+      <h2 id="prefs-title">Einstellungen</h2>
+      <button class="ghost-btn" type="button" id="prefs-close">Schließen</button>
     </div>
-    <p class="sub">Rund 15 Minuten, alles im Browser. Deine Daten landen in einem privaten GitHub-Repository, das nur du lesen kannst. Ein Ablauf dort holt sie jeden Morgen von Garmin und Hevy, und diese Seite liest sie direkt von GitHub. Einen Server von selftopo gibt es nicht. Du brauchst Garmin Connect und für das Krafttraining Hevy Pro.</p>
-    <div class="setup-names">
-      <div class="field">
-        <label for="setup-owner">Dein GitHub-Benutzername</label>
-        <input id="setup-owner" type="text" autocomplete="username" autocapitalize="off" spellcheck="false" placeholder="anna">
-      </div>
-      <div class="field">
-        <label for="setup-repo">Name des Daten-Repositorys</label>
-        <input id="setup-repo" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="selftopo-data">
-      </div>
+    <div class="seg prefs-tabs" role="tablist" aria-label="Bereiche der Einstellungen">
+      <button type="button" role="tab" id="tab-general" aria-controls="pane-general" data-pane="general">Allgemein</button>
+      <button type="button" role="tab" id="tab-connection" aria-controls="pane-connection" data-pane="connection">Verbindung</button>
+      <button type="button" role="tab" id="tab-setup" aria-controls="pane-setup" data-pane="setup">Einrichtung</button>
+      <button type="button" role="tab" id="tab-app" aria-controls="pane-app" data-pane="app">App</button>
     </div>
-    <ol class="setup-steps" id="setup-steps"></ol>
-    <p class="sub">Namen und Häkchen bleiben in diesem Browser gespeichert. Hilfe bei Fehlern steht im README unter Troubleshooting.</p>
   </div>
-</dialog>
-
-<dialog class="help" id="connect" aria-labelledby="connect-title">
-  <form class="help-in" id="connect-form" novalidate>
-    <div class="help-head">
-      <h2 id="connect-title">Mit GitHub verbinden</h2>
-      <button class="ghost-btn" type="button" id="connect-cancel">Abbrechen</button>
-    </div>
-    <p class="sub">Die Seite liest deine CSV-Dateien direkt aus deinem privaten Daten-Repository. Dafür braucht sie einen Token, der nur dieses eine Repository lesen darf.</p>
-    <div class="field">
-      <label for="gh-repo">Daten-Repository</label>
-      <input id="gh-repo" name="repo" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="besitzer/name">
-    </div>
-    <div class="field">
-      <label for="gh-token">Fine-grained Token</label>
-      <input id="gh-token" name="token" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="github_pat_…">
-    </div>
-    <label class="check" for="gh-remember"><input id="gh-remember" type="checkbox" checked><span>Auf diesem Gerät merken</span><span class="sub">Ohne Haken gilt die Verbindung nur, bis du den Tab schließt.</span></label>
-    <p class="form-status" id="connect-status" role="status" aria-live="polite"></p>
-    <div class="picker-actions"><button class="primary-btn" type="submit" id="connect-submit">Verbinden</button></div>
-    <details class="token-help">
-      <summary>So erstellst du den Token</summary>
-      <ol>
-        <li>Auf GitHub <a href="https://github.com/settings/personal-access-tokens/new?name=selftopo+dashboard&amp;description=Read-only+access+for+the+selftopo+dashboard&amp;expires_in=366&amp;contents=read" target="_blank" rel="noopener">einen neuen Fine-grained Token anlegen</a>. Der Weg dorthin: Profilbild → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token.</li>
-        <li>Token name zum Beispiel „selftopo dashboard“, Expiration nach Wunsch, etwa ein Jahr.</li>
-        <li>Repository access: <b>Only select repositories</b> und nur dein Daten-Repository auswählen.</li>
-        <li>Permissions → Repository permissions → <b>Contents: Read-only</b>. Mehr braucht die Seite nicht; „Metadata: Read-only“ setzt GitHub automatisch dazu.</li>
-        <li>Auf Generate token klicken, den Token kopieren und hier einfügen.</li>
-      </ol>
-      <p class="sub">Der Token geht nur an api.github.com und bleibt in diesem Browser. Er kann nichts ändern und keine anderen Repositories lesen.</p>
-    </details>
-  </form>
+  <div class="prefs-body">
+    <section class="prefs-pane" id="pane-general" role="tabpanel" aria-labelledby="tab-general">
+      <div class="prefs-group">
+        <h3>Sprache</h3>
+        <div class="seg" role="group" aria-label="Sprache" id="lang-seg">
+          <button type="button" data-lang="de" lang="de">Deutsch</button>
+          <button type="button" data-lang="en" lang="en">English</button>
+        </div>
+        <p class="sub">Gilt für diesen Browser. Zahlen und Datumsangaben folgen der Sprache.</p>
+      </div>
+      <div class="prefs-group">
+        <h3>Persönliche Einstellungen</h3>
+        <p class="sub" id="settings-sub"></p>
+        <p class="sub">Sie stehen in der Datei settings.json in deinem Daten-Repository, und der tägliche Abruf liest dieselbe Datei. Diese Seite darf das Repository nur lesen: Speichern öffnet die Datei auf GitHub, du bestätigst dort mit „Commit changes“ und lädst hier neu. Ohne Zeitzone nimmt die Seite die des Browsers, der Abruf auf GitHub aber UTC.</p>
+        <ul class="settings-problems" id="settings-problems" hidden></ul>
+        <form class="settings-grid" id="settings-form" novalidate>
+          <div class="field">
+            <label for="set-tz">Zeitzone</label>
+            <input id="set-tz" type="text" list="set-tz-list" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Europe/Berlin">
+            <datalist id="set-tz-list"></datalist>
+            <span class="sub" id="set-tz-note"></span>
+          </div>
+          <div class="field">
+            <label for="set-steps">Schrittziel pro Tag</label>
+            <input id="set-steps" type="number" min="1000" max="50000" step="500" inputmode="numeric">
+          </div>
+          <div class="field">
+            <label for="set-grip-left">Handkraft links (Hevy-Übung)</label>
+            <input id="set-grip-left" type="text" autocomplete="off" spellcheck="false">
+          </div>
+          <div class="field">
+            <label for="set-grip-right">Handkraft rechts (Hevy-Übung)</label>
+            <input id="set-grip-right" type="text" autocomplete="off" spellcheck="false">
+          </div>
+        </form>
+        <p class="settings-lifts" id="settings-lifts"></p>
+        <div class="picker-actions">
+          <a class="primary-btn" id="settings-github" target="_blank" rel="noopener" hidden>Auf GitHub speichern</a>
+          <button class="ghost-btn" type="button" id="settings-copy">Inhalt kopieren</button>
+          <span class="sub" id="settings-status" role="status" aria-live="polite"></span>
+        </div>
+        <details class="token-help">
+          <summary>settings.json ansehen</summary>
+          <pre class="code settings-json" id="settings-json"></pre>
+        </details>
+      </div>
+    </section>
+    <section class="prefs-pane" id="pane-connection" role="tabpanel" aria-labelledby="tab-connection" hidden>
+      <div class="prefs-group">
+        <h3>Daten-Repository</h3>
+        <p class="sub" id="prefs-conn-status"></p>
+        <div class="picker-actions" id="prefs-conn-actions"></div>
+      </div>
+      <form class="prefs-group" id="connect-form" novalidate>
+        <h3 id="connect-title">Verbinden</h3>
+        <p class="sub">Die Seite liest deine CSV-Dateien direkt aus deinem privaten Daten-Repository. Dafür braucht sie einen Token, der nur dieses eine Repository lesen darf.</p>
+        <div class="field">
+          <label for="gh-repo">Daten-Repository</label>
+          <input id="gh-repo" name="repo" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="besitzer/name">
+        </div>
+        <div class="field">
+          <label for="gh-token">Fine-grained Token</label>
+          <input id="gh-token" name="token" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="github_pat_…">
+        </div>
+        <label class="check" for="gh-remember"><input id="gh-remember" type="checkbox" checked><span>Auf diesem Gerät merken</span><span class="sub">Ohne Haken gilt die Verbindung nur, bis du den Tab schließt.</span></label>
+        <p class="form-status" id="connect-status" role="status" aria-live="polite"></p>
+        <div class="picker-actions"><button class="primary-btn" type="submit" id="connect-submit">Verbinden</button></div>
+        <details class="token-help">
+          <summary>So erstellst du den Token</summary>
+          <ol>
+            <li>Auf GitHub <a href="https://github.com/settings/personal-access-tokens/new?name=selftopo+dashboard&amp;description=Read-only+access+for+the+selftopo+dashboard&amp;expires_in=366&amp;contents=read" target="_blank" rel="noopener">einen neuen Fine-grained Token anlegen</a>. Der Weg dorthin: Profilbild → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token.</li>
+            <li>Token name zum Beispiel „selftopo dashboard“, Expiration nach Wunsch, etwa ein Jahr.</li>
+            <li>Repository access: <b>Only select repositories</b> und nur dein Daten-Repository auswählen.</li>
+            <li>Permissions → Repository permissions → <b>Contents: Read-only</b>. Mehr braucht die Seite nicht; „Metadata: Read-only“ setzt GitHub automatisch dazu.</li>
+            <li>Auf Generate token klicken, den Token kopieren und hier einfügen.</li>
+          </ol>
+          <p class="sub">Der Token geht nur an api.github.com und bleibt in diesem Browser. Er kann nichts ändern und keine anderen Repositories lesen.</p>
+        </details>
+      </form>
+    </section>
+    <section class="prefs-pane" id="pane-setup" role="tabpanel" aria-labelledby="tab-setup" hidden>
+      <p class="sub">Rund 15 Minuten, alles im Browser. Deine Daten landen in einem privaten GitHub-Repository, das nur du lesen kannst. Ein Ablauf dort holt sie jeden Morgen von Garmin und Hevy, und diese Seite liest sie direkt von GitHub. Einen Server von selftopo gibt es nicht. Du brauchst Garmin Connect und für das Krafttraining Hevy Pro.</p>
+      <div class="setup-names">
+        <div class="field">
+          <label for="setup-owner">Dein GitHub-Benutzername</label>
+          <input id="setup-owner" type="text" autocomplete="username" autocapitalize="off" spellcheck="false" placeholder="anna">
+        </div>
+        <div class="field">
+          <label for="setup-repo">Name des Daten-Repositorys</label>
+          <input id="setup-repo" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="selftopo-data">
+        </div>
+      </div>
+      <ol class="setup-steps" id="setup-steps"></ol>
+      <p class="sub">Namen und Häkchen bleiben in diesem Browser gespeichert. Hilfe bei Fehlern steht im README unter Troubleshooting.</p>
+    </section>
+    <section class="prefs-pane" id="pane-app" role="tabpanel" aria-labelledby="tab-app" hidden>
+      <div class="prefs-group">
+        <h3>Als App verwenden</h3>
+        <p class="sub">Installiert öffnet sich die Seite wie eine App, ohne Browserleiste, und zeigt ohne Verbindung den zuletzt geladenen Stand. Auf dem iPhone: Teilen → Zum Home-Bildschirm.</p>
+        <div class="picker-actions">
+          <button class="ghost-btn" type="button" data-action="install" hidden>Installieren</button>
+          <button class="ghost-btn" type="button" data-action="refresh">Daten neu laden</button>
+          <button class="ghost-btn" type="button" id="prefs-help">Hilfe und Diagramme lesen</button>
+        </div>
+      </div>
+      <div class="prefs-group">
+        <h3>Über selftopo</h3>
+        <p class="sub">Open Source unter MIT-Lizenz. Deine Daten liegen nur in deinem privaten Repository und in diesem Browser; einen Server von selftopo gibt es nicht.</p>
+        <p class="sub">Kein Medizinprodukt: Die Werte sind Schätzungen von Verbrauchergeräten und Apps. Garmin Connect und YAZIO werden über inoffizielle Schnittstellen gelesen. selftopo steht in keiner Verbindung zu Garmin, Hevy oder YAZIO.</p>
+        <div class="picker-actions">
+          <a class="ghost-btn" href="https://github.com/sh4rkfx/selftopo" target="_blank" rel="noopener">Projekt auf GitHub</a>
+          <a class="ghost-btn" href="https://github.com/sh4rkfx/selftopo/issues" target="_blank" rel="noopener">Fehler melden</a>
+        </div>
+      </div>
+    </section>
+  </div>
 </dialog>
 
 <script>
@@ -2028,7 +2088,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     list.push({
       key: "settings", label: "Einstellungen", file: file("settings"), found: data.found.settings, broken: data.settingsBroken,
       optional: true, rows: data.settings && typeof data.settings === "object" ? Object.keys(data.settings).length : 0, first: null, last: null,
-      fix: "Optional. Ohne die Datei gelten die Standardwerte und die Zeitzone dieses Browsers, beim Abruf auf GitHub UTC. Anlegen oder neu speichern in der Karte Einstellungen.",
+      fix: "Optional. Ohne die Datei gelten die Standardwerte und die Zeitzone dieses Browsers, beim Abruf auf GitHub UTC. Anlegen oder neu speichern in den Einstellungen (Zahnrad oben) unter Allgemein.",
     });
     return list;
   }
@@ -3408,7 +3468,9 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     const sourceText = { demo: "Beispieldaten", csv: "Ordner data/", embedded: "eingebettete Daten", github: state.dataRepo }[state.source];
     const helpBtn = html("button", { type: "button", class: "link-btn", text: "Hilfe" });
     helpBtn.addEventListener("click", openHelp);
-    $("footer").replaceChildren(html("span", { text: `${sourceText} · ${ddmm(x0)} bis ${dmy(x1)}` }), helpBtn);
+    const prefsBtn = html("button", { type: "button", class: "link-btn", text: "Einstellungen" });
+    prefsBtn.addEventListener("click", () => openPrefs("general"));
+    $("footer").replaceChildren(html("span", { text: `${sourceText} · ${ddmm(x0)} bis ${dmy(x1)}` }), prefsBtn, helpBtn);
     for (const area of AREAS) syncTabs(area);
   }
 
@@ -4964,7 +5026,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       updateSettingsPreview();
       $("lift-copy-status").textContent = "Standard wiederhergestellt.";
     });
-    $("lift-copy").addEventListener("click", () => goToCard("einstellungen"));
+    $("lift-copy").addEventListener("click", () => openPrefs("general"));
   }
 
   // ------------------------------------------------------------------ settings card
@@ -5179,18 +5241,6 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     if (heading) { heading.setAttribute("tabindex", "-1"); heading.focus({ preventScroll: true }); }
   }
 
-  // Jump to one card; on phones its area shows one card at a time, so its tab is selected first
-  function goToCard(id) {
-    const card = $(id), area = card?.closest(".area");
-    if (!card || !area) return;
-    const body = $(`b-${area.id}`);
-    if (body?.classList.contains("tabbed")) {
-      const index = [...body.querySelectorAll(":scope > .card")].indexOf(card);
-      if (index >= 0) selectTab(area.id, index);
-    }
-    goTo(id);
-  }
-
   function openHelp() {
     const dlg = $("help");
     if (dlg.open) return;
@@ -5319,7 +5369,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey) return;
       const t = e.target;
       if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
-      if ($("connect").open || $("setup").open || ($("help").open && e.key !== "?")) return;
+      if ($("prefs").open || ($("help").open && e.key !== "?")) return;
       if (/^[1-9]$/.test(e.key) && Number(e.key) <= AREAS.length) { e.preventDefault(); goTo(AREAS[Number(e.key) - 1]); }
       else if (e.key === "0") { e.preventDefault(); goTo("top"); }
       else if (e.key === "z" || e.key === "Z") { if (state.model) { e.preventDefault(); cycleRange(e.shiftKey ? -1 : 1); } }
@@ -5342,17 +5392,10 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     $("gh-token").value = "";
     $("gh-remember").checked = cred ? cred.remembered : true;
     setConnectStatus("");
-    const dlg = $("connect");
-    if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", "");
-    $("gh-token").focus();
-  }
-  function closeConnect() {
-    const dlg = $("connect");
-    if (typeof dlg.close === "function") dlg.close(); else dlg.removeAttribute("open");
+    openPrefs("connection", false);
+    ($("gh-repo").value ? $("gh-token") : $("gh-repo")).focus();
   }
   function setupConnect() {
-    $("connect-cancel").addEventListener("click", closeConnect);
-    $("connect").addEventListener("click", (e) => { if (e.target === $("connect")) closeConnect(); });
     $("connect-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const repo = $("gh-repo").value.trim().replace(/^https?:\/\/github\.com\//, "").replace(/\.git$/, "").replace(/\/+$/, "");
@@ -5370,6 +5413,68 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       }
       setConnectStatus("Verbunden. Deine Daten werden geladen …");
       location.reload();
+    });
+  }
+
+  // ------------------------------------------------------------------ settings overlay
+
+  const PANES = ["general", "connection", "setup", "app"];
+  function showPane(pane, focusTab = false) {
+    for (const name of PANES) {
+      const on = name === pane, tab = $(`tab-${name}`);
+      $(`pane-${name}`).hidden = !on;
+      tab.setAttribute("aria-selected", String(on));
+      tab.tabIndex = on ? 0 : -1;
+    }
+    if (pane === "setup") renderSetup();
+    if (pane === "connection") renderPrefsConnection();
+    document.querySelector("#prefs .prefs-body").scrollTop = 0;
+    if (focusTab) $(`tab-${pane}`).focus();
+  }
+  function openPrefs(pane = "general", focusTab = true) {
+    const dlg = $("prefs");
+    if (!dlg.open) {
+      fillSetupNames();
+      if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", "");
+    }
+    showPane(pane, focusTab);
+  }
+  function closePrefs() {
+    const dlg = $("prefs");
+    if (typeof dlg.close === "function") dlg.close(); else dlg.removeAttribute("open");
+  }
+  // Status of the connection, above the connect form
+  function renderPrefsConnection() {
+    const cred = loadCredentials();
+    const button = (label, onClick) => {
+      const b = html("button", { type: "button", class: "ghost-btn", text: label });
+      b.addEventListener("click", onClick);
+      return b;
+    };
+    $("prefs-conn-status").textContent = state.source === "github"
+      ? `Verbunden mit ${state.dataRepo}. Der Token ist ${state.remembered ? "auf diesem Gerät gespeichert" : "nur für diesen Tab gespeichert"}.`
+      : state.source === "csv" ? "Die Seite liest den Ordner data/ neben dem Dashboard."
+      : cred ? `Gespeichert ist ${cred.repo}, aber die Verbindung funktioniert gerade nicht${state.githubError ? `: ${state.githubError}` : "."}`
+      : "Nicht verbunden. Die Seite zeigt Beispieldaten.";
+    $("connect-title").textContent = cred ? "Neu verbinden" : "Verbinden";
+    if (!$("gh-repo").value && cred) $("gh-repo").value = cred.repo;
+    $("prefs-conn-actions").replaceChildren(...(cred
+      ? [button("Verbindung trennen", async () => { clearCredentials(); await deleteSnapshot(); location.reload(); })]
+      : [button("Eigene Daten einrichten", () => showPane("setup", true))]));
+  }
+  function setupPrefs() {
+    for (const b of document.querySelectorAll('[data-action="settings"]')) b.addEventListener("click", () => openPrefs("general"));
+    $("prefs-close").addEventListener("click", closePrefs);
+    $("prefs-help").addEventListener("click", () => { closePrefs(); openHelp(); });
+    $("prefs").addEventListener("click", (e) => { if (e.target === $("prefs")) closePrefs(); });
+    const tabs = PANES.map((name) => $(`tab-${name}`));
+    tabs.forEach((tab, i) => {
+      tab.addEventListener("click", () => showPane(PANES[i]));
+      tab.addEventListener("keydown", (e) => {
+        if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+        e.preventDefault();
+        showPane(PANES[(i + (e.key === "ArrowRight" ? 1 : -1) + PANES.length) % PANES.length], true);
+      });
     });
   }
 
@@ -5413,10 +5518,10 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
         text: `Name, Ablaufdatum und „Contents: Read-only“ sind vorausgefüllt. Unter Repository access „Only select repositories“ und ${repo} wählen, das lässt sich nicht vorausfüllen. Dann Generate token und den Token kopieren.`,
         actions: [["Token erstellen", `https://github.com/settings/personal-access-tokens/new?${query({ name: "selftopo dashboard", description: "Read-only access for the selftopo dashboard", target_name: owner, expires_in: 366, contents: "read" })}`]] },
       { id: "connect", title: "Seite verbinden", text: "Repository und Token eintragen. Danach zeigt die Seite deine Daten, auf jedem Gerät, das du so verbindest.",
-        actions: [["Verbinden", () => { closeSetup(); openConnect(full || undefined); }, true]] },
+        actions: [["Verbinden", () => openConnect(full || undefined), true]] },
       { id: "settings", title: "Zeitzone speichern",
-        text: "Nach dem Verbinden unter Daten → Einstellungen auf „Auf GitHub anlegen“ tippen und dort speichern. Ohne diese Datei zählt der tägliche Abruf die Tage in UTC.",
-        actions: [["Zu den Einstellungen", () => { closeSetup(); goToCard("einstellungen"); }]] },
+        text: "Nach dem Verbinden unter Allgemein bei den persönlichen Einstellungen auf „Auf GitHub anlegen“ tippen und dort speichern. Ohne diese Datei zählt der tägliche Abruf die Tage in UTC.",
+        actions: [["Zu den persönlichen Einstellungen", () => showPane("general")]] },
     ];
   }
   function renderSetup() {
@@ -5461,23 +5566,17 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     });
     $("setup-steps").replaceChildren(...items);
   }
-  function openSetup() {
+  function fillSetupNames() {
     const saved = loadSetup();
     const [credOwner, credRepo] = (loadCredentials()?.repo || "").split("/");
     $("setup-owner").value = saved.owner || credOwner || "";
     $("setup-repo").value = saved.repo || credRepo || "selftopo-data";
-    renderSetup();
-    const dlg = $("setup");
-    if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", "");
-    (saved.owner ? $("setup-close") : $("setup-owner")).focus();
   }
-  function closeSetup() {
-    const dlg = $("setup");
-    if (typeof dlg.close === "function") dlg.close(); else dlg.removeAttribute("open");
+  function openSetup() {
+    openPrefs("setup", false);
+    if (!$("setup-owner").value) $("setup-owner").focus();
   }
   function setupGuide() {
-    $("setup-close").addEventListener("click", closeSetup);
-    $("setup").addEventListener("click", (e) => { if (e.target === $("setup")) closeSetup(); });
     for (const id of ["setup-owner", "setup-repo"]) {
       $(id).addEventListener("input", () => {
         saveSetup({ ...loadSetup(), owner: $("setup-owner").value.trim().replace(/^@/, ""), repo: $("setup-repo").value.trim() });
@@ -5586,6 +5685,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     setupUi();
     setupConnect();
     setupGuide();
+    setupPrefs();
     setupLiftPicker();
     setupSettings();
     setupApp();
