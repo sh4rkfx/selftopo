@@ -85,7 +85,7 @@ code, .mono { font-family: var(--font-mono); font-size: 12px; }
 .top { display: grid; gap: 6px; }
 .status-line { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; color: var(--ink-2); font-size: 13px; }
 .status-line a { text-underline-offset: 2px; }
-.card { background: var(--surface); border: 1px solid var(--ring); border-radius: 12px; padding: 14px 16px; display: grid; gap: 10px; min-width: 0; }
+.card { background: var(--surface); border: 1px solid var(--ring); border-radius: 12px; padding: 14px 16px; display: grid; gap: 10px; align-content: start; min-width: 0; }
 .notice { background: var(--note); border: 1px solid var(--ring); border-radius: 10px; padding: 10px 14px; font-size: 13px; color: var(--ink-2); display: grid; gap: 4px; }
 .notice strong { color: var(--ink); }
 
@@ -178,6 +178,7 @@ details.test > summary:hover { background: var(--area); }
 .t-meta { display: flex; gap: 10px; align-items: center; font-size: 12px; color: var(--ink-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .t-sub { grid-column: 2 / -1; font-size: 12.5px; color: var(--ink-2); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .t-sub.err { color: var(--crit-ink); white-space: normal; overflow-wrap: anywhere; }
+details.test[open] > summary .t-sub:not(.err) { display: none; } /* the description follows below */
 .chev { width: 16px; height: 16px; transition: transform 0.15s ease; color: var(--muted); }
 details.test[open] .chev { transform: rotate(180deg); }
 @media (max-width: 640px) {
@@ -334,6 +335,7 @@ footer a { color: var(--ink-2); text-underline-offset: 2px; }
     "Verlauf": "History",
     "Letzte {0} Läufe auf main: {1} grün, {2} gelb, {3} rot.": "Last {0} runs on main: {1} green, {2} yellow, {3} red.",
     "Noch kein Verlauf: er entsteht mit den Läufen auf main.": "No history yet: it builds up with the runs on main.",
+    "Bisher ein Lauf auf main.": "One run on main so far.",
     "{0} · Commit {1} · {2} von {3} bestanden": "{0} · commit {1} · {2} of {3} passed",
     "dieser Lauf": "this run",
     "Seit dem letzten Lauf": "Since the last run",
@@ -713,7 +715,9 @@ footer a { color: var(--ink-2); text-underline-offset: 2px; }
     return h("section", { class: "card" },
       h("h3", {}, T("Verlauf")),
       h("div", { class: "runs" }, items),
-      h("p", { class: "sub" }, published.length
+      h("p", { class: "sub" }, published.length === 1
+        ? T("Bisher ein Lauf auf main.")
+        : published.length
         ? T("Letzte {0} Läufe auf main: {1} grün, {2} gelb, {3} rot.", [published.length, tally.green, tally.yellow, tally.red])
         : T("Noch kein Verlauf: er entsteht mit den Läufen auf main.")));
   }
@@ -885,7 +889,7 @@ footer a { color: var(--ink-2); text-underline-offset: 2px; }
         h("div", { class: "act" }, h("span", { class: "cell-label" }, T("Tatsächlich")), state === "skip" ? null : h("pre", { class: "val" }, actual ?? "–"),
           check.detail ? h("div", { class: "detail" }, check.detail) : null));
     };
-    return h("div", { class: "checks", role: "list" }, head,
+    return h("div", { class: "checks" }, head,
       executed.map((c) => row(c, c.ok ? "ok" : "bad")),
       unreached.map((p) => row({ ...p, op: null }, "skip")));
   }
