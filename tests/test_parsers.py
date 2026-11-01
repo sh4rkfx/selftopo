@@ -1,8 +1,11 @@
 """Mapping of Garmin and Hevy responses to CSV rows."""
 
 from datetime import datetime, timezone
+from pathlib import Path
 
-from selftopo import activities, garmin, hevy
+import pytest
+
+from selftopo import activities, config, garmin, hevy
 
 
 def epoch_ms(*args: int) -> float:
@@ -70,3 +73,71 @@ def test_hevy_dates_use_local_time():
                "exercises": [{"title": "Pull Up (Weighted)", "sets": [{"type": "normal", "weight_kg": 10, "reps": 5}]}]}
     (row,) = hevy.flatten(workout)
     assert row["date"] == "2026-10-14"  # 00:30 in Vienna
+
+
+# --------------------------------------------------------------------------- Garmin login in CI
+
+
+class _FakeGarmin:
+    """Stands in for garminconnect.Garmin: login outcome set per test."""
+
+    outcome: object = (None, None)
+    created: list = []
+
+    def __init__(self, email=None, password=None, return_on_mfa=False, **_):
+        self.email, self.password, self.return_on_mfa = email, password, return_on_mfa
+        self.client = self
+        _FakeGarmin.created.append(self)
+
+    def login(self, tokenstore=None):
+        if tokenstore is not None:
+            raise RuntimeError("no tokens")
+        if isinstance(self.outcome, Exception):
+            raise self.outcome
+        return self.outcome
+
+    def dump(self, path):
+        Path(path).mkdir(parents=True, exist_ok=True)
+        (Path(path) / "garmin_tokens.json").write_text("{}", encoding="utf-8")
+
+
+def _ci_login_env(monkeypatch, tmp_path, outcome, password=True):
+    monkeypatch.setattr(garmin, "Garmin", _FakeGarmin)
+    monkeypatch.setattr(config, "TOKEN_DIR", tmp_path / "tokens")
+    monkeypatch.setattr(config, "TOKEN_JSON", None)
+    monkeypatch.setenv("CI", "true")
+    monkeypatch.setenv("GARMIN_EMAIL", "a@example.com")
+    if password:
+        monkeypatch.setenv("GARMIN_PASSWORD", "secret")
+    else:
+        monkeypatch.delenv("GARMIN_PASSWORD", raising=False)
+    _FakeGarmin.outcome = outcome
+    _FakeGarmin.created = []
+    return garmin, config
+
+
+def test_ci_password_login_stores_tokens(monkeypatch, tmp_path):
+    garmin, config = _ci_login_env(monkeypatch, tmp_path, (None, None))
+    client = garmin._login()
+    assert client.return_on_mfa and client.email == "a@example.com"
+    assert (config.TOKEN_DIR / "garmin_tokens.json").exists()
+
+
+def test_ci_password_login_with_mfa_explains_the_local_way(monkeypatch, tmp_path):
+    garmin, config = _ci_login_env(monkeypatch, tmp_path, ("needs_mfa", None))
+    with pytest.raises(config.SetupError, match="two-step verification"):
+        garmin._login()
+    assert not (config.TOKEN_DIR / "garmin_tokens.json").exists()
+
+
+def test_ci_password_login_refused(monkeypatch, tmp_path):
+    garmin, config = _ci_login_env(monkeypatch, tmp_path, RuntimeError("401 Unauthorized"))
+    with pytest.raises(config.SetupError, match="refused the login"):
+        garmin._login()
+
+
+def test_ci_without_tokens_or_password_names_both_ways(monkeypatch, tmp_path):
+    garmin, config = _ci_login_env(monkeypatch, tmp_path, (None, None), password=False)
+    with pytest.raises(config.SetupError, match="GARMIN_PASSWORD secrets"):
+        garmin._login()
+    assert _FakeGarmin.created == []

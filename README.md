@@ -54,6 +54,25 @@ The sync is incremental: Garmin days that are complete are not fetched again (ex
 four, because the watch can sync late), and activities and Hevy sets inside the requested window
 are replaced, so edited or deleted entries are picked up.
 
+## Setup in the browser
+
+No Python needed. Open the [dashboard](https://sh4rkfx.github.io/selftopo/dashboard/) and click
+**Eigene Daten einrichten**. The guide builds every link from your GitHub user name:
+
+1. Create the private data repository from the template
+   [`sh4rkfx/selftopo-data-template`](https://github.com/sh4rkfx/selftopo-data-template), prefilled
+   with the name and *Private*. The daily workflow is already in it.
+2. Add the secrets `HEVY_API_KEY`, `GARMIN_EMAIL` and `GARMIN_PASSWORD` (optionally `YAZIO_EMAIL`
+   and `YAZIO_PASSWORD`).
+3. Run the workflow once with 365 days. It logs in to Garmin, caches the tokens and fetches a year.
+   Then delete `GARMIN_PASSWORD` (and `YAZIO_PASSWORD`): later runs use the cached tokens.
+4. Create a read-only token (prefilled except the repository selection), connect the dashboard and
+   save the settings with your time zone.
+
+The Garmin login from GitHub only works for accounts **without two-step verification**, and Garmin
+can refuse logins from GitHub's servers. In both cases the run fails with a message saying so;
+then create the tokens once with Python as described below and store them in `GARMIN_TOKENS_JSON`.
+
 ## Quick start
 
 Requirements: Python 3.10 or newer, a Garmin Connect account, and Hevy Pro for the API key.
@@ -83,9 +102,12 @@ stored in `~/.garminconnect`.
 The workflow runs in the private data repository. It checks out this repository's code, fetches
 the last 30 days every morning, recomputes the analysis and commits changed files.
 
-1. Create an empty **private** repository, for example `selftopo-data`.
-2. Copy the contents of [`templates/data-repo/`](templates/data-repo) into it, including the
-   `.github` folder, together with any CSV files you already have, and push.
+1. Create a **private** repository from the template
+   [`sh4rkfx/selftopo-data-template`](https://github.com/sh4rkfx/selftopo-data-template)
+   (*Use this template → Create a new repository → Private*), for example `selftopo-data`.
+   Without the template: create an empty private repository and copy the contents of
+   [`templates/data-repo/`](templates/data-repo) into it, including the `.github` folder.
+   Add any CSV files you already have and push.
 3. Locally, run `python -m selftopo export-tokens` and copy the single line of JSON it prints.
 4. In the data repository under *Settings → Secrets and variables → Actions*, add two repository secrets:
 
@@ -93,6 +115,11 @@ the last 30 days every morning, recomputes the analysis and commits changed file
    |---|---|
    | `GARMIN_TOKENS_JSON` | The JSON from step 3 |
    | `HEVY_API_KEY` | Your Hevy API key |
+
+   Instead of steps 3 and the token secret, accounts without two-step verification can add
+   `GARMIN_EMAIL` and `GARMIN_PASSWORD`. The workflow logs in once, keeps the tokens in its cache
+   and logs in again only when they stop working. Delete `GARMIN_PASSWORD` after the first
+   successful run if you do not want the password stored on GitHub.
 
    With the GitHub CLI: `python -m selftopo export-tokens | gh secret set GARMIN_TOKENS_JSON --repo <you>/selftopo-data`.
 5. Start the first run manually: *Actions → Sync Garmin and Hevy → Run workflow*. Use 365 days if
@@ -321,6 +348,8 @@ default applies instead.
 | Dashboard shows sample data | Locally: the page was opened as a file, or the server was started outside the repository root. On GitHub Pages: not connected yet, or the token expired; the yellow notice says which |
 | HTTP 429 from Garmin | Too many requests. Days fetched so far are saved; run again after an hour |
 | Login works locally but fails on GitHub | Garmin sometimes blocks data-center addresses. Run the workflow on a self-hosted runner (`runs-on: self-hosted`) |
+| `Garmin refused the login with GARMIN_EMAIL and GARMIN_PASSWORD` | Check both secrets. If they are right, Garmin blocked the login from GitHub: create tokens locally (`login`, `export-tokens`) and store them in `GARMIN_TOKENS_JSON` |
+| `Your Garmin account uses two-step verification` | The workflow cannot answer the code. Create tokens locally and store them in `GARMIN_TOKENS_JSON`, then delete `GARMIN_PASSWORD` |
 | Push from the workflow fails with 403 | The data repository's workflow token is read-only: *Settings → Actions → General → Workflow permissions → Read and write permissions* |
 | Sleep times are missing for older days | They were added in an update. Run `sync --days 365 --refresh` once |
 
@@ -330,7 +359,10 @@ default applies instead.
   repository ignores `data/` and `debug/`.
 - The sync runs in the private repository, so its logs, the Actions cache with the Garmin tokens
   and the secrets never touch this public repository.
-- The Garmin and YAZIO passwords are never stored, neither locally nor on GitHub. Only tokens are.
+- Locally the Garmin and YAZIO passwords are never stored, only tokens. On GitHub they are only
+  stored if you add them as secrets for the browser setup; delete `GARMIN_PASSWORD` and
+  `YAZIO_PASSWORD` after the first successful run, and the workflow keeps working with the cached
+  tokens.
 - The dashboard token can only read the data repository. Revoke it on GitHub if a device is lost.
 - Anyone with write access to the data repository can change its workflow and read its secrets. Do not add collaborators.
 - Raw dumps from `dump-raw` contain health data. They stay in `debug/`, which is not committed.

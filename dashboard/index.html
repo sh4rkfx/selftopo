@@ -585,6 +585,26 @@ kbd { font-family: var(--font-mono); font-size: 11.5px; border: 1px solid var(--
 .token-help a { color: var(--s1); }
 .notice-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 
+/* Setup guide */
+.setup-names { display: grid; gap: 10px 16px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.setup-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.setup-steps > li {
+  display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 4px 12px; align-items: start;
+  padding: 12px 14px; border: 1px solid var(--ring); border-radius: 10px; background: var(--surface);
+}
+.setup-steps .num {
+  width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center;
+  font-size: 12px; font-weight: 600; background: var(--chip); color: var(--ink-2);
+}
+.setup-steps li.done .num { background: var(--pill-good); color: var(--good-ink); }
+.setup-steps li.done .step-text, .setup-steps li.done .step-actions { display: none; }
+.setup-steps .step-title { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; min-height: 26px; }
+.setup-steps h3 { margin: 0; font-size: 14px; }
+.setup-steps .step-body { display: grid; gap: 8px; min-width: 0; }
+.setup-steps .step-text { margin: 0; font-size: 13px; color: var(--ink-2); }
+.setup-steps .step-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.setup-steps .check { font-size: 12px; color: var(--ink-2); }
+
 /* Settings card */
 .settings-grid { display: grid; gap: 12px 16px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top: 4px; }
 .settings-grid .field input.bad { border-color: var(--crit); }
@@ -1423,6 +1443,28 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   </div>
 </dialog>
 
+<dialog class="help" id="setup" aria-labelledby="setup-title">
+  <div class="help-in">
+    <div class="help-head">
+      <h2 id="setup-title">Eigene Daten einrichten</h2>
+      <button class="ghost-btn" type="button" id="setup-close">Schließen</button>
+    </div>
+    <p class="sub">Rund 15 Minuten, alles im Browser. Deine Daten landen in einem privaten GitHub-Repository, das nur du lesen kannst. Ein Ablauf dort holt sie jeden Morgen von Garmin und Hevy, und diese Seite liest sie direkt von GitHub. Einen Server von selftopo gibt es nicht. Du brauchst Garmin Connect und für das Krafttraining Hevy Pro.</p>
+    <div class="setup-names">
+      <div class="field">
+        <label for="setup-owner">Dein GitHub-Benutzername</label>
+        <input id="setup-owner" type="text" autocomplete="username" autocapitalize="off" spellcheck="false" placeholder="anna">
+      </div>
+      <div class="field">
+        <label for="setup-repo">Name des Daten-Repositorys</label>
+        <input id="setup-repo" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="selftopo-data">
+      </div>
+    </div>
+    <ol class="setup-steps" id="setup-steps"></ol>
+    <p class="sub">Namen und Häkchen bleiben in diesem Browser gespeichert. Hilfe bei Fehlern steht im README unter Troubleshooting.</p>
+  </div>
+</dialog>
+
 <dialog class="help" id="connect" aria-labelledby="connect-title">
   <form class="help-in" id="connect-form" novalidate>
     <div class="help-head">
@@ -1444,7 +1486,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     <details class="token-help">
       <summary>So erstellst du den Token</summary>
       <ol>
-        <li>Auf GitHub <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">einen neuen Fine-grained Token anlegen</a>. Der Weg dorthin: Profilbild → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token.</li>
+        <li>Auf GitHub <a href="https://github.com/settings/personal-access-tokens/new?name=selftopo+dashboard&amp;description=Read-only+access+for+the+selftopo+dashboard&amp;expires_in=366&amp;contents=read" target="_blank" rel="noopener">einen neuen Fine-grained Token anlegen</a>. Der Weg dorthin: Profilbild → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token.</li>
         <li>Token name zum Beispiel „selftopo dashboard“, Expiration nach Wunsch, etwa ein Jahr.</li>
         <li>Repository access: <b>Only select repositories</b> und nur dein Daten-Repository auswählen.</li>
         <li>Permissions → Repository permissions → <b>Contents: Read-only</b>. Mehr braucht die Seite nicht; „Metadata: Read-only“ setzt GitHub automatisch dazu.</li>
@@ -1503,6 +1545,9 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     exercises: "hevy_exercises.csv", fitness: "garmin_fitness.csv", fitnessStatus: "garmin_fitness_status.json",
     bp: "garmin_blood_pressure.csv", settings: "settings.json",
   };
+  // Template for new data repositories ("Use this template"), and the code repository with the README
+  const TEMPLATE_REPO = "sh4rkfx/selftopo-data-template";
+  const CODE_REPO_URL = "https://github.com/sh4rkfx/selftopo";
   // Every data file the page reads, in the order they are fetched; JSON_KEYS are JSON, the rest CSV
   const FILE_KEYS = ["garmin", "activities", "hevy", "insights", "nutrition", "climbs", "climbSessions", "exercises", "fitness", "fitnessStatus", "bp", "settings"];
   const JSON_KEYS = ["insights", "fitnessStatus", "settings"];
@@ -3389,20 +3434,23 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     }
     if (state.source === "demo") {
       const connect = html("button", { type: "button", class: "ghost-btn", text: state.githubError ? "Erneut verbinden" : "Mit GitHub verbinden" });
-      connect.addEventListener("click", openConnect);
+      connect.addEventListener("click", () => openConnect());
+      const setup = html("button", { type: "button", class: "primary-btn", text: "Eigene Daten einrichten" });
+      setup.addEventListener("click", openSetup);
       parts.push(html("p", {}, state.githubError
         ? [html("strong", { text: "Beispieldaten. " }), `Die Verbindung zu deinem Daten-Repository hat nicht geklappt: ${state.githubError}`]
         : [html("strong", { text: "Beispieldaten. " }),
-          "Alle Werte sind erfunden. Verbinde die Seite mit deinem privaten Daten-Repository, lokal reicht ",
+          "Alle Werte sind erfunden. Richte deine eigenen Daten ein oder verbinde die Seite mit deinem Daten-Repository, lokal reicht ",
           html("code", { text: "python -m http.server" }), " im Repo."]));
-      parts.push(html("div", { class: "notice-actions" }, [connect]));
+      parts.push(html("div", { class: "notice-actions" }, state.githubError ? [connect, setup] : [setup, connect]));
     }
     if (fr.stale) {
       parts.push(html("p", {}, [
         html("strong", { text: `Die neuesten Garmin-Daten sind vom ${longDate(fr.t)}. ` }),
         "Prüfe auf GitHub unter Actions den Workflow „Sync Garmin and Hevy“. Steht dort ",
         html("code", { text: "No usable Garmin tokens" }), ", melde dich lokal mit ", html("code", { text: "python -m selftopo login" }),
-        " neu an und ersetze das Secret ", html("code", { text: "GARMIN_TOKENS_JSON" }), ".",
+        " neu an und ersetze das Secret ", html("code", { text: "GARMIN_TOKENS_JSON" }), ". Ohne Zwei-Faktor-Anmeldung reichen auch die Secrets ",
+        html("code", { text: "GARMIN_EMAIL" }), " und ", html("code", { text: "GARMIN_PASSWORD" }), " für einen Lauf.",
       ]));
     }
     const missing = state.sourceInfo.filter((s) => !s.found && s.key !== "insights" && !s.optional);
@@ -3631,7 +3679,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     } else if (state.source === "demo") {
       row.replaceChildren(
         html("span", { class: "sub", text: state.githubError ? "Die gespeicherte Verbindung funktioniert nicht mehr." : "Nicht mit einem Daten-Repository verbunden." }),
-        button(state.githubError ? "Erneut verbinden" : "Mit GitHub verbinden", openConnect),
+        button(state.githubError ? "Erneut verbinden" : "Mit GitHub verbinden", () => openConnect()),
+        button("Eigene Daten einrichten", openSetup),
       );
     } else {
       row.replaceChildren(html("span", { class: "sub", text: "Daten aus dem Ordner data/ neben dem Dashboard." }));
@@ -5270,7 +5319,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey) return;
       const t = e.target;
       if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
-      if ($("connect").open || ($("help").open && e.key !== "?")) return;
+      if ($("connect").open || $("setup").open || ($("help").open && e.key !== "?")) return;
       if (/^[1-9]$/.test(e.key) && Number(e.key) <= AREAS.length) { e.preventDefault(); goTo(AREAS[Number(e.key) - 1]); }
       else if (e.key === "0") { e.preventDefault(); goTo("top"); }
       else if (e.key === "z" || e.key === "Z") { if (state.model) { e.preventDefault(); cycleRange(e.shiftKey ? -1 : 1); } }
@@ -5287,9 +5336,9 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     el.textContent = text;
     el.classList.toggle("error", error);
   }
-  function openConnect() {
+  function openConnect(repo) {
     const cred = loadCredentials();
-    $("gh-repo").value = cred?.repo || state.dataRepo || "";
+    $("gh-repo").value = repo || cred?.repo || state.dataRepo || "";
     $("gh-token").value = "";
     $("gh-remember").checked = cred ? cred.remembered : true;
     setConnectStatus("");
@@ -5322,6 +5371,119 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       setConnectStatus("Verbunden. Deine Daten werden geladen …");
       location.reload();
     });
+  }
+
+  // ------------------------------------------------------------------ setup guide
+
+  const SETUP_KEY = "selftopo.setup";
+  function loadSetup() {
+    try { return JSON.parse(localStorage.getItem(SETUP_KEY) || "{}") || {}; } catch { return {}; }
+  }
+  function saveSetup(data) {
+    try { localStorage.setItem(SETUP_KEY, JSON.stringify(data)); } catch { /* storage unavailable */ }
+  }
+  const query = (params) => Object.entries(params).filter(([, v]) => v != null && v !== "")
+    .map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join("&");
+
+  // The steps with links built from the GitHub user and repository name typed into the dialog
+  function setupSteps(owner, repo) {
+    const full = owner ? `${owner}/${repo}` : null;
+    const repoUrl = (path) => (full ? `https://github.com/${full}${path}` : null);
+    const [tOwner, tName] = TEMPLATE_REPO.split("/");
+    const secrets = repoUrl("/settings/secrets/actions/new");
+    return [
+      { id: "account", title: "GitHub-Konto", text: "Kostenlos. Hast du schon eines, trag oben deinen Benutzernamen ein und hake den Schritt ab.",
+        actions: [["Konto anlegen", "https://github.com/signup"]] },
+      { id: "repo", title: "Daten-Repository anlegen",
+        text: "GitHub öffnet die Vorlage mit Name und Sichtbarkeit „Private“. Prüfe, dass Private gewählt ist, und klicke Create repository. Darin liegt schon der tägliche Ablauf.",
+        actions: [["Repository anlegen", `https://github.com/new?${query({ template_owner: tOwner, template_name: tName, owner: "@me", name: repo, visibility: "private", description: "Private health data for selftopo" })}`, true]] },
+      { id: "hevy", title: "Hevy verbinden",
+        text: "In Hevy (Pro) unter Settings → Developer einen API-Key erzeugen. Im Daten-Repository ein Secret anlegen: Name `HEVY_API_KEY`, Wert der Schlüssel.",
+        actions: [["Hevy-Schlüssel", "https://hevy.com/settings?developer"], ["Secret anlegen", secrets]] },
+      { id: "garmin", title: "Garmin verbinden",
+        text: "Ohne Zwei-Faktor-Anmeldung bei Garmin: zwei Secrets anlegen, `GARMIN_EMAIL` und `GARMIN_PASSWORD`. Nach dem ersten erfolgreichen Abruf `GARMIN_PASSWORD` wieder löschen; die Anmeldung bleibt dann im Cache von GitHub. Mit Zwei-Faktor-Anmeldung, oder wenn Garmin die Anmeldung von GitHub aus ablehnt, geht es einmalig mit Python auf deinem Rechner.",
+        actions: [["Secret anlegen", secrets], ["Anleitung mit Python", `${CODE_REPO_URL}#daily-sync-on-github`]] },
+      { id: "yazio", title: "YAZIO verbinden (optional)",
+        text: "Für die Ernährung: die Secrets `YAZIO_EMAIL` und `YAZIO_PASSWORD` anlegen und nach dem ersten Abruf `YAZIO_PASSWORD` wieder löschen. YAZIO hat keine offizielle Schnittstelle; das kann jederzeit aufhören zu funktionieren.",
+        actions: [["Secret anlegen", secrets]] },
+      { id: "run", title: "Ersten Abruf starten",
+        text: "Auf „Run workflow“ klicken, bei days `365` eintragen und starten. Der erste Lauf dauert 10 bis 15 Minuten. Danach läuft der Abruf jeden Morgen von selbst. Schlägt er fehl, steht der Grund im Log des Laufs.",
+        actions: [["Ablauf öffnen", repoUrl("/actions/workflows/sync.yml"), true]] },
+      { id: "token", title: "Lese-Token für diese Seite",
+        text: `Name, Ablaufdatum und „Contents: Read-only“ sind vorausgefüllt. Unter Repository access „Only select repositories“ und ${repo} wählen, das lässt sich nicht vorausfüllen. Dann Generate token und den Token kopieren.`,
+        actions: [["Token erstellen", `https://github.com/settings/personal-access-tokens/new?${query({ name: "selftopo dashboard", description: "Read-only access for the selftopo dashboard", target_name: owner, expires_in: 366, contents: "read" })}`]] },
+      { id: "connect", title: "Seite verbinden", text: "Repository und Token eintragen. Danach zeigt die Seite deine Daten, auf jedem Gerät, das du so verbindest.",
+        actions: [["Verbinden", () => { closeSetup(); openConnect(full || undefined); }, true]] },
+      { id: "settings", title: "Zeitzone speichern",
+        text: "Nach dem Verbinden unter Daten → Einstellungen auf „Auf GitHub anlegen“ tippen und dort speichern. Ohne diese Datei zählt der tägliche Abruf die Tage in UTC.",
+        actions: [["Zu den Einstellungen", () => { closeSetup(); goToCard("einstellungen"); }]] },
+    ];
+  }
+  function renderSetup() {
+    const saved = loadSetup();
+    const owner = $("setup-owner").value.trim().replace(/^@/, "");
+    const repo = $("setup-repo").value.trim() || "selftopo-data";
+    const done = new Set(saved.done || []);
+    if (state.source === "github") ["account", "repo", "hevy", "garmin", "run", "token", "connect"].forEach((id) => done.add(id));
+    if (state.settings?.found) done.add("settings");
+    const items = setupSteps(owner, repo).map((step, i) => {
+      const box = html("input", { type: "checkbox", id: `setup-done-${step.id}` });
+      box.checked = done.has(step.id);
+      box.addEventListener("change", () => {
+        const data = loadSetup();
+        const set = new Set(data.done || []);
+        if (box.checked) set.add(step.id); else set.delete(step.id);
+        saveSetup({ ...data, done: [...set] });
+        renderSetup();
+      });
+      const actions = step.actions.map(([label, target, primary]) => {
+        const cls = primary ? "primary-btn" : "ghost-btn";
+        if (typeof target === "function") {
+          const b = html("button", { type: "button", class: cls, text: label });
+          b.addEventListener("click", target);
+          return b;
+        }
+        return target
+          ? html("a", { class: cls, href: target, target: "_blank", rel: "noopener", text: label })
+          : html("span", { class: "sub", text: `${label}: zuerst oben den Benutzernamen eintragen.` });
+      });
+      return html("li", { class: done.has(step.id) ? "done" : "" }, [
+        html("span", { class: "num", "aria-hidden": "true", text: String(i + 1) }),
+        html("div", { class: "step-body" }, [
+          html("div", { class: "step-title" }, [
+            html("h3", { text: step.title }),
+            html("label", { class: "check", for: box.id }, [box, html("span", { text: "erledigt" })]),
+          ]),
+          html("p", { class: "step-text" }, withCode(step.text)),
+          html("div", { class: "step-actions" }, actions),
+        ]),
+      ]);
+    });
+    $("setup-steps").replaceChildren(...items);
+  }
+  function openSetup() {
+    const saved = loadSetup();
+    const [credOwner, credRepo] = (loadCredentials()?.repo || "").split("/");
+    $("setup-owner").value = saved.owner || credOwner || "";
+    $("setup-repo").value = saved.repo || credRepo || "selftopo-data";
+    renderSetup();
+    const dlg = $("setup");
+    if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", "");
+    (saved.owner ? $("setup-close") : $("setup-owner")).focus();
+  }
+  function closeSetup() {
+    const dlg = $("setup");
+    if (typeof dlg.close === "function") dlg.close(); else dlg.removeAttribute("open");
+  }
+  function setupGuide() {
+    $("setup-close").addEventListener("click", closeSetup);
+    $("setup").addEventListener("click", (e) => { if (e.target === $("setup")) closeSetup(); });
+    for (const id of ["setup-owner", "setup-repo"]) {
+      $(id).addEventListener("input", () => {
+        saveSetup({ ...loadSetup(), owner: $("setup-owner").value.trim().replace(/^@/, ""), repo: $("setup-repo").value.trim() });
+        renderSetup();
+      });
+    }
   }
 
   // ------------------------------------------------------------------ start
@@ -5423,6 +5585,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     } catch { /* storage unavailable */ }
     setupUi();
     setupConnect();
+    setupGuide();
     setupLiftPicker();
     setupSettings();
     setupApp();

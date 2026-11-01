@@ -72,8 +72,9 @@ jobs:
         run: pip install -r requirements.txt
 
       # Garmin may rotate the refresh token on every run, so the latest tokens are
-      # carried from run to run in the Actions cache. The GARMIN_TOKENS_JSON secret
-      # is only the fallback when no cached tokens exist or they stopped working.
+      # carried from run to run in the Actions cache. When no cached tokens exist or they stopped
+      # working, the GARMIN_TOKENS_JSON secret is used, else a login with GARMIN_EMAIL and
+      # GARMIN_PASSWORD (accounts without two-step verification).
       - name: Restore Garmin tokens
         uses: actions/cache/restore@v4
         with:
@@ -93,6 +94,10 @@ jobs:
       - name: Fetch data
         env:
           GARMIN_TOKENS_JSON: ${{ secrets.GARMIN_TOKENS_JSON }}
+          # Optional instead of GARMIN_TOKENS_JSON: log in from here. Delete GARMIN_PASSWORD after
+          # the first successful run; the tokens stay in the cache.
+          GARMIN_EMAIL: ${{ secrets.GARMIN_EMAIL }}
+          GARMIN_PASSWORD: ${{ secrets.GARMIN_PASSWORD }}
           YAZIO_TOKENS_JSON: ${{ secrets.YAZIO_TOKENS_JSON }}
           # Optional: log in from here. Set both for one run, then delete YAZIO_PASSWORD again.
           YAZIO_EMAIL: ${{ secrets.YAZIO_EMAIL }}
@@ -112,6 +117,8 @@ jobs:
         if: ${{ !cancelled() && inputs.garmin_dump_date != '' }}
         env:
           GARMIN_TOKENS_JSON: ${{ secrets.GARMIN_TOKENS_JSON }}
+          GARMIN_EMAIL: ${{ secrets.GARMIN_EMAIL }}
+          GARMIN_PASSWORD: ${{ secrets.GARMIN_PASSWORD }}
           DUMP_DATE: ${{ inputs.garmin_dump_date }}
         run: python -m selftopo dump-raw --date "$DUMP_DATE"
 
@@ -128,6 +135,8 @@ jobs:
         if: ${{ !cancelled() && inputs.fitness_dump != '' }}
         env:
           GARMIN_TOKENS_JSON: ${{ secrets.GARMIN_TOKENS_JSON }}
+          GARMIN_EMAIL: ${{ secrets.GARMIN_EMAIL }}
+          GARMIN_PASSWORD: ${{ secrets.GARMIN_PASSWORD }}
         run: python -m selftopo dump-fitness
 
       - name: Save Garmin tokens

@@ -3,6 +3,10 @@
 Personal data for [selftopo](https://github.com/sh4rkfx/selftopo): Garmin Connect daily
 metrics and activities, Hevy sets and the relationship analysis.
 
+> [!TIP]
+> Looking at the template? Click **Use this template → Create a new repository** and choose
+> **Private**, or let the dashboard's setup guide (*Eigene Daten einrichten*) prefill everything.
+
 > [!IMPORTANT]
 > Keep this repository **private**. Every file here is health data, and whatever is committed
 > stays in the Git history.
@@ -37,6 +41,7 @@ Under *Settings → Secrets and variables → Actions → Repository secrets*:
 | Secret | Value |
 |---|---|
 | `GARMIN_TOKENS_JSON` | Output of `python -m selftopo export-tokens` |
+| `GARMIN_EMAIL`, `GARMIN_PASSWORD` | Alternative without Python, for accounts without two-step verification: the workflow logs in itself and caches the tokens. Delete `GARMIN_PASSWORD` after the first successful run |
 | `HEVY_API_KEY` | Hevy API key from hevy.com/settings?developer |
 | `YAZIO_TOKENS_JSON` | Optional. Output of `python -m selftopo yazio-tokens`. Without it, YAZIO is skipped |
 | `YAZIO_EMAIL`, `YAZIO_PASSWORD` | Optional alternative: the workflow logs in itself. Delete `YAZIO_PASSWORD` after the first successful run |

@@ -67,7 +67,8 @@ def _login() -> Garmin:
 
     1. Token file in TOKEN_DIR: local runs, or restored from the CI cache.
     2. GARMIN_TOKENS_JSON: seed tokens from the repository secret (CI).
-    3. Email, password and MFA prompt: local runs only; writes a new token file.
+    3. CI: GARMIN_EMAIL and GARMIN_PASSWORD secrets, for accounts without two-step verification.
+    4. Local: email, password and MFA prompt; writes a new token file.
     """
     attempts = []
     if (config.TOKEN_DIR / "garmin_tokens.json").exists():
@@ -88,11 +89,44 @@ def _login() -> Garmin:
         return client
 
     if config.running_in_ci():
+        if os.environ.get("GARMIN_EMAIL") and os.environ.get("GARMIN_PASSWORD"):
+            return login_with_password_ci()
         raise config.SetupError(
-            "No usable Garmin tokens. Create new ones locally and update the "
-            "GARMIN_TOKENS_JSON secret (see README, 'Token renewal')."
+            "No usable Garmin tokens. Either add the GARMIN_EMAIL and GARMIN_PASSWORD secrets to this "
+            "repository (accounts without two-step verification), or create tokens locally with "
+            "`python -m selftopo login` and store the output of `export-tokens` in the "
+            "GARMIN_TOKENS_JSON secret (see README)."
         )
     return login_interactive()
+
+
+def login_with_password_ci() -> Garmin:
+    """Log in from CI with the GARMIN_EMAIL and GARMIN_PASSWORD secrets and store the tokens.
+
+    The workflow then keeps the tokens in its cache, so the password secret can be deleted. A
+    two-step verification code cannot be answered here.
+    """
+    client = Garmin(os.environ["GARMIN_EMAIL"], os.environ["GARMIN_PASSWORD"], return_on_mfa=True)
+    try:
+        needs_mfa, _ = client.login()
+    except GarminConnectTooManyRequestsError:
+        raise
+    except Exception as exc:
+        raise config.SetupError(
+            f"Garmin refused the login with GARMIN_EMAIL and GARMIN_PASSWORD ({exc}). Check both secrets. "
+            "Garmin sometimes blocks logins from GitHub's servers; then create tokens locally "
+            "(`python -m selftopo login`, `export-tokens`) and store them in the GARMIN_TOKENS_JSON secret."
+        ) from exc
+    if needs_mfa:
+        raise config.SetupError(
+            "Your Garmin account uses two-step verification, which the workflow cannot answer. Create "
+            "tokens locally with `python -m selftopo login` and store the output of `export-tokens` in "
+            "the GARMIN_TOKENS_JSON secret, then delete GARMIN_PASSWORD."
+        )
+    save_tokens(client)
+    log.info("Garmin: logged in with GARMIN_EMAIL and GARMIN_PASSWORD. The tokens are cached now; "
+             "delete the GARMIN_PASSWORD secret.")
+    return client
 
 
 def login_interactive() -> Garmin:
