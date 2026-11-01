@@ -5,7 +5,7 @@
 // untouched: the data files next to the dashboard, the GitHub API and the web fonts.
 // The page keeps its own snapshot of the last loaded data (see "offline snapshot").
 
-const VERSION = "15";
+const VERSION = "16";
 const CACHE = `selftopo-app-${VERSION}`;
 const APP_FILES = [
   "./",
@@ -35,14 +35,18 @@ self.addEventListener("fetch", (event) => {
   const scope = new URL(self.registration.scope);
   if (request.method !== "GET" || url.origin !== scope.origin || !url.pathname.startsWith(scope.pathname)) return;
 
+  // Opening the dashboard with any query (?lang=en) is one cached page; other pages such as
+  // tests.html keep their own entry, so they never replace the cached dashboard.
+  const dashboard = request.mode === "navigate" && (url.pathname === scope.pathname || url.pathname === `${scope.pathname}index.html`);
+  const key = dashboard ? "./" : request;
   event.respondWith((async () => {
     const cache = await caches.open(CACHE);
     try {
       const response = await fetch(request);
-      if (response.ok) await cache.put(request.mode === "navigate" ? "./" : request, response.clone());
+      if (response.ok) await cache.put(key, response.clone());
       return response;
     } catch {
-      const hit = await cache.match(request.mode === "navigate" ? "./" : request, { ignoreSearch: true });
+      const hit = await cache.match(key, { ignoreSearch: true });
       return hit || Response.error();
     }
   })());

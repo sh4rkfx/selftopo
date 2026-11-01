@@ -10,6 +10,9 @@ data/
 # Raw API dumps from `python -m selftopo dump-raw` contain health data
 debug/
 
+# Test report of the last local run (python -m http.server, then dashboard/tests.html)
+test-results/
+
 # Python
 .pytest_cache/
 .ruff_cache/

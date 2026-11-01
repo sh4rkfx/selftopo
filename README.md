@@ -1,5 +1,7 @@
 # selftopo
 
+[![Tests](https://github.com/sh4rkfx/selftopo/actions/workflows/test.yml/badge.svg)](https://sh4rkfx.github.io/selftopo/dashboard/tests.html)
+
 Your training, recovery, sleep, nutrition and body data in one place, with the relationships
 between them. selftopo pulls daily health metrics and activities from Garmin Connect, workout sets
 from Hevy and, optionally, food intake from YAZIO. It stores everything as plain CSV files in a
@@ -29,6 +31,7 @@ There is no selftopo server. Your data stays in your private repository and in y
 - [Troubleshooting](#troubleshooting)
 - [Privacy and security](#privacy-and-security)
 - [Versions and updates](#versions-and-updates)
+- [Tests](#tests)
 - [Contributing](#contributing)
 - [Disclaimer](#disclaimer) · [License](#license)
 
@@ -356,6 +359,40 @@ development state, or to an exact version such as `v1.0.0` to stay on it. Change
 The dashboard on GitHub Pages is built from `main` and stays compatible with the data of every
 1.x version. A future `v2` would only be used after you change `SELFTOPO_CODE_REF`.
 
+## Tests
+
+The [test page](https://sh4rkfx.github.io/selftopo/dashboard/tests.html) shows the latest test run
+of `main`: whether the code that handles your data currently works. It is linked in the dashboard's
+footer (*Tests*) and under gear icon → *App*.
+
+![Test results page](docs/images/tests.png)
+
+| Part | Shows |
+|---|---|
+| Header | Commit, time, link to the workflow run, Python and pytest version |
+| Traffic light | Overall result with the rule that decided it, passed, failed (of them critical), not run, duration, and links to every test that did not pass |
+| History | The last 30 runs on `main` as colored squares, each linked to its run |
+| Since the last run | Newly failed, green again, new and removed tests |
+| Notable | Tests red for several runs (since which commit), flaky tests (4 or more status changes in the last 10 runs), tests more than twice as slow as their median |
+| Slowest tests | The five longest tests |
+| Tests | Grouped by file; filter by status, critical only, search, sort by file, problems or duration. Each test opens to *what it checks*, its inputs, every check with expression, expected and actual value, checks not reached after a failure, the full report, a link to the source line and a command to run it locally |
+
+| Light | Rule |
+|---|---|
+| Green | All tests passed |
+| Yellow | Non-critical tests failed, or tests were skipped or could not run (error in a fixture, a file that cannot be imported, or a run without results), while failed and not runnable tests together stay below 10 % |
+| Red | A critical test failed, or 10 % or more of the tests failed or could not run |
+
+Per test: green passed, red failed, yellow skipped or not runnable. **Critical** tests guard what
+must never break: values written to the CSV files, stored data that must not be lost, and the
+Garmin and YAZIO logins (including that passwords are not stored). A failure there turns the
+whole run red. Tests of the analysis and of the dashboard's translations are not critical.
+
+The workflow *Tests* writes the results to the branch `test-results` (`results.json` for the latest
+run, `history.json` for the last 30), even when tests fail. Locally, `pytest` writes
+`test-results/results.json`; with `python -m http.server 8000` the page at
+<http://localhost:8000/dashboard/tests.html> shows that local run.
+
 ## Contributing
 
 Contributions are welcome: bug reports, field mappings for other Garmin devices, new cards,
@@ -365,10 +402,10 @@ privately as described in [SECURITY.md](SECURITY.md).
 
 ```
 selftopo/       Python package: sync per source, analysis, settings
-dashboard/      index.html (the whole dashboard with the English dictionary), sw.js, manifest, icons
+dashboard/      index.html (the whole dashboard with the English dictionary), tests.html (test results), sw.js, manifest, icons
 docs/           analysis method, data reference, score design notes, images
 templates/      contents of the data repository template
-tests/          pytest suite
+tests/          pytest suite and report_plugin.py, which records the runs for dashboard/tests.html
 ```
 
 ## Disclaimer

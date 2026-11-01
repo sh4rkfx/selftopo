@@ -1588,6 +1588,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
         <div class="picker-actions">
           <a class="ghost-btn" href="https://github.com/sh4rkfx/selftopo" target="_blank" rel="noopener">Projekt auf GitHub</a>
           <a class="ghost-btn" href="https://github.com/sh4rkfx/selftopo/issues" target="_blank" rel="noopener">Fehler melden</a>
+          <a class="ghost-btn" href="tests.html">Testergebnisse</a>
         </div>
       </div>
     </section>
@@ -2612,6 +2613,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Installieren": "Install",
 "Hilfe und Diagramme lesen": "Help and reading the charts",
 "Über selftopo": "About selftopo",
+"Testergebnisse": "Test results",
+"Tests": "Tests",
 "Open Source unter MIT-Lizenz. Deine Daten liegen nur in deinem privaten Repository und in diesem Browser; einen Server von selftopo gibt es nicht.": "Open source under the MIT license. Your data is only in your private repository and in this browser; there is no selftopo server.",
 "Kein Medizinprodukt: Die Werte sind Schätzungen von Verbrauchergeräten und Apps. Garmin Connect und YAZIO werden über inoffizielle Schnittstellen gelesen. selftopo steht in keiner Verbindung zu Garmin, Hevy oder YAZIO.": "Not a medical device: the values are estimates from consumer devices and apps. Garmin Connect and YAZIO are read through unofficial interfaces. selftopo is not affiliated with Garmin, Hevy or YAZIO.",
 "Projekt auf GitHub": "Project on GitHub",
@@ -4771,7 +4774,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     rawBtn.addEventListener("click", () => goTo("daten"));
     const prefsBtn = html("button", { type: "button", class: "link-btn", text: T("Einstellungen") });
     prefsBtn.addEventListener("click", () => openPrefs("general"));
-    $("footer").replaceChildren(html("span", { text: T("{0} · {1} bis {2}", [sourceText, ddmm(x0), dmy(x1)]) }), rawBtn, prefsBtn, helpBtn);
+    const testsLink = html("a", { class: "link-btn", href: "tests.html", text: T("Tests") });
+    $("footer").replaceChildren(html("span", { text: T("{0} · {1} bis {2}", [sourceText, ddmm(x0), dmy(x1)]) }), rawBtn, prefsBtn, helpBtn, testsLink);
     for (const area of AREAS) syncTabs(area);
   }
 

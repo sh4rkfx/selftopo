@@ -1,6 +1,9 @@
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+# Records passing asserts for the test report (tests/report_plugin.py, dashboard/tests.html)
+enable_assertion_pass_hook = true
+report_json = "test-results/results.json"
 
 [tool.ruff]
 line-length = 120

@@ -1,9 +1,14 @@
 name: Tests
 
+# Lint and tests on every push and pull request. On main, the test report also goes to the branch
+# test-results, which dashboard/tests.html reads: results.json (this run) and history.json (the
+# last 30 runs). The report is published even when tests fail, so the page shows what broke.
+
 on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -26,5 +31,66 @@ jobs:
       - name: Lint
         run: ruff check .
 
+      # Runs even if lint failed. A file that cannot be imported does not stop the other files;
+      # its tests show up as not executable in the report.
       - name: Test
-        run: pytest
+        if: ${{ !cancelled() }}
+        run: pytest --continue-on-collection-errors
+
+      - name: Keep the test report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test-results/results.json
+          if-no-files-found: warn
+          retention-days: 14
+
+  # Separate job: only this one can write, and it runs no project code except the merge script.
+  publish:
+    needs: test
+    if: ${{ !cancelled() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    concurrency:
+      group: test-results
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pytest for the merge script
+        run: pip install "pytest>=8"
+
+      - name: Get the test report
+        continue-on-error: true  # no report: the merge script marks the tests as not run
+        uses: actions/download-artifact@v4
+        with:
+          name: test-results
+          path: new-results
+
+      - name: Check out the branch test-results
+        run: |
+          if git fetch --depth=1 origin test-results; then
+            git worktree add results FETCH_HEAD
+            git -C results switch -c test-results
+          else
+            git worktree add --detach results
+            git -C results switch --orphan test-results
+          fi
+
+      - name: Merge this run into results.json and history.json
+        run: python tests/report_plugin.py publish new-results/results.json results
+
+      - name: Push
+        working-directory: results
+        run: |
+          git add results.json history.json
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -q -m "Test results for ${GITHUB_SHA::7}"
+          git push origin test-results

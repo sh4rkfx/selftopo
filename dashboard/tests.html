@@ -1,0 +1,1029 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#e8eae4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0b0a" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<title>selftopo · Tests</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Test report of the selftopo code: one run of the test suite, read from results.json and
+   history.json on the branch test-results (written by the Tests workflow), or from
+   ../test-results/ after a local pytest run. Same design tokens as the dashboard. */
+:root {
+  --page: #e8eae4; --area: #f4f5f1; --surface: #fdfdfb; --bar: rgba(232, 234, 228, 0.88);
+  --ink: #0b0b0b; --ink-2: #4f4e4a; --muted: #74736c; --grid: #e4e3dc; --axis: #c0bfb4;
+  --ring: rgba(11, 11, 11, 0.09); --ring-strong: rgba(11, 11, 11, 0.24);
+  --s1: #2a78d6; --other: #a9a79f;
+  --good: #0ca30c; --warn: #fab219; --crit: #d03b3b;
+  --pill-good: rgba(12, 163, 12, 0.12); --pill-warn: rgba(250, 178, 25, 0.22); --pill-crit: rgba(208, 59, 59, 0.13);
+  --note: #fff4d6; --chip: #eceae3;
+  --good-ink: #17722f; --warn-ink: #805300; --crit-ink: #a8231b;
+  --font-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --page: #0a0b0a; --area: #131412; --surface: #1c1d1b; --bar: rgba(10, 11, 10, 0.86);
+    --ink: #f0efec; --ink-2: #c3c2b7; --muted: #9a9890; --grid: #2c2c2a; --axis: #45453f;
+    --ring: rgba(255, 255, 255, 0.09); --ring-strong: rgba(255, 255, 255, 0.24);
+    --s1: #3987e5; --other: #66655f;
+    --pill-good: rgba(12, 163, 12, 0.20); --pill-warn: rgba(250, 178, 25, 0.18); --pill-crit: rgba(208, 59, 59, 0.24);
+    --note: #2a2414; --chip: #2a2a27;
+    --good-ink: #74d37f; --warn-ink: #f2c35b; --crit-ink: #f29086;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --page: #0a0b0a; --area: #131412; --surface: #1c1d1b; --bar: rgba(10, 11, 10, 0.86);
+  --ink: #f0efec; --ink-2: #c3c2b7; --muted: #9a9890; --grid: #2c2c2a; --axis: #45453f;
+  --ring: rgba(255, 255, 255, 0.09); --ring-strong: rgba(255, 255, 255, 0.24);
+  --s1: #3987e5; --other: #66655f;
+  --pill-good: rgba(12, 163, 12, 0.20); --pill-warn: rgba(250, 178, 25, 0.18); --pill-crit: rgba(208, 59, 59, 0.24);
+  --note: #2a2414; --chip: #2a2a27;
+  --good-ink: #74d37f; --warn-ink: #f2c35b; --crit-ink: #f29086;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { scroll-padding-top: 72px; }
+body { margin: 0; background: var(--page); color: var(--ink); font-family: var(--font-sans); font-size: 14px; line-height: 1.45; }
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+h1 { font-size: 26px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.2; }
+h2 { font-size: 19px; font-weight: 600; letter-spacing: -0.005em; line-height: 1.25; }
+h3 { font-size: 14px; font-weight: 600; }
+p { margin: 0; }
+a { color: inherit; }
+button, input, select { font: inherit; color: inherit; }
+code, .mono { font-family: var(--font-mono); font-size: 12px; }
+:focus-visible { outline: 2px solid var(--s1); outline-offset: 2px; border-radius: 4px; }
+.eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.sub { color: var(--ink-2); font-size: 13px; }
+.muted { color: var(--muted); }
+
+.bar { position: sticky; top: 0; z-index: 5; background: var(--bar); border-bottom: 1px solid var(--ring);
+  -webkit-backdrop-filter: saturate(1.3) blur(10px); backdrop-filter: saturate(1.3) blur(10px);
+  padding-top: env(safe-area-inset-top, 0px); }
+.bar-in { max-width: 1240px; margin: 0 auto; padding: 8px max(16px, env(safe-area-inset-right, 0px)) 8px max(16px, env(safe-area-inset-left, 0px));
+  display: flex; align-items: center; gap: 12px; }
+.brand { font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; text-decoration: none; padding: 6px 4px; display: inline-flex; gap: 6px; align-items: center; }
+.bar .spacer { flex: 1; }
+.seg { display: inline-flex; background: var(--surface); border: 1px solid var(--ring); border-radius: 8px; padding: 3px; gap: 2px; }
+.seg button { font-size: 12px; color: var(--ink-2); background: transparent; border: 0; padding: 4px 9px; border-radius: 6px; cursor: pointer; white-space: nowrap; }
+.seg button:hover { background: var(--grid); color: var(--ink); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); font-weight: 500; }
+
+.wrap { max-width: 1240px; margin: 0 auto; padding: 22px max(16px, env(safe-area-inset-right, 0px)) calc(56px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.top { display: grid; gap: 6px; }
+.status-line { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; color: var(--ink-2); font-size: 13px; }
+.status-line a { text-underline-offset: 2px; }
+.card { background: var(--surface); border: 1px solid var(--ring); border-radius: 12px; padding: 14px 16px; display: grid; gap: 10px; min-width: 0; }
+.notice { background: var(--note); border: 1px solid var(--ring); border-radius: 10px; padding: 10px 14px; font-size: 13px; color: var(--ink-2); display: grid; gap: 4px; }
+.notice strong { color: var(--ink); }
+
+/* Overall traffic light */
+.hero { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 900px) { .hero { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: start; } }
+.verdict { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 14px; align-items: center; }
+.lamp { grid-row: span 2; width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 24px; font-weight: 700;
+  box-shadow: inset 0 0 0 4px rgba(255, 255, 255, 0.25); }
+.lamp.green { background: var(--good); } .lamp.yellow { background: var(--warn); color: #3a2a00; } .lamp.red { background: var(--crit); }
+.verdict h2 { font-size: 22px; }
+.verdict .sub { grid-column: 2; }
+.lights { display: inline-flex; gap: 5px; padding: 5px 7px; background: #1b1c1a; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1); border-radius: 999px; vertical-align: middle; }
+.lights i { width: 10px; height: 10px; border-radius: 50%; background: rgba(255, 255, 255, 0.16); }
+.lights i.on.red { background: var(--crit); } .lights i.on.yellow { background: var(--warn); } .lights i.on.green { background: var(--good); }
+.counts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid var(--ring); border-radius: 10px; overflow: hidden; background: var(--surface); }
+@media (min-width: 560px) { .counts { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.count { padding: 10px 12px; display: grid; gap: 1px; border-right: 1px solid var(--ring); border-bottom: 1px solid var(--ring); margin: 0 -1px -1px 0; min-width: 0; }
+.count .label { font-size: 12px; color: var(--ink-2); display: flex; align-items: center; gap: 6px; }
+.count .value { font-size: 24px; font-weight: 600; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.count .value small { font-size: 13px; font-weight: 400; color: var(--ink-2); margin-left: 2px; }
+.count .note { font-size: 12px; color: var(--muted); }
+.stack { display: flex; height: 8px; border-radius: 99px; overflow: hidden; background: var(--grid); }
+.stack span { display: block; height: 100%; }
+.stack .green { background: var(--good); } .stack .red { background: var(--crit); } .stack .yellow { background: var(--warn); }
+.failing-list { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.failing-list a { text-underline-offset: 2px; }
+
+/* Status markers: color plus symbol, never color alone */
+.dot { width: 18px; height: 18px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 11px; font-weight: 700; color: #fff; line-height: 1; flex: none; }
+.dot.green { background: var(--good); } .dot.red { background: var(--crit); } .dot.yellow { background: var(--warn); color: #3a2a00; } .dot.gray { background: var(--other); }
+.pill { display: inline-flex; align-items: center; gap: 5px; padding: 1px 8px 1px 3px; border-radius: 999px; font-size: 12px; font-weight: 500; white-space: nowrap; }
+.pill .dot { width: 15px; height: 15px; font-size: 10px; }
+.pill.green { background: var(--pill-good); color: var(--good-ink); } .pill.red { background: var(--pill-crit); color: var(--crit-ink); }
+.pill.yellow { background: var(--pill-warn); color: var(--warn-ink); } .pill.gray { background: var(--grid); color: var(--ink-2); }
+.badge { display: inline-flex; align-items: center; padding: 0 7px; border-radius: 999px; font-size: 11px; font-weight: 500; border: 1px solid var(--ring-strong); color: var(--ink-2); white-space: nowrap; line-height: 18px; }
+.badge.crit { border-color: transparent; background: var(--ink); color: var(--surface); }
+.badge.new { border-color: transparent; background: var(--chip); }
+
+/* History */
+.runs { display: flex; gap: 3px; align-items: flex-end; flex-wrap: wrap; }
+.runs a, .runs span { width: 16px; height: 22px; border-radius: 4px; display: block; text-decoration: none; }
+.runs .green { background: var(--good); } .runs .yellow { background: var(--warn); } .runs .red { background: var(--crit); } .runs .gray { background: var(--other); }
+.runs .current { outline: 2px solid var(--ink); outline-offset: 1px; }
+.minihist { display: inline-flex; gap: 2px; align-items: center; }
+.minihist i { width: 5px; height: 12px; border-radius: 1.5px; background: var(--grid); }
+.minihist i.green { background: var(--good); } .minihist i.yellow { background: var(--warn); } .minihist i.red { background: var(--crit); }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--ink-2); }
+
+/* Notes: new, removed, flaky, slower, slowest */
+.notes { display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 900px) { .notes { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1180px) { .notes { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.note-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.note-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; align-items: baseline; font-size: 13px; }
+.note-list .meta { font-size: 12px; color: var(--muted); grid-column: 1 / -1; }
+.bar-row { display: grid; grid-template-columns: minmax(0, 1fr) 64px; gap: 2px 10px; align-items: center; font-size: 13px; }
+.bar-row .track { grid-column: 1 / -1; height: 6px; border-radius: 99px; background: var(--grid); overflow: hidden; }
+.bar-row .track span { display: block; height: 100%; background: var(--s1); border-radius: 99px; }
+.bar-row .num { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+.bar-row a { text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bar-row a:hover { text-decoration: underline; }
+
+/* Toolbar */
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; position: sticky; top: calc(49px + env(safe-area-inset-top, 0px)); z-index: 4;
+  background: var(--page); padding: 8px 0; margin: -8px 0; }
+.toolbar .search { flex: 1 1 200px; min-width: 0; display: flex; }
+.toolbar .seg { max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+@media (max-width: 640px) { .toolbar { position: static; margin: 0; padding: 0; } }
+.toolbar input[type="search"] { width: 100%; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--ring-strong); background: var(--surface); font-size: 13px; }
+.toolbar label.check { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-2); cursor: pointer; }
+.toolbar select { padding: 5px 8px; border-radius: 8px; border: 1px solid var(--ring-strong); background: var(--surface); font-size: 13px; }
+.ghost-btn { font-size: 12.5px; color: var(--ink-2); background: transparent; border: 1px solid var(--ring-strong); border-radius: 7px; padding: 5px 10px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+.ghost-btn:hover { color: var(--ink); border-color: var(--ink); }
+
+/* Groups and tests */
+.group { background: var(--area); border: 1px solid var(--ring); border-radius: 14px; padding: 12px; display: grid; gap: 8px; }
+.group-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 2px 10px; align-items: center; padding: 2px 4px; }
+.group-head .sub { grid-column: 2 / -1; }
+.group-head .file { grid-column: 2 / -1; font-family: var(--font-mono); font-size: 11.5px; color: var(--muted); }
+.group-head .tally { font-size: 12.5px; color: var(--ink-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tests { display: grid; gap: 6px; }
+details.test { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; min-width: 0; }
+details.test.red { border-color: color-mix(in srgb, var(--crit) 45%, transparent); }
+details.test[open] { box-shadow: 0 1px 0 var(--ring); }
+details.test > summary { list-style: none; cursor: pointer; padding: 9px 12px; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 2px 10px; align-items: center; border-radius: 10px; }
+details.test > summary::-webkit-details-marker { display: none; }
+details.test > summary:hover { background: var(--area); }
+.t-title { font-weight: 500; min-width: 0; overflow-wrap: anywhere; display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; }
+.t-meta { display: flex; gap: 10px; align-items: center; font-size: 12px; color: var(--ink-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.t-sub { grid-column: 2 / -1; font-size: 12.5px; color: var(--ink-2); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.t-sub.err { color: var(--crit-ink); white-space: normal; overflow-wrap: anywhere; }
+.chev { width: 16px; height: 16px; transition: transform 0.15s ease; color: var(--muted); }
+details.test[open] .chev { transform: rotate(180deg); }
+@media (max-width: 640px) {
+  details.test > summary { grid-template-columns: auto minmax(0, 1fr); }
+  .t-meta { grid-column: 2; }
+  .t-meta .minihist { display: none; }
+}
+.t-body { padding: 4px 14px 14px 40px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; min-width: 0; }
+.t-body > * { min-width: 0; }
+@media (max-width: 640px) { .t-body { padding-left: 14px; } }
+.t-body h4 { margin: 0 0 4px; font-size: 11.5px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); font-family: var(--font-mono); }
+.t-doc p + p { margin-top: 6px; }
+.t-doc { max-width: 80ch; }
+pre.val { margin: 0; font-family: var(--font-mono); font-size: 12px; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 11em; overflow: auto;
+  background: var(--area); border: 1px solid var(--ring); border-radius: 6px; padding: 5px 8px; }
+.inputs { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 12px; margin: 0; align-items: start; }
+.inputs dt { font-family: var(--font-mono); font-size: 12px; color: var(--ink-2); padding-top: 5px; }
+.inputs dd { margin: 0; min-width: 0; }
+@media (max-width: 640px) { .inputs { grid-template-columns: minmax(0, 1fr); gap: 2px; } .inputs dd { margin-bottom: 6px; } }
+
+.checks { display: grid; gap: 0; border: 1px solid var(--ring); border-radius: 8px; overflow: hidden; }
+.check { display: grid; grid-template-columns: 22px minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 1fr); gap: 4px 12px; padding: 8px 10px; border-top: 1px solid var(--ring); align-items: start; min-width: 0; }
+.check:first-child { border-top: 0; }
+.check.head { background: var(--area); font-size: 11.5px; color: var(--muted); padding-block: 5px; }
+.check.bad { background: var(--pill-crit); }
+.check.skip { color: var(--muted); }
+.check .expr code { white-space: pre-wrap; overflow-wrap: anywhere; display: block; }
+.check .line { font-size: 11.5px; color: var(--muted); text-decoration: none; }
+.check .line:hover { text-decoration: underline; }
+.check .detail { font-size: 11.5px; color: var(--muted); font-family: var(--font-mono); white-space: pre-wrap; overflow-wrap: anywhere; margin-top: 4px; }
+.check .cell-label { display: none; font-size: 11px; color: var(--muted); }
+@media (max-width: 760px) {
+  .check { grid-template-columns: 22px minmax(0, 1fr); }
+  .check.head { display: none; }
+  .check > .exp, .check > .act { grid-column: 2; }
+  .check .cell-label { display: block; }
+}
+.message { background: var(--pill-crit); border-radius: 8px; padding: 8px 10px; font-size: 13px; white-space: pre-wrap; overflow-wrap: anywhere; font-family: var(--font-mono); font-size: 12px; max-height: 16em; overflow: auto; }
+.message.yellow { background: var(--pill-warn); }
+details.trace > summary { cursor: pointer; font-size: 12.5px; color: var(--ink-2); }
+details.trace pre { margin: 6px 0 0; font-family: var(--font-mono); font-size: 11.5px; white-space: pre; overflow: auto; max-height: 28em;
+  background: var(--area); border: 1px solid var(--ring); border-radius: 6px; padding: 8px 10px; }
+.facts { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 12.5px; color: var(--ink-2); align-items: center; }
+.facts a { text-underline-offset: 2px; }
+.empty { padding: 28px 16px; text-align: center; color: var(--ink-2); }
+.info-table { border-collapse: collapse; font-size: 12.5px; max-width: 80ch; }
+.info-table th, .info-table td { text-align: left; vertical-align: top; padding: 6px 12px 6px 0; border-bottom: 1px solid var(--ring); }
+.info-table th { font-size: 11.5px; color: var(--muted); font-weight: 500; }
+.info-table td:first-child { white-space: nowrap; }
+details.rules > summary { cursor: pointer; font-size: 12.5px; color: var(--ink-2); width: max-content; }
+details.rules[open] > summary { margin-bottom: 8px; }
+footer { color: var(--muted); font-size: 12px; display: flex; flex-wrap: wrap; gap: 6px 14px; }
+footer a { color: var(--ink-2); text-underline-offset: 2px; }
+.flash { animation: flash 1.6s ease-out 1; }
+@keyframes flash { 0% { box-shadow: 0 0 0 3px var(--s1); } 100% { box-shadow: 0 0 0 3px transparent; } }
+@media (prefers-reduced-motion: reduce) { .flash { animation: none; } .chev { transition: none; } }
+</style>
+</head>
+<body>
+<header class="bar"><div class="bar-in">
+  <a class="brand" href="./" id="back"></a>
+  <span class="spacer"></span>
+  <div class="seg" role="group" id="lang-switch">
+    <button type="button" data-lang="de">DE</button>
+    <button type="button" data-lang="en">EN</button>
+  </div>
+</div></header>
+<main class="wrap" id="main" aria-busy="true">
+  <p class="sub" id="loading"></p>
+</main>
+
+<script>
+"use strict";
+(() => {
+  // ------------------------------------------------------------------ language
+  // German is the source text, as in the dashboard; EN holds the English texts.
+  const LANG_KEY = "selftopo.lang";
+  const params = new URLSearchParams(location.search);
+  function pickLanguage() {
+    const asked = params.get("lang");
+    if (asked === "de" || asked === "en") return asked;
+    try {
+      const saved = localStorage.getItem(LANG_KEY);
+      if (saved === "de" || saved === "en") return saved;
+    } catch { /* storage unavailable */ }
+    const first = (navigator.languages && navigator.languages[0]) || navigator.language || "de";
+    return /^de\b/i.test(first) ? "de" : "en";
+  }
+  const LANG = pickLanguage();
+  const LOCALE = LANG === "de" ? "de-DE" : "en-GB";
+  const DATE_LOCALE = LANG === "de" ? "de-AT" : "en-GB";
+  document.documentElement.lang = LANG;
+  const EN = {
+    "Dashboard": "Dashboard",
+    "Testergebnisse": "Test results",
+    "Tests der selftopo-Software": "Tests of the selftopo software",
+    "Lade Testergebnisse …": "Loading test results …",
+    "Noch keine Testergebnisse": "No test results yet",
+    "Der Workflow Tests veröffentlicht sie nach jedem Push auf main im Branch test-results. Lokal: pytest ausführen, dann python -m http.server 8000 im Repository und diese Seite unter localhost:8000/dashboard/tests.html öffnen.":
+      "The Tests workflow publishes them to the branch test-results after every push to main. Locally: run pytest, then python -m http.server 8000 in the repository and open this page at localhost:8000/dashboard/tests.html.",
+    "Gesucht in: {0}": "Looked in: {0}",
+    "Commit {0}": "Commit {0}",
+    "Lauf auf GitHub": "Run on GitHub",
+    "lokaler Lauf": "local run",
+    "lokaler Lauf mit nicht committeten Änderungen": "local run with uncommitted changes",
+    "Python {0} · pytest {1}": "Python {0} · pytest {1}",
+    "Alles grün": "All green",
+    "Unkritische Fehler": "Non-critical failures",
+    "Nicht alles geprüft": "Not everything checked",
+    "Kritischer Fehler": "Critical failure",
+    "Zu viele Fehler": "Too many failures",
+    "Keine Tests": "No tests",
+    "Testlauf ohne Ergebnis": "Test run without results",
+    "Alle {0} Tests bestanden.": "All {0} tests passed.",
+    "{0} von {1} Tests bestanden.": "{0} of {1} tests passed.",
+    "{0} kritische Tests fehlgeschlagen: gespeicherte Werte oder Logins können betroffen sein.": "{0} critical tests failed: stored values or logins may be affected.",
+    "Ein kritischer Test ist fehlgeschlagen: gespeicherte Werte oder Logins können betroffen sein.": "A critical test failed: stored values or logins may be affected.",
+    "{0} % der Tests sind fehlgeschlagen oder nicht ausführbar, die Grenze ist {1} %.": "{0} % of the tests failed or could not run; the limit is {1} %.",
+    "Nur unkritische Tests sind fehlgeschlagen; Daten und Logins sind nicht betroffen.": "Only non-critical tests failed; data and logins are not affected.",
+    "{0} Tests konnten nicht ausgeführt werden.": "{0} tests could not run.",
+    "{0} Tests wurden übersprungen.": "{0} tests were skipped.",
+    "Ein Test konnte nicht ausgeführt werden.": "One test could not run.",
+    "Ein Test wurde übersprungen.": "One test was skipped.",
+    "Neu fehlgeschlagen in diesem Lauf": "Newly failed in this run",
+    "wackelig": "flaky",
+    "Der Lauf enthält keine Tests.": "The run contains no tests.",
+    "Der Testlauf hat keine Ergebnisse geliefert. Gezeigt werden die Tests des vorigen Laufs, als nicht ausgeführt.": "The test run produced no results. Shown are the tests of the previous run, marked as not run.",
+    "Bestanden": "Passed",
+    "Fehlgeschlagen": "Failed",
+    "Nicht ausgeführt": "Not run",
+    "Laufzeit": "Duration",
+    "davon {0} kritisch": "{0} of them critical",
+    "keiner kritisch": "none critical",
+    "{0} übersprungen · {1} nicht ausführbar": "{0} skipped · {1} could not run",
+    "Summe der Tests · Lauf {0}": "sum of the tests · run {0}",
+    "Ampel: {0}": "Traffic light: {0}",
+    "grün": "green", "gelb": "yellow", "rot": "red",
+    "Wie die Ampel entscheidet": "How the traffic light decides",
+    "Gesamt": "Overall",
+    "Regel": "Rule",
+    "Grün": "Green", "Gelb": "Yellow", "Rot": "Red",
+    "Alle Tests bestanden.": "All tests passed.",
+    "Unkritische Tests sind fehlgeschlagen, Tests wurden übersprungen oder konnten nicht ausgeführt werden; fehlgeschlagene und nicht ausführbare zusammen unter {0} %.":
+      "Non-critical tests failed, or tests were skipped or could not run; failed and not runnable tests together below {0} %.",
+    "Ein kritischer Test ist fehlgeschlagen, oder {0} % oder mehr der Tests sind fehlgeschlagen oder nicht ausführbar.":
+      "A critical test failed, or {0} % or more of the tests failed or could not run.",
+    "Je Test": "Per test",
+    "Grün bestanden, rot fehlgeschlagen, gelb übersprungen oder nicht ausführbar (Fehler beim Vorbereiten, Aufräumen oder Laden der Datei, oder der Lauf lieferte nichts).":
+      "Green passed, red failed, yellow skipped or could not run (error while preparing, cleaning up or loading the file, or the run delivered nothing).",
+    "Kritisch": "Critical",
+    "Ein Fehler kann falsche Werte speichern, gespeicherte Daten verlieren oder einen Login brechen oder offenlegen. Markiert im Code mit @pytest.mark.critical.":
+      "A failure can store wrong values, lose stored data, or break or expose a login. Marked in the code with @pytest.mark.critical.",
+    "Fehlgeschlagen und nicht ausgeführt": "Failed and not run",
+    "Verlauf": "History",
+    "Letzte {0} Läufe auf main: {1} grün, {2} gelb, {3} rot.": "Last {0} runs on main: {1} green, {2} yellow, {3} red.",
+    "Noch kein Verlauf: er entsteht mit den Läufen auf main.": "No history yet: it builds up with the runs on main.",
+    "{0} · Commit {1} · {2} von {3} bestanden": "{0} · commit {1} · {2} of {3} passed",
+    "dieser Lauf": "this run",
+    "Seit dem letzten Lauf": "Since the last run",
+    "Neu": "New",
+    "Entfernt": "Removed",
+    "Wieder grün": "Green again",
+    "Neu fehlgeschlagen": "Newly failed",
+    "Keine Änderungen an der Testliste und keine Statuswechsel.": "No changes to the list of tests and no status changes.",
+    "Langsamste Tests": "Slowest tests",
+    "Auffällig": "Notable",
+    "Wackelig: {0} Statuswechsel in den letzten {1} Läufen": "Flaky: {0} status changes in the last {1} runs",
+    "Langsamer: {0} statt im Mittel {1}": "Slower: {0} instead of {1} on median",
+    "Rot seit {0} Läufen, zuerst bei Commit {1}": "Red for {0} runs, first at commit {1}",
+    "Nichts auffällig: keine wackeligen oder deutlich langsameren Tests.": "Nothing notable: no flaky or clearly slower tests.",
+    "Alle": "All",
+    "Nur kritische": "Critical only",
+    "Suchen: Name, Beschreibung, Datei": "Search: name, description, file",
+    "Nach Datei": "By file",
+    "Langsamste zuerst": "Slowest first",
+    "Probleme zuerst": "Problems first",
+    "Sortierung": "Sort order",
+    "Alle aufklappen": "Expand all",
+    "Alle zuklappen": "Collapse all",
+    "Kein Test passt zum Filter.": "No test matches the filter.",
+    "{0}/{1} bestanden": "{0}/{1} passed",
+    "kritisch": "critical",
+    "neu": "new",
+    "Übersprungen": "Skipped",
+    "Nicht ausführbar": "Could not run",
+    "Erwarteter Fehler": "Expected failure",
+    "Unerwartet bestanden": "Unexpectedly passed",
+    "{0} Prüfungen": "{0} checks",
+    "1 Prüfung": "1 check",
+    "Prüft": "What it checks",
+    "Keine Beschreibung im Code.": "No description in the code.",
+    "Eingaben": "Inputs",
+    "Keine Eingaben angegeben.": "No inputs given.",
+    "Prüfungen": "Checks",
+    "Ausdruck": "Expression",
+    "Erwartet": "Expected",
+    "Tatsächlich": "Actual",
+    "Zeile {0}": "line {0}",
+    "nicht erreicht": "not reached",
+    "nicht ausgeführt": "not run",
+    "Keine Prüfungen aufgezeichnet.": "No checks recorded.",
+    "enthält {0}": "contains {0}",
+    "enthält nicht {0}": "does not contain {0}",
+    "ist {0}": "is {0}",
+    "ist nicht {0}": "is not {0}",
+    "wahr oder nicht leer": "true or not empty",
+    "falsch oder leer": "false or empty",
+    "löst {0} aus": "raises {0}",
+    "kein Fehler": "no error",
+    "kein Fehler ausgelöst": "nothing raised",
+    "Fehlermeldung": "Error message",
+    "Grund": "Reason",
+    "Vollständiger Bericht": "Full report",
+    "Quelle": "Source",
+    "Befehl kopieren": "Copy command",
+    "Kopiert": "Copied",
+    "Link zu diesem Test": "Link to this test",
+    "Aufbau {0} · Test {1} · Abbau {2}": "setup {0} · test {1} · teardown {2}",
+    "Die Datei dieses Tests konnte nicht geladen werden.": "The file of this test could not be loaded.",
+    "Der Testlauf hat keine Ergebnisse geliefert.": "The test run produced no results.",
+    "Fehler beim Vorbereiten des Tests (Fixture).": "Error while preparing the test (fixture).",
+    "Fehler beim Aufräumen nach dem Test.": "Error while cleaning up after the test.",
+    "Datei konnte nicht geladen werden": "File could not be loaded",
+    "Daten: {0}": "Data: {0}",
+    "Branch test-results von {0}": "branch test-results of {0}",
+    "lokaler Ordner test-results/": "local folder test-results/",
+    "Tests im Code": "Tests in the code",
+    "Tests schreiben": "Writing tests",
+    "zurück zum Dashboard": "back to the dashboard",
+    "vor {0}": "{0} ago",
+  };
+  function T(text, vars) {
+    let out = LANG === "en" && Object.hasOwn(EN, text) ? EN[text] : text;
+    if (vars) out = out.replace(/\{(\d+)\}/g, (_, i) => String(vars[+i] ?? ""));
+    return out;
+  }
+
+  // ------------------------------------------------------------------ helpers
+  const $ = (id) => document.getElementById(id);
+  function h(tag, props = {}, ...children) {
+    const el = document.createElement(tag);
+    for (const [key, value] of Object.entries(props || {})) {
+      if (value == null || value === false) continue;
+      if (key === "class") el.className = value;
+      else if (key === "text") el.textContent = value;
+      else if (key.startsWith("on")) el.addEventListener(key.slice(2), value);
+      else el.setAttribute(key, value === true ? "" : value);
+    }
+    for (const child of children.flat(Infinity)) if (child != null && child !== false) el.append(child);
+    return el;
+  }
+  const nf = (digits) => new Intl.NumberFormat(LOCALE, { minimumFractionDigits: digits, maximumFractionDigits: digits });
+  function dur(s) {
+    if (s == null || Number.isNaN(s)) return "–";
+    if (s < 0.001) return "< 1 ms";
+    if (s < 1) return `${nf(0).format(s * 1000)} ms`;
+    return `${nf(s < 10 ? 2 : 1).format(s)} s`;
+  }
+  const pct = (x) => nf(x < 0.1 && x > 0 ? 1 : 0).format(x * 100);
+  function when(iso) {
+    if (!iso) return "";
+    const d = new Date(iso);
+    return d.toLocaleString(DATE_LOCALE, { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+  }
+  function ago(iso) {
+    if (!iso) return "";
+    const s = (Date.now() - new Date(iso).getTime()) / 1000;
+    const rtf = new Intl.RelativeTimeFormat(LANG, { numeric: "auto" });
+    if (s < 90) return rtf.format(-Math.round(s), "second");
+    if (s < 5400) return rtf.format(-Math.round(s / 60), "minute");
+    if (s < 129600) return rtf.format(-Math.round(s / 3600), "hour");
+    return rtf.format(-Math.round(s / 86400), "day");
+  }
+  const short = (sha) => (sha || "").slice(0, 7);
+  function chevron() {
+    const span = document.createElement("span");
+    span.innerHTML = ICON_CHEV;  // constant markup, no data
+    return span.firstChild;
+  }
+  const ICON_CHEV = '<svg class="chev" viewBox="0 0 20 20" aria-hidden="true"><path d="M5.5 8l4.5 4.5L14.5 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  // Outcomes: color plus symbol, and a text label for screen readers and tooltips.
+  const OUTCOME = {
+    passed: { light: "green", sym: "✓", label: () => T("Bestanden") },
+    failed: { light: "red", sym: "✕", label: () => T("Fehlgeschlagen") },
+    error: { light: "yellow", sym: "!", label: () => T("Nicht ausführbar") },
+    not_run: { light: "yellow", sym: "–", label: () => T("Nicht ausgeführt") },
+    skipped: { light: "yellow", sym: "–", label: () => T("Übersprungen") },
+    xfailed: { light: "yellow", sym: "–", label: () => T("Erwarteter Fehler") },
+    xpassed: { light: "yellow", sym: "!", label: () => T("Unerwartet bestanden") },
+  };
+  const outcomeOf = (o) => OUTCOME[o] || OUTCOME.not_run;
+  const RANK = { failed: 0, error: 1, not_run: 2, xpassed: 3, skipped: 4, xfailed: 5, passed: 6 };
+  const LIGHT_NAME = () => ({ green: T("grün"), yellow: T("gelb"), red: T("rot") });
+  function dot(light, sym, label) {
+    return h("span", { class: `dot ${light}`, "aria-hidden": "true", title: label }, sym);
+  }
+  function pill(outcome) {
+    const o = outcomeOf(outcome);
+    return h("span", { class: `pill ${o.light}` }, dot(o.light, o.sym), o.label());
+  }
+
+  // ------------------------------------------------------------------ loading
+  // Order: ?src= (a folder or a results.json), the local folder after a local run, then the
+  // branch test-results of this repository on GitHub (owner and name from the Pages address).
+  function repository() {
+    if (params.get("repo")) return params.get("repo");
+    const host = location.hostname.match(/^([^.]+)\.github\.io$/i);
+    const first = location.pathname.split("/").filter(Boolean)[0];
+    if (host && first && first !== "dashboard") return `${host[1]}/${first}`;
+    return "sh4rkfx/selftopo";
+  }
+  function candidates() {
+    const list = [];
+    const src = params.get("src");
+    if (src) list.push({ base: src.replace(/results\.json$/, ""), kind: "custom" });
+    if (["localhost", "127.0.0.1", "[::1]", "::1"].includes(location.hostname) || location.protocol === "file:") {
+      list.push({ base: "../test-results/", kind: "local" });
+    }
+    list.push({ base: `https://raw.githubusercontent.com/${repository()}/test-results/`, kind: "github" });
+    return list;
+  }
+  async function getJSON(url) {
+    const bust = url.startsWith("http") ? `?v=${Math.floor(Date.now() / 60000)}` : "";
+    const response = await fetch(url + bust, { cache: "no-store" });
+    if (!response.ok) throw new Error(`${response.status}`);
+    return response.json();
+  }
+  async function load() {
+    const tried = [];
+    for (const source of candidates()) {
+      tried.push(source.base);
+      try {
+        const results = await getJSON(source.base + "results.json");
+        if (!results || !Array.isArray(results.tests)) continue;
+        let history = null;
+        try { history = await getJSON(source.base + "history.json"); } catch { /* none yet */ }
+        return { results, history, source, tried };
+      } catch { /* next source */ }
+    }
+    return { results: null, history: null, source: null, tried };
+  }
+
+  // ------------------------------------------------------------------ derived data
+  function buildRuns(results, history) {
+    const runs = (history && Array.isArray(history.runs) ? history.runs : []).slice();
+    const last = runs[runs.length - 1];
+    const run = results.run || {};
+    if (!last || last.finished !== run.finished || last.commit !== run.commit) {
+      runs.push({
+        commit: run.commit, subject: run.subject, finished: run.finished, run_url: run.run_url,
+        summary: results.summary, local: true,
+        tests: Object.fromEntries(results.tests.map((t) => [t.id, [t.outcome, t.duration_s || 0]])),
+      });
+    }
+    return runs;
+  }
+  function seriesOf(id, runs) {
+    return runs.map((r) => (r.tests && r.tests[id]) || null);
+  }
+  function median(values) {
+    const v = values.filter((x) => x != null).sort((a, b) => a - b);
+    if (!v.length) return null;
+    const m = Math.floor(v.length / 2);
+    return v.length % 2 ? v[m] : (v[m - 1] + v[m]) / 2;
+  }
+  function analyse(results, runs) {
+    const current = runs[runs.length - 1];
+    const previous = runs.length > 1 ? runs[runs.length - 2] : null;
+    const byId = new Map(results.tests.map((t) => [t.id, t]));
+    const info = new Map();
+    for (const test of results.tests) {
+      const series = seriesOf(test.id, runs);
+      const entry = { series, isNew: Boolean(previous && previous.tests && !previous.tests[test.id]) };
+      // Red streak: how many runs in a row, and since which commit
+      if (test.outcome === "failed") {
+        let k = 0;
+        for (let i = series.length - 1; i >= 0 && series[i] && series[i][0] === "failed"; i--) k++;
+        entry.redSince = { runs: k, commit: runs[runs.length - k]?.commit };
+      }
+      // Flaky: passed and failed alternate often in the last 10 runs. Each run is usually a new
+      // commit, so one break and its fix (2 changes) or a second break (3) do not count.
+      const recent = series.slice(-10).filter((s) => s && (s[0] === "passed" || s[0] === "failed")).map((s) => s[0]);
+      let flips = 0;
+      for (let i = 1; i < recent.length; i++) if (recent[i] !== recent[i - 1]) flips++;
+      if (flips >= 4) entry.flaky = { flips, runs: recent.length };
+      // Slower: more than twice the median of earlier passing runs and at least 0.25 s more
+      const earlier = series.slice(0, -1).filter((s) => s && s[0] === "passed").map((s) => s[1]);
+      const med = earlier.length >= 3 ? median(earlier) : null;
+      if (med != null && test.duration_s > 2 * med && test.duration_s - med >= 0.25) entry.slower = { median: med };
+      info.set(test.id, entry);
+    }
+    const changes = { added: [], removed: [], fixed: [], broke: [] };
+    if (previous && previous.tests) {
+      for (const test of results.tests) {
+        const before = previous.tests[test.id];
+        if (!before) changes.added.push(test);
+        else if (before[0] !== "passed" && test.outcome === "passed") changes.fixed.push(test);
+        else if (before[0] === "passed" && test.outcome === "failed") changes.broke.push(test);
+      }
+      for (const id of Object.keys(previous.tests)) if (!byId.has(id)) changes.removed.push(id);
+    }
+    return { info, changes, current, previous };
+  }
+  function titleFromId(id) {
+    const name = id.split("::").pop() || id;
+    const base = name.split("[")[0].replace(/^test_/, "").replace(/_/g, " ");
+    return base.charAt(0).toUpperCase() + base.slice(1) + name.slice(name.split("[")[0].length);
+  }
+
+  // ------------------------------------------------------------------ rendering
+  let STATE = null;
+  const view = { status: "all", critical: false, query: "", sort: "file" };
+
+  function sourceLink(test, line) {
+    const run = STATE.results.run || {};
+    if (!run.repository || !run.commit) return null;
+    return `https://github.com/${run.repository}/blob/${run.commit}/${test.file}#L${line || test.line}`;
+  }
+  function anchorOf(id) { return "t=" + encodeURIComponent(id); }
+
+  function renderTop() {
+    const { results, source } = STATE;
+    const run = results.run || {};
+    const facts = [];
+    if (run.commit) {
+      const url = run.repository ? `https://github.com/${run.repository}/commit/${run.commit}` : null;
+      facts.push(url ? h("a", { href: url, target: "_blank", rel: "noopener", class: "mono" }, T("Commit {0}", [short(run.commit)])) : h("span", { class: "mono" }, short(run.commit)));
+    }
+    if (run.subject) facts.push(h("span", {}, run.subject));
+    if (run.finished) facts.push(h("span", { title: when(run.finished) }, `${when(run.finished)} · ${ago(run.finished)}`));
+    if (run.run_url) facts.push(h("a", { href: run.run_url, target: "_blank", rel: "noopener" }, T("Lauf auf GitHub")));
+    else if (run.event === "local" || source.kind === "local") facts.push(h("span", {}, run.local_changes ? T("lokaler Lauf mit nicht committeten Änderungen") : T("lokaler Lauf")));
+    if (run.python) facts.push(h("span", { class: "muted" }, T("Python {0} · pytest {1}", [run.python, run.pytest || "?"])));
+    return h("section", { class: "top" },
+      h("p", { class: "eyebrow" }, T("Tests der selftopo-Software")),
+      h("h1", {}, T("Testergebnisse")),
+      h("div", { class: "status-line" }, facts));
+  }
+
+  function verdictText(summary, problem) {
+    const s = summary;
+    const title = {
+      all_passed: T("Alles grün"), failed: T("Unkritische Fehler"), not_executable: T("Nicht alles geprüft"),
+      skipped: T("Nicht alles geprüft"), critical_failed: T("Kritischer Fehler"), share: T("Zu viele Fehler"), no_tests: T("Keine Tests"),
+    }[s.reason] || T("Testergebnisse");
+    const lines = [];
+    if (problem === "no_results") lines.push(T("Der Testlauf hat keine Ergebnisse geliefert. Gezeigt werden die Tests des vorigen Laufs, als nicht ausgeführt."));
+    if (s.reason === "all_passed") lines.push(T("Alle {0} Tests bestanden.", [s.total]));
+    else if (s.reason === "no_tests") lines.push(T("Der Lauf enthält keine Tests."));
+    else {
+      lines.push(T("{0} von {1} Tests bestanden.", [s.passed, s.total]));
+      if (s.critical_failed === 1) lines.push(T("Ein kritischer Test ist fehlgeschlagen: gespeicherte Werte oder Logins können betroffen sein."));
+      else if (s.critical_failed > 1) lines.push(T("{0} kritische Tests fehlgeschlagen: gespeicherte Werte oder Logins können betroffen sein.", [s.critical_failed]));
+      else if (s.failed) lines.push(T("Nur unkritische Tests sind fehlgeschlagen; Daten und Logins sind nicht betroffen."));
+      if (s.reason === "share") lines.push(T("{0} % der Tests sind fehlgeschlagen oder nicht ausführbar, die Grenze ist {1} %.", [pct(s.share_bad), pct(s.red_share)]));
+      if (s.not_executable && problem !== "no_results") lines.push(s.not_executable === 1 ? T("Ein Test konnte nicht ausgeführt werden.") : T("{0} Tests konnten nicht ausgeführt werden.", [s.not_executable]));
+      if (s.skipped) lines.push(s.skipped === 1 ? T("Ein Test wurde übersprungen.") : T("{0} Tests wurden übersprungen.", [s.skipped]));
+    }
+    return { title, text: lines.join(" ") };
+  }
+
+  function renderHero() {
+    const { results } = STATE;
+    const s = results.summary;
+    const light = s.light;
+    const { title, text } = verdictText(s, results.problem);
+    const sym = { green: "✓", yellow: "!", red: "✕" }[light];
+    const lamps = h("span", { class: "lights", role: "img", "aria-label": T("Ampel: {0}", [LIGHT_NAME()[light]]) },
+      ["red", "yellow", "green"].map((c) => h("i", { class: c + (c === light ? " on " + c : "") })));
+    const verdict = h("div", { class: "verdict" },
+      h("div", { class: `lamp ${light}`, "aria-hidden": "true" }, sym),
+      h("h2", {}, title, " ", lamps),
+      h("p", { class: "sub" }, text));
+
+    const notRun = s.skipped + s.not_executable;
+    const tile = (label, value, small, note, light) => h("div", { class: "count" },
+      h("span", { class: "label" }, light ? dot(light, { green: "✓", red: "✕", yellow: "–" }[light]) : null, label),
+      h("span", { class: "value" }, value, small ? h("small", {}, small) : null),
+      h("span", { class: "note" }, note || " "));
+    const counts = h("div", { class: "counts" },
+      tile(T("Bestanden"), String(s.passed), `/${s.total}`, s.total ? `${pct(s.passed / s.total)} %` : "", "green"),
+      tile(T("Fehlgeschlagen"), String(s.failed), null, s.critical_failed ? T("davon {0} kritisch", [s.critical_failed]) : (s.failed ? T("keiner kritisch") : ""), "red"),
+      tile(T("Nicht ausgeführt"), String(notRun), null, notRun ? T("{0} übersprungen · {1} nicht ausführbar", [s.skipped, s.not_executable]) : "", "yellow"),
+      tile(T("Laufzeit"), dur(s.duration_s), null, T("Summe der Tests · Lauf {0}", [dur(results.run?.wall_s)])));
+    const total = s.total || 1;
+    const stack = h("div", { class: "stack", role: "img", "aria-label": T("{0} von {1} Tests bestanden.", [s.passed, s.total]) },
+      h("span", { class: "green", style: `width:${(s.passed / total) * 100}%` }),
+      h("span", { class: "yellow", style: `width:${(notRun / total) * 100}%` }),
+      h("span", { class: "red", style: `width:${(s.failed / total) * 100}%` }));
+
+    const bad = results.tests.filter((t) => t.outcome !== "passed").sort((a, b) => (RANK[a.outcome] - RANK[b.outcome]) || (b.critical - a.critical));
+    const badList = bad.length ? h("div", {},
+      h("h3", {}, T("Fehlgeschlagen und nicht ausgeführt")),
+      h("ul", { class: "failing-list" }, bad.slice(0, 12).map((t) => h("li", {},
+        pill(t.outcome), " ",
+        h("a", { href: "#" + anchorOf(t.id), onclick: (e) => { e.preventDefault(); openTest(t.id, true); } }, t.title),
+        t.critical ? [" ", h("span", { class: "badge crit" }, T("kritisch"))] : null)))) : null;
+
+    const rules = h("details", { class: "rules" },
+      h("summary", {}, T("Wie die Ampel entscheidet")),
+      h("table", { class: "info-table" },
+        h("thead", {}, h("tr", {}, h("th", {}, T("Gesamt")), h("th", {}, T("Regel")))),
+        h("tbody", {},
+          h("tr", {}, h("td", {}, dot("green", "✓"), " ", T("Grün")), h("td", {}, T("Alle Tests bestanden."))),
+          h("tr", {}, h("td", {}, dot("yellow", "!"), " ", T("Gelb")), h("td", {}, T("Unkritische Tests sind fehlgeschlagen, Tests wurden übersprungen oder konnten nicht ausgeführt werden; fehlgeschlagene und nicht ausführbare zusammen unter {0} %.", [pct(s.red_share)]))),
+          h("tr", {}, h("td", {}, dot("red", "✕"), " ", T("Rot")), h("td", {}, T("Ein kritischer Test ist fehlgeschlagen, oder {0} % oder mehr der Tests sind fehlgeschlagen oder nicht ausführbar.", [pct(s.red_share)]))),
+          h("tr", {}, h("td", {}, T("Je Test")), h("td", {}, T("Grün bestanden, rot fehlgeschlagen, gelb übersprungen oder nicht ausführbar (Fehler beim Vorbereiten, Aufräumen oder Laden der Datei, oder der Lauf lieferte nichts)."))),
+          h("tr", {}, h("td", {}, h("span", { class: "badge crit" }, T("kritisch"))), h("td", {}, T("Ein Fehler kann falsche Werte speichern, gespeicherte Daten verlieren oder einen Login brechen oder offenlegen. Markiert im Code mit @pytest.mark.critical."))))));
+
+    return h("section", { class: "card hero", "aria-label": T("Testergebnisse") },
+      h("div", { style: "display:grid;gap:12px;min-width:0" }, verdict, stack, rules),
+      h("div", { style: "display:grid;gap:12px;min-width:0" }, counts, badList));
+  }
+
+  function runTitle(run, isCurrent) {
+    const s = run.summary || {};
+    const base = T("{0} · Commit {1} · {2} von {3} bestanden", [when(run.finished), short(run.commit), s.passed ?? "?", s.total ?? "?"]);
+    return (isCurrent ? `${T("dieser Lauf")}: ` : "") + base + (run.subject ? ` – ${run.subject}` : "");
+  }
+
+  function renderHistory() {
+    const { runs } = STATE;
+    const published = runs.filter((r) => !r.local);
+    const items = runs.map((r, i) => {
+      const light = r.summary?.light || "gray";
+      const isCurrent = i === runs.length - 1;
+      const props = { class: `${light}${isCurrent ? " current" : ""}`, title: runTitle(r, isCurrent), "aria-label": runTitle(r, isCurrent) };
+      return r.run_url ? h("a", { ...props, href: r.run_url, target: "_blank", rel: "noopener" }) : h("span", { ...props, role: "img" });
+    });
+    const tally = { green: 0, yellow: 0, red: 0 };
+    for (const r of published) if (r.summary && tally[r.summary.light] != null) tally[r.summary.light]++;
+    return h("section", { class: "card" },
+      h("h3", {}, T("Verlauf")),
+      h("div", { class: "runs" }, items),
+      h("p", { class: "sub" }, published.length
+        ? T("Letzte {0} Läufe auf main: {1} grün, {2} gelb, {3} rot.", [published.length, tally.green, tally.yellow, tally.red])
+        : T("Noch kein Verlauf: er entsteht mit den Läufen auf main.")));
+  }
+
+  function jump(id, text) {
+    return h("a", { href: "#" + anchorOf(id), onclick: (e) => { e.preventDefault(); openTest(id, true); } }, text);
+  }
+
+  function renderNotes() {
+    const { results, analysis } = STATE;
+    const { changes, info, previous } = analysis;
+    // Since the last run
+    const rows = [];
+    const add = (label, list, render) => {
+      if (!list.length) return;
+      rows.push(h("li", {},
+        h("span", {}, h("strong", {}, label), " ", list.map((x, i) => [i ? ", " : "", render(x)])),
+        h("span", { class: "muted" }, String(list.length))));
+    };
+    add(T("Neu fehlgeschlagen"), changes.broke, (t) => jump(t.id, t.title));
+    add(T("Wieder grün"), changes.fixed, (t) => jump(t.id, t.title));
+    add(T("Neu"), changes.added, (t) => jump(t.id, t.title));
+    add(T("Entfernt"), changes.removed, (id) => h("span", { title: id }, titleFromId(id)));
+    const since = h("div", { class: "card" }, h("h3", {}, T("Seit dem letzten Lauf")),
+      previous ? (rows.length ? h("ul", { class: "note-list" }, rows) : h("p", { class: "sub" }, T("Keine Änderungen an der Testliste und keine Statuswechsel.")))
+        : h("p", { class: "sub" }, T("Noch kein Verlauf: er entsteht mit den Läufen auf main.")));
+
+    // Notable: red streaks, flaky, slower
+    const notable = [];
+    for (const test of results.tests) {
+      const i = info.get(test.id);
+      if (i.redSince && i.redSince.runs > 1) notable.push(h("li", {}, jump(test.id, test.title), pill("failed"), h("span", { class: "meta" }, T("Rot seit {0} Läufen, zuerst bei Commit {1}", [i.redSince.runs, short(i.redSince.commit)]))));
+      if (i.flaky) notable.push(h("li", {}, jump(test.id, test.title), h("span", { class: "badge" }, T("wackelig")), h("span", { class: "meta" }, T("Wackelig: {0} Statuswechsel in den letzten {1} Läufen", [i.flaky.flips, i.flaky.runs]))));
+      if (i.slower) notable.push(h("li", {}, jump(test.id, test.title), h("span", { class: "muted mono" }, dur(test.duration_s)), h("span", { class: "meta" }, T("Langsamer: {0} statt im Mittel {1}", [dur(test.duration_s), dur(i.slower.median)]))));
+    }
+    const notableCard = h("div", { class: "card" }, h("h3", {}, T("Auffällig")),
+      notable.length ? h("ul", { class: "note-list" }, notable) : h("p", { class: "sub" }, T("Nichts auffällig: keine wackeligen oder deutlich langsameren Tests.")));
+
+    // Slowest tests
+    const slow = results.tests.filter((t) => t.duration_s).sort((a, b) => b.duration_s - a.duration_s).slice(0, 5);
+    const max = slow[0]?.duration_s || 1;
+    const slowCard = h("div", { class: "card" }, h("h3", {}, T("Langsamste Tests")),
+      h("div", { style: "display:grid;gap:8px" }, slow.map((t) => h("div", { class: "bar-row" },
+        jump(t.id, t.title), h("span", { class: "num" }, dur(t.duration_s)),
+        h("span", { class: "track" }, h("span", { style: `width:${Math.max(2, (t.duration_s / max) * 100)}%` }))))));
+    return h("section", { class: "notes" }, since, notableCard, slowCard);
+  }
+
+  function renderToolbar() {
+    const tests = STATE.results.tests;
+    const n = (pred) => tests.filter(pred).length;
+    const counts = {
+      all: tests.length, failed: n((t) => t.outcome === "failed"),
+      notrun: n((t) => t.outcome !== "failed" && t.outcome !== "passed"), passed: n((t) => t.outcome === "passed"),
+    };
+    const seg = h("div", { class: "seg", role: "group", "aria-label": "Status" },
+      [["all", T("Alle")], ["failed", T("Fehlgeschlagen")], ["notrun", T("Nicht ausgeführt")], ["passed", T("Bestanden")]].map(([key, label]) =>
+        h("button", { type: "button", "aria-pressed": String(view.status === key), onclick: () => { view.status = key; renderList(); syncToolbar(); }, "data-status": key }, `${label} (${counts[key]})`)));
+    const critical = h("label", { class: "check" }, h("input", { type: "checkbox", checked: view.critical || null, onchange: (e) => { view.critical = e.target.checked; renderList(); } }), T("Nur kritische"));
+    const search = h("div", { class: "search" }, h("input", { type: "search", placeholder: T("Suchen: Name, Beschreibung, Datei"), "aria-label": T("Suchen: Name, Beschreibung, Datei"), value: view.query,
+      oninput: (e) => { view.query = e.target.value; renderList(); } }));
+    const sort = h("select", { "aria-label": T("Sortierung"), onchange: (e) => { view.sort = e.target.value; renderList(); } },
+      [["file", T("Nach Datei")], ["problems", T("Probleme zuerst")], ["slow", T("Langsamste zuerst")]].map(([v, l]) => h("option", { value: v, selected: view.sort === v || null }, l)));
+    const expand = h("button", { type: "button", class: "ghost-btn", onclick: () => toggleAll(true) }, T("Alle aufklappen"));
+    const collapse = h("button", { type: "button", class: "ghost-btn", onclick: () => toggleAll(false) }, T("Alle zuklappen"));
+    return h("section", { class: "toolbar", id: "toolbar" }, seg, critical, search, sort, expand, collapse);
+  }
+  function syncToolbar() {
+    for (const b of document.querySelectorAll("#toolbar [data-status]")) b.setAttribute("aria-pressed", String(b.dataset.status === view.status));
+  }
+  function toggleAll(open) {
+    for (const d of document.querySelectorAll("details.test")) { if (open) fillBody(d); d.open = open; }
+  }
+
+  function matches(test) {
+    if (view.status === "failed" && test.outcome !== "failed") return false;
+    if (view.status === "passed" && test.outcome !== "passed") return false;
+    if (view.status === "notrun" && (test.outcome === "passed" || test.outcome === "failed")) return false;
+    if (view.critical && !test.critical) return false;
+    const q = view.query.trim().toLowerCase();
+    if (q && ![test.title, test.name, test.doc, test.file, test.id].some((x) => (x || "").toLowerCase().includes(q))) return false;
+    return true;
+  }
+
+  function miniHistory(series) {
+    const last = series.slice(-12);
+    return h("span", { class: "minihist", "aria-hidden": "true" }, last.map((s) => h("i", { class: s ? outcomeOf(s[0]).light : "", title: s ? outcomeOf(s[0]).label() : "–" })));
+  }
+
+  function testSummaryLine(test) {
+    const checks = test.checks.length;
+    if (test.outcome === "failed" || test.outcome === "error" || test.outcome === "not_run") {
+      const first = reasonText(test) || (test.message || "").split("\n")[0];
+      return h("span", { class: "t-sub err" }, first);
+    }
+    if (test.outcome !== "passed") return h("span", { class: "t-sub" }, (test.message || "").split("\n")[0]);
+    const doc = (test.doc || "").split("\n")[0];
+    return h("span", { class: "t-sub" }, doc || (checks === 1 ? T("1 Prüfung") : T("{0} Prüfungen", [checks])));
+  }
+  function reasonText(test) {
+    return {
+      collect_error: T("Die Datei dieses Tests konnte nicht geladen werden."),
+      no_results: T("Der Testlauf hat keine Ergebnisse geliefert."),
+      setup_error: T("Fehler beim Vorbereiten des Tests (Fixture)."),
+      teardown_error: T("Fehler beim Aufräumen nach dem Test."),
+    }[test.reason_code] || null;
+  }
+
+  function renderTest(test) {
+    const o = outcomeOf(test.outcome);
+    const i = STATE.analysis.info.get(test.id) || { series: [] };
+    const checks = test.checks.length;
+    const summary = h("summary", {},
+      dot(o.light, o.sym, o.label()),
+      h("span", { class: "t-title" },
+        h("span", {}, test.phase === "collect" ? T("Datei konnte nicht geladen werden") : test.title),
+        test.critical ? h("span", { class: "badge crit", title: T("Ein Fehler kann falsche Werte speichern, gespeicherte Daten verlieren oder einen Login brechen oder offenlegen. Markiert im Code mit @pytest.mark.critical.") }, T("kritisch")) : null,
+        i.isNew ? h("span", { class: "badge new" }, T("neu")) : null,
+        i.flaky ? h("span", { class: "badge" }, T("wackelig")) : null),
+      h("span", { class: "t-meta" },
+        i.series.length > 1 ? miniHistory(i.series) : null,
+        h("span", { title: T("Prüfungen") }, checks === 1 ? T("1 Prüfung") : T("{0} Prüfungen", [checks])),
+        h("span", { title: T("Laufzeit") }, dur(test.duration_s)),
+        chevron()),
+      testSummaryLine(test));
+    summary.setAttribute("aria-label", `${test.title} – ${o.label()}${test.critical ? ", " + T("kritisch") : ""}`);
+    const details = h("details", { class: `test ${o.light}`, id: anchorOf(test.id), "data-id": test.id }, summary);
+    details.addEventListener("toggle", () => { if (details.open) fillBody(details); });
+    if (test.outcome === "failed" || test.outcome === "error") { details.open = true; fillBody(details); }
+    return details;
+  }
+
+  function opText(check) {
+    const L = check.left, R = check.right;
+    switch (check.op) {
+      case "==": return [R, L];
+      case "!=": return [`≠ ${R}`, L];
+      case "<": case "<=": case ">": case ">=": return [`${{ "<": "<", "<=": "≤", ">": ">", ">=": "≥" }[check.op]} ${R}`, L];
+      case "is": return [T("ist {0}", [R]), L];
+      case "is not": return [T("ist nicht {0}", [R]), L];
+      case "in": return [T("enthält {0}", [L]), R];
+      case "not in": return [T("enthält nicht {0}", [L]), R];
+      case "truthy": return [T("wahr oder nicht leer"), L];
+      case "falsy": return [T("falsch oder leer"), L];
+      case "raises": return [T("löst {0} aus", [R]), L || T("kein Fehler ausgelöst")];
+      case "error": return [T("kein Fehler"), L];
+      default: return [R ?? "", L ?? ""];
+    }
+  }
+
+  function renderChecks(test) {
+    const executed = test.checks;
+    const seen = new Set(executed.map((c) => c.line));
+    const unreached = (test.planned || []).filter((p) => !seen.has(p.line));
+    if (!executed.length && !unreached.length) return h("p", { class: "sub" }, T("Keine Prüfungen aufgezeichnet."));
+    const head = h("div", { class: "check head", "aria-hidden": "true" }, h("span", {}), h("span", {}, T("Ausdruck")), h("span", {}, T("Erwartet")), h("span", {}, T("Tatsächlich")));
+    const row = (check, state) => {
+      const [expected, actual] = check.op ? opText(check) : ["", ""];
+      const light = state === "ok" ? "green" : state === "bad" ? "red" : "gray";
+      const sym = state === "ok" ? "✓" : state === "bad" ? "✕" : "–";
+      const link = sourceLink(test, check.line);
+      const lineLabel = check.line ? T("Zeile {0}", [check.line]) : "";
+      return h("div", { class: `check ${state === "bad" ? "bad" : state === "skip" ? "skip" : ""}` },
+        dot(light, sym, state === "skip" ? (test.outcome === "passed" ? T("nicht ausgeführt") : T("nicht erreicht")) : (state === "ok" ? T("Bestanden") : T("Fehlgeschlagen"))),
+        h("div", { class: "expr" }, h("code", {}, check.expr || ""),
+          lineLabel ? (link ? h("a", { class: "line", href: link, target: "_blank", rel: "noopener" }, lineLabel) : h("span", { class: "line" }, lineLabel)) : null,
+          state === "skip" ? h("span", { class: "line" }, " · ", test.outcome === "passed" ? T("nicht ausgeführt") : T("nicht erreicht")) : null),
+        h("div", { class: "exp" }, h("span", { class: "cell-label" }, T("Erwartet")), state === "skip" ? null : h("pre", { class: "val" }, expected)),
+        h("div", { class: "act" }, h("span", { class: "cell-label" }, T("Tatsächlich")), state === "skip" ? null : h("pre", { class: "val" }, actual ?? "–"),
+          check.detail ? h("div", { class: "detail" }, check.detail) : null));
+    };
+    return h("div", { class: "checks", role: "list" }, head,
+      executed.map((c) => row(c, c.ok ? "ok" : "bad")),
+      unreached.map((p) => row({ ...p, op: null }, "skip")));
+  }
+
+  function fillBody(details) {
+    if (details.dataset.filled) return;
+    details.dataset.filled = "1";
+    const test = STATE.byId.get(details.dataset.id);
+    const body = h("div", { class: "t-body" });
+    const docParts = (test.doc || "").split(/\n\s*\n/).filter(Boolean);
+    body.append(h("div", { class: "t-doc" }, h("h4", {}, T("Prüft")),
+      docParts.length ? docParts.map((p) => h("p", {}, p.replace(/\s*\n\s*/g, " "))) : h("p", { class: "sub" }, T("Keine Beschreibung im Code."))));
+    // The message of a failed comparison repeats the checks table; it stays in the full report.
+    const failedCheck = test.checks.find((c) => !c.ok);
+    const covered = test.outcome === "failed" && failedCheck && failedCheck.op !== "error";
+    if (test.outcome !== "passed" && !covered && (test.message || reasonText(test))) {
+      const yellow = test.outcome !== "failed";
+      body.append(h("div", {}, h("h4", {}, yellow ? T("Grund") : T("Fehlermeldung")),
+        h("div", { class: `message${yellow ? " yellow" : ""}` }, [reasonText(test), test.message].filter(Boolean).join("\n"))));
+    }
+    body.append(h("div", {}, h("h4", {}, T("Eingaben")),
+      test.inputs && test.inputs.length
+        ? h("dl", { class: "inputs" }, test.inputs.map((x) => [h("dt", {}, x.name), h("dd", {}, h("pre", { class: "val" }, x.value))]))
+        : h("p", { class: "sub" }, T("Keine Eingaben angegeben."))));
+    body.append(h("div", {}, h("h4", {}, T("Prüfungen")), renderChecks(test)));
+    if (test.trace) body.append(h("details", { class: "trace" }, h("summary", {}, T("Vollständiger Bericht")), h("pre", {}, test.trace)));
+    const d = test.durations || {};
+    const link = sourceLink(test);
+    const copy = h("button", { type: "button", class: "ghost-btn", onclick: async (e) => {
+      try { await navigator.clipboard.writeText(`pytest "${test.id}"`); e.target.textContent = T("Kopiert"); setTimeout(() => { e.target.textContent = T("Befehl kopieren"); }, 1500); } catch { /* no clipboard */ }
+    } }, T("Befehl kopieren"));
+    const info = STATE.analysis.info.get(test.id) || {};
+    body.append(h("div", { class: "facts" },
+      h("code", {}, test.id),
+      link ? h("a", { href: link, target: "_blank", rel: "noopener" }, `${T("Quelle")}: ${test.file}:${test.line}`) : h("span", { class: "mono" }, `${test.file}:${test.line}`),
+      d.call != null ? h("span", {}, T("Aufbau {0} · Test {1} · Abbau {2}", [dur(d.setup), dur(d.call), dur(d.teardown)])) : null,
+      info.redSince ? h("span", {}, info.redSince.runs > 1 ? T("Rot seit {0} Läufen, zuerst bei Commit {1}", [info.redSince.runs, short(info.redSince.commit)]) : T("Neu fehlgeschlagen in diesem Lauf")) : null,
+      h("a", { href: "#" + anchorOf(test.id) }, T("Link zu diesem Test")),
+      copy));
+    details.append(body);
+  }
+
+  function renderList() {
+    const list = $("list");
+    const { results } = STATE;
+    const tests = results.tests.filter(matches);
+    if (!tests.length) { list.replaceChildren(h("p", { class: "card empty" }, T("Kein Test passt zum Filter."))); return; }
+    if (view.sort !== "file") {
+      const sorted = tests.slice().sort(view.sort === "slow"
+        ? (a, b) => (b.duration_s || 0) - (a.duration_s || 0)
+        : (a, b) => (RANK[a.outcome] - RANK[b.outcome]) || (b.critical - a.critical) || a.id.localeCompare(b.id));
+      list.replaceChildren(h("div", { class: "group" }, h("div", { class: "tests" }, sorted.map(renderTest))));
+      return;
+    }
+    const groups = new Map();
+    for (const t of tests) { if (!groups.has(t.file)) groups.set(t.file, []); groups.get(t.file).push(t); }
+    list.replaceChildren(...[...groups].map(([file, items]) => {
+      const meta = (results.groups || {})[file] || {};
+      const all = results.tests.filter((t) => t.file === file);
+      const passed = all.filter((t) => t.outcome === "passed").length;
+      const light = all.some((t) => t.outcome === "failed") ? "red" : passed < all.length ? "yellow" : "green";
+      return h("section", { class: "group", "aria-label": meta.title || file },
+        h("div", { class: "group-head" },
+          dot(light, { green: "✓", yellow: "!", red: "✕" }[light], LIGHT_NAME()[light]),
+          h("h2", {}, meta.title || file),
+          h("span", { class: "tally" }, T("{0}/{1} bestanden", [passed, all.length])),
+          meta.description ? h("p", { class: "sub" }, meta.description) : null,
+          h("span", { class: "file" }, file)),
+        h("div", { class: "tests" }, items.map(renderTest)));
+    }));
+  }
+
+  function openTest(id, scroll) {
+    if (!STATE.byId.has(id)) return;
+    let el = document.getElementById(anchorOf(id));
+    if (!el) { view.status = "all"; view.critical = false; view.query = ""; renderList(); syncToolbar(); el = document.getElementById(anchorOf(id)); }
+    if (!el) return;
+    fillBody(el);
+    el.open = true;
+    history.replaceState(null, "", "#" + anchorOf(id));
+    if (scroll) {
+      el.scrollIntoView({ block: "start" });
+      el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash");
+    }
+  }
+
+  function renderFooter() {
+    const { results, source } = STATE;
+    const repo = results.run?.repository || repository();
+    const where = source.kind === "local" ? T("lokaler Ordner test-results/") : source.kind === "custom" ? source.base : T("Branch test-results von {0}", [repo]);
+    return h("footer", {},
+      h("span", {}, T("Daten: {0}", [where])),
+      h("a", { href: "./" }, T("zurück zum Dashboard")),
+      h("a", { href: `https://github.com/${repo}/tree/main/tests`, target: "_blank", rel: "noopener" }, T("Tests im Code")),
+      h("a", { href: `https://github.com/${repo}/blob/main/CONTRIBUTING.md#tests`, target: "_blank", rel: "noopener" }, T("Tests schreiben")));
+  }
+
+  function renderEmpty(tried) {
+    $("main").replaceChildren(
+      h("section", { class: "top" }, h("p", { class: "eyebrow" }, T("Tests der selftopo-Software")), h("h1", {}, T("Testergebnisse"))),
+      h("section", { class: "card" }, h("h2", {}, T("Noch keine Testergebnisse")),
+        h("p", { class: "sub" }, T("Der Workflow Tests veröffentlicht sie nach jedem Push auf main im Branch test-results. Lokal: pytest ausführen, dann python -m http.server 8000 im Repository und diese Seite unter localhost:8000/dashboard/tests.html öffnen.")),
+        h("p", { class: "sub mono" }, T("Gesucht in: {0}", [tried.join(" · ")]))));
+  }
+
+  function renderShell() {
+    $("back").replaceChildren("← selftopo");
+    $("back").setAttribute("title", T("zurück zum Dashboard"));
+    for (const b of document.querySelectorAll("#lang-switch button")) {
+      b.setAttribute("aria-pressed", String(b.dataset.lang === LANG));
+      b.addEventListener("click", () => {
+        try { localStorage.setItem(LANG_KEY, b.dataset.lang); } catch { /* storage unavailable */ }
+        const url = new URL(location.href);
+        url.searchParams.delete("lang");
+        location.replace(url);
+      });
+    }
+    $("loading").textContent = T("Lade Testergebnisse …");
+  }
+
+  async function main() {
+    renderShell();
+    const { results, history, source, tried } = await load();
+    $("main").removeAttribute("aria-busy");
+    if (!results) { renderEmpty(tried); return; }
+    const runs = buildRuns(results, history);
+    STATE = { results, history, source, runs, byId: new Map(results.tests.map((t) => [t.id, t])) };
+    STATE.analysis = analyse(results, runs);
+    const light = results.summary?.light || "gray";
+    document.title = `${{ green: "🟢", yellow: "🟡", red: "🔴" }[light] || ""} selftopo · Tests`;
+    $("main").replaceChildren(renderTop(), renderHero(), renderHistory(), renderNotes(), renderToolbar(), h("div", { id: "list", style: "display:grid;gap:12px" }), renderFooter());
+    renderList();
+    const hash = decodeURIComponent(location.hash.replace(/^#t=/, ""));
+    if (location.hash.startsWith("#t=") && STATE.byId.has(hash)) openTest(hash, true);
+    window.selftopoTests = STATE;  // for debugging in the console
+  }
+  main();
+})();
+</script>
+</body>
+</html>

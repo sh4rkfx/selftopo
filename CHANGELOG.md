@@ -35,6 +35,15 @@ First public release.
 - German and English, numbers and dates per language.
 - Installable as an app, offline copy of the last loaded data.
 
+### Tests
+
+- Test page `dashboard/tests.html`, linked in the footer and the settings: overall traffic light
+  (critical tests, 10 % limit), per test what it checks, inputs, every check with expected and
+  actual value, duration, source link; history of the last 30 runs, newly failed and fixed tests,
+  flaky and slower tests, slowest tests. German and English.
+- 52 tests with descriptions and inputs; 39 marked critical (stored values, data loss, logins).
+- The workflow *Tests* publishes the results to the branch `test-results`, also when tests fail.
+
 ### Project
 
 - Data repository template `sh4rkfx/selftopo-data-template`, MIT license, contributing guide,

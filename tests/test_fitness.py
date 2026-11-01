@@ -1,12 +1,19 @@
-"""Garmin fitness metrics: parsing the endpoints and merging the window into the CSV."""
+"""Fitness metrics
+
+Garmin fitness metrics: parsing the endpoints and merging the window into the CSV.
+"""
 
 import json
 from datetime import date
+
+import pytest
 
 from selftopo import config, fitness
 from selftopo.csvstore import read_rows, write_rows
 
 # ruff: noqa: E501
+
+pytestmark = pytest.mark.critical  # wrong or lost fitness values
 
 DEVICE = {"1": {"primaryTrainingDevice": True, "calendarDate": "2026-10-29", "trainingStatusFeedbackPhrase": "PRODUCTIVE_1",
                 "trainingPaused": False, "acuteTrainingLoadDTO": {
@@ -14,36 +21,55 @@ DEVICE = {"1": {"primaryTrainingDevice": True, "calendarDate": "2026-10-29", "tr
                     "maxTrainingLoadChronic": 264.0, "dailyAcuteChronicWorkloadRatio": 1.1, "acwrStatus": "OPTIMAL"}}}
 
 
-def test_parsers():
-    assert fitness.parse_max_metrics([
+def test_endpoints_are_parsed_per_day(given):
+    """VO2max, race predictions, Hill Score and Endurance Score become one value per day.
+
+    VO2max is rounded to one decimal, race times stay in seconds, days without a value are dropped,
+    and the Endurance Score combines the weekly averages with today's value.
+    """
+    max_metrics = [
         {"generic": {"calendarDate": "2026-09-18", "vo2MaxPreciseValue": 45.24, "vo2MaxValue": 45.0}, "cycling": None},
         {"generic": None, "cycling": None},
-    ]) == {"2026-09-18": {"vo2max": 45.2, "vo2max_cycling": None}}
-    assert fitness.parse_race_predictions([{"calendarDate": "2026-10-29", "time5K": 1704, "time10K": 3729,
-                                            "timeHalfMarathon": 8667, "timeMarathon": 19922}]) == {
-        "2026-10-29": {"race_5k_s": 1704, "race_10k_s": 3729, "race_half_s": 8667, "race_marathon_s": 19922}}
-    assert fitness.parse_hill_score({"hillScoreDTOList": [
+    ]
+    race = [{"calendarDate": "2026-10-29", "time5K": 1704, "time10K": 3729, "timeHalfMarathon": 8667, "timeMarathon": 19922}]
+    hill = {"hillScoreDTOList": [
         {"calendarDate": "2026-08-06", "overallScore": 28, "strengthScore": 14, "enduranceScore": 17},
         {"calendarDate": "2026-08-07", "overallScore": None},
-    ]}) == {"2026-08-06": {"hill_score": 28, "hill_strength": 14, "hill_endurance": 17}}
-    assert fitness.parse_endurance_score({
+    ]}
+    endurance = {
         "groupMap": {"2026-10-16": {"groupAverage": 4840}, "2026-10-23": {"groupAverage": 4829}},
         "enduranceScoreDTO": {"calendarDate": "2026-10-29", "overallScore": 4821},
-    }) == {"2026-10-16": {"endurance_score": 4840}, "2026-10-23": {"endurance_score": 4829}, "2026-10-29": {"endurance_score": 4821}}
+    }
+    given(max_metrics=max_metrics, race_predictions=race, hill_score=hill, endurance_score=endurance)
+    assert fitness.parse_max_metrics(max_metrics) == {"2026-09-18": {"vo2max": 45.2, "vo2max_cycling": None}}
+    assert fitness.parse_race_predictions(race) == {
+        "2026-10-29": {"race_5k_s": 1704, "race_10k_s": 3729, "race_half_s": 8667, "race_marathon_s": 19922}}
+    assert fitness.parse_hill_score(hill) == {"2026-08-06": {"hill_score": 28, "hill_strength": 14, "hill_endurance": 17}}
+    assert fitness.parse_endurance_score(endurance) == {
+        "2026-10-16": {"endurance_score": 4840}, "2026-10-23": {"endurance_score": 4829}, "2026-10-29": {"endurance_score": 4821}}
 
 
-def test_status_of_the_primary_device():
-    status = fitness.parse_status(
-        {"mostRecentTrainingStatus": {"latestTrainingStatusData": DEVICE}},
-        {"fitnessAge": 37.1029, "achievableFitnessAge": 32.58, "chronologicalAge": 38},
-        {"enduranceScoreDTO": {"overallScore": 4821, "classificationLowerLimitTrained": 5800}},
-    )
+def test_status_of_the_primary_device(given):
+    """Training status, loads and ACWR come from the primary device; fitness age to one decimal.
+
+    The Endurance Score limits are kept for the gauge; a missing load balance stays empty.
+    """
+    training = {"mostRecentTrainingStatus": {"latestTrainingStatusData": DEVICE}}
+    age = {"fitnessAge": 37.1029, "achievableFitnessAge": 32.58, "chronologicalAge": 38}
+    endurance = {"enduranceScoreDTO": {"overallScore": 4821, "classificationLowerLimitTrained": 5800}}
+    given(training_status=training, fitness_age=age, endurance_score=endurance)
+    status = fitness.parse_status(training, age, endurance)
     assert (status["training_status"], status["acute_load"], status["chronic_load"], status["acwr"]) == ("PRODUCTIVE_1", 198, 176, 1.1)
     assert (status["fitness_age"], status["endurance_limits"]["trained"]) == (37.1, 5800)
     assert status["load_balance"] is None
 
 
-def test_sync_replaces_the_window_and_writes_today(tmp_path, monkeypatch):
+def test_sync_replaces_the_window_and_writes_today(tmp_path, monkeypatch, given):
+    """A 30-day sync replaces the stored window, keeps older rows and writes today's status.
+
+    A day Garmin no longer reports is dropped; a failed endpoint (here Hill Score) leaves its
+    columns empty instead of stopping the sync.
+    """
     monkeypatch.setattr(config, "FITNESS_CSV", tmp_path / "garmin_fitness.csv")
     monkeypatch.setattr(config, "FITNESS_STATUS_JSON", tmp_path / "garmin_fitness_status.json")
     monkeypatch.setattr(config, "today", lambda: date(2026, 10, 29))
@@ -73,6 +99,8 @@ def test_sync_replaces_the_window_and_writes_today(tmp_path, monkeypatch):
 
     monkeypatch.setattr(fitness.garmin, "connect", lambda: Client())
     monkeypatch.setattr(fitness.garmin, "save_tokens", lambda c: None)
+    given(days=30, today="2026-10-29", stored=read_rows(config.FITNESS_CSV),
+          garmin="VO2max on 2026-10-22, 5K prediction and status today, Hill Score request fails")
     fitness.sync(30)
     rows = {r["date"]: r for r in read_rows(config.FITNESS_CSV)}
     assert sorted(rows) == ["2026-01-05", "2026-10-22", "2026-10-29"]

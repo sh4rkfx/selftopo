@@ -18,7 +18,7 @@ and documentation are all welcome.
 git clone https://github.com/sh4rkfx/selftopo.git && cd selftopo
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements-dev.txt
-pytest            # parsers, settings, analysis, dashboard dictionary
+pytest            # parsers, settings, analysis, dashboard dictionary; writes test-results/results.json
 ruff check .      # lint, line length 120
 ```
 
@@ -26,7 +26,41 @@ The dashboard needs no build: run `python -m http.server 8000` in the repository
 <http://localhost:8000/dashboard/>. With a `data/` folder next to it, the page shows those files;
 without one, it shows generated sample data. `?lang=en` or `?lang=de` switches the language.
 
-The GitHub workflow `Tests` runs `ruff` and `pytest` on every push and pull request.
+The GitHub workflow `Tests` runs `ruff` and `pytest` on every push and pull request. On `main` it
+publishes the results to the branch `test-results`, which the test page `dashboard/tests.html` reads.
+
+## Tests
+
+Tests are plain pytest. A small plugin, `tests/report_plugin.py`, records each run for the test
+page, so a test needs a little more than an assert to be useful there:
+
+```python
+@pytest.mark.critical  # only if a failure can store wrong values, lose data or break a login
+def test_hevy_dates_use_local_time(given):
+    """A Hevy workout at 22:30 UTC counts for the next day in Vienna (00:30), not the day before."""
+    workout = {...}
+    given(workout=workout, timezone="Europe/Vienna")
+    (row,) = hevy.flatten(workout)
+    assert row["date"] == "2026-10-14"
+```
+
+- **Name:** a sentence in snake case; the page shows *Hevy dates use local time*.
+- **Docstring:** what the test checks and why it matters, in one or two sentences. The page shows it
+  as *What it checks*.
+- **Inputs:** pass the values the code under test receives to the `given` fixture. Parameters of
+  `pytest.mark.parametrize` are recorded on their own.
+- **Checks:** write `assert actual == expected`, actual on the left. Every executed assert and every
+  `with pytest.raises(...)` is recorded with its expected and actual value; asserts not reached
+  after a failure are listed as well.
+- **Critical:** `@pytest.mark.critical`, or `pytestmark = pytest.mark.critical` for a whole file,
+  when a failure means wrong or lost data or a broken or leaking login. One failing critical test
+  turns the page red.
+- **Group:** the first line of a test file's module docstring is the heading of its group on the
+  page, the rest the description.
+
+Run `pytest`, then `python -m http.server 8000` and open
+<http://localhost:8000/dashboard/tests.html> to see the page for your local run. If passing asserts
+do not show up there after changing `enable_assertion_pass_hook`, delete `tests/__pycache__`.
 
 ## Code
 
@@ -57,7 +91,8 @@ in the code; English comes from the dictionary in the script block `i18n-en`.
   `window.selftopoI18nMissing` in the browser console: it lists everything still German.
 
 After changing `index.html`, `manifest.webmanifest` or the icons, raise `VERSION` in
-`dashboard/sw.js`, so installed apps drop their old copy.
+`dashboard/sw.js`, so installed apps drop their old copy. `tests.html` has its own small German and
+English dictionary in its script (`EN`).
 
 Design rules the dashboard follows: green, yellow and red only for states past a threshold that
 is explained in the card's ⓘ; numbers come with their unit; every card says where its data comes

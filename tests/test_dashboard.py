@@ -1,4 +1,7 @@
-"""The dashboard's English dictionary covers every text the script translates."""
+"""Dashboard
+
+The English dictionary in dashboard/index.html covers every text the script translates.
+"""
 
 import json
 import re
@@ -17,25 +20,33 @@ def script() -> str:
     return HTML[HTML.rindex("<script>"):]
 
 
-def test_dictionary_is_valid_and_has_no_empty_entries():
+def test_dictionary_is_valid_and_has_no_empty_entries(given):
+    """The English dictionary is valid JSON with more than 1000 entries and no empty translation."""
+    given(file="dashboard/index.html", block="script#i18n-en")
     d = dictionary()
     assert len(d) > 1000
     assert not [k for k, v in d.items() if not v.strip()]
 
 
-def test_every_translated_literal_has_an_english_entry():
+def test_every_translated_literal_has_an_english_entry(given):
+    """Every text the script passes to T(\"…\") has an English entry; otherwise English shows German."""
     d = dictionary()
     keys = {json.loads(f'"{m}"') for m in re.findall(r'\bT\("((?:[^"\\]|\\.)*)"', script())}
+    given(file="dashboard/index.html", translated_literals=len(keys), dictionary_entries=len(d))
     missing = sorted(k for k in keys if k not in d)
     assert not missing, f"add these to the i18n-en block: {missing[:10]}"
 
 
-def test_placeholders_match():
+def test_placeholders_match(given):
+    """German keys and English texts use the same placeholders {0}, {1}, …, so no value goes missing."""
     d = dictionary()
+    given(file="dashboard/index.html", dictionary_entries=len(d))
     wrong = [k for k, v in d.items() if sorted(re.findall(r"\{\d+\}", k)) != sorted(re.findall(r"\{\d+\}", v))]
     assert not wrong, wrong[:5]
 
 
-def test_service_worker_has_a_version():
+def test_service_worker_has_a_version(given):
+    """sw.js defines a VERSION; installed apps use it to drop their old copy after an update."""
+    given(file="dashboard/sw.js")
     sw = (Path(__file__).resolve().parent.parent / "dashboard" / "sw.js").read_text(encoding="utf-8")
     assert re.search(r'const VERSION = "\d+";', sw)
