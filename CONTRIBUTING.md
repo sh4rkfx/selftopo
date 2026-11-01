@@ -76,11 +76,11 @@ body that explains why.
 
 ## Releases (maintainers)
 
-1. Update `CHANGELOG.md`.
-2. Tag the release and move the major tag the workflows follow:
-   `git tag v1.2.0 && git tag -f v1 && git push origin v1.2.0 && git push -f origin v1`.
-3. Create a GitHub release for the tag with the changelog entry.
-4. If the data repository template changed, copy `templates/data-repo/` to
+1. Update `CHANGELOG.md` and push it to `main`; wait for the tests.
+2. Publish a GitHub release with a new tag such as `v1.2.0` on `main` and the changelog entry as
+   notes. The workflow *Move major tag* then points `v1` at it, and every data repository uses the
+   new version with its next run.
+3. If the data repository template changed, copy `templates/data-repo/` to
    `sh4rkfx/selftopo-data-template`.
 
 Breaking changes to the data format or settings need a new major version (`v2`), which users opt
