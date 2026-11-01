@@ -1,0 +1,3458 @@
+{
+ "schema": 1,
+ "run": {
+  "repository": "sh4rkfx/selftopo",
+  "commit": "18e4aa4b16705c3a5f53dda5d2c96c5bc63d2ca8",
+  "subject": "Add a test results page with traffic light, history and per-check details",
+  "branch": "main",
+  "event": "push",
+  "run_url": "https://github.com/sh4rkfx/selftopo/actions/runs/41319825976",
+  "local_changes": null,
+  "python": "3.12.15",
+  "pytest": "9.2.0",
+  "platform": "Linux",
+  "started": "2026-11-01T15:10:26+00:00",
+  "finished": "2026-11-01T15:10:31+00:00",
+  "wall_s": 4.498
+ },
+ "summary": {
+  "total": 52,
+  "passed": 52,
+  "failed": 0,
+  "critical_failed": 0,
+  "not_executable": 0,
+  "skipped": 0,
+  "share_bad": 0.0,
+  "light": "green",
+  "reason": "all_passed",
+  "red_share": 0.1,
+  "duration_s": 2.9186
+ },
+ "groups": {
+  "tests/test_analyze.py": {
+   "title": "Relationship analysis",
+   "description": "Statistical behaviour of the analysis: finds real effects, ignores noise, reads the CSV files."
+  },
+  "tests/test_bloodpressure.py": {
+   "title": "Blood pressure",
+   "description": "Parsing Garmin's nested response and replacing the stored window."
+  },
+  "tests/test_climbs.py": {
+   "title": "Bouldering",
+   "description": "Climbing splits: parsing, self evaluation and which sessions a sync fetches again."
+  },
+  "tests/test_config.py": {
+   "title": "Settings",
+   "description": "settings.json and the time zone: missing, broken and valid files, and which source wins."
+  },
+  "tests/test_dashboard.py": {
+   "title": "Dashboard",
+   "description": "The English dictionary in dashboard/index.html covers every text the script translates."
+  },
+  "tests/test_fitness.py": {
+   "title": "Fitness metrics",
+   "description": "Garmin fitness metrics: parsing the endpoints and merging the window into the CSV."
+  },
+  "tests/test_parsers.py": {
+   "title": "Garmin and Hevy parsers",
+   "description": "Mapping of Garmin and Hevy responses to CSV rows, and the Garmin login in the workflow."
+  },
+  "tests/test_yazio.py": {
+   "title": "YAZIO",
+   "description": "Parsing the daily summary, token handling and the replace-the-window sync."
+  }
+ },
+ "tests": [
+  {
+   "id": "tests/test_analyze.py::test_finds_an_injected_next_night_effect_with_the_right_size",
+   "name": "test_finds_an_injected_next_night_effect_with_the_right_size",
+   "title": "Finds an injected next night effect with the right size",
+   "file": "tests/test_analyze.py",
+   "line": 36,
+   "critical": false,
+   "doc": "200 synthetic days in which every training-load point lowers the next night's HRV by 0.04 ms.\n\nThe analysis must mark load → HRV one night later as robust, estimate about −4 ms per 100 load\npoints, and must not report the same effect two nights later.",
+   "inputs": [
+    {
+     "name": "days",
+     "value": "200"
+    },
+    {
+     "name": "injected_effect",
+     "value": "'-0.04 ms HRV per load point, the following night'"
+    },
+    {
+     "name": "seed",
+     "value": "1"
+    },
+    {
+     "name": "window_days",
+     "value": "180"
+    }
+   ],
+   "checks": [
+    {
+     "line": 45,
+     "expr": "finding[\"status\"] == \"robust\"",
+     "ok": true,
+     "op": "==",
+     "left": "'robust'",
+     "right": "'robust'",
+     "detail": null
+    },
+    {
+     "line": 46,
+     "expr": "finding[\"effect\"] == pytest.approx(-4.0, abs=1.5)",
+     "ok": true,
+     "op": "==",
+     "left": "-4.4923",
+     "right": "-4.0 ± 1.5",
+     "detail": null
+    },
+    {
+     "line": 47,
+     "expr": "find(result, \"training_load\", \"hrv\", 2)[\"status\"] != \"robust\"",
+     "ok": true,
+     "op": "!=",
+     "left": "'none'",
+     "right": "'robust'",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 45,
+     "expr": "finding[\"status\"] == \"robust\""
+    },
+    {
+     "line": 46,
+     "expr": "finding[\"effect\"] == pytest.approx(-4.0, abs=1.5)"
+    },
+    {
+     "line": 47,
+     "expr": "find(result, \"training_load\", \"hrv\", 2)[\"status\"] != \"robust\""
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.001,
+    "call": 0.071768,
+    "teardown": 0.000159
+   },
+   "duration_s": 0.072927
+  },
+  {
+   "id": "tests/test_analyze.py::test_false_alarm_rate_on_pure_noise_stays_near_the_fdr_level",
+   "name": "test_false_alarm_rate_on_pure_noise_stays_near_the_fdr_level",
+   "title": "False alarm rate on pure noise stays near the fdr level",
+   "file": "tests/test_analyze.py",
+   "line": 50,
+   "critical": false,
+   "doc": "On 40 data sets of pure noise, at most 20 % of the runs may report any robust finding.\n\nWith Benjamini-Hochberg at q = 0.10 about 1 run in 10 is expected; clearly more would mean the\ndashboard presents chance as an insight.",
+   "inputs": [
+    {
+     "name": "runs",
+     "value": "40"
+    },
+    {
+     "name": "data",
+     "value": "'200 random days each, no real effect'"
+    },
+    {
+     "name": "seeds",
+     "value": "'100-139'"
+    },
+    {
+     "name": "fdr_q",
+     "value": "0.1"
+    }
+   ],
+   "checks": [
+    {
+     "line": 59,
+     "expr": "with_alarm / runs <= 0.2",
+     "ok": true,
+     "op": "<=",
+     "left": "0.125",
+     "right": "0.2",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 59,
+     "expr": "with_alarm / runs <= 0.2"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000319,
+    "call": 2.644942,
+    "teardown": 0.00016
+   },
+   "duration_s": 2.645421
+  },
+  {
+   "id": "tests/test_analyze.py::test_circular_garmin_pairs_are_not_tested",
+   "name": "test_circular_garmin_pairs_are_not_tested",
+   "title": "Circular garmin pairs are not tested",
+   "file": "tests/test_analyze.py",
+   "line": 62,
+   "critical": false,
+   "doc": "Pairs in which Garmin derives one value from the other are not tested.\n\nSleep score → Training Readiness and stress → Body Battery correlate by construction, so a\nfinding there would say nothing. Bedtime → readiness is a real question and stays in.",
+   "inputs": [
+    {
+     "name": "candidate_pairs",
+     "value": "'107 pairs from analyze.candidate_pairs()'"
+    }
+   ],
+   "checks": [
+    {
+     "line": 70,
+     "expr": "(\"sleep_score\", \"readiness\", 0) not in pairs",
+     "ok": true,
+     "op": "not in",
+     "left": "('sleep_score', 'readiness', 0)",
+     "right": "[('training_load', 'hrv', 1), ('training_load', 'hrv', 2), ('training_load', 'resting_hr', 1),\n ('training_load', 'resting_hr', 2), ('training_load', 'sleep_score', 1),\n ('training_load', 'sleep_score', 2), ('training_load', 'sleep_hours', 1),\n ('training_load', 'sleep_hours', 2), ('training_load', 'readiness', 1),\n ('training_load', 'readiness', 2), ('training_load', 'body_battery', 1),\n ('training_load', 'body_battery', 2), ('active_min', 'hrv', 1), ('active_min', 'hrv', 2),\n ('active_min', 'resting_hr', 1), ('active_min', 'resting_hr', 2),\n ('active_min', 'sleep_score', 1), ('active_min', 'sleep_score', 2),\n ('active_min', 'sleep_hours', 1), ('active_min', 'sleep_hours', 2),\n ('active_min', 'readiness', 1), ('active_min', 'readiness', 2),\n ('active_min', 'body_battery', 1), ('active_min', 'body_battery', 2), ('steps', 'hrv', 1),\n ('steps', 'hrv', 2), ('steps', 'resting_hr', 1), ('steps', 'resting_hr', 2),\n ('steps', 'sleep_score', 1), ('steps', 'sleep_score', 2), ('steps', 'sleep_hours', 1),\n ('steps', 'sleep_hours', 2), ('steps', 'readiness', 1), ('steps', 'readiness', 2),\n ('steps', 'body_battery', 1), ('steps', 'body_battery', 2), ('hard_sets', 'hrv', 1),\n ('hard_sets', 'hrv', 2), ('hard_sets', 'resting_hr', 1), ('hard_sets', 'resting_hr', 2),\n ('hard_sets', 'sleep_score', 1), ('hard_sets', 'sleep_score', 2),\n ('hard_sets', 'sleep_hours', 1), ('hard_sets', 'sleep_hours', 2),\n ('hard_sets', 'readiness', 1), ('hard_sets', 'readiness', 2), ('hard_sets', 'body_battery', 1), … (+1963)",
+     "detail": null
+    },
+    {
+     "line": 71,
+     "expr": "(\"stress_avg\", \"body_battery\", 1) not in pairs",
+     "ok": true,
+     "op": "not in",
+     "left": "('stress_avg', 'body_battery', 1)",
+     "right": "[('training_load', 'hrv', 1), ('training_load', 'hrv', 2), ('training_load', 'resting_hr', 1),\n ('training_load', 'resting_hr', 2), ('training_load', 'sleep_score', 1),\n ('training_load', 'sleep_score', 2), ('training_load', 'sleep_hours', 1),\n ('training_load', 'sleep_hours', 2), ('training_load', 'readiness', 1),\n ('training_load', 'readiness', 2), ('training_load', 'body_battery', 1),\n ('training_load', 'body_battery', 2), ('active_min', 'hrv', 1), ('active_min', 'hrv', 2),\n ('active_min', 'resting_hr', 1), ('active_min', 'resting_hr', 2),\n ('active_min', 'sleep_score', 1), ('active_min', 'sleep_score', 2),\n ('active_min', 'sleep_hours', 1), ('active_min', 'sleep_hours', 2),\n ('active_min', 'readiness', 1), ('active_min', 'readiness', 2),\n ('active_min', 'body_battery', 1), ('active_min', 'body_battery', 2), ('steps', 'hrv', 1),\n ('steps', 'hrv', 2), ('steps', 'resting_hr', 1), ('steps', 'resting_hr', 2),\n ('steps', 'sleep_score', 1), ('steps', 'sleep_score', 2), ('steps', 'sleep_hours', 1),\n ('steps', 'sleep_hours', 2), ('steps', 'readiness', 1), ('steps', 'readiness', 2),\n ('steps', 'body_battery', 1), ('steps', 'body_battery', 2), ('hard_sets', 'hrv', 1),\n ('hard_sets', 'hrv', 2), ('hard_sets', 'resting_hr', 1), ('hard_sets', 'resting_hr', 2),\n ('hard_sets', 'sleep_score', 1), ('hard_sets', 'sleep_score', 2),\n ('hard_sets', 'sleep_hours', 1), ('hard_sets', 'sleep_hours', 2),\n ('hard_sets', 'readiness', 1), ('hard_sets', 'readiness', 2), ('hard_sets', 'body_battery', 1), … (+1963)",
+     "detail": null
+    },
+    {
+     "line": 72,
+     "expr": "(\"bedtime_min\", \"readiness\", 0) in pairs",
+     "ok": true,
+     "op": "in",
+     "left": "('bedtime_min', 'readiness', 0)",
+     "right": "[('training_load', 'hrv', 1), ('training_load', 'hrv', 2), ('training_load', 'resting_hr', 1),\n ('training_load', 'resting_hr', 2), ('training_load', 'sleep_score', 1),\n ('training_load', 'sleep_score', 2), ('training_load', 'sleep_hours', 1),\n ('training_load', 'sleep_hours', 2), ('training_load', 'readiness', 1),\n ('training_load', 'readiness', 2), ('training_load', 'body_battery', 1),\n ('training_load', 'body_battery', 2), ('active_min', 'hrv', 1), ('active_min', 'hrv', 2),\n ('active_min', 'resting_hr', 1), ('active_min', 'resting_hr', 2),\n ('active_min', 'sleep_score', 1), ('active_min', 'sleep_score', 2),\n ('active_min', 'sleep_hours', 1), ('active_min', 'sleep_hours', 2),\n ('active_min', 'readiness', 1), ('active_min', 'readiness', 2),\n ('active_min', 'body_battery', 1), ('active_min', 'body_battery', 2), ('steps', 'hrv', 1),\n ('steps', 'hrv', 2), ('steps', 'resting_hr', 1), ('steps', 'resting_hr', 2),\n ('steps', 'sleep_score', 1), ('steps', 'sleep_score', 2), ('steps', 'sleep_hours', 1),\n ('steps', 'sleep_hours', 2), ('steps', 'readiness', 1), ('steps', 'readiness', 2),\n ('steps', 'body_battery', 1), ('steps', 'body_battery', 2), ('hard_sets', 'hrv', 1),\n ('hard_sets', 'hrv', 2), ('hard_sets', 'resting_hr', 1), ('hard_sets', 'resting_hr', 2),\n ('hard_sets', 'sleep_score', 1), ('hard_sets', 'sleep_score', 2),\n ('hard_sets', 'sleep_hours', 1), ('hard_sets', 'sleep_hours', 2),\n ('hard_sets', 'readiness', 1), ('hard_sets', 'readiness', 2), ('hard_sets', 'body_battery', 1), … (+1963)",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 70,
+     "expr": "(\"sleep_score\", \"readiness\", 0) not in pairs"
+    },
+    {
+     "line": 71,
+     "expr": "(\"stress_avg\", \"body_battery\", 1) not in pairs"
+    },
+    {
+     "line": 72,
+     "expr": "(\"bedtime_min\", \"readiness\", 0) in pairs"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000321,
+    "call": 0.002451,
+    "teardown": 0.000108
+   },
+   "duration_s": 0.00288
+  },
+  {
+   "id": "tests/test_analyze.py::test_output_is_valid_json_without_nan",
+   "name": "test_output_is_valid_json_without_nan",
+   "title": "Output is valid json without nan",
+   "file": "tests/test_analyze.py",
+   "line": 75,
+   "critical": false,
+   "doc": "The analysis result is strict JSON: no NaN or Infinity, which the dashboard could not parse.",
+   "inputs": [
+    {
+     "name": "days",
+     "value": "200"
+    },
+    {
+     "name": "injected_effect",
+     "value": "'-0.04 ms HRV per load point'"
+    },
+    {
+     "name": "window_days",
+     "value": "180"
+    }
+   ],
+   "checks": [
+    {
+     "line": 80,
+     "expr": "json.loads(text)[\"findings\"]",
+     "ok": true,
+     "op": "truthy",
+     "left": "[{'driver': 'training_load', 'driver_label': 'Training load, all activities (Garmin)', 'outcome': 'hrv', 'outcome_labe..._label': 'Training load, all activities (Garmin)', 'outcome': 'sleep_score', 'outcome_label': 'Sleep score', ...}, ...]",
+     "right": null,
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 80,
+     "expr": "json.loads(text)[\"findings\"]"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000269,
+    "call": 0.066071,
+    "teardown": 0.000132
+   },
+   "duration_s": 0.066472
+  },
+  {
+   "id": "tests/test_analyze.py::test_empty_data_gives_a_note",
+   "name": "test_empty_data_gives_a_note",
+   "title": "Empty data gives a note",
+   "file": "tests/test_analyze.py",
+   "line": 83,
+   "critical": false,
+   "doc": "No data gives an empty list of findings instead of an error, for new users.",
+   "inputs": [
+    {
+     "name": "data",
+     "value": "'empty DataFrame'"
+    }
+   ],
+   "checks": [
+    {
+     "line": 86,
+     "expr": "analyze.analyze_frame(pd.DataFrame())[\"findings\"] == []",
+     "ok": true,
+     "op": "==",
+     "left": "[]",
+     "right": "[]",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 86,
+     "expr": "analyze.analyze_frame(pd.DataFrame())[\"findings\"] == []"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000359,
+    "call": 0.000557,
+    "teardown": 0.000103
+   },
+   "duration_s": 0.001019
+  },
+  {
+   "id": "tests/test_analyze.py::test_load_daily_reads_all_three_files",
+   "name": "test_load_daily_reads_all_three_files",
+   "title": "Load daily reads all three files",
+   "file": "tests/test_analyze.py",
+   "line": 89,
+   "critical": false,
+   "doc": "The daily table combines Garmin days, Garmin activities and Hevy sets.\n\nBedtime in minutes from midnight (negative before it), activity load summed per day and 0 on\ndays without activity, hard sets without warm-ups and grip measurements, tonnage in tonnes,\nBody Battery falling back to the daily high.",
+   "inputs": [
+    {
+     "name": "garmin_activities.csv",
+     "value": "'date,duration_min,training_load\\n2026-10-12,90,70\\n2026-10-12,30,10\\n'"
+    },
+    {
+     "name": "garmin_daily.csv",
+     "value": "('date,hrv_last_night_ms,sleep_start_local,body_battery_high\\n'\n '2026-10-12,55,2026-10-11 23:30,80\\n'\n '2026-10-13,52,2026-10-13 00:45,70\\n'\n '2026-10-14,58,,75\\n')"
+    },
+    {
+     "name": "hevy_sets.csv",
+     "value": "('date,exercise,set_type,weight_kg,reps\\n'\n '2026-10-13,Squat (Barbell),warmup,60,8\\n'\n '2026-10-13,Squat (Barbell),normal,100,5\\n'\n '2026-10-13,Squat (Barbell),normal,100,4\\n'\n '2026-10-13,Right-hand Grip Strength,normal,52,1\\n'\n '2026-10-13,left-hand grip strength ,normal,49,1\\n')"
+    }
+   ],
+   "checks": [
+    {
+     "line": 116,
+     "expr": "daily.loc[\"2026-10-12\", \"bedtime_min\"] == -30",
+     "ok": true,
+     "op": "==",
+     "left": "-30.0",
+     "right": "-30",
+     "detail": null
+    },
+    {
+     "line": 117,
+     "expr": "daily.loc[\"2026-10-13\", \"bedtime_min\"] == 45",
+     "ok": true,
+     "op": "==",
+     "left": "45.0",
+     "right": "45",
+     "detail": null
+    },
+    {
+     "line": 118,
+     "expr": "daily.loc[\"2026-10-12\", \"training_load\"] == 80",
+     "ok": true,
+     "op": "==",
+     "left": "80.0",
+     "right": "80",
+     "detail": null
+    },
+    {
+     "line": 119,
+     "expr": "daily.loc[\"2026-10-13\", \"training_load\"] == 0",
+     "ok": true,
+     "op": "==",
+     "left": "0.0",
+     "right": "0",
+     "detail": null
+    },
+    {
+     "line": 120,
+     "expr": "daily.loc[\"2026-10-13\", \"hard_sets\"] == 2",
+     "ok": true,
+     "op": "==",
+     "left": "2.0",
+     "right": "2",
+     "detail": null
+    },
+    {
+     "line": 121,
+     "expr": "daily.loc[\"2026-10-13\", \"tonnage_t\"] == pytest.approx(0.9)",
+     "ok": true,
+     "op": "==",
+     "left": "0.9",
+     "right": "0.9 ± 9.0e-07",
+     "detail": null
+    },
+    {
+     "line": 122,
+     "expr": "daily.loc[\"2026-10-14\", \"body_battery\"] == 75",
+     "ok": true,
+     "op": "==",
+     "left": "75.0",
+     "right": "75",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 116,
+     "expr": "daily.loc[\"2026-10-12\", \"bedtime_min\"] == -30"
+    },
+    {
+     "line": 117,
+     "expr": "daily.loc[\"2026-10-13\", \"bedtime_min\"] == 45"
+    },
+    {
+     "line": 118,
+     "expr": "daily.loc[\"2026-10-12\", \"training_load\"] == 80"
+    },
+    {
+     "line": 119,
+     "expr": "daily.loc[\"2026-10-13\", \"training_load\"] == 0"
+    },
+    {
+     "line": 120,
+     "expr": "daily.loc[\"2026-10-13\", \"hard_sets\"] == 2"
+    },
+    {
+     "line": 121,
+     "expr": "daily.loc[\"2026-10-13\", \"tonnage_t\"] == pytest.approx(0.9)"
+    },
+    {
+     "line": 122,
+     "expr": "daily.loc[\"2026-10-14\", \"body_battery\"] == 75"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.001114,
+    "call": 0.027979,
+    "teardown": 0.000148
+   },
+   "duration_s": 0.029241
+  },
+  {
+   "id": "tests/test_analyze.py::test_nutrition_is_tested_against_the_following_night_and_next_training_day",
+   "name": "test_nutrition_is_tested_against_the_following_night_and_next_training_day",
+   "title": "Nutrition is tested against the following night and next training day",
+   "file": "tests/test_analyze.py",
+   "line": 125,
+   "critical": false,
+   "doc": "Nutrition is paired with the following night and the next day, not with two nights later.\n\nProtein → HRV one night later and calories → strength form the next day are tested; strength\nform one day later is labelled as the next day.",
+   "inputs": [
+    {
+     "name": "candidate_pairs",
+     "value": "'107 pairs from analyze.candidate_pairs()'"
+    }
+   ],
+   "checks": [
+    {
+     "line": 133,
+     "expr": "(\"protein_g\", \"hrv\", 1) in pairs",
+     "ok": true,
+     "op": "in",
+     "left": "('protein_g', 'hrv', 1)",
+     "right": "[('training_load', 'hrv', 1), ('training_load', 'hrv', 2), ('training_load', 'resting_hr', 1),\n ('training_load', 'resting_hr', 2), ('training_load', 'sleep_score', 1),\n ('training_load', 'sleep_score', 2), ('training_load', 'sleep_hours', 1),\n ('training_load', 'sleep_hours', 2), ('training_load', 'readiness', 1),\n ('training_load', 'readiness', 2), ('training_load', 'body_battery', 1),\n ('training_load', 'body_battery', 2), ('active_min', 'hrv', 1), ('active_min', 'hrv', 2),\n ('active_min', 'resting_hr', 1), ('active_min', 'resting_hr', 2),\n ('active_min', 'sleep_score', 1), ('active_min', 'sleep_score', 2),\n ('active_min', 'sleep_hours', 1), ('active_min', 'sleep_hours', 2),\n ('active_min', 'readiness', 1), ('active_min', 'readiness', 2),\n ('active_min', 'body_battery', 1), ('active_min', 'body_battery', 2), ('steps', 'hrv', 1),\n ('steps', 'hrv', 2), ('steps', 'resting_hr', 1), ('steps', 'resting_hr', 2),\n ('steps', 'sleep_score', 1), ('steps', 'sleep_score', 2), ('steps', 'sleep_hours', 1),\n ('steps', 'sleep_hours', 2), ('steps', 'readiness', 1), ('steps', 'readiness', 2),\n ('steps', 'body_battery', 1), ('steps', 'body_battery', 2), ('hard_sets', 'hrv', 1),\n ('hard_sets', 'hrv', 2), ('hard_sets', 'resting_hr', 1), ('hard_sets', 'resting_hr', 2),\n ('hard_sets', 'sleep_score', 1), ('hard_sets', 'sleep_score', 2),\n ('hard_sets', 'sleep_hours', 1), ('hard_sets', 'sleep_hours', 2),\n ('hard_sets', 'readiness', 1), ('hard_sets', 'readiness', 2), ('hard_sets', 'body_battery', 1), … (+1963)",
+     "detail": null
+    },
+    {
+     "line": 134,
+     "expr": "(\"calories_kcal\", \"strength_form_pct\", 1) in pairs",
+     "ok": true,
+     "op": "in",
+     "left": "('calories_kcal', 'strength_form_pct', 1)",
+     "right": "[('training_load', 'hrv', 1), ('training_load', 'hrv', 2), ('training_load', 'resting_hr', 1),\n ('training_load', 'resting_hr', 2), ('training_load', 'sleep_score', 1),\n ('training_load', 'sleep_score', 2), ('training_load', 'sleep_hours', 1),\n ('training_load', 'sleep_hours', 2), ('training_load', 'readiness', 1),\n ('training_load', 'readiness', 2), ('training_load', 'body_battery', 1),\n ('training_load', 'body_battery', 2), ('active_min', 'hrv', 1), ('active_min', 'hrv', 2),\n ('active_min', 'resting_hr', 1), ('active_min', 'resting_hr', 2),\n ('active_min', 'sleep_score', 1), ('active_min', 'sleep_score', 2),\n ('active_min', 'sleep_hours', 1), ('active_min', 'sleep_hours', 2),\n ('active_min', 'readiness', 1), ('active_min', 'readiness', 2),\n ('active_min', 'body_battery', 1), ('active_min', 'body_battery', 2), ('steps', 'hrv', 1),\n ('steps', 'hrv', 2), ('steps', 'resting_hr', 1), ('steps', 'resting_hr', 2),\n ('steps', 'sleep_score', 1), ('steps', 'sleep_score', 2), ('steps', 'sleep_hours', 1),\n ('steps', 'sleep_hours', 2), ('steps', 'readiness', 1), ('steps', 'readiness', 2),\n ('steps', 'body_battery', 1), ('steps', 'body_battery', 2), ('hard_sets', 'hrv', 1),\n ('hard_sets', 'hrv', 2), ('hard_sets', 'resting_hr', 1), ('hard_sets', 'resting_hr', 2),\n ('hard_sets', 'sleep_score', 1), ('hard_sets', 'sleep_score', 2),\n ('hard_sets', 'sleep_hours', 1), ('hard_sets', 'sleep_hours', 2),\n ('hard_sets', 'readiness', 1), ('hard_sets', 'readiness', 2), ('hard_sets', 'body_battery', 1), … (+1963)",
+     "detail": null
+    },
+    {
+     "line": 135,
+     "expr": "(\"protein_g\", \"hrv\", 2) not in pairs",
+     "ok": true,
+     "op": "not in",
+     "left": "('protein_g', 'hrv', 2)",
+     "right": "[('training_load', 'hrv', 1), ('training_load', 'hrv', 2), ('training_load', 'resting_hr', 1),\n ('training_load', 'resting_hr', 2), ('training_load', 'sleep_score', 1),\n ('training_load', 'sleep_score', 2), ('training_load', 'sleep_hours', 1),\n ('training_load', 'sleep_hours', 2), ('training_load', 'readiness', 1),\n ('training_load', 'readiness', 2), ('training_load', 'body_battery', 1),\n ('training_load', 'body_battery', 2), ('active_min', 'hrv', 1), ('active_min', 'hrv', 2),\n ('active_min', 'resting_hr', 1), ('active_min', 'resting_hr', 2),\n ('active_min', 'sleep_score', 1), ('active_min', 'sleep_score', 2),\n ('active_min', 'sleep_hours', 1), ('active_min', 'sleep_hours', 2),\n ('active_min', 'readiness', 1), ('active_min', 'readiness', 2),\n ('active_min', 'body_battery', 1), ('active_min', 'body_battery', 2), ('steps', 'hrv', 1),\n ('steps', 'hrv', 2), ('steps', 'resting_hr', 1), ('steps', 'resting_hr', 2),\n ('steps', 'sleep_score', 1), ('steps', 'sleep_score', 2), ('steps', 'sleep_hours', 1),\n ('steps', 'sleep_hours', 2), ('steps', 'readiness', 1), ('steps', 'readiness', 2),\n ('steps', 'body_battery', 1), ('steps', 'body_battery', 2), ('hard_sets', 'hrv', 1),\n ('hard_sets', 'hrv', 2), ('hard_sets', 'resting_hr', 1), ('hard_sets', 'resting_hr', 2),\n ('hard_sets', 'sleep_score', 1), ('hard_sets', 'sleep_score', 2),\n ('hard_sets', 'sleep_hours', 1), ('hard_sets', 'sleep_hours', 2),\n ('hard_sets', 'readiness', 1), ('hard_sets', 'readiness', 2), ('hard_sets', 'body_battery', 1), … (+1963)",
+     "detail": null
+    },
+    {
+     "line": 136,
+     "expr": "analyze.timing(\"strength_form_pct\", 1) == \"next_day\"",
+     "ok": true,
+     "op": "==",
+     "left": "'next_day'",
+     "right": "'next_day'",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 133,
+     "expr": "(\"protein_g\", \"hrv\", 1) in pairs"
+    },
+    {
+     "line": 134,
+     "expr": "(\"calories_kcal\", \"strength_form_pct\", 1) in pairs"
+    },
+    {
+     "line": 135,
+     "expr": "(\"protein_g\", \"hrv\", 2) not in pairs"
+    },
+    {
+     "line": 136,
+     "expr": "analyze.timing(\"strength_form_pct\", 1) == \"next_day\""
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000306,
+    "call": 0.003083,
+    "teardown": 0.000108
+   },
+   "duration_s": 0.003497
+  },
+  {
+   "id": "tests/test_analyze.py::test_incomplete_and_unlogged_food_days_stay_empty",
+   "name": "test_incomplete_and_unlogged_food_days_stay_empty",
+   "title": "Incomplete and unlogged food days stay empty",
+   "file": "tests/test_analyze.py",
+   "line": 139,
+   "critical": false,
+   "doc": "Days without a YAZIO entry and days below 1200 kcal count as missing, not as low intake.\n\nHalf-logged days would otherwise look like fasting and distort every nutrition finding.",
+   "inputs": [
+    {
+     "name": "garmin_daily.csv",
+     "value": "'date,hrv_last_night_ms\\n2026-10-01,50\\n2026-10-02,52\\n2026-10-03,54\\n'"
+    },
+    {
+     "name": "nutrition_daily.csv",
+     "value": "('date,calories_kcal,protein_g,carbs_g,fat_g\\n'\n '2026-10-01,2100,140,200,70\\n'\n '2026-10-03,800,30,90,30\\n')"
+    }
+   ],
+   "checks": [
+    {
+     "line": 154,
+     "expr": "daily.loc[\"2026-10-01\", \"protein_g\"] == 140",
+     "ok": true,
+     "op": "==",
+     "left": "140.0",
+     "right": "140",
+     "detail": null
+    },
+    {
+     "line": 155,
+     "expr": "np.isnan(daily.loc[\"2026-10-02\", \"calories_kcal\"])",
+     "ok": true,
+     "op": "truthy",
+     "left": "np.True_",
+     "right": null,
+     "detail": "where np.True_ = <ufunc 'isnan'>(np.float64(nan))\nwhere <ufunc 'isnan'> = np.isnan"
+    },
+    {
+     "line": 156,
+     "expr": "np.isnan(daily.loc[\"2026-10-03\", \"protein_g\"])",
+     "ok": true,
+     "op": "truthy",
+     "left": "np.True_",
+     "right": null,
+     "detail": "where np.True_ = <ufunc 'isnan'>(np.float64(nan))\nwhere <ufunc 'isnan'> = np.isnan"
+    }
+   ],
+   "planned": [
+    {
+     "line": 154,
+     "expr": "daily.loc[\"2026-10-01\", \"protein_g\"] == 140"
+    },
+    {
+     "line": 155,
+     "expr": "np.isnan(daily.loc[\"2026-10-02\", \"calories_kcal\"])"
+    },
+    {
+     "line": 156,
+     "expr": "np.isnan(daily.loc[\"2026-10-03\", \"protein_g\"])"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000663,
+    "call": 0.01082,
+    "teardown": 0.000129
+   },
+   "duration_s": 0.011612
+  },
+  {
+   "id": "tests/test_bloodpressure.py::test_parse_finds_readings_anywhere_and_drops_notes",
+   "name": "test_parse_finds_readings_anywhere_and_drops_notes",
+   "title": "Parse finds readings anywhere and drops notes",
+   "file": "tests/test_bloodpressure.py",
+   "line": 23,
+   "critical": true,
+   "doc": "Readings from every summary become rows: whole numbers, duplicates removed, notes dropped.\n\nThe notes field can hold private text and is never stored. Empty responses give no rows.",
+   "inputs": [
+    {
+     "name": "payload",
+     "value": "{'measurementSummaries': [{'startDate': '2026-10-28',\n                           'highSystolic': 125,\n                           'measurements': [{'systolic': 124,\n                                             'diastolic': 78,\n                                             'pulse': 58,\n                                             'sourceType': 'MANUAL',\n                                             'categoryName': 'NORMAL',\n                                             'measurementTimestampLocal': '2026-10-28T07:12:00.0',\n                                             'notes': 'private'}]},\n                          {'startDate': '2026-10-29',\n                           'measurements': [{'systolic': 131.0,\n                                             'diastolic': 84,\n                                             'pulse': None,\n                                             'sourceType': 'INDEX_BPM',\n                                             'categoryName': 'NORMAL',\n                                             'measurementTimestampLocal': '2026-10-29T21:40:00.0',\n                                             'notes': 'private'},\n                                            {'systolic': 131,\n                                             'diastolic': 84,\n                                             'pulse': None,\n                                             'sourceType': 'INDEX_BPM',\n                                             'categoryName': 'NORMAL',\n                                   … (+133)"
+    }
+   ],
+   "checks": [
+    {
+     "line": 35,
+     "expr": "rows == [\n        {\"date\": \"2026-10-28\", \"time_local\": \"07:12\", \"systolic\": 124, \"diastolic\": 78, \"pulse\": 58, \"source\": \"MANUAL\", \"category\": \"NORMAL\"},\n        {\"date\": \"2026-10-29\", \"time_local\": \"21:40\", \"systolic\": 131, \"diastolic\": 84, \"pulse\": None, \"source\": \"INDEX_BPM\", \"category\": \"NORMAL\"},\n    ]",
+     "ok": true,
+     "op": "==",
+     "left": "[{'date': '2026-10-28',\n  'time_local': '07:12',\n  'systolic': 124,\n  'diastolic': 78,\n  'pulse': 58,\n  'source': 'MANUAL',\n  'category': 'NORMAL'},\n {'date': '2026-10-29',\n  'time_local': '21:40',\n  'systolic': 131,\n  'diastolic': 84,\n  'pulse': None,\n  'source': 'INDEX_BPM',\n  'category': 'NORMAL'}]",
+     "right": "[{'date': '2026-10-28',\n  'time_local': '07:12',\n  'systolic': 124,\n  'diastolic': 78,\n  'pulse': 58,\n  'source': 'MANUAL',\n  'category': 'NORMAL'},\n {'date': '2026-10-29',\n  'time_local': '21:40',\n  'systolic': 131,\n  'diastolic': 84,\n  'pulse': None,\n  'source': 'INDEX_BPM',\n  'category': 'NORMAL'}]",
+     "detail": null
+    },
+    {
+     "line": 39,
+     "expr": "bloodpressure.parse(None) == []",
+     "ok": true,
+     "op": "==",
+     "left": "[]",
+     "right": "[]"
+    },
+    {
+     "line": 39,
+     "expr": "bloodpressure.parse({\"measurementSummaries\": []}) == []",
+     "ok": true,
+     "op": "==",
+     "left": "[]",
+     "right": "[]"
+    }
+   ],
+   "planned": [
+    {
+     "line": 35,
+     "expr": "rows == [\n        {\"date\": \"2026-10-28\", \"time_local\": \"07:12\", \"systolic\": 124, \"diastolic\": 78, \"pulse\": 58, \"source\": \"MANUAL\", \"category\": \"NORMAL\"},\n        {\"date\": \"2026-10-29\", \"time_local\": \"21:40\", \"systolic\": 131, \"diastolic\": 84, \"pulse\": None, \"source\": \"INDEX_BPM\", \"category\": \"NORMAL\"},\n    ]"
+    },
+    {
+     "line": 39,
+     "expr": "bloodpressure.parse(None) == [] and bloodpressure.parse({\"measurementSummaries\": []}) == []"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000324,
+    "call": 0.002076,
+    "teardown": 0.000109
+   },
+   "duration_s": 0.002509
+  },
+  {
+   "id": "tests/test_bloodpressure.py::test_sync_replaces_the_window_in_chunks",
+   "name": "test_sync_replaces_the_window_in_chunks",
+   "title": "Sync replaces the window in chunks",
+   "file": "tests/test_bloodpressure.py",
+   "line": 42,
+   "critical": true,
+   "doc": "A 100-day sync asks Garmin in chunks of 90 days and replaces the stored window.\n\nA reading deleted in Garmin disappears from the CSV, readings before the window stay.",
+   "inputs": [
+    {
+     "name": "days",
+     "value": "100"
+    },
+    {
+     "name": "today",
+     "value": "'2026-10-30'"
+    },
+    {
+     "name": "stored",
+     "value": "[{'date': '2025-01-01',\n  'time_local': '08:00',\n  'systolic': '120',\n  'diastolic': '75',\n  'pulse': '',\n  'source': '',\n  'category': ''},\n {'date': '2026-10-01',\n  'time_local': '08:00',\n  'systolic': '199',\n  'diastolic': '99',\n  'pulse': '',\n  'source': '',\n  'category': ''}]"
+    },
+    {
+     "name": "garmin",
+     "value": "'one reading on 2026-10-29 in the last chunk, nothing else'"
+    }
+   ],
+   "checks": [
+    {
+     "line": 66,
+     "expr": "calls == [(\"2026-07-23\", \"2026-10-20\"), (\"2026-10-21\", \"2026-10-30\")]",
+     "ok": true,
+     "op": "==",
+     "left": "[('2026-07-23', '2026-10-20'), ('2026-10-21', '2026-10-30')]",
+     "right": "[('2026-07-23', '2026-10-20'), ('2026-10-21', '2026-10-30')]",
+     "detail": null
+    },
+    {
+     "line": 67,
+     "expr": "[(r[\"date\"], r[\"systolic\"]) for r in read_rows(config.BLOOD_PRESSURE_CSV)] == [(\"2025-01-01\", \"120\"), (\"2026-10-29\", \"122\")]",
+     "ok": true,
+     "op": "==",
+     "left": "[('2025-01-01', '120'), ('2026-10-29', '122')]",
+     "right": "[('2025-01-01', '120'), ('2026-10-29', '122')]",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 66,
+     "expr": "calls == [(\"2026-07-23\", \"2026-10-20\"), (\"2026-10-21\", \"2026-10-30\")]"
+    },
+    {
+     "line": 67,
+     "expr": "[(r[\"date\"], r[\"systolic\"]) for r in read_rows(config.BLOOD_PRESSURE_CSV)] == [(\"2025-01-01\", \"120\"), (\"2026-10-29\", \"122\")]"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000605,
+    "call": 0.001884,
+    "teardown": 0.000121
+   },
+   "duration_s": 0.00261
+  },
+  {
+   "id": "tests/test_climbs.py::test_one_row_per_boulder_with_the_rest_that_follows",
+   "name": "test_one_row_per_boulder_with_the_rest_that_follows",
+   "title": "One row per boulder with the rest that follows",
+   "file": "tests/test_climbs.py",
+   "line": 29,
+   "critical": true,
+   "doc": "Garmin's splits become one row per boulder, in time order, with the rest that follows it.\n\nEach row has grade, status, seconds on the wall and heart rate; the last boulder has no rest.",
+   "inputs": [
+    {
+     "name": "activity",
+     "value": "{'date': '2026-10-28',\n 'activity_id': '111',\n 'start_time_local': '2026-10-28 18:00:00',\n 'type': 'bouldering'}"
+    },
+    {
+     "name": "splits",
+     "value": "{'splits': [{'type': 'CLIMB_REST', 'startTimeLocal': '2026-10-28T18:03:10.0', 'duration': 95.6},\n            {'type': 'CLIMB_ACTIVE',\n             'startTimeLocal': '2026-10-28T18:02:11.0',\n             'status': 'CLIMB_COMPLETED',\n             'duration': 28.2,\n             'averageHR': 120,\n             'maxHR': 150,\n             'gradeValue': {'valueKey': '6B', 'sortOrder': 9, 'scale': 'FONT'}},\n            {'type': 'CLIMB_ACTIVE',\n             'startTimeLocal': '2026-10-28T18:04:46.0',\n             'status': 'CLIMB_ATTEMPTED',\n             'duration': 41.7,\n             'averageHR': 131,\n             'maxHR': 162,\n             'gradeValue': {'valueKey': '6C', 'sortOrder': 9, 'scale': 'FONT'}}]}"
+    }
+   ],
+   "checks": [
+    {
+     "line": 41,
+     "expr": "[r[\"climb_no\"] for r in rows] == [1, 2]",
+     "ok": true,
+     "op": "==",
+     "left": "[1, 2]",
+     "right": "[1, 2]",
+     "detail": null
+    },
+    {
+     "line": 42,
+     "expr": "rows[0] == {\n        \"date\": \"2026-10-28\", \"activity_id\": \"111\", \"climb_no\": 1, \"start_time_local\": \"2026-10-28 18:02:11\",\n        \"grade\": \"6B\", \"grade_scale\": \"FONT\", \"grade_order\": 9, \"status\": \"completed\",\n        \"duration_s\": 28, \"rest_after_s\": 96, \"avg_hr\": 120, \"max_hr\": 150,\n    }",
+     "ok": true,
+     "op": "==",
+     "left": "{'date': '2026-10-28',\n 'activity_id': '111',\n 'climb_no': 1,\n 'start_time_local': '2026-10-28 18:02:11',\n 'grade': '6B',\n 'grade_scale': 'FONT',\n 'grade_order': 9,\n 'status': 'completed',\n 'duration_s': 28,\n 'rest_after_s': 96,\n 'avg_hr': 120,\n 'max_hr': 150}",
+     "right": "{'date': '2026-10-28',\n 'activity_id': '111',\n 'climb_no': 1,\n 'start_time_local': '2026-10-28 18:02:11',\n 'grade': '6B',\n 'grade_scale': 'FONT',\n 'grade_order': 9,\n 'status': 'completed',\n 'duration_s': 28,\n 'rest_after_s': 96,\n 'avg_hr': 120,\n 'max_hr': 150}",
+     "detail": null
+    },
+    {
+     "line": 47,
+     "expr": "rows[1][\"status\"] == \"attempted\"",
+     "ok": true,
+     "op": "==",
+     "left": "'attempted'",
+     "right": "'attempted'",
+     "detail": null
+    },
+    {
+     "line": 48,
+     "expr": "rows[1][\"rest_after_s\"] is None",
+     "ok": true,
+     "op": "is",
+     "left": "None",
+     "right": "None",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 41,
+     "expr": "[r[\"climb_no\"] for r in rows] == [1, 2]"
+    },
+    {
+     "line": 42,
+     "expr": "rows[0] == {\n        \"date\": \"2026-10-28\", \"activity_id\": \"111\", \"climb_no\": 1, \"start_time_local\": \"2026-10-28 18:02:11\",\n        \"grade\": \"6B\", \"grade_scale\": \"FONT\", \"grade_order\": 9, \"status\": \"completed\",\n        \"duration_s\": 28, \"rest_after_s\": 96, \"avg_hr\": 120, \"max_hr\": 150,\n    }"
+    },
+    {
+     "line": 47,
+     "expr": "rows[1][\"status\"] == \"attempted\""
+    },
+    {
+     "line": 48,
+     "expr": "rows[1][\"rest_after_s\"] is None"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000356,
+    "call": 0.002561,
+    "teardown": 0.000109
+   },
+   "duration_s": 0.003026
+  },
+  {
+   "id": "tests/test_climbs.py::test_rest_before_the_first_boulder_and_other_split_types_are_ignored",
+   "name": "test_rest_before_the_first_boulder_and_other_split_types_are_ignored",
+   "title": "Rest before the first boulder and other split types are ignored",
+   "file": "tests/test_climbs.py",
+   "line": 51,
+   "critical": true,
+   "doc": "A rest before the first boulder and other split types give no rows; no response gives none.",
+   "inputs": [
+    {
+     "name": "splits",
+     "value": "{'splits': [{'type': 'CLIMB_REST', 'startTimeLocal': '2026-10-28T17:59:00.0', 'duration': 60},\n            {'type': 'INTERVAL_ACTIVE', 'startTimeLocal': '2026-10-28T18:00:00.0'}]}"
+    }
+   ],
+   "checks": [
+    {
+     "line": 56,
+     "expr": "climbs.parse_splits(ACTIVITY, splits) == []",
+     "ok": true,
+     "op": "==",
+     "left": "[]",
+     "right": "[]",
+     "detail": null
+    },
+    {
+     "line": 57,
+     "expr": "climbs.parse_splits(ACTIVITY, None) == []",
+     "ok": true,
+     "op": "==",
+     "left": "[]",
+     "right": "[]",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 56,
+     "expr": "climbs.parse_splits(ACTIVITY, splits) == []"
+    },
+    {
+     "line": 57,
+     "expr": "climbs.parse_splits(ACTIVITY, None) == []"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000236,
+    "call": 0.000624,
+    "teardown": 0.000104
+   },
+   "duration_s": 0.000964
+  },
+  {
+   "id": "tests/test_climbs.py::test_session_summary_with_self_evaluation",
+   "name": "test_session_summary_with_self_evaluation",
+   "title": "Session summary with self evaluation",
+   "file": "tests/test_climbs.py",
+   "line": 60,
+   "critical": true,
+   "doc": "One row per session: boulders, completed, attempted, time on the wall and resting, self evaluation.\n\nGarmin stores the perceived effort as 0-100; 70 becomes 7.0 on the usual 1-10 scale.",
+   "inputs": [
+    {
+     "name": "activity",
+     "value": "{'date': '2026-10-28',\n 'activity_id': '111',\n 'start_time_local': '2026-10-28 18:00:00',\n 'type': 'bouldering'}"
+    },
+    {
+     "name": "boulders",
+     "value": "[{'date': '2026-10-28',\n  'activity_id': '111',\n  'climb_no': 1,\n  'start_time_local': '2026-10-28 18:02:11',\n  'grade': '6B',\n  'grade_scale': 'FONT',\n  'grade_order': 9,\n  'status': 'completed',\n  'duration_s': 30,\n  'rest_after_s': 120,\n  'avg_hr': 120,\n  'max_hr': 150},\n {'date': '2026-10-28',\n  'activity_id': '111',\n  'climb_no': 2,\n  'start_time_local': '2026-10-28 18:04:41',\n  'grade': '6C',\n  'grade_scale': 'FONT',\n  'grade_order': 9,\n  'status': 'attempted',\n  'duration_s': 20,\n  'rest_after_s': None,\n  'avg_hr': 120,\n  'max_hr': 150}]"
+    },
+    {
+     "name": "details",
+     "value": "{'summaryDTO': {'directWorkoutRpe': 70, 'directWorkoutFeel': 75}}"
+    }
+   ],
+   "checks": [
+    {
+     "line": 72,
+     "expr": "session == {\n        \"date\": \"2026-10-28\", \"activity_id\": \"111\", \"start_time_local\": \"2026-10-28 18:00:00\",\n        \"climbs\": 2, \"completed\": 1, \"attempted\": 1, \"wall_s\": 50, \"rest_s\": 120, \"effort\": 7.0, \"feel\": 75,\n    }",
+     "ok": true,
+     "op": "==",
+     "left": "{'date': '2026-10-28',\n 'activity_id': '111',\n 'start_time_local': '2026-10-28 18:00:00',\n 'climbs': 2,\n 'completed': 1,\n 'attempted': 1,\n 'wall_s': 50,\n 'rest_s': 120,\n 'effort': 7.0,\n 'feel': 75}",
+     "right": "{'date': '2026-10-28',\n 'activity_id': '111',\n 'start_time_local': '2026-10-28 18:00:00',\n 'climbs': 2,\n 'completed': 1,\n 'attempted': 1,\n 'wall_s': 50,\n 'rest_s': 120,\n 'effort': 7.0,\n 'feel': 75}",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 72,
+     "expr": "session == {\n        \"date\": \"2026-10-28\", \"activity_id\": \"111\", \"start_time_local\": \"2026-10-28 18:00:00\",\n        \"climbs\": 2, \"completed\": 1, \"attempted\": 1, \"wall_s\": 50, \"rest_s\": 120, \"effort\": 7.0, \"feel\": 75,\n    }"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000221,
+    "call": 0.000749,
+    "teardown": 0.000104
+   },
+   "duration_s": 0.001074
+  },
+  {
+   "id": "tests/test_climbs.py::test_missing_self_evaluation_stays_empty",
+   "name": "test_missing_self_evaluation_stays_empty",
+   "title": "Missing self evaluation stays empty",
+   "file": "tests/test_climbs.py",
+   "line": 78,
+   "critical": true,
+   "doc": "Without a self evaluation, effort and feel stay empty instead of 0; no boulders count as 0.",
+   "inputs": [
+    {
+     "name": "activity",
+     "value": "{'date': '2026-10-28',\n 'activity_id': '111',\n 'start_time_local': '2026-10-28 18:00:00',\n 'type': 'bouldering'}"
+    },
+    {
+     "name": "boulders",
+     "value": "[]"
+    },
+    {
+     "name": "details",
+     "value": "{'summaryDTO': {}}"
+    }
+   ],
+   "checks": [
+    {
+     "line": 82,
+     "expr": "session[\"effort\"] is None",
+     "ok": true,
+     "op": "is",
+     "left": "None",
+     "right": "None"
+    },
+    {
+     "line": 82,
+     "expr": "session[\"feel\"] is None",
+     "ok": true,
+     "op": "is",
+     "left": "None",
+     "right": "None"
+    },
+    {
+     "line": 82,
+     "expr": "session[\"climbs\"] == 0",
+     "ok": true,
+     "op": "==",
+     "left": "0",
+     "right": "0"
+    }
+   ],
+   "planned": [
+    {
+     "line": 82,
+     "expr": "session[\"effort\"] is None and session[\"feel\"] is None and session[\"climbs\"] == 0"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000223,
+    "call": 0.000793,
+    "teardown": 0.000142
+   },
+   "duration_s": 0.001158
+  },
+  {
+   "id": "tests/test_climbs.py::test_sync_fetches_new_and_recent_sessions_and_keeps_older_ones",
+   "name": "test_sync_fetches_new_and_recent_sessions_and_keeps_older_ones",
+   "title": "Sync fetches new and recent sessions and keeps older ones",
+   "file": "tests/test_climbs.py",
+   "line": 107,
+   "critical": true,
+   "doc": "A sync fetches new sessions and those of the last 7 days again, older ones stay as stored.\n\nGrades and the self evaluation can still be edited for a few days, so recent sessions are\nreplaced; older stored sessions keep their rows, and other activity types are skipped.",
+   "inputs": [
+    {
+     "name": "days",
+     "value": "30"
+    },
+    {
+     "name": "today",
+     "value": "'2026-10-29'"
+    },
+    {
+     "name": "activities",
+     "value": "{'old': '2026-10-09', 'recent': '2026-10-28', 'new': '2026-10-19', 'hike': '2026-10-27'}"
+    },
+    {
+     "name": "stored_sessions",
+     "value": "['old', 'recent']"
+    },
+    {
+     "name": "refresh_days",
+     "value": "7"
+    }
+   ],
+   "checks": [
+    {
+     "line": 137,
+     "expr": "sorted(client.calls) == [\"new\", \"recent\"]",
+     "ok": true,
+     "op": "==",
+     "left": "['new', 'recent']",
+     "right": "['new', 'recent']",
+     "detail": null
+    },
+    {
+     "line": 139,
+     "expr": "sessions[\"old\"][\"climbs\"] == \"3\"",
+     "ok": true,
+     "op": "==",
+     "left": "'3'",
+     "right": "'3'",
+     "detail": null
+    },
+    {
+     "line": 141,
+     "expr": "(recent[\"climbs\"], recent[\"effort\"], recent[\"feel\"]) == (\"1\", \"6.0\", \"50\")",
+     "ok": true,
+     "op": "==",
+     "left": "('1', '6.0', '50')",
+     "right": "('1', '6.0', '50')",
+     "detail": null
+    },
+    {
+     "line": 143,
+     "expr": "grades == [(\"old\", \"7A\"), (\"old\", \"7A\"), (\"old\", \"7A\"), (\"new\", \"6A\"), (\"recent\", \"6A\")]",
+     "ok": true,
+     "op": "==",
+     "left": "[('old', '7A'), ('old', '7A'), ('old', '7A'), ('new', '6A'), ('recent', '6A')]",
+     "right": "[('old', '7A'), ('old', '7A'), ('old', '7A'), ('new', '6A'), ('recent', '6A')]",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 137,
+     "expr": "sorted(client.calls) == [\"new\", \"recent\"]"
+    },
+    {
+     "line": 139,
+     "expr": "sessions[\"old\"][\"climbs\"] == \"3\""
+    },
+    {
+     "line": 141,
+     "expr": "(recent[\"climbs\"], recent[\"effort\"], recent[\"feel\"]) == (\"1\", \"6.0\", \"50\")"
+    },
+    {
+     "line": 143,
+     "expr": "grades == [(\"old\", \"7A\"), (\"old\", \"7A\"), (\"old\", \"7A\"), (\"new\", \"6A\"), (\"recent\", \"6A\")]"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000587,
+    "call": 0.003359,
+    "teardown": 0.000127
+   },
+   "duration_s": 0.004073
+  },
+  {
+   "id": "tests/test_climbs.py::test_failed_request_keeps_the_stored_session",
+   "name": "test_failed_request_keeps_the_stored_session",
+   "title": "Failed request keeps the stored session",
+   "file": "tests/test_climbs.py",
+   "line": 146,
+   "critical": true,
+   "doc": "If Garmin fails for a session, its stored rows stay instead of being replaced by nothing.",
+   "inputs": [
+    {
+     "name": "days",
+     "value": "30"
+    },
+    {
+     "name": "stored_session",
+     "value": "{'date': '2026-10-28', 'activity_id': '111', 'climbs': 12}"
+    },
+    {
+     "name": "garmin",
+     "value": "'splits request fails'"
+    }
+   ],
+   "checks": [
+    {
+     "line": 160,
+     "expr": "read_rows(config.CLIMB_SESSIONS_CSV)[0][\"climbs\"] == \"12\"",
+     "ok": true,
+     "op": "==",
+     "left": "'12'",
+     "right": "'12'",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 160,
+     "expr": "read_rows(config.CLIMB_SESSIONS_CSV)[0][\"climbs\"] == \"12\""
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000631,
+    "call": 0.001497,
+    "teardown": 0.000175
+   },
+   "duration_s": 0.002303
+  },
+  {
+   "id": "tests/test_config.py::test_load_settings_missing_and_broken",
+   "name": "test_load_settings_missing_and_broken",
+   "title": "Load settings missing and broken",
+   "file": "tests/test_config.py",
+   "line": 13,
+   "critical": true,
+   "doc": "A missing settings.json, broken JSON or a JSON list give empty settings, so the sync still runs.\n\nBroken JSON is reported as a problem in the sync log.",
+   "inputs": [
+    {
+     "name": "files",
+     "value": "{'settings.json': '(missing)', 'broken.json': '{not json', 'list.json': '[]'}"
+    }
+   ],
+   "checks": [
+    {
+     "line": 20,
+     "expr": "config.load_settings(tmp_path / \"settings.json\") == {}",
+     "ok": true,
+     "op": "==",
+     "left": "{}",
+     "right": "{}",
+     "detail": null
+    },
+    {
+     "line": 24,
+     "expr": "config.load_settings(broken) == {}",
+     "ok": true,
+     "op": "==",
+     "left": "{}",
+     "right": "{}",
+     "detail": null
+    },
+    {
+     "line": 25,
+     "expr": "\"not valid JSON\" in config.SETTINGS_PROBLEMS[0]",
+     "ok": true,
+     "op": "in",
+     "left": "'not valid JSON'",
+     "right": "('/tmp/pytest-of-runner/pytest-0/test_load_settings_missing_and0/broken.json is not valid JSON '\n '(Expecting property name enclosed in double quotes: line 1 column 2 (char 1)); using the '\n 'defaults')",
+     "detail": null
+    },
+    {
+     "line": 28,
+     "expr": "config.load_settings(listed) == {}",
+     "ok": true,
+     "op": "==",
+     "left": "{}",
+     "right": "{}",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 20,
+     "expr": "config.load_settings(tmp_path / \"settings.json\") == {}"
+    },
+    {
+     "line": 24,
+     "expr": "config.load_settings(broken) == {}"
+    },
+    {
+     "line": 25,
+     "expr": "\"not valid JSON\" in config.SETTINGS_PROBLEMS[0]"
+    },
+    {
+     "line": 28,
+     "expr": "config.load_settings(listed) == {}"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.00055,
+    "call": 0.001568,
+    "teardown": 0.000116
+   },
+   "duration_s": 0.002234
+  },
+  {
+   "id": "tests/test_config.py::test_load_settings_reads_object",
+   "name": "test_load_settings_reads_object",
+   "title": "Load settings reads object",
+   "file": "tests/test_config.py",
+   "line": 31,
+   "critical": true,
+   "doc": "A valid settings.json is read unchanged.",
+   "inputs": [
+    {
+     "name": "settings",
+     "value": "{'timezone': 'Europe/Berlin', 'step_goal': 9000}"
+    }
+   ],
+   "checks": [
+    {
+     "line": 37,
+     "expr": "config.load_settings(path) == {\"timezone\": \"Europe/Berlin\", \"step_goal\": 9000}",
+     "ok": true,
+     "op": "==",
+     "left": "{'timezone': 'Europe/Berlin', 'step_goal': 9000}",
+     "right": "{'timezone': 'Europe/Berlin', 'step_goal': 9000}",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 37,
+     "expr": "config.load_settings(path) == {\"timezone\": \"Europe/Berlin\", \"step_goal\": 9000}"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000525,
+    "call": 0.000546,
+    "teardown": 0.000113
+   },
+   "duration_s": 0.001184
+  },
+  {
+   "id": "tests/test_config.py::test_timezone_environment_beats_settings_and_default_is_utc",
+   "name": "test_timezone_environment_beats_settings_and_default_is_utc",
+   "title": "Timezone environment beats settings and default is utc",
+   "file": "tests/test_config.py",
+   "line": 40,
+   "critical": true,
+   "doc": "The time zone comes from SELFTOPO_TZ, then settings.json, otherwise UTC, with its source.\n\nThe source lets the sync warn when it falls back to UTC.",
+   "inputs": [
+    {
+     "name": "environment",
+     "value": "'America/New_York'"
+    },
+    {
+     "name": "settings",
+     "value": "{'timezone': 'Europe/Berlin'}"
+    }
+   ],
+   "checks": [
+    {
+     "line": 48,
+     "expr": "(str(zone), source) == (\"America/New_York\", \"environment\")",
+     "ok": true,
+     "op": "==",
+     "left": "('America/New_York', 'environment')",
+     "right": "('America/New_York', 'environment')",
+     "detail": null
+    },
+    {
+     "line": 50,
+     "expr": "(str(zone), source) == (\"Europe/Berlin\", \"settings.json\")",
+     "ok": true,
+     "op": "==",
+     "left": "('Europe/Berlin', 'settings.json')",
+     "right": "('Europe/Berlin', 'settings.json')",
+     "detail": null
+    },
+    {
+     "line": 52,
+     "expr": "(str(zone), source) == (\"UTC\", \"default\")",
+     "ok": true,
+     "op": "==",
+     "left": "('UTC', 'default')",
+     "right": "('UTC', 'default')",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 48,
+     "expr": "(str(zone), source) == (\"America/New_York\", \"environment\")"
+    },
+    {
+     "line": 50,
+     "expr": "(str(zone), source) == (\"Europe/Berlin\", \"settings.json\")"
+    },
+    {
+     "line": 52,
+     "expr": "(str(zone), source) == (\"UTC\", \"default\")"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000218,
+    "call": 0.001733,
+    "teardown": 0.000106
+   },
+   "duration_s": 0.002057
+  },
+  {
+   "id": "tests/test_config.py::test_unknown_timezone_falls_back_with_a_problem",
+   "name": "test_unknown_timezone_falls_back_with_a_problem",
+   "title": "Unknown timezone falls back with a problem",
+   "file": "tests/test_config.py",
+   "line": 55,
+   "critical": true,
+   "doc": "An unknown time zone falls back to UTC and is named in the problems the sync reports.",
+   "inputs": [
+    {
+     "name": "settings",
+     "value": "{'timezone': 'Mars/Olympus'}"
+    }
+   ],
+   "checks": [
+    {
+     "line": 61,
+     "expr": "(str(zone), source) == (\"UTC\", \"default\")",
+     "ok": true,
+     "op": "==",
+     "left": "('UTC', 'default')",
+     "right": "('UTC', 'default')",
+     "detail": null
+    },
+    {
+     "line": 62,
+     "expr": "\"Mars/Olympus\" in config.SETTINGS_PROBLEMS[0]",
+     "ok": true,
+     "op": "in",
+     "left": "'Mars/Olympus'",
+     "right": "\"Unknown time zone 'Mars/Olympus' in the settings.json\"",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 61,
+     "expr": "(str(zone), source) == (\"UTC\", \"default\")"
+    },
+    {
+     "line": 62,
+     "expr": "\"Mars/Olympus\" in config.SETTINGS_PROBLEMS[0]"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000272,
+    "call": 0.00125,
+    "teardown": 0.000108
+   },
+   "duration_s": 0.00163
+  },
+  {
+   "id": "tests/test_config.py::test_grip_exercises_from_settings_or_defaults",
+   "name": "test_grip_exercises_from_settings_or_defaults",
+   "title": "Grip exercises from settings or defaults",
+   "file": "tests/test_config.py",
+   "line": 65,
+   "critical": false,
+   "doc": "Grip exercises come from settings.json or default to Hevy's English and German names.\n\nBlank names are dropped; a wrong format falls back to the defaults and is reported.",
+   "inputs": [
+    {
+     "name": "settings",
+     "value": "{'grip_exercises': {'left': ['Grip L', ' '], 'right': ['Grip R']}}"
+    },
+    {
+     "name": "wrong_format",
+     "value": "['x']"
+    }
+   ],
+   "checks": [
+    {
+     "line": 71,
+     "expr": "\"Left-hand Grip Strength\" in config.resolve_grip_exercises({})",
+     "ok": true,
+     "op": "in",
+     "left": "'Left-hand Grip Strength'",
+     "right": "('Left-hand Grip Strength', 'Handkraft links', 'Right-hand Grip Strength', 'Handkraft rechts')",
+     "detail": "where ('Left-hand Grip Strength', 'Handkraft links', 'Right-hand Grip Strength', 'Handkraft rechts') = <function resolve_grip_exercises>({})\nwhere <function resolve_grip_exercises> = config.resolve_grip_exercises"
+    },
+    {
+     "line": 73,
+     "expr": "names == (\"Grip L\", \"Grip R\")",
+     "ok": true,
+     "op": "==",
+     "left": "('Grip L', 'Grip R')",
+     "right": "('Grip L', 'Grip R')",
+     "detail": null
+    },
+    {
+     "line": 75,
+     "expr": "config.resolve_grip_exercises({\"grip_exercises\": [\"x\"]}) == config.resolve_grip_exercises({})",
+     "ok": true,
+     "op": "==",
+     "left": "('Left-hand Grip Strength', 'Handkraft links', 'Right-hand Grip Strength', 'Handkraft rechts')",
+     "right": "('Left-hand Grip Strength', 'Handkraft links', 'Right-hand Grip Strength', 'Handkraft rechts')",
+     "detail": null
+    },
+    {
+     "line": 76,
+     "expr": "config.SETTINGS_PROBLEMS",
+     "ok": true,
+     "op": "truthy",
+     "left": "['\"grip_exercises\" in settings.json must be {\"left\": [...], \"right\": [...]}']",
+     "right": null,
+     "detail": "where ['\"grip_exercises\" in settings.json must be {\"left\": [...], \"right\": [...]}'] = config.SETTINGS_PROBLEMS"
+    }
+   ],
+   "planned": [
+    {
+     "line": 71,
+     "expr": "\"Left-hand Grip Strength\" in config.resolve_grip_exercises({})"
+    },
+    {
+     "line": 73,
+     "expr": "names == (\"Grip L\", \"Grip R\")"
+    },
+    {
+     "line": 75,
+     "expr": "config.resolve_grip_exercises({\"grip_exercises\": [\"x\"]}) == config.resolve_grip_exercises({})"
+    },
+    {
+     "line": 76,
+     "expr": "config.SETTINGS_PROBLEMS"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000261,
+    "call": 0.001184,
+    "teardown": 0.000108
+   },
+   "duration_s": 0.001553
+  },
+  {
+   "id": "tests/test_dashboard.py::test_dictionary_is_valid_and_has_no_empty_entries",
+   "name": "test_dictionary_is_valid_and_has_no_empty_entries",
+   "title": "Dictionary is valid and has no empty entries",
+   "file": "tests/test_dashboard.py",
+   "line": 23,
+   "critical": false,
+   "doc": "The English dictionary is valid JSON with more than 1000 entries and no empty translation.",
+   "inputs": [
+    {
+     "name": "file",
+     "value": "'dashboard/index.html'"
+    },
+    {
+     "name": "block",
+     "value": "'script#i18n-en'"
+    }
+   ],
+   "checks": [
+    {
+     "line": 15,
+     "expr": "block",
+     "ok": true,
+     "op": "truthy",
+     "left": "<re.Match object; span=(131993, 255130), match='<script type=\"application/json\" id=\"i18n-en\">\\n{\\>",
+     "right": null,
+     "detail": null
+    },
+    {
+     "line": 27,
+     "expr": "len(d) > 1000",
+     "ok": true,
+     "op": ">",
+     "left": "1177",
+     "right": "1000",
+     "detail": "where 1177 = len({'Bankdrücken': 'Bench press', 'Kniebeuge': 'Squat', 'Kreuzheben': 'Deadlift', 'Klimmzug mit Zusatzgewicht': 'Weighted pull-up', ...})"
+    },
+    {
+     "line": 28,
+     "expr": "not [k for k, v in d.items() if not v.strip()]",
+     "ok": true,
+     "op": "falsy",
+     "left": "[]",
+     "right": null,
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 27,
+     "expr": "len(d) > 1000"
+    },
+    {
+     "line": 28,
+     "expr": "not [k for k, v in d.items() if not v.strip()]"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000326,
+    "call": 0.003588,
+    "teardown": 0.000148
+   },
+   "duration_s": 0.004062
+  },
+  {
+   "id": "tests/test_dashboard.py::test_every_translated_literal_has_an_english_entry",
+   "name": "test_every_translated_literal_has_an_english_entry",
+   "title": "Every translated literal has an english entry",
+   "file": "tests/test_dashboard.py",
+   "line": 31,
+   "critical": false,
+   "doc": "Every text the script passes to T(\"…\") has an English entry; otherwise English shows German.",
+   "inputs": [
+    {
+     "name": "file",
+     "value": "'dashboard/index.html'"
+    },
+    {
+     "name": "translated_literals",
+     "value": "740"
+    },
+    {
+     "name": "dictionary_entries",
+     "value": "1177"
+    }
+   ],
+   "checks": [
+    {
+     "line": 15,
+     "expr": "block",
+     "ok": true,
+     "op": "truthy",
+     "left": "<re.Match object; span=(131993, 255130), match='<script type=\"application/json\" id=\"i18n-en\">\\n{\\>",
+     "right": null,
+     "detail": null
+    },
+    {
+     "line": 37,
+     "expr": "not missing",
+     "ok": true,
+     "op": "falsy",
+     "left": "[]",
+     "right": null,
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 37,
+     "expr": "not missing"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000222,
+    "call": 0.010698,
+    "teardown": 0.000107
+   },
+   "duration_s": 0.011027
+  },
+  {
+   "id": "tests/test_dashboard.py::test_placeholders_match",
+   "name": "test_placeholders_match",
+   "title": "Placeholders match",
+   "file": "tests/test_dashboard.py",
+   "line": 40,
+   "critical": false,
+   "doc": "German keys and English texts use the same placeholders {0}, {1}, …, so no value goes missing.",
+   "inputs": [
+    {
+     "name": "file",
+     "value": "'dashboard/index.html'"
+    },
+    {
+     "name": "dictionary_entries",
+     "value": "1177"
+    }
+   ],
+   "checks": [
+    {
+     "line": 15,
+     "expr": "block",
+     "ok": true,
+     "op": "truthy",
+     "left": "<re.Match object; span=(131993, 255130), match='<script type=\"application/json\" id=\"i18n-en\">\\n{\\>",
+     "right": null,
+     "detail": null
+    },
+    {
+     "line": 45,
+     "expr": "not wrong",
+     "ok": true,
+     "op": "falsy",
+     "left": "[]",
+     "right": null,
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 45,
+     "expr": "not wrong"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000251,
+    "call": 0.004533,
+    "teardown": 0.000106
+   },
+   "duration_s": 0.00489
+  },
+  {
+   "id": "tests/test_dashboard.py::test_service_worker_has_a_version",
+   "name": "test_service_worker_has_a_version",
+   "title": "Service worker has a version",
+   "file": "tests/test_dashboard.py",
+   "line": 48,
+   "critical": false,
+   "doc": "sw.js defines a VERSION; installed apps use it to drop their old copy after an update.",
+   "inputs": [
+    {
+     "name": "file",
+     "value": "'dashboard/sw.js'"
+    }
+   ],
+   "checks": [
+    {
+     "line": 52,
+     "expr": "re.search(r'const VERSION = \"\\d+\";', sw)",
+     "ok": true,
+     "op": "truthy",
+     "left": "<re.Match object; span=(440, 461), match='const VERSION = \"16\";'>",
+     "right": null,
+     "detail": "where <re.Match object; span=(440, 461), match='const VERSION = \"16\";'> = <function search>('const VERSION = \"\\\\d+\";', '// Service worker of the selftopo dashboard: makes it installable and opens it offline.\\n//\\n// App files in this fol...t hit = await cache.match(key, { ignoreSearch: true });\\n      return hit || Response.error();\\n    }\\n  })());\\n});\\n')\nwhere <function search> = re.search"
+    }
+   ],
+   "planned": [
+    {
+     "line": 52,
+     "expr": "re.search(r'const VERSION = \"\\d+\";', sw)"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000217,
+    "call": 0.000453,
+    "teardown": 0.000106
+   },
+   "duration_s": 0.000776
+  },
+  {
+   "id": "tests/test_fitness.py::test_endpoints_are_parsed_per_day",
+   "name": "test_endpoints_are_parsed_per_day",
+   "title": "Endpoints are parsed per day",
+   "file": "tests/test_fitness.py",
+   "line": 24,
+   "critical": true,
+   "doc": "VO2max, race predictions, Hill Score and Endurance Score become one value per day.\n\nVO2max is rounded to one decimal, race times stay in seconds, days without a value are dropped,\nand the Endurance Score combines the weekly averages with today's value.",
+   "inputs": [
+    {
+     "name": "max_metrics",
+     "value": "[{'generic': {'calendarDate': '2026-09-18', 'vo2MaxPreciseValue': 45.24, 'vo2MaxValue': 45.0},\n  'cycling': None},\n {'generic': None, 'cycling': None}]"
+    },
+    {
+     "name": "race_predictions",
+     "value": "[{'calendarDate': '2026-10-29',\n  'time5K': 1704,\n  'time10K': 3729,\n  'timeHalfMarathon': 8667,\n  'timeMarathon': 19922}]"
+    },
+    {
+     "name": "hill_score",
+     "value": "{'hillScoreDTOList': [{'calendarDate': '2026-08-06',\n                       'overallScore': 28,\n                       'strengthScore': 14,\n                       'enduranceScore': 17},\n                      {'calendarDate': '2026-08-07', 'overallScore': None}]}"
+    },
+    {
+     "name": "endurance_score",
+     "value": "{'groupMap': {'2026-10-16': {'groupAverage': 4840}, '2026-10-23': {'groupAverage': 4829}},\n 'enduranceScoreDTO': {'calendarDate': '2026-10-29', 'overallScore': 4821}}"
+    }
+   ],
+   "checks": [
+    {
+     "line": 44,
+     "expr": "fitness.parse_max_metrics(max_metrics) == {\"2026-09-18\": {\"vo2max\": 45.2, \"vo2max_cycling\": None}}",
+     "ok": true,
+     "op": "==",
+     "left": "{'2026-09-18': {'vo2max': 45.2, 'vo2max_cycling': None}}",
+     "right": "{'2026-09-18': {'vo2max': 45.2, 'vo2max_cycling': None}}",
+     "detail": null
+    },
+    {
+     "line": 45,
+     "expr": "fitness.parse_race_predictions(race) == {\n        \"2026-10-29\": {\"race_5k_s\": 1704, \"race_10k_s\": 3729, \"race_half_s\": 8667, \"race_marathon_s\": 19922}}",
+     "ok": true,
+     "op": "==",
+     "left": "{'2026-10-29': {'race_5k_s': 1704,\n                'race_10k_s': 3729,\n                'race_half_s': 8667,\n                'race_marathon_s': 19922}}",
+     "right": "{'2026-10-29': {'race_5k_s': 1704,\n                'race_10k_s': 3729,\n                'race_half_s': 8667,\n                'race_marathon_s': 19922}}",
+     "detail": null
+    },
+    {
+     "line": 47,
+     "expr": "fitness.parse_hill_score(hill) == {\"2026-08-06\": {\"hill_score\": 28, \"hill_strength\": 14, \"hill_endurance\": 17}}",
+     "ok": true,
+     "op": "==",
+     "left": "{'2026-08-06': {'hill_score': 28, 'hill_strength': 14, 'hill_endurance': 17}}",
+     "right": "{'2026-08-06': {'hill_score': 28, 'hill_strength': 14, 'hill_endurance': 17}}",
+     "detail": null
+    },
+    {
+     "line": 48,
+     "expr": "fitness.parse_endurance_score(endurance) == {\n        \"2026-10-16\": {\"endurance_score\": 4840}, \"2026-10-23\": {\"endurance_score\": 4829}, \"2026-10-29\": {\"endurance_score\": 4821}}",
+     "ok": true,
+     "op": "==",
+     "left": "{'2026-10-16': {'endurance_score': 4840},\n '2026-10-23': {'endurance_score': 4829},\n '2026-10-29': {'endurance_score': 4821}}",
+     "right": "{'2026-10-16': {'endurance_score': 4840},\n '2026-10-23': {'endurance_score': 4829},\n '2026-10-29': {'endurance_score': 4821}}",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 44,
+     "expr": "fitness.parse_max_metrics(max_metrics) == {\"2026-09-18\": {\"vo2max\": 45.2, \"vo2max_cycling\": None}}"
+    },
+    {
+     "line": 45,
+     "expr": "fitness.parse_race_predictions(race) == {\n        \"2026-10-29\": {\"race_5k_s\": 1704, \"race_10k_s\": 3729, \"race_half_s\": 8667, \"race_marathon_s\": 19922}}"
+    },
+    {
+     "line": 47,
+     "expr": "fitness.parse_hill_score(hill) == {\"2026-08-06\": {\"hill_score\": 28, \"hill_strength\": 14, \"hill_endurance\": 17}}"
+    },
+    {
+     "line": 48,
+     "expr": "fitness.parse_endurance_score(endurance) == {\n        \"2026-10-16\": {\"endurance_score\": 4840}, \"2026-10-23\": {\"endurance_score\": 4829}, \"2026-10-29\": {\"endurance_score\": 4821}}"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000311,
+    "call": 0.002419,
+    "teardown": 0.000119
+   },
+   "duration_s": 0.002849
+  },
+  {
+   "id": "tests/test_fitness.py::test_status_of_the_primary_device",
+   "name": "test_status_of_the_primary_device",
+   "title": "Status of the primary device",
+   "file": "tests/test_fitness.py",
+   "line": 52,
+   "critical": true,
+   "doc": "Training status, loads and ACWR come from the primary device; fitness age to one decimal.\n\nThe Endurance Score limits are kept for the gauge; a missing load balance stays empty.",
+   "inputs": [
+    {
+     "name": "training_status",
+     "value": "{'mostRecentTrainingStatus': {'latestTrainingStatusData': {'1': {'primaryTrainingDevice': True,\n                                                                 'calendarDate': '2026-10-29',\n                                                                 'trainingStatusFeedbackPhrase': 'PRODUCTIVE_1',\n                                                                 'trainingPaused': False,\n                                                                 'acuteTrainingLoadDTO': {'dailyTrainingLoadAcute': 198,\n                                                                                          'dailyTrainingLoadChronic': 176,\n                                                                                          'minTrainingLoadChronic': 140.8,\n                                                                                          'maxTrainingLoadChronic': 264.0,\n                                                                                          'dailyAcuteChronicWorkloadRatio': 1.1,\n                                                                                          'acwrStatus': 'OPTIMAL'}}}}}"
+    },
+    {
+     "name": "fitness_age",
+     "value": "{'fitnessAge': 37.1029, 'achievableFitnessAge': 32.58, 'chronologicalAge': 38}"
+    },
+    {
+     "name": "endurance_score",
+     "value": "{'enduranceScoreDTO': {'overallScore': 4821, 'classificationLowerLimitTrained': 5800}}"
+    }
+   ],
+   "checks": [
+    {
+     "line": 62,
+     "expr": "(status[\"training_status\"], status[\"acute_load\"], status[\"chronic_load\"], status[\"acwr\"]) == (\"PRODUCTIVE_1\", 198, 176, 1.1)",
+     "ok": true,
+     "op": "==",
+     "left": "('PRODUCTIVE_1', 198, 176, 1.1)",
+     "right": "('PRODUCTIVE_1', 198, 176, 1.1)",
+     "detail": null
+    },
+    {
+     "line": 63,
+     "expr": "(status[\"fitness_age\"], status[\"endurance_limits\"][\"trained\"]) == (37.1, 5800)",
+     "ok": true,
+     "op": "==",
+     "left": "(37.1, 5800)",
+     "right": "(37.1, 5800)",
+     "detail": null
+    },
+    {
+     "line": 64,
+     "expr": "status[\"load_balance\"] is None",
+     "ok": true,
+     "op": "is",
+     "left": "None",
+     "right": "None",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 62,
+     "expr": "(status[\"training_status\"], status[\"acute_load\"], status[\"chronic_load\"], status[\"acwr\"]) == (\"PRODUCTIVE_1\", 198, 176, 1.1)"
+    },
+    {
+     "line": 63,
+     "expr": "(status[\"fitness_age\"], status[\"endurance_limits\"][\"trained\"]) == (37.1, 5800)"
+    },
+    {
+     "line": 64,
+     "expr": "status[\"load_balance\"] is None"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000221,
+    "call": 0.000961,
+    "teardown": 9.4e-05
+   },
+   "duration_s": 0.001276
+  },
+  {
+   "id": "tests/test_fitness.py::test_sync_replaces_the_window_and_writes_today",
+   "name": "test_sync_replaces_the_window_and_writes_today",
+   "title": "Sync replaces the window and writes today",
+   "file": "tests/test_fitness.py",
+   "line": 67,
+   "critical": true,
+   "doc": "A 30-day sync replaces the stored window, keeps older rows and writes today's status.\n\nA day Garmin no longer reports is dropped; a failed endpoint (here Hill Score) leaves its\ncolumns empty instead of stopping the sync.",
+   "inputs": [
+    {
+     "name": "days",
+     "value": "30"
+    },
+    {
+     "name": "today",
+     "value": "'2026-10-29'"
+    },
+    {
+     "name": "stored",
+     "value": "[{'date': '2026-01-05',\n  'vo2max': '47.0',\n  'vo2max_cycling': '',\n  'race_5k_s': '',\n  'race_10k_s': '',\n  'race_half_s': '',\n  'race_marathon_s': '',\n  'hill_score': '',\n  'hill_strength': '',\n  'hill_endurance': '',\n  'endurance_score': '',\n  'acute_load': '',\n  'chronic_load': '',\n  'acwr': '',\n  'fitness_age': '',\n  'training_status': ''},\n {'date': '2026-10-20',\n  'vo2max': '99.0',\n  'vo2max_cycling': '',\n  'race_5k_s': '',\n  'race_10k_s': '',\n  'race_half_s': '',\n  'race_marathon_s': '',\n  'hill_score': '',\n  'hill_strength': '',\n  'hill_endurance': '',\n  'endurance_score': '',\n  'acute_load': '',\n  'chronic_load': '',\n  'acwr': '',\n  'fitness_age': '',\n  'training_status': ''}]"
+    },
+    {
+     "name": "garmin",
+     "value": "'VO2max on 2026-10-22, 5K prediction and status today, Hill Score request fails'"
+    }
+   ],
+   "checks": [
+    {
+     "line": 106,
+     "expr": "sorted(rows) == [\"2026-01-05\", \"2026-10-22\", \"2026-10-29\"]",
+     "ok": true,
+     "op": "==",
+     "left": "['2026-01-05', '2026-10-22', '2026-10-29']",
+     "right": "['2026-01-05', '2026-10-22', '2026-10-29']",
+     "detail": null
+    },
+    {
+     "line": 107,
+     "expr": "rows[\"2026-10-22\"][\"vo2max\"] == \"45.2\"",
+     "ok": true,
+     "op": "==",
+     "left": "'45.2'",
+     "right": "'45.2'",
+     "detail": null
+    },
+    {
+     "line": 108,
+     "expr": "(rows[\"2026-10-29\"][\"race_5k_s\"], rows[\"2026-10-29\"][\"acute_load\"], rows[\"2026-10-29\"][\"fitness_age\"]) == (\"1704\", \"198\", \"37.1\")",
+     "ok": true,
+     "op": "==",
+     "left": "('1704', '198', '37.1')",
+     "right": "('1704', '198', '37.1')",
+     "detail": null
+    },
+    {
+     "line": 109,
+     "expr": "json.loads(config.FITNESS_STATUS_JSON.read_text())[\"training_status\"] == \"PRODUCTIVE_1\"",
+     "ok": true,
+     "op": "==",
+     "left": "'PRODUCTIVE_1'",
+     "right": "'PRODUCTIVE_1'",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 106,
+     "expr": "sorted(rows) == [\"2026-01-05\", \"2026-10-22\", \"2026-10-29\"]"
+    },
+    {
+     "line": 107,
+     "expr": "rows[\"2026-10-22\"][\"vo2max\"] == \"45.2\""
+    },
+    {
+     "line": 108,
+     "expr": "(rows[\"2026-10-29\"][\"race_5k_s\"], rows[\"2026-10-29\"][\"acute_load\"], rows[\"2026-10-29\"][\"fitness_age\"]) == (\"1704\", \"198\", \"37.1\")"
+    },
+    {
+     "line": 109,
+     "expr": "json.loads(config.FITNESS_STATUS_JSON.read_text())[\"training_status\"] == \"PRODUCTIVE_1\""
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000564,
+    "call": 0.002288,
+    "teardown": 0.000108
+   },
+   "duration_s": 0.00296
+  },
+  {
+   "id": "tests/test_parsers.py::test_body_composition_keeps_first_weigh_in_and_converts_grams",
+   "name": "test_body_composition_keeps_first_weigh_in_and_converts_grams",
+   "title": "Body composition keeps first weigh in and converts grams",
+   "file": "tests/test_parsers.py",
+   "line": 20,
+   "critical": true,
+   "doc": "With two weigh-ins on one day the earliest counts; grams become kilograms, fat mass is derived.",
+   "inputs": [
+    {
+     "name": "payload",
+     "value": "{'dateWeightList': [{'calendarDate': '2026-10-13', 'timestampGMT': 9, 'weight': 82000},\n                    {'calendarDate': '2026-10-13',\n                     'timestampGMT': 2,\n                     'weight': 81200,\n                     'bodyFat': 15.0,\n                     'muscleMass': 38900}]}"
+    }
+   ],
+   "checks": [
+    {
+     "line": 28,
+     "expr": "day[\"weight_kg\"] == 81.2",
+     "ok": true,
+     "op": "==",
+     "left": "81.2",
+     "right": "81.2",
+     "detail": null
+    },
+    {
+     "line": 29,
+     "expr": "day[\"fat_mass_kg\"] == 12.18",
+     "ok": true,
+     "op": "==",
+     "left": "12.18",
+     "right": "12.18",
+     "detail": null
+    },
+    {
+     "line": 30,
+     "expr": "day[\"muscle_mass_kg\"] == 38.9",
+     "ok": true,
+     "op": "==",
+     "left": "38.9",
+     "right": "38.9",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 28,
+     "expr": "day[\"weight_kg\"] == 81.2"
+    },
+    {
+     "line": 29,
+     "expr": "day[\"fat_mass_kg\"] == 12.18"
+    },
+    {
+     "line": 30,
+     "expr": "day[\"muscle_mass_kg\"] == 38.9"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000316,
+    "call": 0.001659,
+    "teardown": 9.5e-05
+   },
+   "duration_s": 0.00207
+  },
+  {
+   "id": "tests/test_parsers.py::test_sleep_times_are_local_across_daylight_saving",
+   "name": "test_sleep_times_are_local_across_daylight_saving",
+   "title": "Sleep times are local across daylight saving",
+   "file": "tests/test_parsers.py",
+   "line": 33,
+   "critical": true,
+   "doc": "Sleep start and end are stored in local time: UTC+2 in October, UTC+1 in January (Vienna).",
+   "inputs": [
+    {
+     "name": "timezone",
+     "value": "'Europe/Vienna'"
+    },
+    {
+     "name": "summer_utc",
+     "value": "'2026-10-13 21:12 to 2026-10-14 04:31'"
+    },
+    {
+     "name": "winter_utc",
+     "value": "'2027-01-12 21:45'"
+    }
+   ],
+   "checks": [
+    {
+     "line": 41,
+     "expr": "summer[\"sleep_start_local\"] == \"2026-10-13 23:12\"",
+     "ok": true,
+     "op": "==",
+     "left": "'2026-10-13 23:12'",
+     "right": "'2026-10-13 23:12'",
+     "detail": null
+    },
+    {
+     "line": 42,
+     "expr": "summer[\"sleep_end_local\"] == \"2026-10-14 06:31\"",
+     "ok": true,
+     "op": "==",
+     "left": "'2026-10-14 06:31'",
+     "right": "'2026-10-14 06:31'",
+     "detail": null
+    },
+    {
+     "line": 43,
+     "expr": "winter[\"sleep_start_local\"] == \"2027-01-12 22:45\"",
+     "ok": true,
+     "op": "==",
+     "left": "'2027-01-12 22:45'",
+     "right": "'2027-01-12 22:45'",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 41,
+     "expr": "summer[\"sleep_start_local\"] == \"2026-10-13 23:12\""
+    },
+    {
+     "line": 42,
+     "expr": "summer[\"sleep_end_local\"] == \"2026-10-14 06:31\""
+    },
+    {
+     "line": 43,
+     "expr": "winter[\"sleep_start_local\"] == \"2027-01-12 22:45\""
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.00022,
+    "call": 0.000651,
+    "teardown": 9.2e-05
+   },
+   "duration_s": 0.000963
+  },
+  {
+   "id": "tests/test_parsers.py::test_missing_payloads_give_empty_values",
+   "name": "test_missing_payloads_give_empty_values",
+   "title": "Missing payloads give empty values",
+   "file": "tests/test_parsers.py",
+   "line": 46,
+   "critical": true,
+   "doc": "When Garmin returns nothing for sleep, HRV or the daily summary, the values stay empty.",
+   "inputs": [
+    {
+     "name": "payload",
+     "value": "None"
+    }
+   ],
+   "checks": [
+    {
+     "line": 49,
+     "expr": "garmin.parse_sleep(None)[\"sleep_score\"] is None",
+     "ok": true,
+     "op": "is",
+     "left": "None",
+     "right": "None",
+     "detail": null
+    },
+    {
+     "line": 50,
+     "expr": "garmin.parse_hrv(None)[\"hrv_last_night_ms\"] is None",
+     "ok": true,
+     "op": "is",
+     "left": "None",
+     "right": "None",
+     "detail": null
+    },
+    {
+     "line": 51,
+     "expr": "garmin.parse_daily_summary(None)[\"steps\"] is None",
+     "ok": true,
+     "op": "is",
+     "left": "None",
+     "right": "None",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 49,
+     "expr": "garmin.parse_sleep(None)[\"sleep_score\"] is None"
+    },
+    {
+     "line": 50,
+     "expr": "garmin.parse_hrv(None)[\"hrv_last_night_ms\"] is None"
+    },
+    {
+     "line": 51,
+     "expr": "garmin.parse_daily_summary(None)[\"steps\"] is None"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000235,
+    "call": 0.000479,
+    "teardown": 9.1e-05
+   },
+   "duration_s": 0.000805
+  },
+  {
+   "id": "tests/test_parsers.py::test_negative_stress_means_not_enough_data",
+   "name": "test_negative_stress_means_not_enough_data",
+   "title": "Negative stress means not enough data",
+   "file": "tests/test_parsers.py",
+   "line": 54,
+   "critical": true,
+   "doc": "Garmin's average stress of −1 means too little data and is stored as empty, not as −1.",
+   "inputs": [
+    {
+     "name": "payload",
+     "value": "{'averageStressLevel': -1}"
+    }
+   ],
+   "checks": [
+    {
+     "line": 57,
+     "expr": "garmin.parse_daily_summary({\"averageStressLevel\": -1})[\"stress_avg\"] is None",
+     "ok": true,
+     "op": "is",
+     "left": "None",
+     "right": "None",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 57,
+     "expr": "garmin.parse_daily_summary({\"averageStressLevel\": -1})[\"stress_avg\"] is None"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000237,
+    "call": 0.000244,
+    "teardown": 8.8e-05
+   },
+   "duration_s": 0.000569
+  },
+  {
+   "id": "tests/test_parsers.py::test_readiness_prefers_the_morning_value",
+   "name": "test_readiness_prefers_the_morning_value",
+   "title": "Readiness prefers the morning value",
+   "file": "tests/test_parsers.py",
+   "line": 60,
+   "critical": true,
+   "doc": "Of several Training Readiness values per day, the one after waking up counts.",
+   "inputs": [
+    {
+     "name": "payload",
+     "value": "[{'score': 40,\n  'level': 'LOW',\n  'timestampLocal': '2026-10-13T18:00',\n  'inputContext': 'AFTER_ACTIVITY'},\n {'score': 75,\n  'level': 'HIGH',\n  'timestampLocal': '2026-10-13T07:00',\n  'inputContext': 'AFTER_WAKEUP_RESET'}]"
+    }
+   ],
+   "checks": [
+    {
+     "line": 67,
+     "expr": "garmin.parse_training_readiness(payload) == {\"readiness_score\": 75, \"readiness_level\": \"HIGH\"}",
+     "ok": true,
+     "op": "==",
+     "left": "{'readiness_score': 75, 'readiness_level': 'HIGH'}",
+     "right": "{'readiness_score': 75, 'readiness_level': 'HIGH'}",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 67,
+     "expr": "garmin.parse_training_readiness(payload) == {\"readiness_score\": 75, \"readiness_level\": \"HIGH\"}"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000204,
+    "call": 0.000522,
+    "teardown": 9.2e-05
+   },
+   "duration_s": 0.000818
+  },
+  {
+   "id": "tests/test_parsers.py::test_activity_units",
+   "name": "test_activity_units",
+   "title": "Activity units",
+   "file": "tests/test_parsers.py",
+   "line": 70,
+   "critical": true,
+   "doc": "Activities in minutes, kilometres (2 decimals), whole metres and beats, load and effect to 0.1.",
+   "inputs": [
+    {
+     "name": "activity",
+     "value": "{'activityId': 7,\n 'startTimeLocal': '2026-10-11 07:15:00',\n 'activityType': {'typeKey': 'hiking'},\n 'duration': 23400,\n 'movingDuration': 18000,\n 'distance': 14250.7,\n 'elevationGain': 1532.4,\n 'averageHR': 117.6,\n 'activityTrainingLoad': 241.26,\n 'aerobicTrainingEffect': 3.94}"
+    }
+   ],
+   "checks": [
+    {
+     "line": 79,
+     "expr": "row[\"date\"] == \"2026-10-11\"",
+     "ok": true,
+     "op": "==",
+     "left": "'2026-10-11'",
+     "right": "'2026-10-11'",
+     "detail": null
+    },
+    {
+     "line": 80,
+     "expr": "(row[\"duration_min\"], row[\"moving_min\"]) == (390.0, 300.0)",
+     "ok": true,
+     "op": "==",
+     "left": "(390.0, 300.0)",
+     "right": "(390.0, 300.0)",
+     "detail": null
+    },
+    {
+     "line": 81,
+     "expr": "(row[\"distance_km\"], row[\"elevation_gain_m\"], row[\"avg_hr\"]) == (14.25, 1532, 118)",
+     "ok": true,
+     "op": "==",
+     "left": "(14.25, 1532, 118)",
+     "right": "(14.25, 1532, 118)",
+     "detail": null
+    },
+    {
+     "line": 82,
+     "expr": "(row[\"training_load\"], row[\"aerobic_te\"]) == (241.3, 3.9)",
+     "ok": true,
+     "op": "==",
+     "left": "(241.3, 3.9)",
+     "right": "(241.3, 3.9)",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 79,
+     "expr": "row[\"date\"] == \"2026-10-11\""
+    },
+    {
+     "line": 80,
+     "expr": "(row[\"duration_min\"], row[\"moving_min\"]) == (390.0, 300.0)"
+    },
+    {
+     "line": 81,
+     "expr": "(row[\"distance_km\"], row[\"elevation_gain_m\"], row[\"avg_hr\"]) == (14.25, 1532, 118)"
+    },
+    {
+     "line": 82,
+     "expr": "(row[\"training_load\"], row[\"aerobic_te\"]) == (241.3, 3.9)"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000232,
+    "call": 0.001185,
+    "teardown": 9.2e-05
+   },
+   "duration_s": 0.001509
+  },
+  {
+   "id": "tests/test_parsers.py::test_activity_without_distance_has_empty_distance",
+   "name": "test_activity_without_distance_has_empty_distance",
+   "title": "Activity without distance has empty distance",
+   "file": "tests/test_parsers.py",
+   "line": 85,
+   "critical": true,
+   "doc": "A distance of 0 (strength training, bouldering) is stored as empty, so it does not lower averages.",
+   "inputs": [
+    {
+     "name": "activity",
+     "value": "{'startTimeLocal': '2026-10-14 18:00:00', 'distance': 0}"
+    }
+   ],
+   "checks": [
+    {
+     "line": 88,
+     "expr": "activities.parse_activity({\"startTimeLocal\": \"2026-10-14 18:00:00\", \"distance\": 0})[\"distance_km\"] is None",
+     "ok": true,
+     "op": "is",
+     "left": "None",
+     "right": "None",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 88,
+     "expr": "activities.parse_activity({\"startTimeLocal\": \"2026-10-14 18:00:00\", \"distance\": 0})[\"distance_km\"] is None"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000214,
+    "call": 0.000318,
+    "teardown": 9.1e-05
+   },
+   "duration_s": 0.000623
+  },
+  {
+   "id": "tests/test_parsers.py::test_hevy_dates_use_local_time",
+   "name": "test_hevy_dates_use_local_time",
+   "title": "Hevy dates use local time",
+   "file": "tests/test_parsers.py",
+   "line": 91,
+   "critical": true,
+   "doc": "A Hevy workout at 22:30 UTC counts for the next day in Vienna (00:30), not the day before.",
+   "inputs": [
+    {
+     "name": "workout",
+     "value": "{'id': 'w',\n 'title': 'Pull',\n 'start_time': '2026-10-13T22:30:00+00:00',\n 'exercises': [{'title': 'Pull Up (Weighted)',\n                'sets': [{'type': 'normal', 'weight_kg': 10, 'reps': 5}]}]}"
+    },
+    {
+     "name": "timezone",
+     "value": "'Europe/Vienna'"
+    }
+   ],
+   "checks": [
+    {
+     "line": 97,
+     "expr": "row[\"date\"] == \"2026-10-14\"",
+     "ok": true,
+     "op": "==",
+     "left": "'2026-10-14'",
+     "right": "'2026-10-14'",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 97,
+     "expr": "row[\"date\"] == \"2026-10-14\""
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000206,
+    "call": 0.000448,
+    "teardown": 8.9e-05
+   },
+   "duration_s": 0.000743
+  },
+  {
+   "id": "tests/test_parsers.py::test_ci_password_login_stores_tokens",
+   "name": "test_ci_password_login_stores_tokens",
+   "title": "Ci password login stores tokens",
+   "file": "tests/test_parsers.py",
+   "line": 141,
+   "critical": true,
+   "doc": "In the workflow, GARMIN_EMAIL and GARMIN_PASSWORD log in when there are no tokens.\n\nThe login must return on two-step verification instead of waiting for a code, and the tokens\nare stored for the next run.",
+   "inputs": [
+    {
+     "name": "environment",
+     "value": "{'CI': 'true', 'GARMIN_EMAIL': 'a@example.com', 'GARMIN_PASSWORD': '(set)'}"
+    },
+    {
+     "name": "tokens",
+     "value": "'none'"
+    },
+    {
+     "name": "garmin_login",
+     "value": "'succeeds'"
+    }
+   ],
+   "checks": [
+    {
+     "line": 151,
+     "expr": "client.return_on_mfa and client.email == \"a@example.com\"",
+     "ok": true,
+     "op": "truthy",
+     "left": "(True and 'a@example.com' == 'a@example.com'",
+     "right": null,
+     "detail": "where True = <test_parsers._FakeGarmin object>.return_on_mfa"
+    },
+    {
+     "line": 152,
+     "expr": "(config.TOKEN_DIR / \"garmin_tokens.json\").exists()",
+     "ok": true,
+     "op": "truthy",
+     "left": "True",
+     "right": null,
+     "detail": "where True = exists()\nwhere exists = (PosixPath('/tmp/pytest-of-runner/pytest-0/test_ci_password_login_stores_0/tokens') / 'garmin_tokens.json').exists\nwhere PosixPath('/tmp/pytest-of-runner/pytest-0/test_ci_password_login_stores_0/tokens') = <module 'selftopo.config' from '/home/runner/work/selftopo/selftopo/selftopo/config.py'>.TOKEN_DIR"
+    }
+   ],
+   "planned": [
+    {
+     "line": 151,
+     "expr": "client.return_on_mfa and client.email == \"a@example.com\""
+    },
+    {
+     "line": 152,
+     "expr": "(config.TOKEN_DIR / \"garmin_tokens.json\").exists()"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000536,
+    "call": 0.001012,
+    "teardown": 0.00011
+   },
+   "duration_s": 0.001658
+  },
+  {
+   "id": "tests/test_parsers.py::test_ci_password_login_with_mfa_explains_the_local_way",
+   "name": "test_ci_password_login_with_mfa_explains_the_local_way",
+   "title": "Ci password login with mfa explains the local way",
+   "file": "tests/test_parsers.py",
+   "line": 155,
+   "critical": true,
+   "doc": "With two-step verification the workflow stops with instructions and stores no tokens.",
+   "inputs": [
+    {
+     "name": "environment",
+     "value": "{'CI': 'true', 'GARMIN_EMAIL': 'a@example.com', 'GARMIN_PASSWORD': '(set)'}"
+    },
+    {
+     "name": "garmin_login",
+     "value": "'asks for two-step verification'"
+    }
+   ],
+   "checks": [
+    {
+     "line": 160,
+     "expr": "pytest.raises(config.SetupError, match=\"two-step verification\")",
+     "op": "raises",
+     "right": "SetupError, match 'two-step verification'",
+     "left": "SetupError: Your Garmin account uses two-step verification, which the workflow cannot answer. Create tokens locally with `python -m selftopo login` and store the output of `export-tokens` in the GARMIN_TOKENS_JSON secret, then delete GARMIN_PASSWORD.",
+     "ok": true
+    },
+    {
+     "line": 162,
+     "expr": "not (config.TOKEN_DIR / \"garmin_tokens.json\").exists()",
+     "ok": true,
+     "op": "falsy",
+     "left": "False",
+     "right": null,
+     "detail": "where False = exists()\nwhere exists = (PosixPath('/tmp/pytest-of-runner/pytest-0/test_ci_password_login_with_mf0/tokens') / 'garmin_tokens.json').exists\nwhere PosixPath('/tmp/pytest-of-runner/pytest-0/test_ci_password_login_with_mf0/tokens') = <module 'selftopo.config' from '/home/runner/work/selftopo/selftopo/selftopo/config.py'>.TOKEN_DIR"
+    }
+   ],
+   "planned": [
+    {
+     "line": 160,
+     "expr": "pytest.raises(config.SetupError, match=\"two-step verification\")"
+    },
+    {
+     "line": 162,
+     "expr": "not (config.TOKEN_DIR / \"garmin_tokens.json\").exists()"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000507,
+    "call": 0.000662,
+    "teardown": 0.000108
+   },
+   "duration_s": 0.001277
+  },
+  {
+   "id": "tests/test_parsers.py::test_ci_password_login_refused",
+   "name": "test_ci_password_login_refused",
+   "title": "Ci password login refused",
+   "file": "tests/test_parsers.py",
+   "line": 165,
+   "critical": true,
+   "doc": "A refused password login stops with a clear message instead of a stack trace.",
+   "inputs": [
+    {
+     "name": "environment",
+     "value": "{'CI': 'true', 'GARMIN_EMAIL': 'a@example.com', 'GARMIN_PASSWORD': '(set)'}"
+    },
+    {
+     "name": "garmin_login",
+     "value": "\"RuntimeError('401 Unauthorized')\""
+    }
+   ],
+   "checks": [
+    {
+     "line": 170,
+     "expr": "pytest.raises(config.SetupError, match=\"refused the login\")",
+     "op": "raises",
+     "right": "SetupError, match 'refused the login'",
+     "left": "SetupError: Garmin refused the login with GARMIN_EMAIL and GARMIN_PASSWORD (401 Unauthorized). Check both secrets. Garmin sometimes blocks logins from GitHub's servers; then create tokens locally (`python -m selftopo login`, `export-tokens`) and store them in the GARMIN_TOKENS_JSON secret.",
+     "ok": true
+    }
+   ],
+   "planned": [
+    {
+     "line": 170,
+     "expr": "pytest.raises(config.SetupError, match=\"refused the login\")"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000553,
+    "call": 0.000275,
+    "teardown": 0.000132
+   },
+   "duration_s": 0.00096
+  },
+  {
+   "id": "tests/test_parsers.py::test_ci_without_tokens_or_password_names_both_ways",
+   "name": "test_ci_without_tokens_or_password_names_both_ways",
+   "title": "Ci without tokens or password names both ways",
+   "file": "tests/test_parsers.py",
+   "line": 174,
+   "critical": true,
+   "doc": "Without tokens and password the workflow names both ways to log in and does not try one.",
+   "inputs": [
+    {
+     "name": "environment",
+     "value": "{'CI': 'true', 'GARMIN_EMAIL': 'a@example.com'}"
+    },
+    {
+     "name": "tokens",
+     "value": "'none'"
+    }
+   ],
+   "checks": [
+    {
+     "line": 178,
+     "expr": "pytest.raises(config.SetupError, match=\"GARMIN_PASSWORD secrets\")",
+     "op": "raises",
+     "right": "SetupError, match 'GARMIN_PASSWORD secrets'",
+     "left": "SetupError: No usable Garmin tokens. Either add the GARMIN_EMAIL and GARMIN_PASSWORD secrets to this repository (accounts without two-step verification), or create tokens locally with `python -m selftopo login` and store the output of `export-tokens` in the GARMIN_TOKENS_JSON secret (see README).",
+     "ok": true
+    },
+    {
+     "line": 180,
+     "expr": "_FakeGarmin.created == []",
+     "ok": true,
+     "op": "==",
+     "left": "[]",
+     "right": "[]",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 178,
+     "expr": "pytest.raises(config.SetupError, match=\"GARMIN_PASSWORD secrets\")"
+    },
+    {
+     "line": 180,
+     "expr": "_FakeGarmin.created == []"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000503,
+    "call": 0.000689,
+    "teardown": 0.000109
+   },
+   "duration_s": 0.001301
+  },
+  {
+   "id": "tests/test_yazio.py::test_meals_are_summed_to_daily_totals",
+   "name": "test_meals_are_summed_to_daily_totals",
+   "title": "Meals are summed to daily totals",
+   "file": "tests/test_yazio.py",
+   "line": 24,
+   "critical": true,
+   "doc": "All meals are summed per day: calories whole, grams to one decimal, water in millilitres.",
+   "inputs": [
+    {
+     "name": "summary",
+     "value": "{'meals': {'breakfast': {'nutrients': {'energy.energy': 450.4,\n                                       'nutrient.protein': 20.04,\n                                       'nutrient.carb': 55,\n                                       'nutrient.fat': 12}},\n           'lunch': {'nutrients': {'energy.energy': 700,\n                                   'nutrient.protein': 45,\n                                   'nutrient.carb': 60,\n                                   'nutrient.fat': 30.26}},\n           'snack': {'nutrients': {'energy.energy': 120,\n                                   'nutrient.protein': 2,\n                                   'nutrient.carb': 25,\n                                   'nutrient.fat': 1}}},\n 'water_intake': 2250.0}"
+    }
+   ],
+   "checks": [
+    {
+     "line": 36,
+     "expr": "row == {\"calories_kcal\": 1270, \"protein_g\": 67.0, \"carbs_g\": 140.0, \"fat_g\": 43.3, \"water_ml\": 2250}",
+     "ok": true,
+     "op": "==",
+     "left": "{'calories_kcal': 1270, 'protein_g': 67.0, 'carbs_g': 140.0, 'fat_g': 43.3, 'water_ml': 2250}",
+     "right": "{'calories_kcal': 1270, 'protein_g': 67.0, 'carbs_g': 140.0, 'fat_g': 43.3, 'water_ml': 2250}",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 36,
+     "expr": "row == {\"calories_kcal\": 1270, \"protein_g\": 67.0, \"carbs_g\": 140.0, \"fat_g\": 43.3, \"water_ml\": 2250}"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000326,
+    "call": 0.001799,
+    "teardown": 9.6e-05
+   },
+   "duration_s": 0.002221
+  },
+  {
+   "id": "tests/test_yazio.py::test_missing_nutrients_count_as_zero_and_nulls_are_ignored",
+   "name": "test_missing_nutrients_count_as_zero_and_nulls_are_ignored",
+   "title": "Missing nutrients count as zero and nulls are ignored",
+   "file": "tests/test_yazio.py",
+   "line": 39,
+   "critical": true,
+   "doc": "Missing nutrients and null values count as zero; a missing water value stays empty.",
+   "inputs": [
+    {
+     "name": "summary",
+     "value": "{'meals': {'dinner': {'nutrients': {'energy.energy': 600,\n                                    'nutrient.protein': 30,\n                                    'nutrient.carb': 70,\n                                    'nutrient.fat': 20}},\n           'snack': {'nutrients': {'energy.energy': None}},\n           'lunch': None}}"
+    }
+   ],
+   "checks": [
+    {
+     "line": 46,
+     "expr": "row[\"calories_kcal\"] == 600",
+     "ok": true,
+     "op": "==",
+     "left": "600",
+     "right": "600",
+     "detail": null
+    },
+    {
+     "line": 47,
+     "expr": "row[\"water_ml\"] is None",
+     "ok": true,
+     "op": "is",
+     "left": "None",
+     "right": "None",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 46,
+     "expr": "row[\"calories_kcal\"] == 600"
+    },
+    {
+     "line": 47,
+     "expr": "row[\"water_ml\"] is None"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000215,
+    "call": 0.000444,
+    "teardown": 9.1e-05
+   },
+   "duration_s": 0.00075
+  },
+  {
+   "id": "tests/test_yazio.py::test_day_without_entries_gives_no_row",
+   "name": "test_day_without_entries_gives_no_row",
+   "title": "Day without entries gives no row",
+   "file": "tests/test_yazio.py",
+   "line": 50,
+   "critical": true,
+   "doc": "A day without food and water gives no row, so unlogged days do not show up as 0 kcal.",
+   "inputs": [
+    {
+     "name": "summaries",
+     "value": "[None,\n {'meals': {'breakfast': {'nutrients': {'energy.energy': 0,\n                                        'nutrient.protein': 0,\n                                        'nutrient.carb': 0,\n                                        'nutrient.fat': 0}}},\n  'water_intake': 0}]"
+    }
+   ],
+   "checks": [
+    {
+     "line": 53,
+     "expr": "yazio.parse_daily_summary(None) is None",
+     "ok": true,
+     "op": "is",
+     "left": "None",
+     "right": "None",
+     "detail": "where None = <function parse_daily_summary>(None)\nwhere <function parse_daily_summary> = yazio.parse_daily_summary"
+    },
+    {
+     "line": 54,
+     "expr": "yazio.parse_daily_summary({\"meals\": {\"breakfast\": meal(0)}, \"water_intake\": 0}) is None",
+     "ok": true,
+     "op": "is",
+     "left": "None",
+     "right": "None",
+     "detail": "where None = <function parse_daily_summary>({'meals': {'breakfast': {'nutrients': {'energy.energy': 0, 'nutrient.protein': 0, 'nutrient.carb': 0, 'nutrient.fat': 0}}}, 'water_intake': 0})\nwhere <function parse_daily_summary> = yazio.parse_daily_summary"
+    }
+   ],
+   "planned": [
+    {
+     "line": 53,
+     "expr": "yazio.parse_daily_summary(None) is None"
+    },
+    {
+     "line": 54,
+     "expr": "yazio.parse_daily_summary({\"meals\": {\"breakfast\": meal(0)}, \"water_intake\": 0}) is None"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.00021,
+    "call": 0.000519,
+    "teardown": 9.1e-05
+   },
+   "duration_s": 0.00082
+  },
+  {
+   "id": "tests/test_yazio.py::test_water_only_day_keeps_nutrients_empty",
+   "name": "test_water_only_day_keeps_nutrients_empty",
+   "title": "Water only day keeps nutrients empty",
+   "file": "tests/test_yazio.py",
+   "line": 57,
+   "critical": true,
+   "doc": "A day with only water keeps the nutrients empty instead of 0 kcal.",
+   "inputs": [
+    {
+     "name": "summary",
+     "value": "{'meals': {}, 'water_intake': 500}"
+    }
+   ],
+   "checks": [
+    {
+     "line": 61,
+     "expr": "row == {\"calories_kcal\": None, \"protein_g\": None, \"carbs_g\": None, \"fat_g\": None, \"water_ml\": 500}",
+     "ok": true,
+     "op": "==",
+     "left": "{'calories_kcal': None, 'protein_g': None, 'carbs_g': None, 'fat_g': None, 'water_ml': 500}",
+     "right": "{'calories_kcal': None, 'protein_g': None, 'carbs_g': None, 'fat_g': None, 'water_ml': 500}",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 61,
+     "expr": "row == {\"calories_kcal\": None, \"protein_g\": None, \"carbs_g\": None, \"fat_g\": None, \"water_ml\": 500}"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000207,
+    "call": 0.000423,
+    "teardown": 8.9e-05
+   },
+   "duration_s": 0.000719
+  },
+  {
+   "id": "tests/test_yazio.py::test_normalize_adds_absolute_expiry_and_drops_unknown_fields",
+   "name": "test_normalize_adds_absolute_expiry_and_drops_unknown_fields",
+   "title": "Normalize adds absolute expiry and drops unknown fields",
+   "file": "tests/test_yazio.py",
+   "line": 64,
+   "critical": true,
+   "doc": "Tokens are stored with an absolute expiry and only the needed fields; no access token is an error.",
+   "inputs": [
+    {
+     "name": "response",
+     "value": "{'access_token': 'a', 'refresh_token': 'r', 'expires_in': 3600, 'scope': 'x'}"
+    }
+   ],
+   "checks": [
+    {
+     "line": 68,
+     "expr": "set(tokens) == {\"access_token\", \"refresh_token\", \"expires_at\"}",
+     "ok": true,
+     "op": "==",
+     "left": "{'access_token', 'refresh_token', 'expires_at'}",
+     "right": "{'access_token', 'refresh_token', 'expires_at'}",
+     "detail": null
+    },
+    {
+     "line": 69,
+     "expr": "3500 < tokens[\"expires_at\"] - time.time() <= 3600",
+     "ok": true,
+     "op": "<=",
+     "left": "3599.9996592998505",
+     "right": "3600",
+     "detail": "where 1793545831.4619942 = <built-in function time>()\nwhere <built-in function time> = time.time"
+    },
+    {
+     "line": 70,
+     "expr": "\"expires_at\" not in yazio._normalize({\"access_token\": \"a\"})",
+     "ok": true,
+     "op": "not in",
+     "left": "'expires_at'",
+     "right": "{'access_token': 'a'}",
+     "detail": "where {'access_token': 'a'} = <function _normalize>({'access_token': 'a'})\nwhere <function _normalize> = yazio._normalize"
+    },
+    {
+     "line": 71,
+     "expr": "pytest.raises(config.SetupError)",
+     "op": "raises",
+     "right": "SetupError",
+     "left": "SetupError: YAZIO login response contained no access token.",
+     "ok": true
+    }
+   ],
+   "planned": [
+    {
+     "line": 68,
+     "expr": "set(tokens) == {\"access_token\", \"refresh_token\", \"expires_at\"}"
+    },
+    {
+     "line": 69,
+     "expr": "3500 < tokens[\"expires_at\"] - time.time() <= 3600"
+    },
+    {
+     "line": 70,
+     "expr": "\"expires_at\" not in yazio._normalize({\"access_token\": \"a\"})"
+    },
+    {
+     "line": 71,
+     "expr": "pytest.raises(config.SetupError)"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000206,
+    "call": 0.000832,
+    "teardown": 9.2e-05
+   },
+   "duration_s": 0.00113
+  },
+  {
+   "id": "tests/test_yazio.py::test_expiry_uses_a_safety_margin",
+   "name": "test_expiry_uses_a_safety_margin",
+   "title": "Expiry uses a safety margin",
+   "file": "tests/test_yazio.py",
+   "line": 75,
+   "critical": true,
+   "doc": "A token expiring within the safety margin counts as expired; one without expiry is tried first.",
+   "inputs": [
+    {
+     "name": "expires_in_s",
+     "value": "[30, 3600, 'unknown']"
+    },
+    {
+     "name": "margin_s",
+     "value": "120"
+    }
+   ],
+   "checks": [
+    {
+     "line": 78,
+     "expr": "yazio._expired({\"expires_at\": time.time() + 30})",
+     "ok": true,
+     "op": "truthy",
+     "left": "True",
+     "right": null,
+     "detail": "where True = <function _expired>({'expires_at': 1793545861.4630945})\nwhere <function _expired> = yazio._expired"
+    },
+    {
+     "line": 79,
+     "expr": "not yazio._expired({\"expires_at\": time.time() + 3600})",
+     "ok": true,
+     "op": "falsy",
+     "left": "False",
+     "right": null,
+     "detail": "where False = <function _expired>({'expires_at': 1793549431.4632425})\nwhere <function _expired> = yazio._expired"
+    },
+    {
+     "line": 80,
+     "expr": "not yazio._expired({\"access_token\": \"a\"})",
+     "ok": true,
+     "op": "falsy",
+     "left": "False",
+     "right": null,
+     "detail": "where False = <function _expired>({'access_token': 'a'})\nwhere <function _expired> = yazio._expired"
+    }
+   ],
+   "planned": [
+    {
+     "line": 78,
+     "expr": "yazio._expired({\"expires_at\": time.time() + 30})"
+    },
+    {
+     "line": 79,
+     "expr": "not yazio._expired({\"expires_at\": time.time() + 3600})"
+    },
+    {
+     "line": 80,
+     "expr": "not yazio._expired({\"access_token\": \"a\"})"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000219,
+    "call": 0.000521,
+    "teardown": 9e-05
+   },
+   "duration_s": 0.00083
+  },
+  {
+   "id": "tests/test_yazio.py::test_is_configured_checks_file_and_secret",
+   "name": "test_is_configured_checks_file_and_secret",
+   "title": "Is configured checks file and secret",
+   "file": "tests/test_yazio.py",
+   "line": 83,
+   "critical": true,
+   "doc": "YAZIO counts as set up with a token file or the secret; the file is private to its owner (600).",
+   "inputs": [
+    {
+     "name": "token_file",
+     "value": "'none, then written'"
+    },
+    {
+     "name": "secret_YAZIO_TOKENS_JSON",
+     "value": "'unset, then {}'"
+    }
+   ],
+   "checks": [
+    {
+     "line": 88,
+     "expr": "not yazio.is_configured()",
+     "ok": true,
+     "op": "falsy",
+     "left": "False",
+     "right": null,
+     "detail": "where False = <function is_configured>()\nwhere <function is_configured> = yazio.is_configured"
+    },
+    {
+     "line": 90,
+     "expr": "yazio.is_configured()",
+     "ok": true,
+     "op": "truthy",
+     "left": "True",
+     "right": null,
+     "detail": "where True = <function is_configured>()\nwhere <function is_configured> = yazio.is_configured"
+    },
+    {
+     "line": 93,
+     "expr": "yazio.is_configured()",
+     "ok": true,
+     "op": "truthy",
+     "left": "True",
+     "right": null,
+     "detail": "where True = <function is_configured>()\nwhere <function is_configured> = yazio.is_configured"
+    },
+    {
+     "line": 94,
+     "expr": "oct((tmp_path / \"yazio_tokens.json\").stat().st_mode & 0o777) == \"0o600\"",
+     "ok": true,
+     "op": "==",
+     "left": "'0o600'",
+     "right": "'0o600'",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 88,
+     "expr": "not yazio.is_configured()"
+    },
+    {
+     "line": 90,
+     "expr": "yazio.is_configured()"
+    },
+    {
+     "line": 93,
+     "expr": "yazio.is_configured()"
+    },
+    {
+     "line": 94,
+     "expr": "oct((tmp_path / \"yazio_tokens.json\").stat().st_mode & 0o777) == \"0o600\""
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000529,
+    "call": 0.001077,
+    "teardown": 0.000128
+   },
+   "duration_s": 0.001734
+  },
+  {
+   "id": "tests/test_yazio.py::test_expired_token_is_refreshed_and_the_new_refresh_token_is_kept",
+   "name": "test_expired_token_is_refreshed_and_the_new_refresh_token_is_kept",
+   "title": "Expired token is refreshed and the new refresh token is kept",
+   "file": "tests/test_yazio.py",
+   "line": 97,
+   "critical": true,
+   "doc": "An expired access token is renewed and saved; without a new refresh token the old one is kept.",
+   "inputs": [
+    {
+     "name": "stored",
+     "value": "{'access_token': 'old', 'refresh_token': 'r1', 'expires_at': '10 s ago'}"
+    },
+    {
+     "name": "server_response",
+     "value": "{'access_token': 'new', 'expires_at': 'in 1 h'}"
+    }
+   ],
+   "checks": [
+    {
+     "line": 106,
+     "expr": "api.tokens[\"access_token\"] == \"new\"",
+     "ok": true,
+     "op": "==",
+     "left": "'new'",
+     "right": "'new'",
+     "detail": null
+    },
+    {
+     "line": 107,
+     "expr": "api.tokens[\"refresh_token\"] == \"r1\"",
+     "ok": true,
+     "op": "==",
+     "left": "'r1'",
+     "right": "'r1'",
+     "detail": null
+    },
+    {
+     "line": 108,
+     "expr": "json.loads((tmp_path / \"yazio_tokens.json\").read_text())[\"access_token\"] == \"new\"",
+     "ok": true,
+     "op": "==",
+     "left": "'new'",
+     "right": "'new'",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 106,
+     "expr": "api.tokens[\"access_token\"] == \"new\""
+    },
+    {
+     "line": 107,
+     "expr": "api.tokens[\"refresh_token\"] == \"r1\""
+    },
+    {
+     "line": 108,
+     "expr": "json.loads((tmp_path / \"yazio_tokens.json\").read_text())[\"access_token\"] == \"new\""
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000525,
+    "call": 0.001488,
+    "teardown": 0.000105
+   },
+   "duration_s": 0.002118
+  },
+  {
+   "id": "tests/test_yazio.py::test_missing_tokens_in_ci_fail_with_instructions",
+   "name": "test_missing_tokens_in_ci_fail_with_instructions",
+   "title": "Missing tokens in ci fail with instructions",
+   "file": "tests/test_yazio.py",
+   "line": 111,
+   "critical": true,
+   "doc": "In the workflow without tokens or credentials, YAZIO stops with instructions.",
+   "inputs": [
+    {
+     "name": "environment",
+     "value": "{'CI': 'true'}"
+    },
+    {
+     "name": "tokens",
+     "value": "'none'"
+    },
+    {
+     "name": "credentials",
+     "value": "'none'"
+    }
+   ],
+   "checks": [
+    {
+     "line": 117,
+     "expr": "pytest.raises(config.SetupError, match=\"YAZIO_TOKENS_JSON\")",
+     "op": "raises",
+     "right": "SetupError, match 'YAZIO_TOKENS_JSON'",
+     "left": "SetupError: No YAZIO tokens. Run `python -m selftopo yazio-login` locally and store the output of `yazio-tokens` in the YAZIO_TOKENS_JSON secret, or set the YAZIO_EMAIL and YAZIO_PASSWORD secrets for one run.",
+     "ok": true
+    }
+   ],
+   "planned": [
+    {
+     "line": 117,
+     "expr": "pytest.raises(config.SetupError, match=\"YAZIO_TOKENS_JSON\")"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000545,
+    "call": 0.000248,
+    "teardown": 0.000103
+   },
+   "duration_s": 0.000896
+  },
+  {
+   "id": "tests/test_yazio.py::test_ci_logs_in_with_credentials_from_secrets_and_stores_tokens",
+   "name": "test_ci_logs_in_with_credentials_from_secrets_and_stores_tokens",
+   "title": "Ci logs in with credentials from secrets and stores tokens",
+   "file": "tests/test_yazio.py",
+   "line": 121,
+   "critical": true,
+   "doc": "In the workflow, YAZIO_EMAIL and YAZIO_PASSWORD log in; tokens are stored, the password is not.",
+   "inputs": [
+    {
+     "name": "environment",
+     "value": "{'CI': 'true', 'YAZIO_EMAIL': 'a@b.c', 'YAZIO_PASSWORD': 'pw'}"
+    },
+    {
+     "name": "tokens",
+     "value": "'none'"
+    }
+   ],
+   "checks": [
+    {
+     "line": 136,
+     "expr": "yazio.is_configured()",
+     "ok": true,
+     "op": "truthy",
+     "left": "True",
+     "right": null,
+     "detail": "where True = <function is_configured>()\nwhere <function is_configured> = yazio.is_configured"
+    },
+    {
+     "line": 137,
+     "expr": "yazio._Api().tokens[\"access_token\"] == \"t\"",
+     "ok": true,
+     "op": "==",
+     "left": "'t'",
+     "right": "'t'",
+     "detail": null
+    },
+    {
+     "line": 138,
+     "expr": "(seen[\"username\"], seen[\"grant_type\"]) == (\"a@b.c\", \"password\")",
+     "ok": true,
+     "op": "==",
+     "left": "('a@b.c', 'password')",
+     "right": "('a@b.c', 'password')",
+     "detail": null
+    },
+    {
+     "line": 139,
+     "expr": "json.loads((tmp_path / \"yazio_tokens.json\").read_text())[\"refresh_token\"] == \"r\"",
+     "ok": true,
+     "op": "==",
+     "left": "'r'",
+     "right": "'r'",
+     "detail": null
+    },
+    {
+     "line": 140,
+     "expr": "\"pw\" not in (tmp_path / \"yazio_tokens.json\").read_text()",
+     "ok": true,
+     "op": "not in",
+     "left": "'pw'",
+     "right": "'{\"access_token\": \"t\", \"refresh_token\": \"r\"}'",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 136,
+     "expr": "yazio.is_configured()"
+    },
+    {
+     "line": 137,
+     "expr": "yazio._Api().tokens[\"access_token\"] == \"t\""
+    },
+    {
+     "line": 138,
+     "expr": "(seen[\"username\"], seen[\"grant_type\"]) == (\"a@b.c\", \"password\")"
+    },
+    {
+     "line": 139,
+     "expr": "json.loads((tmp_path / \"yazio_tokens.json\").read_text())[\"refresh_token\"] == \"r\""
+    },
+    {
+     "line": 140,
+     "expr": "\"pw\" not in (tmp_path / \"yazio_tokens.json\").read_text()"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000528,
+    "call": 0.001974,
+    "teardown": 0.000119
+   },
+   "duration_s": 0.002621
+  },
+  {
+   "id": "tests/test_yazio.py::test_failed_refresh_falls_back_to_credentials_only_if_set",
+   "name": "test_failed_refresh_falls_back_to_credentials_only_if_set",
+   "title": "Failed refresh falls back to credentials only if set",
+   "file": "tests/test_yazio.py",
+   "line": 143,
+   "critical": true,
+   "doc": "If the refresh is refused, a new login happens only when credentials are set.",
+   "inputs": [
+    {
+     "name": "refresh",
+     "value": "'refused'"
+    },
+    {
+     "name": "credentials",
+     "value": "'none, then YAZIO_EMAIL and YAZIO_PASSWORD'"
+    }
+   ],
+   "checks": [
+    {
+     "line": 157,
+     "expr": "pytest.raises(config.SetupError)",
+     "op": "raises",
+     "right": "SetupError",
+     "left": "SetupError: refused",
+     "ok": true
+    },
+    {
+     "line": 161,
+     "expr": "yazio._Api._renew(stale)[\"access_token\"] == \"relogin\"",
+     "ok": true,
+     "op": "==",
+     "left": "'relogin'",
+     "right": "'relogin'",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 157,
+     "expr": "pytest.raises(config.SetupError)"
+    },
+    {
+     "line": 161,
+     "expr": "yazio._Api._renew(stale)[\"access_token\"] == \"relogin\""
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000551,
+    "call": 0.000748,
+    "teardown": 0.000112
+   },
+   "duration_s": 0.001411
+  },
+  {
+   "id": "tests/test_yazio.py::test_sync_replaces_the_window_and_keeps_older_rows",
+   "name": "test_sync_replaces_the_window_and_keeps_older_rows",
+   "title": "Sync replaces the window and keeps older rows",
+   "file": "tests/test_yazio.py",
+   "line": 175,
+   "critical": true,
+   "doc": "A 3-day sync replaces the stored days in the window and keeps older days.\n\nA day deleted in YAZIO disappears, a changed day is replaced.",
+   "inputs": [
+    {
+     "name": "days",
+     "value": "3"
+    },
+    {
+     "name": "today",
+     "value": "'2026-10-29'"
+    },
+    {
+     "name": "stored",
+     "value": "[{'date': '2026-10-01',\n  'calories_kcal': '2000',\n  'protein_g': '',\n  'carbs_g': '',\n  'fat_g': '',\n  'water_ml': ''},\n {'date': '2026-10-28',\n  'calories_kcal': '9999',\n  'protein_g': '',\n  'carbs_g': '',\n  'fat_g': '',\n  'water_ml': ''},\n {'date': '2026-10-29',\n  'calories_kcal': '1',\n  'protein_g': '',\n  'carbs_g': '',\n  'fat_g': '',\n  'water_ml': ''}]"
+    },
+    {
+     "name": "yazio",
+     "value": "'2026-10-29: lunch 800 kcal, 1500 ml water; other days empty'"
+    }
+   ],
+   "checks": [
+    {
+     "line": 195,
+     "expr": "[(r[\"date\"], r[\"calories_kcal\"]) for r in rows] == [(\"2026-10-01\", \"2000\"), (\"2026-10-29\", \"800\")]",
+     "ok": true,
+     "op": "==",
+     "left": "[('2026-10-01', '2000'), ('2026-10-29', '800')]",
+     "right": "[('2026-10-01', '2000'), ('2026-10-29', '800')]",
+     "detail": null
+    },
+    {
+     "line": 196,
+     "expr": "rows[1][\"water_ml\"] == \"1500\"",
+     "ok": true,
+     "op": "==",
+     "left": "'1500'",
+     "right": "'1500'",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 195,
+     "expr": "[(r[\"date\"], r[\"calories_kcal\"]) for r in rows] == [(\"2026-10-01\", \"2000\"), (\"2026-10-29\", \"800\")]"
+    },
+    {
+     "line": 196,
+     "expr": "rows[1][\"water_ml\"] == \"1500\""
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000528,
+    "call": 0.002081,
+    "teardown": 0.00014
+   },
+   "duration_s": 0.002749
+  }
+ ]
+}
