@@ -1,7 +1,7 @@
 {
   "id": "./",
-  "name": "healthsync",
-  "short_name": "healthsync",
+  "name": "selftopo",
+  "short_name": "selftopo",
   "description": "Garmin- und Hevy-Daten: Körper, Erholung, Schlaf, Kraft und Aktivitäten",
   "lang": "de",
   "dir": "ltr",

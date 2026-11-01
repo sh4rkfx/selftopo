@@ -2,7 +2,7 @@
 
 from datetime import datetime, timezone
 
-from healthsync import activities, garmin, hevy
+from selftopo import activities, garmin, hevy
 
 
 def epoch_ms(*args: int) -> float:

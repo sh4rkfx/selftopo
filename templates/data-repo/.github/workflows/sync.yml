@@ -1,4 +1,4 @@
-# Daily sync for the private data repository. It checks out the public healthsync code,
+# Daily sync for the private data repository. It checks out the public selftopo code,
 # fetches Garmin and Hevy data into this repository and commits the changed files.
 # Runs here and not in the code repository, so logs, caches and secrets stay private.
 name: Sync Garmin and Hevy
@@ -37,8 +37,8 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  # Public repository with the healthsync code; set the repository variable to use a fork
-  CODE_REPO: ${{ vars.HEALTHSYNC_CODE_REPO || 'sh4rkfx/healthsync' }}
+  # Public repository with the selftopo code; set the repository variable to use a fork
+  CODE_REPO: ${{ vars.SELFTOPO_CODE_REPO || vars.HEALTHSYNC_CODE_REPO || 'sh4rkfx/selftopo' }}
 
 jobs:
   sync:
@@ -47,9 +47,9 @@ jobs:
     env:
       GARMIN_TOKEN_DIR: .garmin-tokens # inside the workspace so hashFiles() can see it
       YAZIO_TOKEN_DIR: .yazio-tokens
-      HEALTHSYNC_DATA_DIR: data # the checkout of this repository, see below
+      SELFTOPO_DATA_DIR: data # the checkout of this repository, see below
     steps:
-      - name: Check out the healthsync code
+      - name: Check out the selftopo code
         uses: actions/checkout@v4
         with:
           repository: ${{ env.CODE_REPO }}
@@ -100,12 +100,12 @@ jobs:
           HEVY_API_KEY: ${{ secrets.HEVY_API_KEY }}
           DAYS: ${{ inputs.days || '30' }}
           SOURCE: ${{ inputs.source || 'all' }}
-        run: python -m healthsync sync --days "$DAYS" --source "$SOURCE"
+        run: python -m selftopo sync --days "$DAYS" --source "$SOURCE"
 
       # Recomputes insights.json from whatever data is available, even after a partial sync.
       - name: Analyze relationships
         if: ${{ !cancelled() }}
-        run: python -m healthsync analyze
+        run: python -m selftopo analyze
 
       # Only to check the field mapping once. The artifact contains health data and expires after a day.
       - name: Dump raw Garmin data
@@ -113,7 +113,7 @@ jobs:
         env:
           GARMIN_TOKENS_JSON: ${{ secrets.GARMIN_TOKENS_JSON }}
           DUMP_DATE: ${{ inputs.garmin_dump_date }}
-        run: python -m healthsync dump-raw --date "$DUMP_DATE"
+        run: python -m selftopo dump-raw --date "$DUMP_DATE"
 
       - name: Upload raw Garmin data
         if: ${{ !cancelled() && inputs.garmin_dump_date != '' }}
@@ -128,7 +128,7 @@ jobs:
         if: ${{ !cancelled() && inputs.fitness_dump != '' }}
         env:
           GARMIN_TOKENS_JSON: ${{ secrets.GARMIN_TOKENS_JSON }}
-        run: python -m healthsync dump-fitness
+        run: python -m selftopo dump-fitness
 
       - name: Save Garmin tokens
         if: ${{ !cancelled() && hashFiles('.garmin-tokens/garmin_tokens.json') != '' }}
@@ -145,7 +145,7 @@ jobs:
           YAZIO_EMAIL: ${{ secrets.YAZIO_EMAIL }}
           YAZIO_PASSWORD: ${{ secrets.YAZIO_PASSWORD }}
           DUMP_DATE: ${{ inputs.yazio_dump_date }}
-        run: python -m healthsync dump-yazio --date "$DUMP_DATE"
+        run: python -m selftopo dump-yazio --date "$DUMP_DATE"
 
       - name: Upload raw YAZIO data
         if: ${{ !cancelled() && inputs.yazio_dump_date != '' }}

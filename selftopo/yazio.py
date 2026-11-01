@@ -75,7 +75,7 @@ def export_tokens() -> str:
     """Token JSON for the YAZIO_TOKENS_JSON secret. Grants account access: keep it private."""
     tokens = _load_tokens()
     if not tokens:
-        raise config.SetupError("No YAZIO tokens found. Run `python -m healthsync yazio-login` first.")
+        raise config.SetupError("No YAZIO tokens found. Run `python -m selftopo yazio-login` first.")
     return json.dumps(tokens)
 
 
@@ -99,7 +99,7 @@ def _token_request(payload: dict[str, Any]) -> dict[str, Any]:
     if response.status_code in (400, 401, 403):
         raise config.SetupError(
             f"YAZIO refused the login (HTTP {response.status_code}). "
-            "Wrong password, or the tokens expired: run `python -m healthsync yazio-login` again."
+            "Wrong password, or the tokens expired: run `python -m selftopo yazio-login` again."
         )
     response.raise_for_status()
     return _normalize(response.json())
@@ -145,7 +145,7 @@ class _Api:
         if tokens is None:
             if config.running_in_ci() and not _has_credentials():
                 raise config.SetupError(
-                    "No YAZIO tokens. Run `python -m healthsync yazio-login` locally and store the output of "
+                    "No YAZIO tokens. Run `python -m selftopo yazio-login` locally and store the output of "
                     "`yazio-tokens` in the YAZIO_TOKENS_JSON secret, or set the YAZIO_EMAIL and "
                     "YAZIO_PASSWORD secrets for one run."
                 )

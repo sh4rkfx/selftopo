@@ -3,8 +3,8 @@
 import json
 from datetime import date
 
-from healthsync import config, fitness
-from healthsync.csvstore import read_rows, write_rows
+from selftopo import config, fitness
+from selftopo.csvstore import read_rows, write_rows
 
 # ruff: noqa: E501
 

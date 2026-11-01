@@ -1,12 +1,12 @@
-// Service worker of the healthsync dashboard: makes it installable and opens it offline.
+// Service worker of the selftopo dashboard: makes it installable and opens it offline.
 //
 // App files in this folder: network first, so a new version arrives with the next start;
 // the cache is only the fallback without a connection. Everything else passes through
 // untouched: the data files next to the dashboard, the GitHub API and the web fonts.
 // The page keeps its own snapshot of the last loaded data (see "offline snapshot").
 
-const VERSION = "8";
-const CACHE = `healthsync-app-${VERSION}`;
+const VERSION = "9";
+const CACHE = `selftopo-app-${VERSION}`;
 const APP_FILES = [
   "./",
   "./manifest.webmanifest",
@@ -24,7 +24,7 @@ self.addEventListener("install", (event) => {
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((k) => k.startsWith("healthsync-app-") && k !== CACHE).map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(keys.filter((k) => (k.startsWith("selftopo-app-") || k.startsWith("healthsync-app-")) && k !== CACHE).map((k) => caches.delete(k))))
       .then(() => self.clients.claim()),
   );
 });

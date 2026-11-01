@@ -1,6 +1,6 @@
-# healthsync
+# selftopo
 
-Personal training and recovery data in one place. healthsync pulls daily health metrics and
+Personal training and recovery data in one place. selftopo pulls daily health metrics and
 activities from Garmin Connect and workout sets from Hevy, stores them as plain CSV files, looks
 for time-lagged relationships between them and shows everything on a static dashboard. It runs
 locally or once a day on GitHub Actions.
@@ -34,7 +34,7 @@ flowchart LR
     subgraph P["healthsync-data (private)"]
         S["Daily workflow<br/>sync + analyze"] --> C[("CSV files<br/>insights.json")]
     end
-    subgraph O["healthsync (public)"]
+    subgraph O["selftopo (public)"]
         K["Code"] -. checked out by .-> S
         D["Dashboard on<br/>GitHub Pages"]
     end
@@ -43,7 +43,7 @@ flowchart LR
 
 | Repository | Visibility | Content |
 |---|---|---|
-| `healthsync` (this one) | public | Python code, dashboard, documentation, tests; the dashboard is published with GitHub Pages |
+| `selftopo` (this one) | public | Python code, dashboard, documentation, tests; the dashboard is published with GitHub Pages |
 | `healthsync-data` | **private** | The data files and the daily workflow with the Garmin and Hevy secrets. Workflow logs and caches stay private with it |
 
 The dashboard on GitHub Pages contains no data. In the browser you connect it once with a
@@ -59,15 +59,15 @@ are replaced, so edited or deleted entries are picked up.
 Requirements: Python 3.10 or newer, a Garmin Connect account, and Hevy Pro for the API key.
 
 ```bash
-git clone https://github.com/sh4rkfx/healthsync.git && cd healthsync
+git clone https://github.com/sh4rkfx/selftopo.git && cd selftopo
 git clone https://github.com/sh4rkfx/healthsync-data.git data   # your private data repository, see below
 python3 -m venv .venv && source .venv/bin/activate              # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 
-python -m healthsync login                                      # Garmin email, password, MFA code
+python -m selftopo login                                      # Garmin email, password, MFA code
 export HEVY_API_KEY="..."                                       # Windows PowerShell: $env:HEVY_API_KEY="..."
-python -m healthsync sync --days 365                            # first run takes about 10 to 15 minutes
-python -m healthsync analyze                                    # writes data/insights.json
+python -m selftopo sync --days 365                            # first run takes about 10 to 15 minutes
+python -m selftopo analyze                                    # writes data/insights.json
 
 python -m http.server 8000                                      # then open http://localhost:8000/dashboard/
 ```
@@ -75,7 +75,7 @@ python -m http.server 8000                                      # then open http
 Without a data repository, `data/` is just a local folder; everything works the same.
 
 The Hevy API key is created at [hevy.com/settings?developer](https://hevy.com/settings?developer).
-The Garmin password is only used for the first login; afterwards healthsync works with the tokens
+The Garmin password is only used for the first login; afterwards selftopo works with the tokens
 stored in `~/.garminconnect`.
 
 ## Daily sync on GitHub
@@ -86,7 +86,7 @@ the last 30 days every morning, recomputes the analysis and commits changed file
 1. Create an empty **private** repository, for example `healthsync-data`.
 2. Copy the contents of [`templates/data-repo/`](templates/data-repo) into it, including the
    `.github` folder, together with any CSV files you already have, and push.
-3. Locally, run `python -m healthsync export-tokens` and copy the single line of JSON it prints.
+3. Locally, run `python -m selftopo export-tokens` and copy the single line of JSON it prints.
 4. In the data repository under *Settings → Secrets and variables → Actions*, add two repository secrets:
 
    | Secret | Value |
@@ -94,27 +94,27 @@ the last 30 days every morning, recomputes the analysis and commits changed file
    | `GARMIN_TOKENS_JSON` | The JSON from step 3 |
    | `HEVY_API_KEY` | Your Hevy API key |
 
-   With the GitHub CLI: `python -m healthsync export-tokens | gh secret set GARMIN_TOKENS_JSON --repo <you>/healthsync-data`.
+   With the GitHub CLI: `python -m selftopo export-tokens | gh secret set GARMIN_TOKENS_JSON --repo <you>/healthsync-data`.
 5. Start the first run manually: *Actions → Sync Garmin and Hevy → Run workflow*. Use 365 days if
    the repository has no data yet.
 
-The workflow uses `sh4rkfx/healthsync` for the code. For a fork, set the repository variable
-`HEALTHSYNC_CODE_REPO` in the data repository to `<you>/healthsync`.
+The workflow uses `sh4rkfx/selftopo` for the code. For a fork, set the repository variable
+`SELFTOPO_CODE_REPO` in the data repository to `<you>/selftopo`.
 
 ### Food intake from YAZIO (optional)
 
-YAZIO has no public API. `healthsync` uses the private API of the YAZIO app, with the app's own
+YAZIO has no public API. `selftopo` uses the private API of the YAZIO app, with the app's own
 client credentials, to read the five daily totals (calories, protein, carbohydrates, fat, water).
 It is unofficial, can break or be blocked without notice, and YAZIO's terms may not allow it.
 Without the steps below, YAZIO is skipped.
 
-1. Locally, run `python -m healthsync yazio-login`. The password is typed hidden and never stored,
+1. Locally, run `python -m selftopo yazio-login`. The password is typed hidden and never stored,
    only the tokens are saved to `~/.yazio`.
-2. Check the mapping against your real data: `python -m healthsync dump-yazio --date 2026-10-28`
-   writes the raw responses to `debug/`, then `python -m healthsync sync --source yazio --days 14`.
+2. Check the mapping against your real data: `python -m selftopo dump-yazio --date 2026-10-28`
+   writes the raw responses to `debug/`, then `python -m selftopo sync --source yazio --days 14`.
 3. Add the secret `YAZIO_TOKENS_JSON` to the data repository, with the output of
-   `python -m healthsync yazio-tokens`. With the GitHub CLI:
-   `python -m healthsync yazio-tokens | gh secret set YAZIO_TOKENS_JSON --repo <you>/healthsync-data`.
+   `python -m selftopo yazio-tokens`. With the GitHub CLI:
+   `python -m selftopo yazio-tokens | gh secret set YAZIO_TOKENS_JSON --repo <you>/healthsync-data`.
 
 Without a local setup, GitHub can do the login: add the secrets `YAZIO_EMAIL` and `YAZIO_PASSWORD`
 to the data repository and start the workflow once. It logs in, and the tokens stay in the Actions
@@ -149,7 +149,7 @@ files and shows generated sample data instead, marked with a yellow notice.
 
 1. In this repository under *Settings → Pages*, set *Source* to **Deploy from a branch**, branch
    `main`, folder `/ (root)`, and save. After a minute the dashboard is at
-   `https://<you>.github.io/healthsync/`.
+   `https://<you>.github.io/selftopo/`.
 2. Create a fine-grained personal access token under *Settings → Developer settings → Personal
    access tokens → Fine-grained tokens*: *Repository access* only the data repository,
    *Permissions → Contents: Read-only*, nothing else.
@@ -213,7 +213,7 @@ example resting heart rate more than 2.5 bpm above its 60-day mean or protein un
 | Sport | A switch between **Kraft** and **Bouldern**. Kraft: estimated 1RM per main lift, weekly hard sets, Hevy workouts linked to the watch's strength recordings and compared by recovery the following night, grip strength per hand, hard sets per muscle group and week (secondary muscles count half). Bouldern: hardest top and hardest attempt per session with the number of tops, a grade pyramid with the share of tops, and the latest sessions with tops of all logged boulders, time on the wall and in the gym, heart rate and the watch's self evaluation. Boulders appear only when each one is logged with LAP on the watch |
 | Fitness | VO2max, Garmin's race predictions with pace, hill score with strength and endurance, endurance score against Garmin's levels, today's training status with acute and chronic load, load focus and fitness age |
 | Aktivitäten | Weekly active time per sport, steps against the 8,000 target, totals per sport, recent activities |
-| Zusammenhänge | The results of `healthsync analyze` as a list with effect, ρ and days, the strongest eight first, plus scatter plots for training load, tonnage and sleep against recovery and performance |
+| Zusammenhänge | The results of `selftopo analyze` as a list with effect, ρ and days, the strongest eight first, plus scatter plots for training load, tonnage and sleep against recovery and performance |
 | Daten | Data source and connection, status of every data file with a fix when one is missing, empty or stale; weekly overview; all daily values; how each number is calculated |
 
 The page warns when the newest Garmin day is two or more days old, which usually means the daily
@@ -229,14 +229,14 @@ Settings at the top of the dashboard script:
 | `MAIN_LIFTS` | Default lifts shown as e1RM charts, by their exact Hevy names. Without matches, the four most frequent exercises are used. The easier way is **Sport → Kraft → Übungen wählen** on the dashboard: it lists every exercise in your Hevy data, applies the choice at once, remembers it in the browser and copies it in this format if you want it as the default everywhere |
 | `SPORTS` | Groups Garmin activity types into sports. The first matching pattern wins; the order sets colors and stacking |
 | `MAX_LINK_GAP_MIN` | Maximum gap between the start of a Hevy workout and a strength activity on the watch to count them as one session (default 180) |
-| `GRIP_EXERCISES` | Hevy exercise names that hold grip-strength measurements (default „Right-hand Grip Strength“ and „Left-hand Grip Strength“, also the German „Handkraft rechts“ and „Handkraft links“). They are shown as grip strength and left out of hard sets, tonnage and e1RM; keep the names equal to `GRIP_EXERCISES` in `healthsync/config.py` |
+| `GRIP_EXERCISES` | Hevy exercise names that hold grip-strength measurements (default „Right-hand Grip Strength“ and „Left-hand Grip Strength“, also the German „Handkraft rechts“ and „Handkraft links“). They are shown as grip strength and left out of hard sets, tonnage and e1RM; keep the names equal to `GRIP_EXERCISES` in `selftopo/config.py` |
 | `MAX_BOULDER_S` | A bouldering split longer than this is a whole session recorded without LAP, not a boulder (default 900 s) |
-| `MIN_COMPLETE_KCAL` | YAZIO days below this count as not fully logged and stay out of all means (default 1,200; keep it equal to the constant in `healthsync/analyze.py`) |
+| `MIN_COMPLETE_KCAL` | YAZIO days below this count as not fully logged and stay out of all means (default 1,200; keep it equal to the constant in `selftopo/analyze.py`) |
 | `DATA_REPO` | Data repository suggested in the connect dialog |
 
 ## Analysis
 
-`python -m healthsync analyze` tests about 80 predefined pairs over the last 180 days, for example
+`python -m selftopo analyze` tests about 80 predefined pairs over the last 180 days, for example
 *training load on a day → HRV in the following night* or *bedtime → strength performance the next
 day*. In short:
 
@@ -266,7 +266,7 @@ and periods of illness are the two most common sources of misleading results. Se
 | `dump-yazio [--date YYYY-MM-DD]` | Save the raw YAZIO responses of one day to `debug/` |
 | `-v` before any command | Debug logging |
 
-All commands are run as `python -m healthsync <command>`.
+All commands are run as `python -m selftopo <command>`.
 
 ## Configuration
 
@@ -279,14 +279,14 @@ All commands are run as `python -m healthsync <command>`.
 | `YAZIO_TOKENS_JSON` | none | YAZIO tokens as JSON, used in CI when no token file exists |
 | `YAZIO_TOKEN_DIR` | `~/.yazio` | Where YAZIO tokens are stored |
 | `YAZIO_EMAIL`, `YAZIO_PASSWORD` | none | Optional, skips the prompts of `yazio-login` |
-| `HEALTHSYNC_DATA_DIR` | `data` | Folder for the CSV and JSON files |
-| `HEALTHSYNC_TZ` | `Europe/Vienna` | Time zone for local dates, sleep times and Hevy timestamps |
+| `SELFTOPO_DATA_DIR` | `data` | Folder for the CSV and JSON files (the old name `HEALTHSYNC_DATA_DIR` still works) |
+| `SELFTOPO_TZ` | `Europe/Vienna` | Time zone for local dates, sleep times and Hevy timestamps (old name `HEALTHSYNC_TZ` still works) |
 
 ## Troubleshooting
 
 | Symptom | Cause and fix |
 |---|---|
-| A column stays empty | Garmin's field names are undocumented. Run `dump-raw` for an affected day and compare `debug/garmin_raw_<date>.json` with the `parse_*` functions in `healthsync/garmin.py` |
+| A column stays empty | Garmin's field names are undocumented. Run `dump-raw` for an affected day and compare `debug/garmin_raw_<date>.json` with the `parse_*` functions in `selftopo/garmin.py` |
 | Dashboard shows sample data | Locally: the page was opened as a file, or the server was started outside the repository root. On GitHub Pages: not connected yet, or the token expired; the yellow notice says which |
 | HTTP 429 from Garmin | Too many requests. Days fetched so far are saved; run again after an hour |
 | Login works locally but fails on GitHub | Garmin sometimes blocks data-center addresses. Run the workflow on a self-hosted runner (`runs-on: self-hosted`) |
@@ -307,7 +307,7 @@ All commands are run as `python -m healthsync <command>`.
 ## Development
 
 ```
-healthsync/
+selftopo/
   __main__.py     command line interface
   config.py       paths, time zone, settings
   garmin.py       Garmin login, daily metrics, raw dumps
@@ -342,6 +342,6 @@ The workflow in `.github/workflows/test.yml` runs both on every push.
 
 ## Disclaimer
 
-healthsync uses the unofficial `garminconnect` library, which can break when Garmin changes its
+selftopo uses the unofficial `garminconnect` library, which can break when Garmin changes its
 private API. The optional YAZIO import uses YAZIO's private app API in the same way. The Hevy API is official but requires Hevy Pro. Nothing here is medical advice; the
 numbers come from consumer devices and their estimates.

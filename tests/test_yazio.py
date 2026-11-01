@@ -6,8 +6,8 @@ from datetime import date
 
 import pytest
 
-from healthsync import config, yazio
-from healthsync.csvstore import read_rows, write_rows
+from selftopo import config, yazio
+from selftopo.csvstore import read_rows, write_rows
 
 
 def meal(kcal, protein=0, carb=0, fat=0):

@@ -1,6 +1,6 @@
 # Data reference
 
-All files live in `data/` (or `HEALTHSYNC_DATA_DIR`). Locally that is the clone of the private
+All files live in `data/` (or `SELFTOPO_DATA_DIR`). Locally that is the clone of the private
 data repository; in the data repository itself they sit at the root. CSV files are UTF-8 with a
 header row; empty fields mean the value was not available.
 
@@ -16,7 +16,7 @@ One row per calendar day. Overnight values belong to the night that ends on this
 | `bmi` | kg/m² | |
 | `sleep_score` | 0–100 | |
 | `sleep_hours` | h | Total sleep time |
-| `sleep_start_local`, `sleep_end_local` | YYYY-MM-DD HH:MM | Falling asleep and waking up in `HEALTHSYNC_TZ`. On travel days this is home time |
+| `sleep_start_local`, `sleep_end_local` | YYYY-MM-DD HH:MM | Falling asleep and waking up in `SELFTOPO_TZ`. On travel days this is home time |
 | `deep_sleep_min`, `light_sleep_min`, `rem_sleep_min`, `awake_min` | min | Sleep stages |
 | `hrv_last_night_ms`, `hrv_weekly_avg_ms` | ms | Overnight HRV average and Garmin's 7-day average |
 | `hrv_status` | text | e.g. `BALANCED`, `UNBALANCED`, `LOW` |
@@ -143,7 +143,7 @@ One row per set.
 | `duration_s`, `distance_m` | For timed or cardio sets |
 
 The exercises „Right-hand Grip Strength“ and „Left-hand Grip Strength“ (or „Handkraft rechts“ and
-„Handkraft links“; `GRIP_EXERCISES` in `healthsync/config.py`) hold grip-strength measurements, one
+„Handkraft links“; `GRIP_EXERCISES` in `selftopo/config.py`) hold grip-strength measurements, one
 set per try with the dynamometer reading as `weight_kg` and 1 rep.
 They are left out of hard sets, tonnage and strength form in the analysis and the dashboard.
 
@@ -168,11 +168,11 @@ meals of the day.
 A partly logged day is indistinguishable from a day of low intake. The dashboard and the analysis
 therefore treat days under 1,200 kcal (`MIN_COMPLETE_KCAL`) and the running day as not fully
 logged and leave them out of means, the energy balance and the tests. Check the mapping against
-your data with `python -m healthsync dump-yazio --date <day>` after the first login.
+your data with `python -m selftopo dump-yazio --date <day>` after the first login.
 
 ## insights.json
 
-Written by `python -m healthsync analyze`. Method: [analysis.md](analysis.md).
+Written by `python -m selftopo analyze`. Method: [analysis.md](analysis.md).
 
 | Field | Content |
 |---|---|

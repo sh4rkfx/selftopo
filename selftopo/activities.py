@@ -1,7 +1,7 @@
 """Garmin activities (bouldering, hiking, cycling, runs, ...), one CSV row per activity.
 
 The list endpoint returns a summary per activity. Sport-specific details such as
-climbing routes are only in the full activity; `python -m healthsync dump-raw`
+climbing routes are only in the full activity; `python -m selftopo dump-raw`
 saves those for one day so they can be added here later.
 """
 

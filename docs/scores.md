@@ -127,7 +127,7 @@ observed personal trend.
 ## Validation in your own data
 
 Literature can justify the selection of contributors, not their weights for one person. Once enough
-data exists, `healthsync analyze` can test:
+data exists, `selftopo analyze` can test:
 
 | Question | Test | When |
 |---|---|---|

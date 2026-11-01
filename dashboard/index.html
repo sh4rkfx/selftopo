@@ -9,7 +9,7 @@
 <link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<meta name="apple-mobile-web-app-title" content="healthsync">
+<meta name="apple-mobile-web-app-title" content="selftopo">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -18,7 +18,7 @@
 body { margin: 0; }
 img { max-width: 100%; }
 </style>
-<title>healthsync</title>
+<title>selftopo</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -640,7 +640,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 
 <div class="bar" id="bar">
   <div class="bar-in">
-    <a class="brand" href="#top" title="Zum Überblick (Taste 0)">healthsync</a>
+    <a class="brand" href="#top" title="Zum Überblick (Taste 0)">selftopo</a>
     <nav class="nav" id="nav" aria-label="Bereiche">
       <a href="#top" class="nav-top" title="Überblick (Taste 0)"><svg class="ic" aria-hidden="true"><use href="#i-ueberblick"/></svg><span class="lbl">Überblick</span></a>
       <a href="#koerper" class="tint-orange" data-tint title="Körper (Taste 1)"><svg class="ic" aria-hidden="true"><use href="#i-koerper"/></svg><span class="lbl">Körper</span></a>
@@ -1218,7 +1218,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
         <div class="card-head"><h3>Automatisch gefundene Zusammenhänge</h3><p class="sub" id="insights-sub"></p></div>
         <div class="info" hidden>
           <p>Jede Kennzahl wird mit ihrem eigenen 28-Tage-Mittel verglichen; getestet wird, ob die Abweichungen zusammen schwanken, mit Zeitversatz (Training am Montag gegen die Nacht auf Dienstag). <b>Belastbar</b> heißt: hält der Korrektur für viele gleichzeitige Tests stand. <b>Tendenz</b> heißt: nur ohne diese Korrektur auffällig. Ein fester Wochenplan oder eine Krankheitswoche kann trotzdem Scheinzusammenhänge erzeugen.</p>
-          <p class="source">Quelle: data/insights.json · python -m healthsync analyze · Spearman-Korrelation, Effekt als Theil-Sen-Steigung, Benjamini-Hochberg-Korrektur · Methode: docs/analysis.md</p>
+          <p class="source">Quelle: data/insights.json · python -m selftopo analyze · Spearman-Korrelation, Effekt als Theil-Sen-Steigung, Benjamini-Hochberg-Korrektur · Methode: docs/analysis.md</p>
         </div>
         <div class="card-tools">
           <span class="caution" id="insights-window"></span>
@@ -1396,7 +1396,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       <summary>So erstellst du den Token</summary>
       <ol>
         <li>Auf GitHub <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">einen neuen Fine-grained Token anlegen</a>. Der Weg dorthin: Profilbild → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token.</li>
-        <li>Token name zum Beispiel „healthsync dashboard“, Expiration nach Wunsch, etwa ein Jahr.</li>
+        <li>Token name zum Beispiel „selftopo dashboard“, Expiration nach Wunsch, etwa ein Jahr.</li>
         <li>Repository access: <b>Only select repositories</b> und nur dein Daten-Repository auswählen.</li>
         <li>Permissions → Repository permissions → <b>Contents: Read-only</b>. Mehr braucht die Seite nicht; „Metadata: Read-only“ setzt GitHub automatisch dazu.</li>
         <li>Auf Generate token klicken, den Token kopieren und hier einfügen.</li>
@@ -1460,12 +1460,12 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   const FILE_KEYS = ["garmin", "activities", "hevy", "insights", "nutrition", "climbs", "climbSessions", "exercises", "fitness", "fitnessStatus", "bp"];
   const JSON_KEYS = ["insights", "fitnessStatus"];
   // YAZIO days below this count as not fully logged and stay out of every mean (same value as
-  // MIN_COMPLETE_KCAL in healthsync/analyze.py).
+  // MIN_COMPLETE_KCAL in selftopo/analyze.py).
   const MIN_COMPLETE_KCAL = 1200;
   const PROTEIN_REFS = [1.6, 2.2]; // g per kg body weight, Morton et al. 2018 (plateau and upper 95 % bound)
   const KCAL_PER_KG = 7700;        // rough energy content of one kg of body weight
   // Hevy exercises holding grip-strength measurements (kg per set), same names as GRIP_EXERCISES
-  // in healthsync/config.py. They are no training sets: no hard sets, tonnage or e1RM.
+  // in selftopo/config.py. They are no training sets: no hard sets, tonnage or e1RM.
   const GRIP_EXERCISES = {
     "right-hand grip strength": "right", "left-hand grip strength": "left",
     "handkraft rechts": "right", "handkraft links": "left",
@@ -1475,7 +1475,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   const FEEL_LABELS = { 0: "sehr schwach", 25: "schwach", 50: "normal", 75: "stark", 100: "sehr stark" };
   const BOULDER_ROWS = 6; // sessions listed before "show all"
 
-  // German wording for the variables of data/insights.json (keys as in healthsync/analyze.py)
+  // German wording for the variables of data/insights.json (keys as in selftopo/analyze.py)
   const INSIGHT_DRIVERS = {
     training_load: ["Trainingslast (alle Aktivitäten)", "100 Punkte mehr"],
     active_min: ["Aktive Zeit", "1 Stunde mehr"],
@@ -1835,38 +1835,38 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     const file = (key) => (remote ? `${data.repo}/${GITHUB_FILES[key]}` : DATA_URLS[key].replace("../", ""));
     const viaWorkflow = "Entsteht beim ersten Lauf des Workflows im Daten-Repository: Actions → Sync Garmin and Hevy → Run workflow.";
     const list = [
-      entry("garmin", "Garmin Tageswerte", file("garmin"), data.garmin, remote ? viaWorkflow : "Abrufen mit `python -m healthsync sync --source garmin`."),
-      entry("activities", "Garmin Aktivitäten", file("activities"), data.activities || [], remote ? viaWorkflow : "Abrufen mit `python -m healthsync sync --source activities`."),
-      entry("hevy", "Hevy Sätze", file("hevy"), data.hevy, remote ? `${viaWorkflow} Dafür braucht das Repository das Secret \`HEVY_API_KEY\`.` : "Abrufen mit `python -m healthsync sync --source hevy`; dafür muss `HEVY_API_KEY` gesetzt sein."),
+      entry("garmin", "Garmin Tageswerte", file("garmin"), data.garmin, remote ? viaWorkflow : "Abrufen mit `python -m selftopo sync --source garmin`."),
+      entry("activities", "Garmin Aktivitäten", file("activities"), data.activities || [], remote ? viaWorkflow : "Abrufen mit `python -m selftopo sync --source activities`."),
+      entry("hevy", "Hevy Sätze", file("hevy"), data.hevy, remote ? `${viaWorkflow} Dafür braucht das Repository das Secret \`HEVY_API_KEY\`.` : "Abrufen mit `python -m selftopo sync --source hevy`; dafür muss `HEVY_API_KEY` gesetzt sein."),
       entry("nutrition", "YAZIO Ernährung", file("nutrition"), data.nutrition || [], remote
         ? "Optional. Entsteht, wenn das Daten-Repository das Secret `YAZIO_TOKENS_JSON` hat oder für einen Lauf `YAZIO_EMAIL` und `YAZIO_PASSWORD`; danach Run workflow mit 365 Tagen."
-        : "Optional. Einrichten mit `python -m healthsync yazio-login`, dann `python -m healthsync sync --source yazio --days 365`.", true),
+        : "Optional. Einrichten mit `python -m selftopo yazio-login`, dann `python -m selftopo sync --source yazio --days 365`.", true),
       entry("bp", "Garmin Blutdruck", file("bp"), data.bp || [], remote
         ? "Entsteht beim nächsten Lauf des Workflows, wenn Garmin Connect Blutdruckwerte hat. Ältere Werte holt Run workflow mit source `bp` und days `3650`."
-        : "Abrufen mit `python -m healthsync sync --source bp --days 3650`.", true),
+        : "Abrufen mit `python -m selftopo sync --source bp --days 3650`.", true),
       entry("fitness", "Garmin Fitness", file("fitness"), data.fitness || [], remote
         ? "Entsteht beim nächsten Lauf des Workflows. Die letzten 12 Monate holt Run workflow mit source `fitness` und days `365`."
-        : "Abrufen mit `python -m healthsync sync --source fitness --days 365`.", true),
+        : "Abrufen mit `python -m selftopo sync --source fitness --days 365`.", true),
       entry("exercises", "Hevy Übungen", file("exercises"), data.exercises || [], remote
         ? "Entsteht beim nächsten Lauf des Workflows zusammen mit den Hevy-Sätzen."
-        : "Abrufen mit `python -m healthsync sync --source hevy`.", true),
+        : "Abrufen mit `python -m selftopo sync --source hevy`.", true),
       entry("climbs", "Garmin Bouldern", file("climbs"), data.climbs || [], remote
         ? "Entsteht beim nächsten Lauf des Workflows. Ältere Sessions holt Run workflow mit source `climbs` und days `2000`."
-        : "Abrufen mit `python -m healthsync sync --source climbs --days 2000`.", true),
+        : "Abrufen mit `python -m selftopo sync --source climbs --days 2000`.", true),
     ];
     const ins = data.insights;
     list.push({
       key: "insights", label: "Analyse", file: file("insights"), found: data.found.insights, broken: data.insightsBroken,
       rows: ins?.findings?.length ?? 0, generated: ins?.generated_at || null,
       first: ins?.period?.start ? isoToT(ins.period.start) : null, last: ins?.period?.end ? isoToT(ins.period.end) : null,
-      fix: "Erzeugen mit `python -m healthsync analyze`; der GitHub-Workflow macht das täglich nach dem Abruf.",
+      fix: "Erzeugen mit `python -m selftopo analyze`; der GitHub-Workflow macht das täglich nach dem Abruf.",
     });
     return list;
   }
 
   // ------------------------------------------------------------------ demo data
 
-  // Output of `python -m healthsync analyze` for the sample data below (trimmed to findings worth showing)
+  // Output of `python -m selftopo analyze` for the sample data below (trimmed to findings worth showing)
   const DEMO_INSIGHTS = {"tested":81,"robust":13,"period_days":180,"findings":[{"driver":"sleep_score","outcome":"strength_form_pct","lag_days":0,"timing":"same_day","n":96,"rho":0.5629,"p":0.0,"q":0.0,"effect":4.1909,"effect_unit":"%","status":"robust"},{"driver":"bedtime_min","outcome":"hrv","lag_days":0,"timing":"same_night","n":175,"rho":-0.3178,"p":0.0,"q":0.0007,"effect":-1.9829,"effect_unit":"ms","status":"robust"},{"driver":"readiness","outcome":"strength_form_pct","lag_days":0,"timing":"same_day","n":96,"rho":0.4093,"p":0.0,"q":0.0008,"effect":2.2092,"effect_unit":"%","status":"robust"},{"driver":"training_load","outcome":"readiness","lag_days":1,"timing":"next_night","n":174,"rho":-0.3067,"p":0.0,"q":0.0008,"effect":-5.4985,"effect_unit":"points","status":"robust"},{"driver":"hard_sets","outcome":"sleep_score","lag_days":2,"timing":"second_night","n":173,"rho":0.2708,"p":0.0003,"q":0.0051,"effect":7.5893,"effect_unit":"points","status":"robust"},{"driver":"bedtime_min","outcome":"readiness","lag_days":0,"timing":"same_night","n":175,"rho":-0.2627,"p":0.0004,"q":0.006,"effect":-2.8173,"effect_unit":"points","status":"robust"},{"driver":"hrv","outcome":"strength_form_pct","lag_days":0,"timing":"same_day","n":96,"rho":0.3278,"p":0.0011,"q":0.0124,"effect":2.6324,"effect_unit":"%","status":"robust"},{"driver":"active_min","outcome":"readiness","lag_days":1,"timing":"next_night","n":174,"rho":-0.2431,"p":0.0012,"q":0.0124,"effect":-1.8997,"effect_unit":"points","status":"robust"},{"driver":"hard_sets","outcome":"body_battery","lag_days":2,"timing":"second_night","n":173,"rho":0.2146,"p":0.0046,"q":0.0412,"effect":8.4848,"effect_unit":"points","status":"robust"},{"driver":"active_min","outcome":"hrv","lag_days":2,"timing":"second_night","n":173,"rho":0.2098,"p":0.0056,"q":0.0454,"effect":0.9286,"effect_unit":"ms","status":"robust"},{"driver":"stress_avg","outcome":"sleep_score","lag_days":2,"timing":"second_night","n":173,"rho":-0.2006,"p":0.0081,"q":0.0598,"effect":-2.6396,"effect_unit":"points","status":"robust"},{"driver":"sleep_hours","outcome":"resting_hr","lag_days":0,"timing":"same_night","n":175,"rho":-0.1951,"p":0.0097,"q":0.0652,"effect":-0.5027,"effect_unit":"bpm","status":"robust"},{"driver":"training_load","outcome":"hrv","lag_days":1,"timing":"next_night","n":174,"rho":-0.1841,"p":0.015,"q":0.0938,"effect":-1.8354,"effect_unit":"ms","status":"robust"},{"driver":"sleep_hours","outcome":"strength_form_pct","lag_days":0,"timing":"same_day","n":96,"rho":0.2265,"p":0.0265,"q":0.138,"effect":1.4179,"effect_unit":"%","status":"tendency"},{"driver":"stress_avg","outcome":"resting_hr","lag_days":2,"timing":"second_night","n":173,"rho":0.1716,"p":0.024,"q":0.138,"effect":0.5232,"effect_unit":"bpm","status":"tendency"},{"driver":"tonnage_t","outcome":"sleep_score","lag_days":1,"timing":"next_night","n":174,"rho":0.1674,"p":0.0273,"q":0.138,"effect":1.4629,"effect_unit":"points","status":"tendency"},{"driver":"active_min","outcome":"readiness","lag_days":2,"timing":"second_night","n":173,"rho":0.1561,"p":0.0403,"q":0.1757,"effect":1.1085,"effect_unit":"points","status":"tendency"},{"driver":"training_load","outcome":"resting_hr","lag_days":1,"timing":"next_night","n":174,"rho":0.1529,"p":0.044,"q":0.1757,"effect":0.6011,"effect_unit":"bpm","status":"tendency"},{"driver":"hard_sets","outcome":"readiness","lag_days":2,"timing":"second_night","n":173,"rho":0.1527,"p":0.0449,"q":0.1757,"effect":5.6695,"effect_unit":"points","status":"tendency"},{"driver":"bedtime_min","outcome":"resting_hr","lag_days":0,"timing":"same_night","n":175,"rho":0.1526,"p":0.0438,"q":0.1757,"effect":0.3696,"effect_unit":"bpm","status":"tendency"},{"driver":"tonnage_t","outcome":"sleep_score","lag_days":2,"timing":"second_night","n":173,"rho":0.1522,"p":0.0455,"q":0.1757,"effect":1.2334,"effect_unit":"points","status":"tendency"}]};
 
   function mulberry32(seed) {
@@ -3142,7 +3142,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       : "Keine Messungen im Zeitraum";
     mount("c-weight", (host) => timeChart(host, {
       x0, x1, label: "Körpergewicht in Kilogramm",
-      empty: "Keine Gewichtsmessungen im Zeitraum. Die Werte kommen von der Garmin-Waage über `python -m healthsync sync`.",
+      empty: "Keine Gewichtsmessungen im Zeitraum. Die Werte kommen von der Garmin-Waage über `python -m selftopo sync`.",
       series: [
         { label: "Messung", kind: "dots", color: "var(--s1)", data: series("weight"), fmt: (v) => `${fmt(v, 1)} kg` },
         { label: "7-Tage-Mittel", color: "var(--s1)", data: series("weight7"), fmt: (v) => `${fmt(v, 1)} kg`, endLabel: true },
@@ -3277,7 +3277,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       parts.push(html("p", {}, [
         html("strong", { text: `Die neuesten Garmin-Daten sind vom ${longDate(fr.t)}. ` }),
         "Prüfe auf GitHub unter Actions den Workflow „Sync Garmin and Hevy“. Steht dort ",
-        html("code", { text: "No usable Garmin tokens" }), ", melde dich lokal mit ", html("code", { text: "python -m healthsync login" }),
+        html("code", { text: "No usable Garmin tokens" }), ", melde dich lokal mit ", html("code", { text: "python -m selftopo login" }),
         " neu an und ersetze das Secret ", html("code", { text: "GARMIN_TOKENS_JSON" }), ".",
       ]));
     }
@@ -3471,7 +3471,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
         ins.period ? chip("calendar", `${ddmm(isoToT(ins.period.start))}–${ddmm(isoToT(ins.period.end))}`) : null],
       `${robust.length} belastbare Zusammenhänge aus ${fmt(ins.tested)} getesteten Paaren.` + (d ? ` Deutlichster: ${d.driver} ${d.step}, ${d.outcome} ${d.effect}.` : ""));
     } else {
-      put("zusammenhaenge", [chip("info", "Noch keine Auswertung")], "Noch keine Auswertung. Sie entsteht mit python -m healthsync analyze.");
+      put("zusammenhaenge", [chip("info", "Noch keine Auswertung")], "Noch keine Auswertung. Sie entsteht mit python -m selftopo analyze.");
     }
 
     // Daten
@@ -3617,7 +3617,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     }));
     mount("c-volume", (host) => barChart(host, {
       data, color: "var(--s1)", label: "Arbeitssätze pro Kalenderwoche",
-      empty: "Keine Hevy-Workouts im Zeitraum. Abrufen mit `python -m healthsync sync --source hevy`.",
+      empty: "Keine Hevy-Workouts im Zeitraum. Abrufen mit `python -m selftopo sync --source hevy`.",
     }));
   }
 
@@ -3655,7 +3655,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 
     mount("c-sleep-times", (host) => sleepWindowChart(host, {
       x0, x1, label: "Einschlaf- und Aufwachzeit pro Nacht",
-      empty: "Keine Schlafenszeiten im Zeitraum. Ältere Tage füllt einmal `python -m healthsync sync --days 365 --refresh`.",
+      empty: "Keine Schlafenszeiten im Zeitraum. Ältere Tage füllt einmal `python -m selftopo sync --days 365 --refresh`.",
       nights: nights.map((d) => ({
         t: d.t, bed: d.bed, wake: d.wake, color: isWeekendNight(d.t) ? "var(--s2)" : "var(--s1)",
         title: `Nacht auf ${longDate(d.t)}`,
@@ -3837,7 +3837,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     });
     mount("c-activity", (host) => stackedBarChart(host, {
       data, cats: SPORTS, fmt: (v) => `${fmt(v, 1)} h`, label: "Aktive Stunden pro Kalenderwoche nach Sportart",
-      empty: "Keine Aktivitäten im Zeitraum. Abrufen mit `python -m healthsync sync --source activities`.",
+      empty: "Keine Aktivitäten im Zeitraum. Abrufen mit `python -m selftopo sync --source activities`.",
     }));
 
     // Summary per sport
@@ -4514,8 +4514,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     const sub = $("insights-sub"), table = $("insights"), filter = $("insights-filter"), windowNote = $("insights-window");
     if (!insights || !insights.findings) {
       sub.replaceChildren(...withCode(state.insightsBroken
-        ? "data/insights.json ist unlesbar. Neu erzeugen mit `python -m healthsync analyze`."
-        : "Noch keine Auswertung. Sie entsteht mit `python -m healthsync analyze`, im GitHub-Workflow täglich nach dem Abruf."));
+        ? "data/insights.json ist unlesbar. Neu erzeugen mit `python -m selftopo analyze`."
+        : "Noch keine Auswertung. Sie entsteht mit `python -m selftopo analyze`, im GitHub-Workflow täglich nach dem Abruf."));
       table.replaceChildren(); filter.replaceChildren(); windowNote.replaceChildren();
       return;
     }
@@ -5107,7 +5107,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   function renderNoData() {
     $("tiles").replaceChildren(html("div", { class: "loading" }, withCode(state.source === "github"
       ? `Das Repository ${state.dataRepo} enthält noch keine Daten. Starte dort den Workflow „Sync Garmin and Hevy“ oder lade deine lokalen CSV-Dateien hoch.`
-      : "Die CSV-Dateien enthalten noch keine Daten. Zuerst `python -m healthsync sync` ausführen; die Seite zeigt dann alles automatisch.")));
+      : "Die CSV-Dateien enthalten noch keine Daten. Zuerst `python -m selftopo sync` ausführen; die Seite zeigt dann alles automatisch.")));
     $("status-line").replaceChildren(pill("crit", "Keine Daten"));
     for (const area of AREAS) $(`sum-${area}`).replaceChildren(chip(area === "daten" ? "alert" : null, area === "daten" ? "Welche Datei fehlt, steht unten" : "Noch keine Daten", area === "daten" ? "warn" : "neutral"));
     for (const host of document.querySelectorAll(".chart-host")) emptyNote(host, "Noch keine Daten.");
@@ -5129,7 +5129,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
             dataRepo: data.repo || null, remembered: Boolean(data.remembered), offlineSince: data.offlineSince || null,
             insights: data.insights, fitnessStatus: data.fitnessStatus || null, loadedAt: Date.now(),
           });
-          if (data.source === "demo") window.healthsyncDemoData = data; // lets tests export the sample data as CSV
+          if (data.source === "demo") window.selftopoDemoData = data; // lets tests export the sample data as CSV
           state.model = buildModel(data.garmin, data.hevy, data.activities || [], data.nutrition || [], data.climbs || [], data.climbSessions || [],
             { exercises: data.exercises || [], fitness: data.fitness || [], bp: data.bp || [] });
           state.sourceInfo = describeSources(data);

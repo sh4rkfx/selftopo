@@ -237,7 +237,7 @@ def analyze_frame(daily: pd.DataFrame, days: int | None = None) -> dict[str, Any
     generated = datetime.now(timezone.utc).isoformat(timespec="seconds")
     if daily.empty:
         return {"generated_at": generated, "period": None, "tested": 0, "robust": 0, "findings": [],
-                "note": "No data yet. Run python -m healthsync sync first."}
+                "note": "No data yet. Run python -m selftopo sync first."}
 
     end = daily.index.max()
     start = max(daily.index.min(), end - pd.Timedelta(days=days - 1)) if days else daily.index.min()

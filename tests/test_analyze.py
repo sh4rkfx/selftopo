@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from healthsync import analyze, config
+from selftopo import analyze, config
 
 
 def synthetic_days(n: int = 200, effect: float = 0.0, seed: int = 1) -> pd.DataFrame:

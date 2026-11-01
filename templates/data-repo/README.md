@@ -1,6 +1,6 @@
-# healthsync data
+# selftopo data
 
-Personal data for [healthsync](https://github.com/sh4rkfx/healthsync): Garmin Connect daily
+Personal data for [selftopo](https://github.com/sh4rkfx/selftopo): Garmin Connect daily
 metrics and activities, Hevy sets and the relationship analysis.
 
 > [!IMPORTANT]
@@ -19,10 +19,10 @@ metrics and activities, Hevy sets and the relationship analysis.
 | `hevy_sets.csv` | One row per set |
 | `hevy_exercises.csv` | Muscle groups of the exercises used |
 | `nutrition_daily.csv` | Optional, from YAZIO: calories, protein, carbohydrates, fat and water per logged day |
-| `insights.json` | Result of `python -m healthsync analyze` |
+| `insights.json` | Result of `python -m selftopo analyze` |
 
 The workflow in `.github/workflows/sync.yml` runs every morning. It checks out the public
-healthsync code, fetches the last 30 days and commits changed files.
+selftopo code, fetches the last 30 days and commits changed files.
 
 *Run workflow* takes optional inputs: `days`, `source` (for example `climbs` with `days` 2000 to
 load older bouldering sessions without touching the other sources) and a date for a raw dump of
@@ -35,9 +35,9 @@ Under *Settings → Secrets and variables → Actions → Repository secrets*:
 
 | Secret | Value |
 |---|---|
-| `GARMIN_TOKENS_JSON` | Output of `python -m healthsync export-tokens` |
+| `GARMIN_TOKENS_JSON` | Output of `python -m selftopo export-tokens` |
 | `HEVY_API_KEY` | Hevy API key from hevy.com/settings?developer |
-| `YAZIO_TOKENS_JSON` | Optional. Output of `python -m healthsync yazio-tokens`. Without it, YAZIO is skipped |
+| `YAZIO_TOKENS_JSON` | Optional. Output of `python -m selftopo yazio-tokens`. Without it, YAZIO is skipped |
 | `YAZIO_EMAIL`, `YAZIO_PASSWORD` | Optional alternative: the workflow logs in itself. Delete `YAZIO_PASSWORD` after the first successful run |
 
 ## Working locally
@@ -46,8 +46,8 @@ Clone this repository into the `data/` folder of the code checkout. The code rep
 `data/`, so nothing in here can end up there by accident.
 
 ```bash
-git clone https://github.com/sh4rkfx/healthsync.git
-git clone https://github.com/sh4rkfx/healthsync-data.git healthsync/data
+git clone https://github.com/sh4rkfx/selftopo.git
+git clone https://github.com/sh4rkfx/healthsync-data.git selftopo/data
 ```
 
 Run `git -C data pull` before opening the dashboard locally. After a local `sync`, discard the

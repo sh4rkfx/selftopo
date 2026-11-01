@@ -2,7 +2,7 @@
 
 Uses the unofficial `garminconnect` library. The JSON field names mapped below are
 not documented by Garmin and may change. If a column stays empty, run
-`python -m healthsync dump-raw --date YYYY-MM-DD` and compare the raw responses
+`python -m selftopo dump-raw --date YYYY-MM-DD` and compare the raw responses
 with the `parse_*` functions in this module.
 """
 

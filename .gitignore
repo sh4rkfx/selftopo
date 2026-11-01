@@ -7,7 +7,7 @@ data/
 .garminconnect/
 .env
 
-# Raw API dumps from `python -m healthsync dump-raw` contain health data
+# Raw API dumps from `python -m selftopo dump-raw` contain health data
 debug/
 
 # Python

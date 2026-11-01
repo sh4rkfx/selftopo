@@ -4,8 +4,8 @@
 
 from datetime import date
 
-from healthsync import bloodpressure, config
-from healthsync.csvstore import read_rows, write_rows
+from selftopo import bloodpressure, config
+from selftopo.csvstore import read_rows, write_rows
 
 
 def reading(stamp, sys_, dia, pulse=58, source="MANUAL"):

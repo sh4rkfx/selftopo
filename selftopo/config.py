@@ -7,8 +7,14 @@ from datetime import date, datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+
+def _env(name: str, default: str | None = None) -> str | None:
+    """SELFTOPO_<name>, or HEALTHSYNC_<name> from before the project was renamed."""
+    return os.environ.get(f"SELFTOPO_{name}", os.environ.get(f"HEALTHSYNC_{name}", default))
+
+
 # Output
-DATA_DIR = Path(os.environ.get("HEALTHSYNC_DATA_DIR", "data"))
+DATA_DIR = Path(_env("DATA_DIR", "data"))
 GARMIN_CSV = DATA_DIR / "garmin_daily.csv"
 ACTIVITIES_CSV = DATA_DIR / "garmin_activities.csv"
 CLIMBS_CSV = DATA_DIR / "garmin_climbs.csv"  # one row per logged boulder
@@ -23,7 +29,7 @@ INSIGHTS_JSON = DATA_DIR / "insights.json"
 DEBUG_DIR = Path("debug")
 
 # Garmin uses local calendar days; Hevy timestamps are converted to the same zone.
-TIMEZONE = ZoneInfo(os.environ.get("HEALTHSYNC_TZ", "Europe/Vienna"))
+TIMEZONE = ZoneInfo(_env("TZ", "Europe/Vienna"))
 
 # Garmin authentication
 TOKEN_DIR = Path(os.environ.get("GARMIN_TOKEN_DIR", Path.home() / ".garminconnect"))

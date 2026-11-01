@@ -1,4 +1,4 @@
-"""Command line interface: `python -m healthsync <command>`."""
+"""Command line interface: `python -m selftopo <command>`."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from datetime import date
 
 from . import activities, bloodpressure, climbs, config, fitness, garmin, hevy, yazio
 
-log = logging.getLogger("healthsync")
+log = logging.getLogger("selftopo")
 
 SOURCES: dict[str, Callable[..., None]] = {
     "garmin": garmin.sync,
@@ -110,7 +110,7 @@ def cmd_dump_raw(args: argparse.Namespace) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="python -m healthsync", description=__doc__)
+    parser = argparse.ArgumentParser(prog="python -m selftopo", description=__doc__)
     parser.add_argument("-v", "--verbose", action="store_true", help="debug logging")
     commands = parser.add_subparsers(dest="command", required=True)
 

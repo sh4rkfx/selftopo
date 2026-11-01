@@ -4,8 +4,8 @@ from datetime import date, timedelta
 
 import pytest
 
-from healthsync import climbs, config
-from healthsync.csvstore import read_rows, write_rows
+from selftopo import climbs, config
+from selftopo.csvstore import read_rows, write_rows
 
 ACTIVITY = {"date": "2026-10-28", "activity_id": "111", "start_time_local": "2026-10-28 18:00:00", "type": "bouldering"}
 

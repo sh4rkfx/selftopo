@@ -1,8 +1,8 @@
 # Relationship analysis
 
-`python -m healthsync analyze` looks for time-lagged relationships between what you do (training,
+`python -m selftopo analyze` looks for time-lagged relationships between what you do (training,
 steps, bedtime) and how you recover and perform (HRV, resting heart rate, sleep, readiness,
-strength). The code is in `healthsync/analyze.py`; this page explains what it does and how to
+strength). The code is in `selftopo/analyze.py`; this page explains what it does and how to
 read the result.
 
 ## Timing conventions
