@@ -57,7 +57,8 @@ are replaced, so edited or deleted entries are picked up.
 ## Setup in the browser
 
 No Python needed. Open the [dashboard](https://sh4rkfx.github.io/selftopo/dashboard/) and click
-**Eigene Daten einrichten**. The guide builds every link from your GitHub user name:
+**Set up your own data** (German: *Eigene Daten einrichten*), or open the gear icon → *Setup*. The
+guide builds every link from your GitHub user name:
 
 1. Create the private data repository from the template
    [`sh4rkfx/selftopo-data-template`](https://github.com/sh4rkfx/selftopo-data-template), prefilled
@@ -124,8 +125,8 @@ the last 30 days every morning, recomputes the analysis and commits changed file
    With the GitHub CLI: `python -m selftopo export-tokens | gh secret set GARMIN_TOKENS_JSON --repo <you>/selftopo-data`.
 5. Start the first run manually: *Actions → Sync Garmin and Hevy → Run workflow*. Use 365 days if
    the repository has no data yet.
-6. Set your time zone: connect the dashboard (see below) and save the card *Daten → Einstellungen*
-   once. Until then the workflow counts days in UTC.
+6. Set your time zone: connect the dashboard (see below) and save the personal settings once
+   (gear icon → *General*). Until then the workflow counts days in UTC.
 
 The workflow uses `sh4rkfx/selftopo` for the code. For a fork, set the repository variable
 `SELFTOPO_CODE_REPO` in the data repository to `<you>/selftopo`.
@@ -182,13 +183,22 @@ files and shows generated sample data instead, marked with a yellow notice.
 2. Create a fine-grained personal access token under *Settings → Developer settings → Personal
    access tokens → Fine-grained tokens*: *Repository access* only the data repository,
    *Permissions → Contents: Read-only*, nothing else.
-3. Open the dashboard, choose **Mit GitHub verbinden**, enter the data repository and the token.
+3. Open the dashboard, gear icon → *Connection*, enter the data repository and the token.
 
-The token is kept in the browser: in `localStorage` with *Auf diesem Gerät merken*, otherwise only
+The token is kept in the browser: in `localStorage` with *Remember on this device*, otherwise only
 until the tab is closed. It is sent to `api.github.com` and nowhere else. All GitHub Pages sites of
 one account share the origin `<you>.github.io`, so scripts on your other Pages sites could read it;
-keep that in mind if you publish other sites with third-party scripts. *Daten → Datenquellen*
+keep that in mind if you publish other sites with third-party scripts. Gear icon → *Connection*
 shows the connection and disconnects it.
+
+### Language
+
+The dashboard is available in German and English. It starts in German when the browser's first
+language is German and in English otherwise; gear icon → *General* → *Language* switches it for
+this browser, and `?lang=de` or `?lang=en` in the address does so for one visit. Numbers and dates
+follow the language. German is the source text in the code; the English text is the dictionary in
+the script block `i18n-en` of `dashboard/index.html`. Text that is missing there stays German and
+is listed in `window.selftopoI18nMissing`.
 
 ### Install as an app
 
@@ -321,7 +331,7 @@ Personal settings live in `settings.json` at the root of the data repository (lo
 | `main_lifts` | barbell bench press, squat, deadlift, weighted pull-up | dashboard | e1RM charts, by exact Hevy exercise name. `label` is the chart title, `add_bodyweight` adds body weight to the load |
 | `grip_exercises` | `Left-hand Grip Strength`, `Right-hand Grip Strength` (and `Handkraft links`, `Handkraft rechts`) | both | Hevy exercises holding grip-strength readings; kept out of hard sets, tonnage and e1RM |
 
-The dashboard edits the file in the card *Daten → Einstellungen*. Its token can only read, so
+The dashboard edits the file under gear icon → *General*. Its token can only read, so
 the card opens the file on GitHub (prefilled when it is new) and you save with *Commit changes*.
 Unknown keys are kept. Invalid values are reported in the card and in the sync log, and the
 default applies instead.

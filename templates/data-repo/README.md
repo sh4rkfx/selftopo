@@ -5,7 +5,7 @@ metrics and activities, Hevy sets and the relationship analysis.
 
 > [!TIP]
 > Looking at the template? Click **Use this template → Create a new repository** and choose
-> **Private**, or let the dashboard's setup guide (*Eigene Daten einrichten*) prefill everything.
+> **Private**, or let the dashboard's setup guide (*Set up your own data*, gear icon → *Setup*) prefill everything.
 
 > [!IMPORTANT]
 > Keep this repository **private**. Every file here is health data, and whatever is committed
@@ -24,7 +24,7 @@ metrics and activities, Hevy sets and the relationship analysis.
 | `hevy_exercises.csv` | Muscle groups of the exercises used |
 | `nutrition_daily.csv` | Optional, from YAZIO: calories, protein, carbohydrates, fat and water per logged day |
 | `insights.json` | Result of `python -m selftopo analyze` |
-| `settings.json` | Your settings: time zone, step goal, main lifts, grip-strength exercises. Edit it in the dashboard under *Daten → Einstellungen* |
+| `settings.json` | Your settings: time zone, step goal, main lifts, grip-strength exercises. Edit it in the dashboard under gear icon → *General* |
 
 The workflow in `.github/workflows/sync.yml` runs every morning. It checks out the public
 selftopo code, fetches the last 30 days and commits changed files.
