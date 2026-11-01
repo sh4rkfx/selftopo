@@ -135,7 +135,7 @@ button { font: inherit; }
 .nav { display: flex; gap: 2px; min-width: 0; flex: 1; overflow-x: auto; scrollbar-width: none; }
 .nav::-webkit-scrollbar { display: none; }
 .nav a {
-  display: inline-flex; align-items: center; gap: 6px; padding: 7px 10px; border-radius: 7px;
+  display: inline-flex; align-items: center; gap: 6px; padding: 7px 8px; border-radius: 7px;
   color: var(--ink-2); text-decoration: none; font-size: 13px; white-space: nowrap;
 }
 .nav a:hover { background: var(--grid); color: var(--ink); }
@@ -300,12 +300,11 @@ a.tile:hover .area-tag { color: var(--ink); }
 .area-icon svg.ic { width: 21px; height: 21px; }
 .area-sum { grid-column: 2 / 5; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .area-toggle {
-  grid-column: 4; grid-row: 1; display: inline-flex; align-items: center; gap: 6px;
-  font-size: 12.5px; color: var(--ink-2); background: transparent; border: 1px solid var(--ring); border-radius: 7px;
-  padding: 5px 9px; cursor: pointer;
+  grid-column: 4; grid-row: 1; width: 34px; height: 34px; display: grid; place-items: center; padding: 0;
+  color: var(--ink-2); background: transparent; border: 1px solid var(--ring); border-radius: 50%; cursor: pointer;
 }
 .area-toggle:hover { background: var(--surface); color: var(--ink); border-color: var(--ring-strong); }
-.area-toggle svg.ic { width: 14px; height: 14px; transition: transform 0.15s ease; }
+.area-toggle svg.ic { width: 17px; height: 17px; transition: transform 0.15s ease; }
 .area-toggle[aria-expanded="false"] svg.ic { transform: rotate(-90deg); }
 .area-body { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); }
 @media (min-width: 900px) { .area-body { grid-template-columns: repeat(2, minmax(0, 1fr)); } .span2 { grid-column: 1 / -1; } }
@@ -314,8 +313,7 @@ a.tile:hover .area-tag { color: var(--ink); }
   .area-head { padding-inline: 2px; }
   .area-icon { grid-row: 1; width: 34px; height: 34px; }
   .area-sum { grid-column: 1 / -1; }
-  .area-toggle { border: 0; padding: 6px; }
-  .area-toggle .t { display: none; }
+  .area-toggle { width: 38px; height: 38px; }
   .area-toggle svg.ic { width: 20px; height: 20px; }
 }
 /* Phone: one card per area at a time, chosen with icon tabs */
@@ -586,6 +584,33 @@ kbd { font-family: var(--font-mono); font-size: 11.5px; border: 1px solid var(--
 .token-help a { color: var(--s1); }
 .notice-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 
+/* Notable this week, and the conclusion under each area head */
+.notable { margin-top: 14px; background: var(--surface); border: 1px solid var(--ring); border-radius: 14px; padding: 14px 16px; display: grid; gap: 10px; }
+.notable-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; padding-right: 36px; position: relative; }
+.notable-head h2 { margin: 0; font-size: 16px; }
+.notable-head .info-btn { position: absolute; right: -6px; top: -6px; }
+.notable-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+.notable-list button {
+  width: 100%; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 10px; align-items: start; text-align: left;
+  font: inherit; color: var(--ink); background: var(--area); border: 1px solid var(--ring); border-radius: 10px; padding: 9px 11px; cursor: pointer;
+}
+.notable-list button:hover { border-color: var(--ring-strong); }
+.notable-list .ic { grid-row: 1 / 3; width: 18px; height: 18px; margin-top: 1px; color: var(--muted); }
+.notable-list .warn .ic { color: var(--warn-ink); }
+.notable-list b { font-weight: 600; font-size: 13.5px; }
+.notable-list span { font-size: 12.5px; color: var(--ink-2); }
+.notable-calm { margin: 0; font-size: 13.5px; color: var(--ink-2); }
+.area-fazit { grid-column: 2 / 5; margin: 2px 0 0; font-size: 13.5px; line-height: 1.5; color: var(--ink-2); max-width: 82ch; }
+.area-fazit .fz-odd { color: var(--ink); }
+.area-fazit .fz-odd .ic { width: 14px; height: 14px; vertical-align: -2px; margin-right: 4px; color: var(--warn-ink); }
+.area-fazit .fz-finding { display: block; margin-top: 2px; }
+@media (max-width: 759px) { .area-fazit { grid-column: 1 / -1; } .notable { padding: 12px; } }
+button.chip { font: inherit; font-size: 12.5px; border: 0; cursor: pointer; }
+button.chip:hover { box-shadow: inset 0 0 0 1px var(--ring-strong); }
+@keyframes card-flash { from { box-shadow: 0 0 0 3px var(--s1); } to { box-shadow: 0 0 0 3px transparent; } }
+.card.flash { animation: card-flash 1.6s ease-out; }
+@media (prefers-reduced-motion: reduce) { .card.flash { animation: none; outline: 2px solid var(--s1); } }
+
 /* Settings overlay: header and tabs stay, the panes scroll; full screen on phones */
 dialog.prefs { width: min(720px, calc(100vw - 32px)); height: min(820px, calc(100vh - 48px)); overflow: hidden; }
 dialog.prefs[open] { display: flex; flex-direction: column; }
@@ -702,7 +727,6 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       <a href="#fitness" class="tint-blue" data-tint title="Fitness (Taste 6)"><svg class="ic" aria-hidden="true"><use href="#i-fitness"/></svg><span class="lbl">Fitness</span></a>
       <a href="#aktivitaeten" class="tint-blue" data-tint title="Aktivitäten (Taste 7)"><svg class="ic" aria-hidden="true"><use href="#i-aktivitaeten"/></svg><span class="lbl">Aktivitäten</span></a>
       <a href="#zusammenhaenge" class="tint-gray" data-tint title="Zusammenhänge (Taste 8)"><svg class="ic" aria-hidden="true"><use href="#i-zusammenhaenge"/></svg><span class="lbl">Zusammenhänge</span></a>
-      <a href="#daten" class="tint-gray" data-tint title="Daten (Taste 9)"><svg class="ic" aria-hidden="true"><use href="#i-daten"/></svg><span class="lbl">Daten</span></a>
     </nav>
     <div class="seg-host"><div class="seg small" role="group" aria-label="Zeitraum" data-range></div></div>
     <button class="icon-btn" id="install" data-action="install" type="button" hidden aria-label="Als App installieren" title="Als App installieren"><svg class="ic" aria-hidden="true"><use href="#i-install"/></svg></button>
@@ -756,7 +780,19 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
         </tbody>
       </table>
     </div>
-  </section>
+      <div class="notable" id="notable" aria-labelledby="notable-title">
+      <div class="notable-head">
+        <h2 id="notable-title">Auffällig diese Woche</h2>
+        <p class="sub" id="notable-sub"></p>
+      </div>
+      <div class="info" id="info-notable" hidden>
+        <p>Jeder Wert der letzten 7 Tage wird mit deinem eigenen üblichen Bereich verglichen: dem 5. bis 95. Perzentil desselben Wochenwerts über die 120 Tage davor. Liegt er außerhalb, steht er hier, sonst nicht. Messwerte wie HRV oder Schlafdauer gehen als 7-Tage-Mittel ein, Trainingsmengen wie Arbeitssätze oder Trainingslast als 7-Tage-Summe; Tagessummen enden gestern, weil der laufende Tag noch nicht vollständig ist.</p>
+        <p>Gelb heißt: in die Richtung, die für Erholung oder Gesundheit eher ungünstig ist, etwa niedrigere HRV oder kürzerer Schlaf. Neutral heißt: nur ungewöhnlich, ohne Wertung, etwa mehr Trainingslast als sonst. Ein Wert außerhalb des Bereichs ist ein Hinweis, keine Diagnose; jede fünfte Woche liegt bei mindestens einem Wert knapp daneben.</p>
+        <p class="source">Quelle: garmin_daily.csv · garmin_activities.csv · hevy_sets.csv · nutrition_daily.csv · mindestens 60 Vergleichswerte</p>
+      </div>
+      <ul class="notable-list" id="notable-list"></ul>
+    </div>
+</section>
 
   <section class="area tint-orange" id="koerper" aria-labelledby="h-koerper">
     <div class="area-head">
@@ -1306,7 +1342,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   <section class="area tint-gray" id="daten" aria-labelledby="h-daten">
     <div class="area-head">
       <span class="area-icon" aria-hidden="true"><svg class="ic"><use href="#i-daten"/></svg></span>
-      <h2 id="h-daten">Daten</h2>
+      <h2 id="h-daten">Rohdaten</h2>
       <p class="area-sum" id="sum-daten"></p>
     </div>
     <div class="info area-info" id="info-daten" hidden>
@@ -1320,17 +1356,6 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       </table>
     </div>
     <div class="area-body" id="b-daten">
-      <div class="card span2" data-tab="Quellen" data-icon="daten">
-        <div class="card-head"><h3>Datenquellen</h3><p class="sub">Was geladen ist und wie aktuell</p></div>
-        <div class="info" hidden>
-          <p>Oben steht, woher die Seite liest: aus deinem Daten-Repository auf GitHub, aus dem Ordner data/ neben dem Dashboard oder aus im Browser erzeugten Beispieldaten. Darunter eine Zeile pro Datei mit Zahl der Einträge und dem ersten und letzten Datum.</p>
-          <p><b>geladen</b>: gelesen und aktuell. <b>Tage alt</b>: Der neueste Garmin-Tag liegt 2 oder mehr Tage zurück. <b>leer</b>, <b>fehlt</b> und <b>unlesbar</b> nennen darunter die Abhilfe. <b>nicht eingerichtet</b> gilt nur für das optionale YAZIO.</p>
-          <p>Der Workflow im Daten-Repository holt die Daten täglich um 07:30 Uhr, während der Sommerzeit um 08:30 Uhr. GitHub startet geplante Läufe oft einige Minuten bis über eine Stunde später.</p>
-          <p class="source">Quelle: garmin_daily.csv · garmin_activities.csv · hevy_sets.csv · nutrition_daily.csv · insights.json · Workflow: .github/workflows/sync.yml</p>
-        </div>
-        <div class="card-tools" id="connection"></div>
-        <ul class="rows" id="sources"></ul>
-      </div>
       <div class="card span2" data-tab="Wochen" data-icon="table">
         <div class="card-head"><h3>Wochenübersicht</h3><p class="sub">Neueste oben</p></div>
         <div class="info" hidden>
@@ -1398,7 +1423,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       <h3>Tastenkürzel</h3>
       <table>
         <tbody>
-          <tr><td><kbd>1</kbd> bis <kbd>9</kbd></td><td>Zum Bereich springen: Körper, Ernährung, Erholung, Schlaf, Sport, Fitness, Aktivitäten, Zusammenhänge, Daten</td></tr>
+          <tr><td><kbd>1</kbd> bis <kbd>8</kbd></td><td>Zum Bereich springen: Körper, Ernährung, Erholung, Schlaf, Sport, Fitness, Aktivitäten, Zusammenhänge</td></tr>
           <tr><td><kbd>0</kbd></td><td>Zurück zum Überblick</td></tr>
           <tr><td><kbd>Z</kbd></td><td>Nächster Zeitraum; mit <kbd>Umschalt</kbd> der vorherige</td></tr>
           <tr><td><kbd>←</kbd> <kbd>→</kbd></td><td>Im ausgewählten Diagramm einen Tag weiter; mit <kbd>Umschalt</kbd> eine Woche</td></tr>
@@ -1421,7 +1446,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     </div>
     <div>
       <h3>Bereiche</h3>
-      <p class="sub">Deine eigenen Daten zeigt die Seite, wenn sie im Repo über einen lokalen Server läuft oder mit deinem privaten Daten-Repository verbunden ist (Zahnrad oben → Verbindung). Jeder Bereich lässt sich ein- und ausklappen; die Kennzahlen im Kopf bleiben sichtbar. Am Handy starten die Bereiche eingeklappt und zeigen ihre Karten einzeln über Tabs. Diese Einstellung und der Zeitraum werden in diesem Browser gespeichert. Das <b>ⓘ</b> an einer Karte erklärt, was sie zeigt und woher die Daten kommen. Berechnungen und Begriffe stehen unter <a href="#glossar" id="help-glossary">Daten → So wird gerechnet</a>.</p>
+      <p class="sub">Deine eigenen Daten zeigt die Seite, wenn sie im Repo über einen lokalen Server läuft oder mit deinem privaten Daten-Repository verbunden ist (Zahnrad oben → Verbindung). Jeder Bereich lässt sich ein- und ausklappen; die Kennzahlen im Kopf bleiben sichtbar. Am Handy starten die Bereiche eingeklappt und zeigen ihre Karten einzeln über Tabs. Diese Einstellung und der Zeitraum werden in diesem Browser gespeichert. Das <b>ⓘ</b> an einer Karte erklärt, was sie zeigt und woher die Daten kommen. Berechnungen und Begriffe stehen unter <a href="#glossar" id="help-glossary">Rohdaten → So wird gerechnet</a>.</p>
     </div>
   </div>
 </dialog>
@@ -1491,6 +1516,18 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
         <h3>Daten-Repository</h3>
         <p class="sub" id="prefs-conn-status"></p>
         <div class="picker-actions" id="prefs-conn-actions"></div>
+      </div>
+      <div class="prefs-group">
+        <h3>Dateien</h3>
+        <p class="sub">Eine Zeile pro Datei mit Zahl der Einträge und dem ersten und letzten Datum. Fehlt eine Datei, steht darunter, wie sie entsteht.</p>
+        <ul class="rows" id="sources"></ul>
+        <details class="token-help">
+          <summary>Was bedeuten die Angaben?</summary>
+            <p>Oben steht, woher die Seite liest: aus deinem Daten-Repository auf GitHub, aus dem Ordner data/ neben dem Dashboard oder aus im Browser erzeugten Beispieldaten. Darunter eine Zeile pro Datei mit Zahl der Einträge und dem ersten und letzten Datum.</p>
+            <p><b>geladen</b>: gelesen und aktuell. <b>Tage alt</b>: Der neueste Garmin-Tag liegt 2 oder mehr Tage zurück. <b>leer</b>, <b>fehlt</b> und <b>unlesbar</b> nennen darunter die Abhilfe. <b>nicht eingerichtet</b> gilt nur für das optionale YAZIO.</p>
+            <p>Der Workflow im Daten-Repository holt die Daten täglich um 07:30 Uhr, während der Sommerzeit um 08:30 Uhr. GitHub startet geplante Läufe oft einige Minuten bis über eine Stunde später.</p>
+            <p class="source">Quelle: garmin_daily.csv · garmin_activities.csv · hevy_sets.csv · nutrition_daily.csv · insights.json · Workflow: .github/workflows/sync.yml</p>
+        </details>
       </div>
       <form class="prefs-group" id="connect-form" novalidate>
         <h3 id="connect-title">Verbinden</h3>
@@ -1604,9 +1641,6 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "derselbe Tag": "the same day",
 "Training am Folgetag": "training the next day",
 "Sätze": "Sets",
-"30 Tage": "30 days",
-"90 Tage": "90 days",
-"180 Tage": "180 days",
 "Alles": "All",
 "Hoch": "High",
 "Mittel": "Moderate",
@@ -1675,7 +1709,6 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Schlaf": "Sleep",
 "Aktivitäten": "Activities",
 "Zusammenhänge": "Insights",
-"Daten": "Data",
 "Die Daten reichen {0} Tage zurück, „Alles“ zeigt dasselbe": "The data goes back {0} days, “All” shows the same",
 "Letzte {0} Tage (Taste Z wechselt)": "Last {0} days (key Z switches)",
 "Alle vorhandenen Tage (Taste Z wechselt)": "All available days (key Z switches)",
@@ -1729,7 +1762,6 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 ", melde dich lokal mit ": ", log in again locally with ",
 " neu an und ersetze das Secret ": " and replace the secret ",
 " für einen Lauf.": " for one run also work.",
-"Die zugehörigen Diagramme bleiben leer. Unter Daten → Quellen steht, wie die Datei entsteht.": "The related charts stay empty. Data → Sources says how the file is created.",
 "Stand {0}": "as of {0}",
 "Zum Bereich {0}": "Go to {0}",
 "Gewicht": "Weight",
@@ -1757,7 +1789,6 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Keine Gewichtsmessungen im Zeitraum.": "No weigh-ins in the period.",
 "nicht eingerichtet": "not set up",
 "kein geloggter Tag": "no logged day",
-"Noch keine Ernährungsdaten. Der Abruf aus YAZIO ist optional; die Einrichtung steht unter Daten → Quellen.": "No nutrition data yet. The YAZIO sync is optional; Data → Sources explains the setup.",
 "Durchschnittlich {0} kcal und {1} g Eiweiß pro kg an {2} vollständig geloggten von {3} Tagen.": "On average {0} kcal and {1} g protein per kg on {2} fully logged of {3} days.",
 " Bilanz laut Garmin {0} kcal pro Tag.": " Balance according to Garmin {0} kcal per day.",
 "Im Zeitraum kein vollständig geloggter Tag.": "No fully logged day in the period.",
@@ -1798,15 +1829,10 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Abruf prüfen": "Check the sync",
 "{0} Quellen geladen": "{0} sources loaded",
 ", zusammen {0} Tage.": ", {0} days in total.",
-"Keine Verbindung zu GitHub. Angezeigt wird der Stand, der am {0} um {1} geladen wurde.": "No connection to GitHub. Showing the data loaded on {0} at {1}.",
-"Erneut versuchen": "Try again",
 "auf diesem Gerät gespeichert": "saved on this device",
 "nur für diesen Tab gespeichert": "saved for this tab only",
 "Verbunden mit {0}. Der Token ist {1}.": "Connected to {0}. The token is {1}.",
 "Verbindung trennen": "Disconnect",
-"Die gespeicherte Verbindung funktioniert nicht mehr.": "The saved connection no longer works.",
-"Nicht mit einem Daten-Repository verbunden.": "Not connected to a data repository.",
-"Daten aus dem Ordner data/ neben dem Dashboard.": "Data from the folder data/ next to the dashboard.",
 "Beispiel": "Sample",
 "Im Browser erzeugt.": "Generated in the browser.",
 "{0} Tage alt": "{0} days old",
@@ -2206,7 +2232,6 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "{0}: zuerst oben den Benutzernamen eintragen.": "{0}: enter the user name above first.",
 "Das Repository {0} enthält noch keine Daten. Starte dort den Workflow „Sync Garmin and Hevy“ oder lade deine lokalen CSV-Dateien hoch.": "The repository {0} contains no data yet. Start the workflow “Sync Garmin and Hevy” there or upload your local CSV files.",
 "Die CSV-Dateien enthalten noch keine Daten. Zuerst `python -m selftopo sync` ausführen; die Seite zeigt dann alles automatisch.": "The CSV files contain no data yet. Run `python -m selftopo sync` first; the page then shows everything automatically.",
-"Welche Datei fehlt, steht unten": "The missing file is listed below",
 "Noch keine Daten.": "No data yet.",
 "selftopo": "selftopo",
 "Überblick": "Overview",
@@ -2486,8 +2511,6 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "⟨i⟩GitHub": "⟨i⟩GitHub",
 "Woher die Seite liest und wann sie geladen hat; sonst <b>Lokal</b> (Ordner data/) oder <b>Beispieldaten</b>.": "Where the page reads from and when it loaded; otherwise <b>Local</b> (folder data/) or <b>Sample data</b>.",
 "Kalendertage, für die insgesamt Daten vorliegen.": "Calendar days for which there is any data.",
-"Datenquellen": "Data sources",
-"Was geladen ist und wie aktuell": "What is loaded and how current it is",
 "Oben steht, woher die Seite liest: aus deinem Daten-Repository auf GitHub, aus dem Ordner data/ neben dem Dashboard oder aus im Browser erzeugten Beispieldaten. Darunter eine Zeile pro Datei mit Zahl der Einträge und dem ersten und letzten Datum.": "At the top: where the page reads from, your data repository on GitHub, the folder data/ next to the dashboard or sample data generated in the browser. Below, one row per file with the number of entries and the first and last date.",
 "<b>geladen</b>: gelesen und aktuell. <b>Tage alt</b>: Der neueste Garmin-Tag liegt 2 oder mehr Tage zurück. <b>leer</b>, <b>fehlt</b> und <b>unlesbar</b> nennen darunter die Abhilfe. <b>nicht eingerichtet</b> gilt nur für das optionale YAZIO.": "<b>loaded</b>: read and current. <b>days old</b>: the newest Garmin day is 2 or more days ago. <b>empty</b>, <b>missing</b> and <b>cannot be read</b> name the fix below. <b>not set up</b> only applies to optional files such as YAZIO.",
 "Der Workflow im Daten-Repository holt die Daten täglich um 07:30 Uhr, während der Sommerzeit um 08:30 Uhr. GitHub startet geplante Läufe oft einige Minuten bis über eine Stunde später.": "The workflow in the data repository fetches the data every day at 07:30, during summer time at 08:30 (Central European time). GitHub often starts scheduled runs a few minutes to over an hour later.",
@@ -2535,8 +2558,6 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "<i class=\"key-dash\"></i>Gestrichelt: Vergleichswert oder Ziel": "<i class=\"key-dash\"></i>Dashed: reference value or goal",
 "Werte einzelner Tage zeigt der Tooltip beim Überfahren mit der Maus oder mit den Pfeiltasten, wenn das Diagramm ausgewählt ist.": "The tooltip shows the values of single days when you hover with the mouse, or with the arrow keys when the chart is selected.",
 "Tastenkürzel": "Keyboard shortcuts",
-"<kbd>1</kbd> bis <kbd>9</kbd>": "<kbd>1</kbd> to <kbd>9</kbd>",
-"Zum Bereich springen: Körper, Ernährung, Erholung, Schlaf, Sport, Fitness, Aktivitäten, Zusammenhänge, Daten": "Jump to an area: Body, Nutrition, Recovery, Sleep, Sport, Fitness, Activities, Insights, Data",
 "Zurück zum Überblick": "Back to the overview",
 "Nächster Zeitraum; mit <kbd>Umschalt</kbd> der vorherige": "Next period; with <kbd>Shift</kbd> the previous one",
 "Im ausgewählten Diagramm einen Tag weiter; mit <kbd>Umschalt</kbd> eine Woche": "In the selected chart, one day further; with <kbd>Shift</kbd> one week",
@@ -2605,7 +2626,6 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Fitness (Taste 6)": "Fitness (key 6)",
 "Aktivitäten (Taste 7)": "Activities (key 7)",
 "Zusammenhänge (Taste 8)": "Insights (key 8)",
-"Daten (Taste 9)": "Data (key 9)",
 "Daten neu laden (Taste R)": "Reload data (key R)",
 "Hilfe und Tastenkürzel (Taste ?)": "Help and keyboard shortcuts (key ?)",
 "Hilfe und Tastenkürzel": "Help and keyboard shortcuts",
@@ -2633,7 +2653,6 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Welche Ergebnisse": "Which results",
 "Tonnage": "Tonnage",
 "Form": "Form",
-"Quellen": "Sources",
 "Wochen": "Weeks",
 "Begriffe": "Terms",
 "Bereiche der Einstellungen": "Sections of the settings",
@@ -2642,7 +2661,6 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "github_pat_…": "github_pat_…",
 "anna": "anna",
 "selftopo-data": "selftopo-data",
-"Deine eigenen Daten zeigt die Seite, wenn sie im Repo über einen lokalen Server läuft oder mit deinem privaten Daten-Repository verbunden ist (Zahnrad oben → Verbindung). Jeder Bereich lässt sich ein- und ausklappen; die Kennzahlen im Kopf bleiben sichtbar. Am Handy starten die Bereiche eingeklappt und zeigen ihre Karten einzeln über Tabs. Diese Einstellung und der Zeitraum werden in diesem Browser gespeichert. Das <b>ⓘ</b> an einer Karte erklärt, was sie zeigt und woher die Daten kommen. Berechnungen und Begriffe stehen unter <a href=\"#glossar\" id=\"help-glossary\">Daten → So wird gerechnet</a>.": "The page shows your own data when it runs in the repository on a local server or is connected to your private data repository (gear icon at the top → Connection). Every area can be collapsed and expanded; the key figures in its header stay visible. On phones the areas start collapsed and show their cards one at a time in tabs. This setting and the period are saved in this browser. The <b>ⓘ</b> on a card explains what it shows and where the data comes from. Calculations and terms are under <a href=\"#glossar\" id=\"help-glossary\">Data → How it is calculated</a>.",
 "schwach": "weak",
 "normal": "normal",
 "stark": "strong",
@@ -2677,14 +2695,82 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "ausgeglichen": "balanced",
 "{0} bis {1}": "{0} to {1}",
 "zuletzt {0}": "latest {0}",
-"aufklappen": "expand",
-"einklappen": "collapse",
 "erledigt": "done",
 "{0} %/Woche": "{0} %/week",
 "{0}/{1} Tage": "{0}/{1} days",
 "{0} h/Woche": "{0} h/week",
 "HRV Ø": "HRV avg",
-"endurance|Mittel": "Intermediate"
+"endurance|Mittel": "Intermediate",
+"Punkte": "points",
+"4 Wochen": "4 weeks",
+"12 Wochen": "12 weeks",
+"1 Jahr": "1 year",
+"Rohdaten": "Raw data",
+"Die zugehörigen Diagramme bleiben leer. Unter Einstellungen → Verbindung steht, wie die Datei entsteht.": "The related charts stay empty. Settings → Connection says how the file is created.",
+"Gewichtstempo": "Weight trend",
+"Eiweiß pro kg": "Protein per kg",
+"{0} {1} als üblich": "{0} {1} than usual",
+"{0} · üblich {1} bis {2}": "{0} · usual {1} to {2}",
+"{0} von {1} Werten außerhalb deines üblichen Bereichs": "{0} of {1} values outside your usual range",
+"Für den Vergleich braucht es mindestens {0} Tage Daten": "The comparison needs at least {0} days of data",
+"Diese Woche liegt alles in deinem üblichen Bereich: {0}.": "Everything is within your usual range this week: {0}.",
+"Sobald genug Tage da sind, steht hier, was diese Woche von deinem Üblichen abweicht.": "As soon as there are enough days, this shows what differs from your usual this week.",
+"Diese Woche im üblichen Bereich: {0}.": "Within your usual range this week: {0}.",
+"Belastbar in deinen Daten: {0} {1} → {2} {3}, {4}.": "Robust in your data: {0} {1} → {2} {3}, {4}.",
+"Gewicht, neuestes 7-Tage-Mittel": "Weight, newest 7-day average",
+"Änderung des 7-Tage-Mittels im Zeitraum": "Change of the 7-day average in the period",
+"Abnahmetempo: Änderung pro Woche über 28 Tage": "Rate of loss: change per week over 28 days",
+"Änderung der Fettmasse im Zeitraum": "Change of fat mass in the period",
+"Änderung der Muskelmasse im Zeitraum": "Change of muscle mass in the period",
+"Blutdruck, Mittel im Zeitraum": "Blood pressure, mean in the period",
+"YAZIO einrichten": "Set up YAZIO",
+"Kalorien pro Tag, Mittel der vollständig geloggten Tage": "Calories per day, mean of the fully logged days",
+"Eiweiß pro kg Körpergewicht": "Protein per kg body weight",
+"Energiebilanz: YAZIO minus Verbrauch laut Garmin": "Energy balance: YAZIO minus expenditure according to Garmin",
+"{0} kcal/Tag": "{0} kcal/day",
+"Vollständig geloggte Tage im Zeitraum": "Fully logged days in the period",
+"Noch keine Ernährungsdaten. Der Abruf aus YAZIO ist optional; die Einrichtung steht unter Einstellungen → Einrichtung.": "No nutrition data yet. The YAZIO sync is optional; Settings → Setup explains it.",
+"Erholung aus HRV und Ruhepuls": "Recovery from HRV and resting HR",
+"HRV, 7-Tage-Mittel": "HRV, 7-day average",
+"Ruhepuls, 7-Tage-Mittel; in Klammern der Abstand zum 60-Tage-Mittel": "Resting HR, 7-day average; in brackets the difference from the 60-day average",
+"Mittlere Schlafdauer pro Nacht": "Mean sleep duration per night",
+"Mittlere Einschlaf- und Aufwachzeit": "Mean bedtime and wake time",
+"Verschiebung der Schlafmitte am Wochenende": "Shift of the midpoint of sleep at the weekend",
+"Krafteinheiten im Zeitraum": "Strength sessions in the period",
+"Boulder-Sessions im Zeitraum": "Bouldering sessions in the period",
+"1 Boulder-Session": "1 bouldering session",
+"{0} Boulder-Sessions": "{0} bouldering sessions",
+"Schwerster getoppter Boulder im Zeitraum": "Hardest topped boulder in the period",
+"Letzte Handkraft-Messung, stärkere Hand": "Latest grip-strength reading, stronger hand",
+"Aktive Zeit pro Woche, alle Aufzeichnungen der Uhr": "Active time per week, all watch recordings",
+"Aktivitäten im Zeitraum": "Activities in the period",
+"Mittlere Schritte pro Tag": "Mean steps per day",
+"Anteil der Tage mit erreichtem Schrittziel": "Share of days with the step goal reached",
+"VO2max, letzte Schätzung der Uhr": "VO2max, latest estimate of the watch",
+"Garmins Prognose für 5 km": "Garmin’s prediction for 5 km",
+"Trainingsstatus laut Garmin, heute": "Training status according to Garmin, today",
+"Zusammenhänge, die der Korrektur für viele Tests standhalten": "Relationships that survive the correction for many tests",
+"Getestete Kombinationen aus Ursache und Wirkung": "Tested combinations of cause and effect",
+"Zeitraum der Auswertung": "Period of the analysis",
+"Noch keine Auswertung. Sie entsteht mit python -m selftopo analyze.": "No analysis yet. It is created by python -m selftopo analyze.",
+"Dateien in den Einstellungen": "Files in the settings",
+"Auffällig diese Woche": "Notable this week",
+"Welche Datei fehlt, steht in den Einstellungen unter Verbindung": "The settings list the missing file under Connection",
+"Jeder Wert der letzten 7 Tage wird mit deinem eigenen üblichen Bereich verglichen: dem 5. bis 95. Perzentil desselben Wochenwerts über die 120 Tage davor. Liegt er außerhalb, steht er hier, sonst nicht. Messwerte wie HRV oder Schlafdauer gehen als 7-Tage-Mittel ein, Trainingsmengen wie Arbeitssätze oder Trainingslast als 7-Tage-Summe; Tagessummen enden gestern, weil der laufende Tag noch nicht vollständig ist.": "Every value of the last 7 days is compared with your own usual range: the 5th to 95th percentile of the same weekly value over the 120 days before. If it falls outside, it is listed here, otherwise not. Measurements such as HRV or sleep duration count as a 7-day average, training amounts such as hard sets or training load as a 7-day sum; daily totals end yesterday, because the current day is not complete yet.",
+"Gelb heißt: in die Richtung, die für Erholung oder Gesundheit eher ungünstig ist, etwa niedrigere HRV oder kürzerer Schlaf. Neutral heißt: nur ungewöhnlich, ohne Wertung, etwa mehr Trainingslast als sonst. Ein Wert außerhalb des Bereichs ist ein Hinweis, keine Diagnose; jede fünfte Woche liegt bei mindestens einem Wert knapp daneben.": "Yellow means: in the direction that is rather unfavourable for recovery or health, such as lower HRV or shorter sleep. Neutral means: only unusual, without judgement, such as more training load than usual. A value outside the range is a hint, not a diagnosis; one week in five has at least one value just outside.",
+"Quelle: garmin_daily.csv · garmin_activities.csv · hevy_sets.csv · nutrition_daily.csv · mindestens 60 Vergleichswerte": "Source: garmin_daily.csv · garmin_activities.csv · hevy_sets.csv · nutrition_daily.csv · at least 60 values to compare with",
+"<kbd>1</kbd> bis <kbd>8</kbd>": "<kbd>1</kbd> to <kbd>8</kbd>",
+"Zum Bereich springen: Körper, Ernährung, Erholung, Schlaf, Sport, Fitness, Aktivitäten, Zusammenhänge": "Jump to an area: Body, Nutrition, Recovery, Sleep, Sport, Fitness, Activities, Insights",
+"Deine eigenen Daten zeigt die Seite, wenn sie im Repo über einen lokalen Server läuft oder mit deinem privaten Daten-Repository verbunden ist (Zahnrad oben → Verbindung). Jeder Bereich lässt sich ein- und ausklappen; die Kennzahlen im Kopf bleiben sichtbar. Am Handy starten die Bereiche eingeklappt und zeigen ihre Karten einzeln über Tabs. Diese Einstellung und der Zeitraum werden in diesem Browser gespeichert. Das <b>ⓘ</b> an einer Karte erklärt, was sie zeigt und woher die Daten kommen. Berechnungen und Begriffe stehen unter <a href=\"#glossar\" id=\"help-glossary\">Rohdaten → So wird gerechnet</a>.": "The page shows your own data when it runs in the repository on a local server or is connected to your private data repository (gear icon at the top → Connection). Every area can be collapsed and expanded; the key figures in its header stay visible. On phones the areas start collapsed and show their cards one at a time in tabs. This setting and the period are saved in this browser. The <b>ⓘ</b> on a card explains what it shows and where the data comes from. Calculations and terms are under <a href=\"#glossar\" id=\"help-glossary\">Raw data → How it is calculated</a>.",
+"Dateien": "Files",
+"Eine Zeile pro Datei mit Zahl der Einträge und dem ersten und letzten Datum. Fehlt eine Datei, steht darunter, wie sie entsteht.": "One row per file with the number of entries and the first and last date. If a file is missing, the row says how it is created.",
+"Was bedeuten die Angaben?": "What do the details mean?",
+"kürzer": "shorter",
+"länger": "longer",
+"niedriger": "lower",
+"höher": "higher",
+"{0} aufklappen": "Expand {0}",
+"{0} einklappen": "Collapse {0}"
 }
 </script>
 <script>
@@ -2863,16 +2949,21 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     same_night: T("dieselbe Nacht"), next_night: T("Folgenacht"), second_night: T("zweite Nacht danach"), same_day: T("derselbe Tag"),
     next_day: T("Training am Folgetag"),
   };
-  const INSIGHT_UNITS = { points: "Punkte", steps: T("Schritte"), sets: T("Sätze"), min: "min", h: "h", ms: "ms", bpm: "bpm", t: "t", "%": "%", kcal: "kcal", g: "g" };
+  const INSIGHT_UNITS = { points: T("Punkte"), steps: T("Schritte"), sets: T("Sätze"), min: "min", h: "h", ms: "ms", bpm: "bpm", t: "t", "%": "%", kcal: "kcal", g: "g" };
+  // Whole weeks, so weekly charts have at most one partial week at each end: 4 weeks show the
+  // current block, 12 weeks a training cycle or a diet phase, a year the seasons.
   const RANGES = [
-    { days: 30, label: T("30 Tage") },
-    { days: 90, label: T("90 Tage") },
-    { days: 180, label: T("180 Tage") },
+    { days: 28, label: T("4 Wochen") },
+    { days: 84, label: T("12 Wochen") },
+    { days: 365, label: T("1 Jahr") },
     { days: 0, label: T("Alles") },
   ];
-  const DEFAULT_RANGE = 90;
+  const DEFAULT_RANGE = 84;
+  const OLD_RANGES = { 30: 28, 90: 84, 180: 365 }; // saved choices from before the change
   // Areas in page order; the position is also the keyboard shortcut (1 = Körper)
   const AREAS = ["koerper", "ernaehrung", "erholung", "schlaf", "sport", "fitness", "aktivitaeten", "zusammenhaenge", "daten"];
+  // The raw data area is not in the navigation: it sits last, starts collapsed and is reached from the footer
+  const NAV_AREAS = AREAS.filter((a) => a !== "daten");
   // Old links and the sports inside Sport: #kraft opens Sport with Kraft selected
   const GROUP_ALIAS = { kraft: ["sport", "kraft"], bouldern: ["sport", "bouldern"] };
   // Color family of each area (CSS classes tint-*); status colors are never used for areas
@@ -4499,7 +4590,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   const dayOf = (ms) => new Date(ms).toLocaleDateString(DATE_LOCALE, { day: "2-digit", month: "2-digit", year: "numeric" });
   const AREA_LABELS = {
     koerper: T("Körper"), ernaehrung: T("Ernährung"), erholung: T("Erholung"), schlaf: T("Schlaf"), sport: "Sport", fitness: "Fitness",
-    aktivitaeten: T("Aktivitäten"), zusammenhaenge: T("Zusammenhänge"), daten: T("Daten"),
+    aktivitaeten: T("Aktivitäten"), zusammenhaenge: T("Zusammenhänge"), daten: T("Rohdaten"),
   };
 
   // ---- time range
@@ -4670,15 +4761,17 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     renderWeeks(M, days);
     renderDaily(days);
     renderSources();
-    renderConnection();
     renderSummaries(M, days, x0, x1, lastWith);
+    renderNotable();
 
     const sourceText = { demo: T("Beispieldaten"), csv: T("Ordner data/"), embedded: T("eingebettete Daten"), github: state.dataRepo }[state.source];
     const helpBtn = html("button", { type: "button", class: "link-btn", text: T("Hilfe") });
     helpBtn.addEventListener("click", openHelp);
+    const rawBtn = html("button", { type: "button", class: "link-btn", text: T("Rohdaten") });
+    rawBtn.addEventListener("click", () => goTo("daten"));
     const prefsBtn = html("button", { type: "button", class: "link-btn", text: T("Einstellungen") });
     prefsBtn.addEventListener("click", () => openPrefs("general"));
-    $("footer").replaceChildren(html("span", { text: T("{0} · {1} bis {2}", [sourceText, ddmm(x0), dmy(x1)]) }), prefsBtn, helpBtn);
+    $("footer").replaceChildren(html("span", { text: T("{0} · {1} bis {2}", [sourceText, ddmm(x0), dmy(x1)]) }), rawBtn, prefsBtn, helpBtn);
     for (const area of AREAS) syncTabs(area);
   }
 
@@ -4727,7 +4820,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     if (state.source !== "demo" && missing.length) {
       parts.push(html("p", {}, [
         html("strong", { text: `${missing.map((s) => s.file).join(", ")} ${missing.length > 1 ? T("fehlen") : T("fehlt")}. ` }),
-        T("Die zugehörigen Diagramme bleiben leer. Unter Daten → Quellen steht, wie die Datei entsteht."),
+        T("Die zugehörigen Diagramme bleiben leer. Unter Einstellungen → Verbindung steht, wie die Datei entsteht."),
       ]));
     }
     $("notice").replaceChildren(...parts);
@@ -4798,9 +4891,158 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     $("tiles").classList.toggle("ten", M.hasNutrition);
   }
 
+  // ------------------------------------------------------------------ personal baseline
+
+  // What is usual for you: the weekly value of a metric (7-day mean of measurements, 7-day sum of
+  // training amounts) is compared with the same weekly value over the 120 days before the last 7.
+  // Below the 5th or above the 95th percentile of those values is unusual. With fewer than 60
+  // such values there is no verdict. Daily totals end yesterday, because today is not complete.
+  const BASELINE_DAYS = 120, BASELINE_MIN = 60, BASELINE_P = [0.05, 0.95];
+  const sum7 = (key) => (M, i) => {
+    let s = 0;
+    for (let j = Math.max(0, i - 6); j <= i; j++) s += M.days[j][key] ?? 0;
+    return i >= 6 ? s : null;
+  };
+  const day7 = (key) => (M, i) => M.days[i]?.[key] ?? null;
+  // concern: the direction that is rather unfavourable ("low" or "high"); null means neutral
+  const WATCH = [
+    { key: "wRate", area: "koerper", card: "rate-sub", label: () => T("Gewichtstempo"), get: day7("wRate"), fmt: (v) => T("{0} %/Woche", [fmtSigned(v, 2)]), concern: null, night: true },
+    { key: "kcal", area: "ernaehrung", card: "kcal-sub", label: () => T("Kalorien"), get: day7("kcal7"), fmt: (v) => `${fmt(v)} kcal`, concern: null },
+    { key: "protein", area: "ernaehrung", card: "protein-sub", label: () => T("Eiweiß pro kg"), get: day7("proteinKg7"), fmt: (v) => `${fmt(v, 1)} g/kg`, concern: "low" },
+    { key: "hrv", area: "erholung", card: "hrv-sub", label: () => "HRV", get: day7("hrv7"), fmt: (v) => `${fmt(v)} ms`, concern: "low", night: true },
+    { key: "rhr", area: "erholung", card: "rhr-sub", label: () => T("Ruhepuls"), get: day7("rhr7"), fmt: (v) => `${fmt(v, 1)} bpm`, concern: "high", night: true },
+    { key: "bb", area: "erholung", card: "scores-sub", label: () => T("Body Battery morgens"), get: day7("bb7"), fmt: (v) => fmt(v), concern: "low", night: true },
+    { key: "sleepH", area: "schlaf", card: "sleep-times-sub", label: () => T("Schlafdauer"), get: day7("sleepH7"), fmt: (v) => fmtDuration(v * 60), concern: "low", night: true, words: ["kürzer", "länger"] },
+    { key: "sleep", area: "schlaf", card: "scores-sub", label: () => "Sleep Score", get: day7("sleep7"), fmt: (v) => fmt(v), concern: "low", night: true },
+    { key: "bed", area: "schlaf", card: "sleep-times-sub", label: () => T("Einschlafzeit"), get: day7("bed7"), fmt: (v) => fmtClock(v), concern: "high", night: true, words: ["früher", "später"] },
+    { key: "sets", area: "sport", card: "volume-sub", label: () => T("Arbeitssätze"), get: sum7("hardSets"), fmt: (v) => fmt(v), concern: null },
+    { key: "steps", area: "aktivitaeten", card: "steps-sub", label: () => T("Schritte"), get: day7("steps7"), fmt: (v) => fmt(v), concern: "low" },
+    { key: "active", area: "aktivitaeten", card: "act-sub", label: () => T("Aktive Zeit"), get: sum7("activeMin"), fmt: (v) => fmtDuration(v), concern: null },
+    { key: "load", area: "aktivitaeten", card: "act-sub", label: () => T("Trainingslast"), get: sum7("load"), fmt: (v) => fmt(v), concern: null },
+  ];
+  function quantile(sorted, q) {
+    const pos = (sorted.length - 1) * q, lo = Math.floor(pos), hi = Math.ceil(pos);
+    return sorted[lo] + (sorted[hi] - sorted[lo]) * (pos - lo);
+  }
+  // One entry per metric: value of the last 7 days, the usual range and the verdict
+  function computeBaseline(M) {
+    const today = M.index(Math.min(todayT(), M.t1));
+    return WATCH.map((def) => {
+      let end = def.night ? today : today - 1;
+      // nightly values arrive in the morning and may be a day late
+      while (def.night && end > today - 3 && def.get(M, end) == null) end--;
+      const value = end >= 0 ? def.get(M, end) : null;
+      const ref = [];
+      for (let i = Math.max(0, end - 7 - BASELINE_DAYS + 1); i <= end - 7; i++) {
+        const v = def.get(M, i);
+        if (v != null && Number.isFinite(v)) ref.push(v);
+      }
+      if (value == null || ref.length < BASELINE_MIN) return { def, value, status: null, n: ref.length };
+      ref.sort((x, y) => x - y);
+      const lo = quantile(ref, BASELINE_P[0]), hi = quantile(ref, BASELINE_P[1]);
+      const status = value < lo ? "low" : value > hi ? "high" : "normal";
+      return { def, value, lo, hi, n: ref.length, status, concern: status === def.concern };
+    });
+  }
+  const oddWord = (b) => T(b.def.words ? b.def.words[b.status === "low" ? 0 : 1] : b.status === "low" ? "niedriger" : "höher");
+  function oddTitle(b) {
+    return T("{0} {1} als üblich", [b.def.label(), oddWord(b)]);
+  }
+  function oddDetail(b) {
+    return T("{0} · üblich {1} bis {2}", [b.def.fmt(b.value), b.def.fmt(b.lo), b.def.fmt(b.hi)]);
+  }
+  function renderNotable() {
+    const list = state.baseline || [];
+    const judged = list.filter((b) => b.status);
+    const odd = judged.filter((b) => b.status !== "normal").sort((a, b) => Number(b.concern) - Number(a.concern));
+    $("notable-sub").textContent = judged.length
+      ? T("{0} von {1} Werten außerhalb deines üblichen Bereichs", [odd.length, judged.length])
+      : T("Für den Vergleich braucht es mindestens {0} Tage Daten", [BASELINE_MIN + 7]);
+    if (!odd.length) {
+      $("notable-list").replaceChildren(html("li", {}, html("p", { class: "notable-calm", text: judged.length
+        ? T("Diese Woche liegt alles in deinem üblichen Bereich: {0}.", [judged.map((b) => b.def.label()).join(", ")])
+        : T("Sobald genug Tage da sind, steht hier, was diese Woche von deinem Üblichen abweicht.") })));
+      return;
+    }
+    $("notable-list").replaceChildren(...odd.map((b) => {
+      const btn = html("button", { type: "button", class: b.concern ? "warn" : "" }, [
+        icon(b.concern ? "alert" : "info"), html("b", { text: oddTitle(b) }),
+        html("span", { text: `${oddDetail(b)} · ${AREA_LABELS[b.def.area]}` }),
+      ]);
+      btn.addEventListener("click", () => goToCard(b.def.card));
+      return html("li", {}, btn);
+    }));
+  }
+
+  // Which area a variable of insights.json belongs to; drivers are what you do, outcomes what follows
+  const FINDING_AREAS = {
+    calories_kcal: "ernaehrung", protein_g: "ernaehrung", carbs_g: "ernaehrung", fat_g: "ernaehrung",
+    stress_avg: "erholung", hrv: "erholung", resting_hr: "erholung", readiness: "erholung", body_battery: "erholung",
+    bedtime_min: "schlaf", sleep_hours: "schlaf", sleep_score: "schlaf",
+    hard_sets: "sport", tonnage_t: "sport", strength_form_pct: "sport",
+    training_load: "aktivitaeten", active_min: "aktivitaeten", steps: "aktivitaeten",
+  };
+  // The strongest robust finding whose driver (preferred) or outcome belongs to the area
+  function areaFinding(area) {
+    const robust = (state.insights?.findings || []).filter((f) => f.status === "robust")
+      .sort((a, b) => Math.abs(b.rho ?? 0) - Math.abs(a.rho ?? 0));
+    return robust.find((f) => FINDING_AREAS[f.driver] === area) || robust.find((f) => FINDING_AREAS[f.outcome] === area) || null;
+  }
+  // Conclusion under an area head: unusual this week, the period in one sentence, one robust finding
+  function areaFazit(area, trend) {
+    const parts = [];
+    const checks = (state.baseline || []).filter((b) => b.def.area === area && b.status);
+    const odd = checks.filter((b) => b.status !== "normal");
+    if (odd.length) {
+      parts.push(html("span", { class: "fz-odd" }, [icon("alert"),
+        `${odd.slice(0, 2).map((b) => `${oddTitle(b)} (${oddDetail(b)})`).join("; ")}.`]));
+    } else if (checks.length) {
+      parts.push(T("Diese Woche im üblichen Bereich: {0}.", [checks.map((b) => b.def.label()).join(", ")]));
+    }
+    if (trend) parts.push(`${parts.length ? " " : ""}${trend}`);
+    const f = areaFinding(area);
+    if (f) {
+      const d = describeFinding(f);
+      parts.push(html("span", { class: "fz-finding", text: T("Belastbar in deinen Daten: {0} {1} → {2} {3}, {4}.", [d.driver, d.step, d.effect, d.outcome, d.timing]) }));
+    }
+    return parts;
+  }
+
+  // An area chip that leads to the card its value comes from: the tooltip says what it is, a
+  // click opens the area (on phones the card's tab) and scrolls to the card.
+  function linkChip(el, target, tip) {
+    if (!el) return null;
+    const b = html("button", { type: "button", class: el.getAttribute("class"), title: tip }, [...el.childNodes]);
+    b.addEventListener("click", (e) => { e.stopPropagation(); if (typeof target === "function") target(); else goToCard(target); });
+    return b;
+  }
+  function goToCard(elementId) {
+    const card = $(elementId)?.closest(".card"), area = card?.closest(".area");
+    if (!card || !area) return;
+    if (card.dataset.group) setGroup(area.id, card.dataset.group);
+    if (collapsed.has(area.id)) setCollapsed(area.id, false);
+    const body = $(`b-${area.id}`);
+    if (body?.classList.contains("tabbed")) {
+      const index = [...body.querySelectorAll(":scope > .card")].indexOf(card);
+      if (index >= 0) selectTab(area.id, index);
+    }
+    requestAnimationFrame(() => {
+      card.scrollIntoView({ behavior: reducedMotion() ? "auto" : "smooth", block: "start" });
+      card.classList.remove("flash");
+      void card.offsetWidth; // restart the animation
+      card.classList.add("flash");
+    });
+  }
+
   // One sentence per area that answers its question; stays visible when the area is collapsed.
   function renderSummaries(M, days, x0, x1, lastWith) {
-    const put = (area, chips, sentence) => $(`sum-${area}`).replaceChildren(...chips.filter(Boolean), html("span", { class: "vh", text: sentence }));
+    // chips, then the conclusion; the raw data area keeps its sentence for screen readers only
+    const put = (area, chips, sentence) => {
+      $(`sum-${area}`).replaceChildren(...chips.filter(Boolean), ...(area === "daten" ? [html("span", { class: "vh", text: sentence })] : []));
+      const fz = $(`fazit-${area}`);
+      if (fz) fz.replaceChildren(...areaFazit(area, sentence));
+    };
+    const C = (target, tip, ...args) => linkChip(chip(...args), target, tip);
     const weeks = Math.max(1, days.length / 7);
     const change = (list, key) => (list.length > 1 ? list[list.length - 1][key] - list[0][key] : null);
 
@@ -4809,10 +5051,13 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     const dW = change(wIn, "weight7"), dF = change(fIn, "fat7"), dM = change(mIn, "muscle7");
     const rate = lastWith("wRate");
     put("koerper", wIn.length
-      ? [chip("koerper", `${fmt(wIn[wIn.length - 1].weight7, 1)} kg`), chip(direction(dW, 0.05), `${fmtSigned(dW, 1)} kg`),
-        rate && rate.t >= x0 ? chip("trend", T("{0} %/Woche", [fmtSigned(rate.wRate, 1)]), rate.wRate < -1 ? "warn" : "neutral") : null,
-        dF != null ? chip("layers", T("Fett {0} kg", [fmtSigned(dF, 1)])) : null, dM != null ? chip("kraft", T("Muskel {0} kg", [fmtSigned(dM, 1)])) : null, bpChip(M, x0, x1)]
-      : [chip("koerper", T("Keine Messung im Zeitraum")), bpChip(M, x0, x1)],
+      ? [C("weight-sub", T("Gewicht, neuestes 7-Tage-Mittel"), "koerper", `${fmt(wIn[wIn.length - 1].weight7, 1)} kg`),
+        C("weight-sub", T("Änderung des 7-Tage-Mittels im Zeitraum"), direction(dW, 0.05), `${fmtSigned(dW, 1)} kg`),
+        rate && rate.t >= x0 ? C("rate-sub", T("Abnahmetempo: Änderung pro Woche über 28 Tage"), "trend", T("{0} %/Woche", [fmtSigned(rate.wRate, 1)]), rate.wRate < -1 ? "warn" : "neutral") : null,
+        dF != null ? C("comp-sub", T("Änderung der Fettmasse im Zeitraum"), "layers", T("Fett {0} kg", [fmtSigned(dF, 1)])) : null,
+        dM != null ? C("comp-sub", T("Änderung der Muskelmasse im Zeitraum"), "kraft", T("Muskel {0} kg", [fmtSigned(dM, 1)])) : null,
+        linkChip(bpChip(M, x0, x1), "bp-sub", T("Blutdruck, Mittel im Zeitraum"))]
+      : [C("weight-sub", T("Gewicht"), "koerper", T("Keine Messung im Zeitraum")), linkChip(bpChip(M, x0, x1), "bp-sub", T("Blutdruck, Mittel im Zeitraum"))],
     wIn.length
       ? T("{0} kg im 7-Tage-Mittel, {1} kg in {2} Tagen.", [fmt(wIn[wIn.length - 1].weight7, 1), fmtSigned(dW, 1), fmt(days.length)])
         + (dF != null && dM != null ? T(" Fettmasse {0} kg, Muskelmasse {1} kg.", [fmtSigned(dF, 1), fmtSigned(dM, 1)]) : "")
@@ -4822,14 +5067,14 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     const food = days.filter((d) => d.foodComplete);
     const kcal = mean(food.map((d) => d.kcal)), perKg = mean(food.map((d) => d.proteinKg)), bal = mean(food.map((d) => d.balance));
     put("ernaehrung", !M.hasNutrition
-      ? [chip("ernaehrung", T("nicht eingerichtet"))]
+      ? [C(() => openPrefs("setup"), T("YAZIO einrichten"), "ernaehrung", T("nicht eingerichtet"))]
       : food.length
-        ? [chip("flame", `${fmt(kcal)} kcal`),
-          perKg != null ? chip("egg", `${fmt(perKg, 1)} g/kg`, perKg < PROTEIN_REFS[0] ? "warn" : "good") : null,
-          bal != null ? chip("balance", `${fmtSigned(bal)} kcal/Tag`) : null,
-          chip("calendar", T("{0}/{1} Tage", [food.length, days.length]))]
-        : [chip("ernaehrung", T("kein geloggter Tag"))],
-    !M.hasNutrition ? T("Noch keine Ernährungsdaten. Der Abruf aus YAZIO ist optional; die Einrichtung steht unter Daten → Quellen.")
+        ? [C("kcal-sub", T("Kalorien pro Tag, Mittel der vollständig geloggten Tage"), "flame", `${fmt(kcal)} kcal`),
+          perKg != null ? C("protein-sub", T("Eiweiß pro kg Körpergewicht"), "egg", `${fmt(perKg, 1)} g/kg`, perKg < PROTEIN_REFS[0] ? "warn" : "good") : null,
+          bal != null ? C("balance-sub", T("Energiebilanz: YAZIO minus Verbrauch laut Garmin"), "balance", T("{0} kcal/Tag", [fmtSigned(bal)])) : null,
+          C("kcal-sub", T("Vollständig geloggte Tage im Zeitraum"), "calendar", T("{0}/{1} Tage", [food.length, days.length]))]
+        : [C("kcal-sub", T("Kalorien pro Tag"), "ernaehrung", T("kein geloggter Tag"))],
+    !M.hasNutrition ? T("Noch keine Ernährungsdaten. Der Abruf aus YAZIO ist optional; die Einrichtung steht unter Einstellungen → Einrichtung.")
       : food.length ? T("Durchschnittlich {0} kcal und {1} g Eiweiß pro kg an {2} vollständig geloggten von {3} Tagen.", [fmt(kcal), fmt(perKg, 1), food.length, fmt(days.length)])
         + (bal != null ? T(" Bilanz laut Garmin {0} kcal pro Tag.", [fmtSigned(bal)]) : "") : T("Im Zeitraum kein vollständig geloggter Tag."));
 
@@ -4840,10 +5085,10 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     const below = banded.filter((d) => d.hrv7 < d.hrvLow).length;
     const gap = r?.rhr60 != null ? r.rhr7 - r.rhr60 : null;
     put("erholung", h || r
-      ? [st ? chip(st.level === "good" ? "check" : "alert", st.short, st.level) : null,
-        h ? chip("pulse", `HRV ${fmt(h.hrv7)} ms`, h.hrvLow != null && h.hrv7 < h.hrvLow ? "warn" : "neutral") : null,
-        r ? chip("heart", T("Puls {0}{1}", [fmt(r.rhr7, 1), gap != null ? ` (${fmtSigned(gap, 1)})` : ""]), gap != null && gap > 2.5 ? "warn" : "neutral") : null]
-      : [chip("erholung", T("Keine Werte im Zeitraum"))],
+      ? [st ? C("hrv-sub", T("Erholung aus HRV und Ruhepuls"), st.level === "good" ? "check" : "alert", st.short, st.level) : null,
+        h ? C("hrv-sub", T("HRV, 7-Tage-Mittel"), "pulse", `HRV ${fmt(h.hrv7)} ms`, h.hrvLow != null && h.hrv7 < h.hrvLow ? "warn" : "neutral") : null,
+        r ? C("rhr-sub", T("Ruhepuls, 7-Tage-Mittel; in Klammern der Abstand zum 60-Tage-Mittel"), "heart", T("Puls {0}{1}", [fmt(r.rhr7, 1), gap != null ? ` (${fmtSigned(gap, 1)})` : ""]), gap != null && gap > 2.5 ? "warn" : "neutral") : null]
+      : [C("hrv-sub", "HRV", "erholung", T("Keine Werte im Zeitraum"))],
     h || r ? [h ? `HRV ${fmt(h.hrv7)} ms` : null, r ? T("Ruhepuls {0} bpm", [fmt(r.rhr7, 1)]) : null].filter(Boolean).join(", ")
       + (banded.length ? T(". Das HRV-Mittel lag an {0} von {1} Tagen unter dem Normalbereich.", [below, banded.length]) : ".") : T("Keine HRV- oder Ruhepuls-Werte im Zeitraum."));
 
@@ -4853,10 +5098,10 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     const jetlag = weekday.length && weekend.length ? mean(weekend.map((d) => d.mid)) - mean(weekday.map((d) => d.mid)) : null;
     const bedAvg = mean(nights.map((d) => d.bed)), wakeAvg = mean(nights.map((d) => d.wake));
     put("schlaf", slept.length
-      ? [chip("schlaf", fmtDuration(mean(slept.map((d) => d.sleepH)) * 60)),
-        nights.length ? chip("clock", `${fmtClock(bedAvg)}–${fmtClock(wakeAvg)}`) : null,
-        jetlag != null ? chip("calendar", T("Wochenende {0}", [fmtSignedDuration(jetlag)]), Math.abs(jetlag) >= 60 ? "warn" : "neutral") : null]
-      : [chip("schlaf", T("Keine Schlafdaten"))],
+      ? [C("sleep-times-sub", T("Mittlere Schlafdauer pro Nacht"), "schlaf", fmtDuration(mean(slept.map((d) => d.sleepH)) * 60)),
+        nights.length ? C("sleep-times-sub", T("Mittlere Einschlaf- und Aufwachzeit"), "clock", `${fmtClock(bedAvg)}–${fmtClock(wakeAvg)}`) : null,
+        jetlag != null ? C("sleep-week-sub", T("Verschiebung der Schlafmitte am Wochenende"), "calendar", T("Wochenende {0}", [fmtSignedDuration(jetlag)]), Math.abs(jetlag) >= 60 ? "warn" : "neutral") : null]
+      : [C("sleep-times-sub", T("Schlafenszeiten"), "schlaf", T("Keine Schlafdaten"))],
     slept.length ? T("Durchschnittlich {0} Schlaf pro Nacht, eingeschlafen {1}, aufgewacht {2}.", [fmtDuration(mean(slept.map((d) => d.sleepH)) * 60), fmtClock(bedAvg), fmtClock(wakeAvg)])
       + (jetlag != null ? T(" Am Wochenende liegt die Schlafmitte {0}.", [shiftText(jetlag)]) : "") : T("Keine Schlafdaten im Zeitraum."));
 
@@ -4868,13 +5113,13 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     const gLast = M.grip.filter((g) => g.t <= x1).at(-1);
     const gMax = gLast ? Math.max(gLast.right ?? 0, gLast.left ?? 0) : null;
     put("sport", [
-      chip("kraft", workouts.length ? `${workouts.length} ${workouts.length === 1 ? T("Krafteinheit") : T("Krafteinheiten")}` : T("Keine Krafteinheiten")),
-      workouts.length ? chip("bars", T("Ø {0} Sätze/Woche", [fmt(sets / weeks)])) : null,
-      chip("hold", bSessions.length ? `${bSessions.length} Boulder-${bSessions.length === 1 ? "Session" : "Sessions"}` : T("Keine Boulder-Sessions")),
-      bTop ? chip("trend", T("Top {0}", [bTop.grade])) : null,
-      gMax ? chip("hand", T("Handkraft {0} kg", [fmt(gMax, 1)])) : null,
+      C("sessions-recent-sub", T("Krafteinheiten im Zeitraum"), "kraft", workouts.length ? `${workouts.length} ${workouts.length === 1 ? T("Krafteinheit") : T("Krafteinheiten")}` : T("Keine Krafteinheiten")),
+      workouts.length ? C("volume-sub", T("Arbeitssätze pro Woche"), "bars", T("Ø {0} Sätze/Woche", [fmt(sets / weeks)])) : null,
+      C("bsessions-sub", T("Boulder-Sessions im Zeitraum"), "hold", bSessions.length ? (bSessions.length === 1 ? T("1 Boulder-Session") : T("{0} Boulder-Sessions", [bSessions.length])) : T("Keine Boulder-Sessions")),
+      bTop ? C("peak-sub", T("Schwerster getoppter Boulder im Zeitraum"), "trend", T("Top {0}", [bTop.grade])) : null,
+      gMax ? C("grip-sub", T("Letzte Handkraft-Messung, stärkere Hand"), "hand", T("Handkraft {0} kg", [fmt(gMax, 1)])) : null,
     ], (workouts.length ? T("{0} Krafteinheiten mit {1} Arbeitssätzen pro Woche. ", [workouts.length, fmt(sets / weeks)]) : T("Keine Krafteinheiten im Zeitraum. "))
-      + (bSessions.length ? `${bSessions.length} Boulder-Sessions${bTop ? T(", schwerster Top {0}", [bTop.grade]) : ""}.` : T("Keine Boulder-Sessions im Zeitraum."))
+      + (bSessions.length ? `${T("{0} Boulder-Sessions", [bSessions.length])}${bTop ? T(", schwerster Top {0}", [bTop.grade]) : ""}.` : T("Keine Boulder-Sessions im Zeitraum."))
       + (gMax ? T(" Handkraft zuletzt {0} kg.", [fmt(gMax, 1)]) : ""));
 
     // Aktivitäten
@@ -4883,10 +5128,10 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     const stepDays = days.filter((d) => d.steps != null);
     const goalPct = stepDays.length ? (100 * stepDays.filter((d) => d.steps >= STEP_GOAL).length) / stepDays.length : null;
     put("aktivitaeten", [
-      acts.length ? chip("aktivitaeten", T("{0} h/Woche", [fmt(hours / weeks, 1)])) : chip("aktivitaeten", T("Keine Aktivitäten")),
-      acts.length ? chip("list", T("{0} Aktivitäten", [acts.length])) : null,
-      stepDays.length ? chip("steps", T("{0} Schritte", [fmt(mean(stepDays.map((d) => d.steps)))])) : null,
-      goalPct != null ? chip("target", T("Ziel an {0} %", [fmt(goalPct)]), goalPct < 50 ? "warn" : "neutral") : null,
+      C("act-sub", T("Aktive Zeit pro Woche, alle Aufzeichnungen der Uhr"), "aktivitaeten", acts.length ? T("{0} h/Woche", [fmt(hours / weeks, 1)]) : T("Keine Aktivitäten")),
+      acts.length ? C("recent-sub", T("Aktivitäten im Zeitraum"), "list", T("{0} Aktivitäten", [acts.length])) : null,
+      stepDays.length ? C("steps-sub", T("Mittlere Schritte pro Tag"), "steps", T("{0} Schritte", [fmt(mean(stepDays.map((d) => d.steps)))])) : null,
+      goalPct != null ? C("steps-sub", T("Anteil der Tage mit erreichtem Schrittziel"), "target", T("Ziel an {0} %", [fmt(goalPct)]), goalPct < 50 ? "warn" : "neutral") : null,
     ], (acts.length ? T("{0} Aktivitäten, {1} Stunden pro Woche.", [acts.length, fmt(hours / weeks, 1)]) : T("Keine Aktivitäten der Uhr im Zeitraum."))
       + (stepDays.length ? T(" Schritte durchschnittlich {0}, Ziel an {1} % der Tage.", [fmt(mean(stepDays.map((d) => d.steps))), fmt(goalPct)]) : ""));
 
@@ -4895,12 +5140,12 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     const lastF = (key) => [...F].reverse().find((r) => r[key] != null) || null;
     const vo2 = lastF("vo2"), race = lastF("r5"), hill = lastF("hill"), endu = lastF("endurance");
     put("fitness", F.length || fs ? [
-      vo2 ? chip("pulse", `VO2max ${fmt(vo2.vo2, 1)}`) : null,
-      race ? chip("clock", `5 km ${fmtRace(race.r5)}`) : null,
-      hill ? chip("aktivitaeten", `Hill ${fmt(hill.hill)}`) : null,
-      endu ? chip("trend", `Endurance ${fmt(endu.endurance)}`) : null,
-      fs?.training_status ? chip("bolt", statusLabel(fs.training_status)) : null,
-    ] : [chip("fitness", T("Noch keine Fitnessdaten"))],
+      vo2 ? C("vo2-sub", T("VO2max, letzte Schätzung der Uhr"), "pulse", `VO2max ${fmt(vo2.vo2, 1)}`) : null,
+      race ? C("race-sub", T("Garmins Prognose für 5 km"), "clock", `5 km ${fmtRace(race.r5)}`) : null,
+      hill ? C("hill-sub", "Hill Score", "aktivitaeten", `Hill ${fmt(hill.hill)}`) : null,
+      endu ? C("endurance-sub", "Endurance Score", "trend", `Endurance ${fmt(endu.endurance)}`) : null,
+      fs?.training_status ? C("tstatus-sub", T("Trainingsstatus laut Garmin, heute"), "bolt", statusLabel(fs.training_status)) : null,
+    ] : [C("vo2-sub", "VO2max", "fitness", T("Noch keine Fitnessdaten"))],
     [vo2 ? `VO2max ${fmt(vo2.vo2, 1)}` : null, race ? T("5 km in {0}", [fmtRace(race.r5)]) : null, hill ? `Hill Score ${fmt(hill.hill)}` : null,
       endu ? `Endurance Score ${fmt(endu.endurance)}` : null, fs?.training_status ? `Status ${statusLabel(fs.training_status)}` : null].filter(Boolean).join(", ") + ".");
 
@@ -4909,11 +5154,12 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     if (ins?.findings) {
       const robust = ins.findings.filter((f) => f.status === "robust");
       const top = robust[0], d = top ? describeFinding(top) : null;
-      put("zusammenhaenge", [chip("check", T("{0} belastbar", [robust.length]), robust.length ? "neutral" : "neutral"), chip("zusammenhaenge", T("{0} Paare", [fmt(ins.tested)])),
-        ins.period ? chip("calendar", `${ddmm(isoToT(ins.period.start))}–${ddmm(isoToT(ins.period.end))}`) : null],
+      put("zusammenhaenge", [C("insights-sub", T("Zusammenhänge, die der Korrektur für viele Tests standhalten"), "check", T("{0} belastbar", [robust.length])),
+        C("insights-sub", T("Getestete Kombinationen aus Ursache und Wirkung"), "zusammenhaenge", T("{0} Paare", [fmt(ins.tested)])),
+        ins.period ? C("insights-sub", T("Zeitraum der Auswertung"), "calendar", `${ddmm(isoToT(ins.period.start))}–${ddmm(isoToT(ins.period.end))}`) : null],
       T("{0} belastbare Zusammenhänge aus {1} getesteten Paaren.", [robust.length, fmt(ins.tested)]) + (d ? T(" Deutlichster: {0} {1}, {2} {3}.", [d.driver, d.step, d.outcome, d.effect]) : ""));
     } else {
-      put("zusammenhaenge", [chip("info", T("Noch keine Auswertung"))], "Noch keine Auswertung. Sie entsteht mit python -m selftopo analyze.");
+      put("zusammenhaenge", [C("insights-sub", T("Automatisch gefundene Zusammenhänge"), "info", T("Noch keine Auswertung"))], T("Noch keine Auswertung. Sie entsteht mit python -m selftopo analyze."));
     }
 
     // Daten
@@ -4921,42 +5167,15 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     const fr = freshness(M);
     const bad = info.filter((s) => !s.found || !s.rows).length;
     put("daten", state.source === "demo"
-      ? [chip("alert", T("Beispieldaten"), "warn"), chip("calendar", T("{0} Tage", [fmt(M.days.length)]))]
-      : [bad || fr.stale ? chip("alert", bad ? `${bad} ${bad === 1 ? T("Quelle fehlt") : T("Quellen fehlen")}` : T("Abruf prüfen"), "warn") : chip("check", T("{0} Quellen geladen", [info.length]), "good"),
-        chip(state.source === "github" ? "cloud" : "daten", state.source === "github" ? `GitHub · ${clockOf(state.loadedAt)}` : T("Lokal")),
-        chip("calendar", T("{0} Tage", [fmt(M.days.length)]))],
+      ? [C(() => openPrefs("setup"), T("Eigene Daten einrichten"), "alert", T("Beispieldaten"), "warn"), C("weeks", T("Wochenübersicht"), "calendar", T("{0} Tage", [fmt(M.days.length)]))]
+      : [bad || fr.stale ? C(() => openPrefs("connection"), T("Dateien in den Einstellungen"), "alert", bad ? `${bad} ${bad === 1 ? T("Quelle fehlt") : T("Quellen fehlen")}` : T("Abruf prüfen"), "warn")
+          : C(() => openPrefs("connection"), T("Dateien in den Einstellungen"), "check", T("{0} Quellen geladen", [info.length]), "good"),
+        C(() => openPrefs("connection"), T("Verbindung"), state.source === "github" ? "cloud" : "daten", state.source === "github" ? `GitHub · ${clockOf(state.loadedAt)}` : T("Lokal")),
+        C("weeks", T("Wochenübersicht"), "calendar", T("{0} Tage", [fmt(M.days.length)]))],
     info.map((s) => `${s.label} ${!s.found ? T("fehlen") : s.last != null ? T("bis {0}", [ddmm(s.last)]) : T("geladen")}`).join(", ") + T(", zusammen {0} Tage.", [fmt(M.days.length)]));
   }
 
   // Where the data comes from, with connect and disconnect for the GitHub data repository
-  function renderConnection() {
-    const row = $("connection");
-    const button = (label, onClick) => {
-      const b = html("button", { type: "button", class: "ghost-btn", text: label });
-      b.addEventListener("click", onClick);
-      return b;
-    };
-    if (state.source === "github" && state.offlineSince) {
-      row.replaceChildren(
-        html("span", { class: "sub", text: T("Keine Verbindung zu GitHub. Angezeigt wird der Stand, der am {0} um {1} geladen wurde.", [dayOf(state.offlineSince), clockOf(state.offlineSince)]) }),
-        button(T("Erneut versuchen"), () => loadAndRender()),
-      );
-    } else if (state.source === "github") {
-      row.replaceChildren(
-        html("span", { class: "sub", text: T("Verbunden mit {0}. Der Token ist {1}.", [state.dataRepo, state.remembered ? T("auf diesem Gerät gespeichert") : T("nur für diesen Tab gespeichert")]) }),
-        button(T("Verbindung trennen"), async () => { clearCredentials(); await deleteSnapshot(); location.reload(); }),
-      );
-    } else if (state.source === "demo") {
-      row.replaceChildren(
-        html("span", { class: "sub", text: state.githubError ? T("Die gespeicherte Verbindung funktioniert nicht mehr.") : T("Nicht mit einem Daten-Repository verbunden.") }),
-        button(state.githubError ? T("Erneut verbinden") : T("Mit GitHub verbinden"), () => openConnect()),
-        button(T("Eigene Daten einrichten"), openSetup),
-      );
-    } else {
-      row.replaceChildren(html("span", { class: "sub", text: T("Daten aus dem Ordner data/ neben dem Dashboard.") }));
-    }
-  }
-
   function renderSources() {
     const age = (t) => (t == null ? null : Math.round((todayT() - t) / DAY));
     const rows = state.sourceInfo.map((s) => {
@@ -6430,7 +6649,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     btn.setAttribute("aria-expanded", String(!value));
     btn.querySelector(".t").textContent = value ? T("Aufklappen") : T("Einklappen");
     section.classList.toggle("closed", value);
-    btn.setAttribute("aria-label", `${AREA_LABELS[area]} ${value ? T("aufklappen") : T("einklappen")}`);
+    btn.setAttribute("aria-label", value ? T("{0} aufklappen", [AREA_LABELS[area]]) : T("{0} einklappen", [AREA_LABELS[area]]));
+    btn.title = value ? T("Aufklappen") : T("Einklappen");
     if (value) collapsed.add(area); else collapsed.delete(area);
     saveCollapsed();
   }
@@ -6464,8 +6684,9 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     for (const area of AREAS) {
       const head = $(area)?.querySelector(".area-head");
       if (!head) continue;
-      const btn = html("button", { type: "button", class: "area-toggle", "aria-expanded": "true", "aria-controls": `b-${area}` }, [
-        html("span", { class: "t", text: T("Einklappen") }), icon("chevron"),
+      if (area !== "daten") $(`sum-${area}`).after(html("p", { class: "area-fazit", id: `fazit-${area}` }));
+      const btn = html("button", { type: "button", class: "area-toggle", "aria-expanded": "true", "aria-controls": `b-${area}`, title: T("Einklappen"), "aria-label": T("{0} einklappen", [AREA_LABELS[area]]) }, [
+        html("span", { class: "t vh", text: T("Einklappen") }), icon("chevron"),
       ]);
       btn.addEventListener("click", (e) => { e.stopPropagation(); setCollapsed(area, btn.getAttribute("aria-expanded") === "true"); });
       head.querySelector("h2").after(btn);
@@ -6489,6 +6710,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     try { saved = JSON.parse(localStorage.getItem(collapsedKey()) || "null"); } catch { saved = null; }
     // "kraft" is the former name of the Sport area
     for (const area of (saved ?? (onPhone() ? AREAS : [])).map((x) => (x === "kraft" ? "sport" : x))) if (AREAS.includes(area)) setCollapsed(area, true);
+    if (!collapsed.has("daten")) setCollapsed("daten", true);
 
     // Info button for every explanation: cards, area heads and the overview tiles.
     // stopPropagation keeps a click in an area head from collapsing the area.
@@ -6513,6 +6735,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       if (info && h2) h2.after(infoButton(info, T("den Chips von {0}", [AREA_LABELS[area]])));
     }
     $("tiles-foot").append(infoButton($("info-tiles"), T("den Kacheln")));
+    document.querySelector(".notable-head").append(infoButton($("info-notable"), T("Auffällig diese Woche")));
 
     // In-page links (navigation, tiles, help) open a collapsed target before scrolling to it
     document.addEventListener("click", (e) => {
@@ -6578,7 +6801,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       const t = e.target;
       if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
       if ($("prefs").open || ($("help").open && e.key !== "?")) return;
-      if (/^[1-9]$/.test(e.key) && Number(e.key) <= AREAS.length) { e.preventDefault(); goTo(AREAS[Number(e.key) - 1]); }
+      if (/^[1-9]$/.test(e.key) && Number(e.key) <= NAV_AREAS.length) { e.preventDefault(); goTo(NAV_AREAS[Number(e.key) - 1]); }
       else if (e.key === "0") { e.preventDefault(); goTo("top"); }
       else if (e.key === "z" || e.key === "Z") { if (state.model) { e.preventDefault(); cycleRange(e.shiftKey ? -1 : 1); } }
       else if (e.key === "?") { e.preventDefault(); openHelp(); }
@@ -6813,10 +7036,9 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       ? T("Das Repository {0} enthält noch keine Daten. Starte dort den Workflow „Sync Garmin and Hevy“ oder lade deine lokalen CSV-Dateien hoch.", [state.dataRepo])
       : T("Die CSV-Dateien enthalten noch keine Daten. Zuerst `python -m selftopo sync` ausführen; die Seite zeigt dann alles automatisch."))));
     $("status-line").replaceChildren(pill("crit", T("Keine Daten")));
-    for (const area of AREAS) $(`sum-${area}`).replaceChildren(chip(area === "daten" ? "alert" : null, area === "daten" ? T("Welche Datei fehlt, steht unten") : T("Noch keine Daten"), area === "daten" ? "warn" : "neutral"));
+    for (const area of AREAS) $(`sum-${area}`).replaceChildren(chip(area === "daten" ? "alert" : null, area === "daten" ? T("Welche Datei fehlt, steht in den Einstellungen unter Verbindung") : T("Noch keine Daten"), area === "daten" ? "warn" : "neutral"));
     for (const host of document.querySelectorAll(".chart-host")) emptyNote(host, T("Noch keine Daten."));
     renderSources();
-    renderConnection();
   }
 
   // Loads the data and draws the page. Runs at start, from the refresh button, when the app
@@ -6848,6 +7070,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
           state.liftNames = lifts.names;
           state.liftCustom = lifts.custom;
           state.model.lifts = lifts.names.map(state.model.computeLift);
+          state.baseline = computeBaseline(state.model);
           buildLiftPicker();
           renderRangeButtons();
           render();
@@ -6899,7 +7122,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   async function start() {
     translateStatic();
     try {
-      const saved = localStorage.getItem("healthsync.range");
+      const raw = localStorage.getItem("healthsync.range");
+      const saved = raw === null ? null : String(OLD_RANGES[raw] ?? raw);
       if (saved !== null && RANGES.some((r) => String(r.days) === saved)) state.range = Number(saved);
       const filter = localStorage.getItem("healthsync.insights");
       if (filter === "robust" || filter === "all") state.insightFilter = filter;
