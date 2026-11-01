@@ -27,7 +27,9 @@ metrics and activities, Hevy sets and the relationship analysis.
 | `settings.json` | Your settings: time zone, step goal, main lifts, grip-strength exercises. Edit it in the dashboard under gear icon → *General* |
 
 The workflow in `.github/workflows/sync.yml` runs every morning. It checks out the public
-selftopo code, fetches the last 30 days and commits changed files.
+selftopo code at the tag `v1` (the newest 1.x release), fetches the last 30 days and commits
+changed files. Repository variables change that: `SELFTOPO_CODE_REF` (`main` for the development
+state, or an exact tag such as `v1.0.0`) and `SELFTOPO_CODE_REPO` (your fork).
 
 *Run workflow* takes optional inputs: `days`, `source` (for example `climbs` with `days` 2000 to
 load older bouldering sessions without touching the other sources) and a date for a raw dump of
