@@ -5,7 +5,7 @@
 // untouched: the data files next to the dashboard, the GitHub API and the web fonts.
 // The page keeps its own snapshot of the last loaded data (see "offline snapshot").
 
-const VERSION = "9";
+const VERSION = "10";
 const CACHE = `selftopo-app-${VERSION}`;
 const APP_FILES = [
   "./",

@@ -16,7 +16,7 @@ One row per calendar day. Overnight values belong to the night that ends on this
 | `bmi` | kg/m² | |
 | `sleep_score` | 0–100 | |
 | `sleep_hours` | h | Total sleep time |
-| `sleep_start_local`, `sleep_end_local` | YYYY-MM-DD HH:MM | Falling asleep and waking up in `SELFTOPO_TZ`. On travel days this is home time |
+| `sleep_start_local`, `sleep_end_local` | YYYY-MM-DD HH:MM | Falling asleep and waking up in the configured time zone (`timezone` in `settings.json`). On travel days this is home time |
 | `deep_sleep_min`, `light_sleep_min`, `rem_sleep_min`, `awake_min` | min | Sleep stages |
 | `hrv_last_night_ms`, `hrv_weekly_avg_ms` | ms | Overnight HRV average and Garmin's 7-day average |
 | `hrv_status` | text | e.g. `BALANCED`, `UNBALANCED`, `LOW` |
@@ -142,9 +142,9 @@ One row per set.
 | `weight_kg`, `reps`, `rpe` | |
 | `duration_s`, `distance_m` | For timed or cardio sets |
 
-The exercises „Right-hand Grip Strength“ and „Left-hand Grip Strength“ (or „Handkraft rechts“ and
-„Handkraft links“; `GRIP_EXERCISES` in `selftopo/config.py`) hold grip-strength measurements, one
-set per try with the dynamometer reading as `weight_kg` and 1 rep.
+The exercises listed under `grip_exercises` in `settings.json` (default „Right-hand Grip Strength“
+and „Left-hand Grip Strength“, or „Handkraft rechts“ and „Handkraft links“) hold grip-strength
+measurements, one set per try with the dynamometer reading as `weight_kg` and 1 rep.
 They are left out of hard sets, tonnage and strength form in the analysis and the dashboard.
 
 ## hevy_exercises.csv
@@ -199,3 +199,8 @@ Each finding:
 Variable keys: `training_load`, `active_min`, `steps`, `hard_sets`, `tonnage_t`, `stress_avg`,
 `bedtime_min` (minutes relative to midnight, negative before midnight), `sleep_hours`,
 `sleep_score`, `hrv`, `resting_hr`, `readiness`, `body_battery`, `strength_form_pct`.
+
+## settings.json
+
+Optional personal settings, read by the sync and the dashboard: `timezone`, `step_goal`,
+`main_lifts`, `grip_exercises`. Format, defaults and examples are in the README under *Settings*.

@@ -158,6 +158,11 @@ def main(argv: list[str] | None = None) -> int:
         format="%(asctime)s %(levelname)-7s %(name)s: %(message)s",
         datefmt="%H:%M:%S",
     )
+    for problem in config.SETTINGS_PROBLEMS:
+        log.warning("settings: %s", problem)
+    if config.TIMEZONE_SOURCE == "default" and args.handler in (cmd_sync, cmd_analyze):
+        log.warning('settings: no time zone set, using UTC. Add "timezone" to %s or set SELFTOPO_TZ.',
+                    config.SETTINGS_JSON)
     try:
         return args.handler(args)
     except config.SetupError as exc:

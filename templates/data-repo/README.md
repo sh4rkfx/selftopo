@@ -20,6 +20,7 @@ metrics and activities, Hevy sets and the relationship analysis.
 | `hevy_exercises.csv` | Muscle groups of the exercises used |
 | `nutrition_daily.csv` | Optional, from YAZIO: calories, protein, carbohydrates, fat and water per logged day |
 | `insights.json` | Result of `python -m selftopo analyze` |
+| `settings.json` | Your settings: time zone, step goal, main lifts, grip-strength exercises. Edit it in the dashboard under *Daten → Einstellungen* |
 
 The workflow in `.github/workflows/sync.yml` runs every morning. It checks out the public
 selftopo code, fetches the last 30 days and commits changed files.
@@ -47,7 +48,7 @@ Clone this repository into the `data/` folder of the code checkout. The code rep
 
 ```bash
 git clone https://github.com/sh4rkfx/selftopo.git
-git clone https://github.com/sh4rkfx/healthsync-data.git selftopo/data
+git clone https://github.com/<you>/selftopo-data.git selftopo/data
 ```
 
 Run `git -C data pull` before opening the dashboard locally. After a local `sync`, discard the

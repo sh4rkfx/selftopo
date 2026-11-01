@@ -585,6 +585,16 @@ kbd { font-family: var(--font-mono); font-size: 11.5px; border: 1px solid var(--
 .token-help a { color: var(--s1); }
 .notice-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 
+/* Settings card */
+.settings-grid { display: grid; gap: 12px 16px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top: 4px; }
+.settings-grid .field input.bad { border-color: var(--crit); }
+.settings-grid .field .sub { font-size: 12px; }
+.settings-lifts { margin: 0; font-size: 13px; color: var(--ink-2); }
+.settings-problems { margin: 0; padding-left: 18px; font-size: 13px; color: var(--ink); }
+.settings-problems li::marker { color: var(--crit); }
+.settings-json { max-height: 260px; overflow: auto; }
+a.ghost-btn, a.primary-btn { text-decoration: none; display: inline-flex; align-items: center; }
+
 footer { color: var(--muted); font-size: 12px; display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; }
 footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; font-size: 12px; }
 </style>
@@ -699,7 +709,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
           <tr><td><svg class="ic" aria-hidden="true"><use href="#i-schlaf"/></svg>Schlaf</td><td>Mittlere Schlafdauer der letzten 7 Nächte; darunter mittlere Einschlafzeit und Sleep Score.</td></tr>
           <tr><td><svg class="ic" aria-hidden="true"><use href="#i-kraft"/></svg>Sätze</td><td>Summe der Arbeitssätze der letzten 7 Tage; darunter die Differenz zu den 7 Tagen davor und die Zahl der Einheiten.</td></tr>
           <tr><td><svg class="ic" aria-hidden="true"><use href="#i-aktivitaeten"/></svg>Aktiv</td><td>Stunden aller Aufzeichnungen der Uhr in den letzten 7 Tagen; darunter die Differenz zu den 7 Tagen davor und die Zahl der Aktivitäten.</td></tr>
-          <tr><td><svg class="ic" aria-hidden="true"><use href="#i-steps"/></svg>Schritte</td><td>7-Tage-Mittel; darunter, an wie vielen der letzten 7 Tage das Ziel von 8.000 Schritten erreicht wurde.</td></tr>
+          <tr><td><svg class="ic" aria-hidden="true"><use href="#i-steps"/></svg>Schritte</td><td>7-Tage-Mittel; darunter, an wie vielen der letzten 7 Tage das Ziel von <span data-step-goal>8.000</span> Schritten erreicht wurde.</td></tr>
         </tbody>
       </table>
     </div>
@@ -977,7 +987,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       <div class="card span2" data-group="kraft" data-tab="e1RM" data-icon="trend">
         <div class="card-head"><h3>Geschätztes 1RM der Hauptübungen</h3><p class="sub">Bester Satz je Einheit, auf 1 Wiederholung umgerechnet</p></div>
         <div class="info" hidden>
-          <p>Epley-Formel: Last × (1 + Wiederholungen / 30), aus Sätzen mit bis zu 10 Wiederholungen, ohne Aufwärmsätze. Bei Klimmzügen und Dips zählt das Körpergewicht mit. Welche Übungen hier stehen, wählst du über „Übungen wählen“. Ohne eigene Auswahl gilt <code>MAIN_LIFTS</code> oben im Skript, und ohne Treffer dort erscheinen die vier häufigsten.</p>
+          <p>Epley-Formel: Last × (1 + Wiederholungen / 30), aus Sätzen mit bis zu 10 Wiederholungen, ohne Aufwärmsätze. Bei Klimmzügen und Dips zählt das Körpergewicht mit. Welche Übungen hier stehen, wählst du über „Übungen wählen“. Ohne Auswahl in diesem Browser gelten die Hauptübungen aus den Einstellungen (Daten → Einstellungen), und ohne Treffer dort erscheinen die vier häufigsten.</p>
           <p class="source">Quelle: hevy_sets.csv · weight_kg, reps, set_type · Körpergewicht aus garmin_daily.csv</p>
         </div>
         <div class="card-tools">
@@ -985,14 +995,13 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
           <button class="ghost-btn" type="button" id="lift-pick" aria-expanded="false" aria-controls="lift-picker">Übungen wählen</button>
         </div>
         <div class="picker" id="lift-picker" hidden>
-          <p class="sub">Bis zu sechs Übungen. Die Auswahl gilt sofort und bleibt in diesem Browser gespeichert; die Diagramme folgen der Reihenfolge deiner Klicks. Übungen ohne Sätze bis 10 Wiederholungen lassen kein e1RM zu und sind gesperrt.</p>
+          <p class="sub">Bis zu sechs Übungen. Die Auswahl gilt sofort und bleibt in diesem Browser gespeichert; „Für alle Geräte speichern“ übernimmt sie in die Einstellungen. Die Diagramme folgen der Reihenfolge deiner Klicks. Übungen ohne Sätze bis 10 Wiederholungen lassen kein e1RM zu und sind gesperrt.</p>
           <fieldset class="picker-list" id="lift-list"><legend class="vh">Übungen</legend></fieldset>
           <div class="picker-actions">
             <button class="ghost-btn" type="button" id="lift-reset">Standard wiederherstellen</button>
-            <button class="ghost-btn" type="button" id="lift-copy">Auswahl als Code kopieren</button>
+            <button class="ghost-btn" type="button" id="lift-copy">Für alle Geräte speichern …</button>
             <span class="sub" id="lift-copy-status" role="status"></span>
           </div>
-          <pre class="code" id="lift-code" hidden></pre>
         </div>
         <div class="lifts" id="lifts"></div>
       </div>
@@ -1034,9 +1043,9 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       <div class="card span2" data-group="kraft" data-tab="Handkraft" data-icon="hand">
         <div class="card-head"><h3>Handkraft</h3><p class="sub" id="grip-sub"></p></div>
         <div class="info" hidden>
-          <p>Bester Satz je Hand und Tag aus den Hevy-Übungen „Right-hand Grip Strength“ und „Left-hand Grip Strength“, der Wert des Messers als Gewicht in kg. Ein Handkraftmesser misst den vollen Faustschluss mit Daumen. Beim Bouldern hältst du Leisten und Sloper meist offen oder aufgestellt und ohne Daumen; der Wert zeigt deshalb allgemeine Kraft, keine bouldertypische Fingerkraft.</p>
+          <p>Bester Satz je Hand und Tag aus den Hevy-Übungen, die unter Daten → Einstellungen als Handkraft eingetragen sind, ohne Eintrag „Right-hand Grip Strength“ und „Left-hand Grip Strength“. Der Wert des Messers steht als Gewicht in kg. Ein Handkraftmesser misst den vollen Faustschluss mit Daumen. Beim Bouldern hältst du Leisten und Sloper meist offen oder aufgestellt und ohne Daumen; der Wert zeigt deshalb allgemeine Kraft, keine bouldertypische Fingerkraft.</p>
           <p>Vergleichbar ist er nur bei gleicher Haltung, gleicher Griffweite und gleichem Zeitpunkt, am besten nach dem Aufwärmen und vor dem Bouldern. Die Messungen zählen nicht als Arbeitssätze und gehen weder in Tonnage noch in das e1RM ein.</p>
-          <p class="source">Quelle: hevy_sets.csv · weight_kg · Übungsnamen in <code>GRIP_EXERCISES</code> oben im Skript</p>
+          <p class="source">Quelle: hevy_sets.csv · weight_kg · Übungsnamen in settings.json („grip_exercises“)</p>
         </div>
         <div class="legend"><span><i class="key-line" style="background:var(--s1)"></i>rechts</span><span><i class="key-line" style="background:var(--s2)"></i>links</span></div>
         <div class="chart-host" id="c-grip"></div>
@@ -1153,7 +1162,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
           <tr><td><span class="chip"><svg class="ic" aria-hidden="true"><use href="#i-aktivitaeten"/></svg>h/Woche</span></td><td>Dauer aller Aufzeichnungen der Uhr, im Mittel pro Woche.</td></tr>
           <tr><td><span class="chip"><svg class="ic" aria-hidden="true"><use href="#i-list"/></svg>Aktivitäten</span></td><td>Zahl der Aufzeichnungen im Zeitraum.</td></tr>
           <tr><td><span class="chip"><svg class="ic" aria-hidden="true"><use href="#i-steps"/></svg>Schritte</span></td><td>Mittlere Schritte pro Tag.</td></tr>
-          <tr><td><span class="chip"><svg class="ic" aria-hidden="true"><use href="#i-target"/></svg>Ziel</span></td><td>Anteil der Tage mit mindestens 8.000 Schritten; gelb unter 50 %.</td></tr>
+          <tr><td><span class="chip"><svg class="ic" aria-hidden="true"><use href="#i-target"/></svg>Ziel</span></td><td>Anteil der Tage mit mindestens <span data-step-goal>8.000</span> Schritten; gelb unter 50 %.</td></tr>
         </tbody>
       </table>
     </div>
@@ -1170,7 +1179,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       <div class="card span2" data-tab="Schritte" data-icon="steps">
         <div class="card-head"><h3>Schritte pro Tag</h3><p class="sub" id="steps-sub"></p></div>
         <div class="info" hidden>
-          <p>Die gestrichelte Linie ist das Ziel von 8.000 Schritten. Bei Erwachsenen unter 60 Jahren flacht der Nutzen für die Lebenserwartung zwischen etwa 8.000 und 10.000 Schritten pro Tag ab.</p>
+          <p>Die gestrichelte Linie ist dein Ziel von <span data-step-goal>8.000</span> Schritten (Daten → Einstellungen). Bei Erwachsenen unter 60 Jahren flacht der Nutzen für die Lebenserwartung zwischen etwa 8.000 und 10.000 Schritten pro Tag ab.</p>
           <p class="source">Quelle: garmin_daily.csv · steps</p>
         </div>
         <div class="legend"><span><i class="key-line" style="background:var(--s1)"></i>Ø 7 Tage</span><span><i class="key-dot" style="background:var(--s1)"></i>Tageswert</span><span><i class="key-dash"></i>Ziel</span></div>
@@ -1278,6 +1287,46 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
         </div>
         <div class="card-tools" id="connection"></div>
         <ul class="rows" id="sources"></ul>
+      </div>
+      <div class="card span2" id="einstellungen" data-tab="Einstellungen" data-icon="slider">
+        <div class="card-head"><h3>Einstellungen</h3><p class="sub" id="settings-sub"></p></div>
+        <div class="info" hidden>
+          <p>Deine persönlichen Einstellungen stehen in der Datei settings.json in deinem Daten-Repository. Dashboard und täglicher Abruf lesen dieselbe Datei; Zeitzone und Handkraft-Übungen gelten also auch beim Abruf.</p>
+          <p>Die Seite darf dein Repository nur lesen. Gespeichert wird deshalb auf GitHub: Der Knopf öffnet die Datei dort, du bestätigst mit „Commit changes“ und tippst hier danach auf Aktualisieren.</p>
+          <p><b>Zeitzone</b>: für Kalendertage, Schlafzeiten und die Uhrzeit von Hevy-Workouts. Ohne Eintrag nimmt die Seite die Zeitzone dieses Browsers, der Abruf auf GitHub aber UTC. <b>Schrittziel</b>: Ziellinie und Zielquote bei den Schritten. <b>Hauptübungen</b>: die e1RM-Diagramme unter Sport → Kraft; übernommen wird die Auswahl, die dort gerade gilt. <b>Handkraft</b>: Hevy-Übungen mit den Werten des Handkraftmessers, mehrere Namen durch Komma getrennt.</p>
+          <p class="source">Datei: settings.json · gelesen vom Dashboard und von selftopo/config.py</p>
+        </div>
+        <ul class="settings-problems" id="settings-problems" hidden></ul>
+        <form class="settings-grid" id="settings-form" novalidate>
+          <div class="field">
+            <label for="set-tz">Zeitzone</label>
+            <input id="set-tz" type="text" list="set-tz-list" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Europe/Berlin">
+            <datalist id="set-tz-list"></datalist>
+            <span class="sub" id="set-tz-note"></span>
+          </div>
+          <div class="field">
+            <label for="set-steps">Schrittziel pro Tag</label>
+            <input id="set-steps" type="number" min="1000" max="50000" step="500" inputmode="numeric">
+          </div>
+          <div class="field">
+            <label for="set-grip-left">Handkraft links (Hevy-Übung)</label>
+            <input id="set-grip-left" type="text" autocomplete="off" spellcheck="false">
+          </div>
+          <div class="field">
+            <label for="set-grip-right">Handkraft rechts (Hevy-Übung)</label>
+            <input id="set-grip-right" type="text" autocomplete="off" spellcheck="false">
+          </div>
+        </form>
+        <p class="settings-lifts" id="settings-lifts"></p>
+        <div class="picker-actions">
+          <a class="primary-btn" id="settings-github" target="_blank" rel="noopener" hidden>Auf GitHub speichern</a>
+          <button class="ghost-btn" type="button" id="settings-copy">Inhalt kopieren</button>
+          <span class="sub" id="settings-status" role="status" aria-live="polite"></span>
+        </div>
+        <details class="token-help">
+          <summary>settings.json ansehen</summary>
+          <pre class="code settings-json" id="settings-json"></pre>
+        </details>
       </div>
       <div class="card span2" data-tab="Wochen" data-icon="table">
         <div class="card-head"><h3>Wochenübersicht</h3><p class="sub">Neueste oben</p></div>
@@ -1412,10 +1461,10 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 
   // ------------------------------------------------------------------ configuration
 
-  // Default main lifts shown as small multiples, by their exact Hevy names. The dashboard's
-  // "Übungen wählen" overrides this per browser and can copy its selection in this format.
-  // If none of these appear in the data, the four most frequent exercises are used instead.
-  const MAIN_LIFTS = [
+  // Default main lifts shown as small multiples, by their exact Hevy names. "main_lifts" in
+  // settings.json replaces them for every device, "Übungen wählen" for one browser. If none of
+  // them appear in the data, the four most frequent exercises are used instead.
+  const DEFAULT_LIFTS = [
     { exercise: "Bench Press (Barbell)", label: "Bankdrücken" },
     { exercise: "Squat (Barbell)", label: "Kniebeuge" },
     { exercise: "Deadlift (Barbell)", label: "Kreuzheben" },
@@ -1446,29 +1495,28 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     fitness: "../data/garmin_fitness.csv",
     bp: "../data/garmin_blood_pressure.csv",
     fitnessStatus: "../data/garmin_fitness_status.json",
+    settings: "../data/settings.json",
   };
-  // Private repository with the data files, read through the GitHub API when the page runs
-  // without data next to it, e.g. on GitHub Pages. Only the default for the connect dialog.
-  const DATA_REPO = "sh4rkfx/healthsync-data";
   const GITHUB_FILES = {
     garmin: "garmin_daily.csv", activities: "garmin_activities.csv", hevy: "hevy_sets.csv", insights: "insights.json",
     nutrition: "nutrition_daily.csv", climbs: "garmin_climbs.csv", climbSessions: "garmin_climb_sessions.csv",
     exercises: "hevy_exercises.csv", fitness: "garmin_fitness.csv", fitnessStatus: "garmin_fitness_status.json",
-    bp: "garmin_blood_pressure.csv",
+    bp: "garmin_blood_pressure.csv", settings: "settings.json",
   };
   // Every data file the page reads, in the order they are fetched; JSON_KEYS are JSON, the rest CSV
-  const FILE_KEYS = ["garmin", "activities", "hevy", "insights", "nutrition", "climbs", "climbSessions", "exercises", "fitness", "fitnessStatus", "bp"];
-  const JSON_KEYS = ["insights", "fitnessStatus"];
+  const FILE_KEYS = ["garmin", "activities", "hevy", "insights", "nutrition", "climbs", "climbSessions", "exercises", "fitness", "fitnessStatus", "bp", "settings"];
+  const JSON_KEYS = ["insights", "fitnessStatus", "settings"];
   // YAZIO days below this count as not fully logged and stay out of every mean (same value as
   // MIN_COMPLETE_KCAL in selftopo/analyze.py).
   const MIN_COMPLETE_KCAL = 1200;
   const PROTEIN_REFS = [1.6, 2.2]; // g per kg body weight, Morton et al. 2018 (plateau and upper 95 % bound)
   const KCAL_PER_KG = 7700;        // rough energy content of one kg of body weight
-  // Hevy exercises holding grip-strength measurements (kg per set), same names as GRIP_EXERCISES
-  // in selftopo/config.py. They are no training sets: no hard sets, tonnage or e1RM.
-  const GRIP_EXERCISES = {
-    "right-hand grip strength": "right", "left-hand grip strength": "left",
-    "handkraft rechts": "right", "handkraft links": "left",
+  // Hevy exercises holding grip-strength measurements (kg per set), same defaults as
+  // selftopo/config.py; "grip_exercises" in settings.json replaces them. They are no training
+  // sets: no hard sets, tonnage or e1RM.
+  const DEFAULT_GRIP = {
+    left: ["Left-hand Grip Strength", "Handkraft links"],
+    right: ["Right-hand Grip Strength", "Handkraft rechts"],
   };
   // A bouldering split longer than this is a whole session recorded without LAP, not a boulder
   const MAX_BOULDER_S = 900;
@@ -1520,11 +1568,16 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     sport: "blue", fitness: "blue", aktivitaeten: "blue", zusammenhaenge: "gray", daten: "gray",
   };
   const PHONE = "(max-width: 759px)"; // same breakpoint as the CSS: icon bar, tabs, collapsed areas
-  const STEP_GOAL = 8000;       // same target as docs/scores.md
+  const DEFAULT_STEP_GOAL = 8000; // same target as docs/scores.md
   const STALE_AFTER_DAYS = 2;   // warn when the newest Garmin day is this many days old
   const RECENT_ROWS = 10;       // rows of the "latest" tables before "show all"
   const INSIGHT_ROWS = 8;       // findings listed before "show all"
-  const TIMEZONE = "Europe/Vienna"; // same zone as HEALTHSYNC_TZ in the sync
+  // Personal settings, filled from settings.json by applySettings before the data is read.
+  // Without the file: default lifts and step goal, this browser's time zone.
+  let MAIN_LIFTS = DEFAULT_LIFTS;
+  let STEP_GOAL = DEFAULT_STEP_GOAL;
+  let TIMEZONE = browserZone();
+  let GRIP_EXERCISES = gripMap(DEFAULT_GRIP);
   const MAX_LINK_GAP_MIN = 180; // Hevy workout and watch activity must start within 3 hours
   const DAY = 86400000;
   const HARD_SET_TYPES = new Set(["normal", "failure", "dropset"]);
@@ -1548,12 +1601,71 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     const m = /(\d{2}):(\d{2})/.exec(String(text || "").slice(10));
     return m ? Number(m[1]) * 60 + Number(m[2]) : null;
   };
-  const localClock = new Intl.DateTimeFormat("en-GB", { timeZone: TIMEZONE, hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+  const makeClock = (zone) => new Intl.DateTimeFormat("en-GB", { timeZone: zone, hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+  let localClock = makeClock(TIMEZONE);
   function utcToLocalMinutes(iso) {
     const d = new Date(iso || "");
     if (Number.isNaN(d.getTime())) return null;
     const [h, m] = localClock.format(d).split(":").map(Number);
     return h * 60 + m;
+  }
+
+  // ---- settings.json
+
+  function browserZone() {
+    try { return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"; } catch { return "UTC"; }
+  }
+  function validZone(zone) {
+    if (typeof zone !== "string" || !zone) return false;
+    try { makeClock(zone); return true; } catch { return false; }
+  }
+  function cleanNames(list) {
+    return (Array.isArray(list) ? list : []).filter((n) => typeof n === "string" && n.trim()).map((n) => n.trim());
+  }
+  function gripMap(grip) {
+    const map = {};
+    for (const side of ["left", "right"]) for (const name of cleanNames(grip[side])) map[name.toLowerCase()] = side;
+    return map;
+  }
+  // Puts the parsed settings.json (null when missing) into MAIN_LIFTS, STEP_GOAL, TIMEZONE and
+  // GRIP_EXERCISES. Returns what the "Einstellungen" card shows: the file content, where each
+  // value comes from ("file", "default" or "browser") and what was wrong with the file.
+  function applySettings(raw, exists = raw != null) {
+    const isObject = raw != null && typeof raw === "object" && !Array.isArray(raw);
+    const s = isObject ? raw : {};
+    const problems = [], from = {};
+    if (raw != null && !isObject) problems.push("settings.json muss ein JSON-Objekt sein, also mit { beginnen. Es gelten die Standardwerte.");
+
+    if (s.timezone != null && !validZone(s.timezone)) problems.push(`Unbekannte Zeitzone „${s.timezone}“. Es gilt die dieses Browsers.`);
+    from.timezone = validZone(s.timezone) ? "file" : "browser";
+    TIMEZONE = from.timezone === "file" ? s.timezone : browserZone();
+    localClock = makeClock(TIMEZONE);
+
+    const goal = Number(s.step_goal);
+    const goalOk = s.step_goal != null && s.step_goal !== "" && Number.isFinite(goal) && goal > 0;
+    if (s.step_goal != null && !goalOk) problems.push(`step_goal muss eine positive Zahl sein, nicht „${s.step_goal}“.`);
+    from.step_goal = goalOk ? "file" : "default";
+    STEP_GOAL = goalOk ? Math.round(goal) : DEFAULT_STEP_GOAL;
+
+    const lifts = (Array.isArray(s.main_lifts) ? s.main_lifts : [])
+      .filter((l) => l && typeof l.exercise === "string" && l.exercise.trim())
+      .map((l) => ({
+        exercise: l.exercise.trim(),
+        label: typeof l.label === "string" && l.label.trim() ? l.label.trim() : l.exercise.trim(),
+        addBodyweight: Boolean(l.add_bodyweight),
+      }));
+    if (s.main_lifts != null && !lifts.length) problems.push('main_lifts muss eine Liste sein, etwa [{"exercise": "Squat (Barbell)", "label": "Kniebeuge"}].');
+    from.main_lifts = lifts.length ? "file" : "default";
+    MAIN_LIFTS = lifts.length ? lifts.slice(0, MAX_LIFTS) : DEFAULT_LIFTS;
+
+    const g = s.grip_exercises;
+    const gripOk = g != null && typeof g === "object" && !Array.isArray(g);
+    if (g != null && !gripOk) problems.push('grip_exercises muss die Form {"left": [...], "right": [...]} haben.');
+    from.grip = gripOk ? "file" : "default";
+    const grip = gripOk ? { left: cleanNames(g.left), right: cleanNames(g.right) } : DEFAULT_GRIP;
+    GRIP_EXERCISES = gripMap(grip);
+
+    return { raw: s, found: Boolean(exists), problems, from, grip };
   }
 
   // Sleep times as minutes relative to midnight of the wake-up date, so that
@@ -1688,7 +1800,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       const csvKeys = FILE_KEYS.filter((k) => !JSON_KEYS.includes(k));
       return {
         ...Object.fromEntries(csvKeys.map((k) => [k, parseCsv(embedded[k] || "")])),
-        insights: embedded.insights || null, fitnessStatus: embedded.fitnessStatus || null, source: "embedded",
+        insights: embedded.insights || null, fitnessStatus: embedded.fitnessStatus || null, settings: embedded.settings || null, source: "embedded",
         found: Object.fromEntries(FILE_KEYS.map((k) => [k, embedded[k] != null])),
       };
     }
@@ -1705,7 +1817,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       const data = await loadFromGithub(cred);
       if (!data.error) {
         if (cred.remembered) await writeSnapshot(cred.repo, data.texts); else await deleteSnapshot();
-        return { ...data, repo: cred.repo, remembered: cred.remembered };
+        return { ...data, repo: cred.repo, remembered: cred.remembered, branch: cred.branch || null };
       }
       // Offline: the last loaded data, if this device keeps it
       const snap = data.network && cred.remembered ? await readSnapshot(cred.repo) : null;
@@ -1722,12 +1834,16 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   // Parsed data from the raw file contents; null means the file does not exist
   function fromTexts(texts, source) {
     const json = (text) => { try { return text ? JSON.parse(text) : null; } catch { return null; } };
-    const insights = json(texts.insights), fitnessStatus = json(texts.fitnessStatus);
+    const insights = json(texts.insights), fitnessStatus = json(texts.fitnessStatus), settings = json(texts.settings);
     const csvKeys = FILE_KEYS.filter((k) => !JSON_KEYS.includes(k));
     return {
       ...Object.fromEntries(csvKeys.map((k) => [k, texts[k] ? parseCsv(texts[k]) : []])),
-      insights, fitnessStatus, source, insightsBroken: texts.insights != null && insights == null,
-      found: { ...Object.fromEntries(csvKeys.map((k) => [k, texts[k] != null])), insights: insights != null, fitnessStatus: fitnessStatus != null },
+      insights, fitnessStatus, settings, source, insightsBroken: texts.insights != null && insights == null,
+      settingsBroken: texts.settings != null && settings == null,
+      found: {
+        ...Object.fromEntries(csvKeys.map((k) => [k, texts[k] != null])),
+        insights: insights != null, fitnessStatus: fitnessStatus != null, settings: texts.settings != null,
+      },
     };
   }
 
@@ -1774,7 +1890,10 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     } catch {
       return { network: true, message: "GitHub ist nicht erreichbar. Besteht eine Internetverbindung? In einer eingebetteten Vorschau blockiert der Browser solche Anfragen." };
     }
-    if (res.ok) return null;
+    if (res.ok) {
+      try { cred.branch = (await res.json()).default_branch || null; } catch { /* "main" is assumed */ }
+      return null;
+    }
     if (res.status === 401) return { message: "GitHub lehnt den Token ab: falsch kopiert, abgelaufen oder widerrufen. Erstelle einen neuen und verbinde erneut." };
     if (res.status === 404) return { message: `${cred.repo} wurde nicht gefunden. Stimmt der Name, und hat der Token Zugriff auf genau dieses Repository?` };
     if (res.status === 403) return { message: "GitHub verweigert den Zugriff. Hat der Token die Berechtigung „Contents: Read-only“? Sonst ist das stündliche Anfragelimit erreicht." };
@@ -1860,6 +1979,11 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       rows: ins?.findings?.length ?? 0, generated: ins?.generated_at || null,
       first: ins?.period?.start ? isoToT(ins.period.start) : null, last: ins?.period?.end ? isoToT(ins.period.end) : null,
       fix: "Erzeugen mit `python -m selftopo analyze`; der GitHub-Workflow macht das täglich nach dem Abruf.",
+    });
+    list.push({
+      key: "settings", label: "Einstellungen", file: file("settings"), found: data.found.settings, broken: data.settingsBroken,
+      optional: true, rows: data.settings && typeof data.settings === "object" ? Object.keys(data.settings).length : 0, first: null, last: null,
+      fix: "Optional. Ohne die Datei gelten die Standardwerte und die Zeitzone dieses Browsers, beim Abruf auf GitHub UTC. Anlegen oder neu speichern in der Karte Einstellungen.",
     });
     return list;
   }
@@ -3475,7 +3599,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     }
 
     // Daten
-    const info = state.sourceInfo.filter((s) => s.key !== "insights" && (s.found || !s.optional));
+    const info = state.sourceInfo.filter((s) => s.key !== "insights" && s.key !== "settings" && (s.found || !s.optional));
     const fr = freshness(M);
     const bad = info.filter((s) => !s.found || !s.rows).length;
     put("daten", state.source === "demo"
@@ -3483,7 +3607,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       : [bad || fr.stale ? chip("alert", bad ? `${bad} ${bad === 1 ? "Quelle fehlt" : "Quellen fehlen"}` : "Abruf prüfen", "warn") : chip("check", `${info.length} Quellen geladen`, "good"),
         chip(state.source === "github" ? "cloud" : "daten", state.source === "github" ? `GitHub · ${clockOf(state.loadedAt)}` : "Lokal"),
         chip("calendar", `${fmt(M.days.length)} Tage`)],
-    info.map((s) => `${s.label} ${s.found && s.last != null ? `bis ${ddmm(s.last)}` : "fehlen"}`).join(", ") + `, zusammen ${fmt(M.days.length)} Tage.`);
+    info.map((s) => `${s.label} ${!s.found ? "fehlen" : s.last != null ? `bis ${ddmm(s.last)}` : "geladen"}`).join(", ") + `, zusammen ${fmt(M.days.length)} Tage.`);
   }
 
   // Where the data comes from, with connect and disconnect for the GitHub data repository
@@ -3533,7 +3657,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       return html("li", {}, [
         html("div", { class: "ri-main" }, [
           html("div", { class: "ri-title", text: s.label }),
-          html("div", { class: "ri-sub" }, [html("code", { text: s.file.split("/").pop(), title: s.file }), s.found ? ` · ${fmt(s.rows)} ${s.key === "insights" ? "Paare" : "Einträge"}` : null]),
+          html("div", { class: "ri-sub" }, [html("code", { text: s.file.split("/").pop(), title: s.file }), s.found ? ` · ${fmt(s.rows)} ${s.key === "insights" ? "Paare" : s.key === "settings" ? "Werte" : "Einträge"}` : null]),
           hint ? html("div", { class: "ri-hint" }, withCode(hint)) : null,
         ]),
         html("div", { class: "ri-side" }, [status, s.first != null && s.last != null ? html("span", { text: `${dmy(s.first)} bis` }) : null, s.last != null ? html("span", { text: dmy(s.last) }) : null]),
@@ -4738,15 +4862,12 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     } catch { /* storage unavailable */ }
     state.model.lifts = names.map(state.model.computeLift);
   }
-  // The selection in the format of MAIN_LIFTS, to make it the default for every browser
-  function liftSnippet() {
-    const lines = state.model.lifts.map((l) => `  { exercise: ${JSON.stringify(l.exercise)}, label: ${JSON.stringify(l.label)}${l.addBodyweight ? ", addBodyweight: true" : ""} },`);
-    return `const MAIN_LIFTS = [\n${lines.join("\n")}\n];`;
-  }
   function syncLiftPicker() {
     const M = state.model, chosen = state.liftNames;
     const eligible = M.exercises.filter((e) => e.eligible).length;
-    const origin = state.liftCustom ? "deine Auswahl" : M.defaultLifts.some((n) => MAIN_LIFTS.some((l) => l.exercise === n)) ? "aus MAIN_LIFTS" : "die häufigsten";
+    const fromList = M.defaultLifts.some((n) => MAIN_LIFTS.some((l) => l.exercise === n));
+    const origin = state.liftCustom ? "Auswahl dieses Browsers"
+      : !fromList ? "die häufigsten" : state.settings?.from.main_lifts === "file" ? "aus den Einstellungen" : "Standard";
     $("lift-status").textContent = `${chosen.length} von ${eligible} Übungen mit e1RM, ${origin}`;
     for (const input of $("lift-list").querySelectorAll("input")) {
       const e = M.exercises.find((x) => x.exercise === input.value);
@@ -4771,10 +4892,10 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       const input = html("input", { type: "checkbox", id: `lift-opt-${i}`, value: e.exercise });
       input.addEventListener("change", () => {
         setLifts(input.checked ? [...state.liftNames, e.exercise] : state.liftNames.filter((n) => n !== e.exercise), true);
-        $("lift-code").hidden = true;
         $("lift-copy-status").textContent = "";
         syncLiftPicker();
         render();
+        updateSettingsPreview();
       });
       return html("label", { for: input.id }, [input, html("span", { class: "name", text: e.exercise }), html("span", { class: "meta" })]);
     }));
@@ -4791,26 +4912,115 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       setLifts(state.model.defaultLifts, false);
       syncLiftPicker();
       render();
+      updateSettingsPreview();
       $("lift-copy-status").textContent = "Standard wiederhergestellt.";
     });
-    $("lift-copy").addEventListener("click", () => {
-      const code = liftSnippet(), pre = $("lift-code"), status = $("lift-copy-status");
-      pre.textContent = code;
-      const showCode = () => {
-        pre.hidden = false;
-        const range = document.createRange();
-        range.selectNodeContents(pre);
-        const sel = window.getSelection();
-        sel.removeAllRanges();
-        sel.addRange(range);
-        status.textContent = "Automatisches Kopieren geht hier nicht. Der Code unten ist markiert, kopiere ihn mit ⌘C oder Strg+C.";
-      };
-      try {
-        navigator.clipboard.writeText(code).then(() => {
-          pre.hidden = false;
-          status.textContent = "Kopiert. Ersetze damit MAIN_LIFTS oben im Skript von dashboard/index.html.";
-        }, showCode);
-      } catch { showCode(); }
+    $("lift-copy").addEventListener("click", () => goToCard("einstellungen"));
+  }
+
+  // ------------------------------------------------------------------ settings card
+
+  const splitNames = (text) => String(text || "").split(",").map((n) => n.trim()).filter(Boolean);
+  // settings.json as it would be with the values in the form; keys the page does not know stay as they are
+  function settingsFromForm() {
+    const out = { ...(state.settings?.raw || {}) };
+    const zone = $("set-tz").value.trim();
+    if (zone) out.timezone = zone; else delete out.timezone;
+    const goal = Number($("set-steps").value);
+    if ($("set-steps").value !== "" && Number.isFinite(goal) && goal > 0) out.step_goal = Math.round(goal); else delete out.step_goal;
+    const lifts = state.model?.lifts;
+    if (lifts?.length) {
+      out.main_lifts = lifts.map((l) => ({
+        exercise: l.exercise,
+        ...(l.label && l.label !== l.exercise ? { label: l.label } : {}),
+        ...(l.addBodyweight ? { add_bodyweight: true } : {}),
+      }));
+    }
+    out.grip_exercises = { left: splitNames($("set-grip-left").value), right: splitNames($("set-grip-right").value) };
+    return out;
+  }
+  const settingsText = () => `${JSON.stringify(settingsFromForm(), null, 2)}\n`;
+  // Where "save" leads: a prefilled new file on GitHub, or the editor of the existing one
+  function settingsTarget() {
+    if (state.source !== "github" || !state.dataRepo) return null;
+    const branch = encodeURIComponent(state.dataBranch || "main");
+    return state.settings?.found
+      ? { url: `https://github.com/${state.dataRepo}/edit/${branch}/settings.json`, label: "Auf GitHub bearbeiten", paste: true }
+      : { url: `https://github.com/${state.dataRepo}/new/${branch}?filename=settings.json&value=${encodeURIComponent(settingsText())}`, label: "Auf GitHub anlegen", paste: false };
+  }
+  function updateSettingsPreview() {
+    if (!state.settings) return;
+    $("settings-json").textContent = settingsText();
+    const zone = $("set-tz").value.trim();
+    const zoneOk = !zone || validZone(zone);
+    $("set-tz").classList.toggle("bad", !zoneOk);
+    $("set-tz-note").textContent = !zoneOk ? "Unbekannte Zeitzone." : zone ? "" : `Leer: dieser Browser (${browserZone()}), der Abruf UTC.`;
+    const lifts = state.model?.lifts || [];
+    $("settings-lifts").replaceChildren(
+      html("b", { text: "Hauptübungen: " }),
+      lifts.length ? lifts.map((l) => l.label).join(", ") : "noch keine Hevy-Übungen mit e1RM",
+      lifts.length ? " · wie gerade unter Sport → Kraft → e1RM gewählt." : "",
+    );
+    const target = settingsTarget(), link = $("settings-github");
+    link.hidden = !target;
+    if (target) { link.href = target.url; link.textContent = target.label; }
+  }
+  // Fills the form from the loaded settings; runs after every load, not on every redraw
+  function fillSettings() {
+    const st = state.settings;
+    if (!st) return;
+    // A new file gets this browser's zone, so the daily sync on GitHub does not fall back to UTC
+    $("set-tz").value = typeof st.raw.timezone === "string" ? st.raw.timezone : st.found && !state.settingsBroken ? "" : browserZone();
+    $("set-steps").value = String(STEP_GOAL);
+    $("set-grip-left").value = st.grip.left.join(", ");
+    $("set-grip-right").value = st.grip.right.join(", ");
+    for (const el of document.querySelectorAll("[data-step-goal]")) el.textContent = fmt(STEP_GOAL);
+    const problems = [...st.problems];
+    if (state.settingsBroken) problems.unshift("settings.json ist kein gültiges JSON und wird ignoriert. Speichere die Datei hier neu.");
+    $("settings-problems").replaceChildren(...problems.map((t) => html("li", { text: t })));
+    $("settings-problems").hidden = !problems.length;
+    $("settings-sub").textContent = state.source === "demo" ? "Beispieldaten: verbinde dein Daten-Repository, um zu speichern"
+      : state.settingsBroken ? `settings.json ist unlesbar · Standardwerte · Zeitzone ${TIMEZONE} aus diesem Browser`
+      : st.found ? `Aus settings.json · Zeitzone ${TIMEZONE}`
+      : `Standardwerte · settings.json fehlt noch · Zeitzone ${TIMEZONE} aus diesem Browser`;
+    $("settings-status").textContent = state.source === "csv" ? "Speichere den Inhalt als data/settings.json." : "";
+    updateSettingsPreview();
+  }
+  async function copySettings() {
+    const text = settingsText();
+    try { await navigator.clipboard.writeText(text); return true; } catch { /* not allowed here */ }
+    const details = $("settings-json").closest("details");
+    details.open = true;
+    const range = document.createRange();
+    range.selectNodeContents($("settings-json"));
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    return false;
+  }
+  function setupSettings() {
+    try {
+      const zones = typeof Intl.supportedValuesOf === "function" ? Intl.supportedValuesOf("timeZone") : [];
+      $("set-tz-list").replaceChildren(...zones.map((z) => html("option", { value: z })));
+    } catch { /* no list: free text still works */ }
+    $("settings-form").addEventListener("input", updateSettingsPreview);
+    $("settings-form").addEventListener("submit", (e) => e.preventDefault());
+    $("settings-copy").addEventListener("click", async () => {
+      $("settings-status").textContent = (await copySettings())
+        ? "Kopiert."
+        : "Kopieren geht hier nicht automatisch. Der Inhalt unten ist markiert, kopiere ihn mit ⌘C oder Strg+C.";
+    });
+    // Editing an existing file on GitHub cannot be prefilled: copy first, then paste over the old content
+    $("settings-github").addEventListener("click", async () => {
+      const target = settingsTarget();
+      if (!target?.paste) {
+        $("settings-status").textContent = "Auf GitHub mit „Commit changes“ speichern, dann hier aktualisieren.";
+        return;
+      }
+      const copied = await copySettings();
+      $("settings-status").textContent = copied
+        ? "Kopiert. Auf GitHub den ganzen Inhalt ersetzen, mit „Commit changes“ speichern und hier aktualisieren."
+        : "Kopiere zuerst den markierten Inhalt unten. Auf GitHub den ganzen Inhalt ersetzen und mit „Commit changes“ speichern.";
     });
   }
 
@@ -4918,6 +5128,18 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     target.scrollIntoView({ behavior: reducedMotion() ? "auto" : "smooth", block: "start" });
     const heading = id === "top" ? document.querySelector("h1") : target.querySelector("h2, h3");
     if (heading) { heading.setAttribute("tabindex", "-1"); heading.focus({ preventScroll: true }); }
+  }
+
+  // Jump to one card; on phones its area shows one card at a time, so its tab is selected first
+  function goToCard(id) {
+    const card = $(id), area = card?.closest(".area");
+    if (!card || !area) return;
+    const body = $(`b-${area.id}`);
+    if (body?.classList.contains("tabbed")) {
+      const index = [...body.querySelectorAll(":scope > .card")].indexOf(card);
+      if (index >= 0) selectTab(area.id, index);
+    }
+    goTo(id);
   }
 
   function openHelp() {
@@ -5067,7 +5289,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   }
   function openConnect() {
     const cred = loadCredentials();
-    $("gh-repo").value = cred?.repo || state.dataRepo || DATA_REPO;
+    $("gh-repo").value = cred?.repo || state.dataRepo || "";
     $("gh-token").value = "";
     $("gh-remember").checked = cred ? cred.remembered : true;
     setConnectStatus("");
@@ -5086,7 +5308,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       e.preventDefault();
       const repo = $("gh-repo").value.trim().replace(/^https?:\/\/github\.com\//, "").replace(/\.git$/, "").replace(/\/+$/, "");
       const token = $("gh-token").value.trim();
-      if (!/^[\w.-]+\/[\w.-]+$/.test(repo)) return setConnectStatus("Gib das Repository als besitzer/name an, etwa sh4rkfx/healthsync-data.", true);
+      if (!/^[\w.-]+\/[\w.-]+$/.test(repo)) return setConnectStatus("Gib das Repository als besitzer/name an, etwa anna/selftopo-data.", true);
       if (!token) return setConnectStatus("Füge den Token ein.", true);
       const submit = $("connect-submit");
       submit.disabled = true;
@@ -5130,10 +5352,15 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
             insights: data.insights, fitnessStatus: data.fitnessStatus || null, loadedAt: Date.now(),
           });
           if (data.source === "demo") window.selftopoDemoData = data; // lets tests export the sample data as CSV
+          // Before the model: time zone and grip exercise names are needed to read the Hevy sets
+          const demo = data.source === "demo";
+          state.settings = applySettings(demo ? null : data.settings ?? null, !demo && Boolean(data.found?.settings));
+          state.settingsBroken = !demo && Boolean(data.settingsBroken);
+          state.dataBranch = data.branch || null;
           state.model = buildModel(data.garmin, data.hevy, data.activities || [], data.nutrition || [], data.climbs || [], data.climbSessions || [],
             { exercises: data.exercises || [], fitness: data.fitness || [], bp: data.bp || [] });
           state.sourceInfo = describeSources(data);
-          if (!state.model) { renderNoData(); return; }
+          if (!state.model) { renderNoData(); fillSettings(); return; }
           if (!rangeAvailable(state.range)) state.range = 0; // shorter data than the saved range: show everything
           const lifts = loadLiftSelection(state.model);
           state.liftNames = lifts.names;
@@ -5142,6 +5369,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
           buildLiftPicker();
           renderRangeButtons();
           render();
+          fillSettings();
         } finally {
           for (const b of document.querySelectorAll('[data-action="refresh"]')) { b.classList.remove("busy"); b.disabled = false; }
           loading = null;
@@ -5196,6 +5424,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     setupUi();
     setupConnect();
     setupLiftPicker();
+    setupSettings();
     setupApp();
     renderRangeButtons();
     for (const [key, id] of [["sessions", "sessions-more"], ["recent", "recent-more"], ["insights", "insights-more"], ["bsessions", "bsessions-more"]]) {

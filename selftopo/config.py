@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import json
 import os
 from datetime import date, datetime
 from pathlib import Path
-from zoneinfo import ZoneInfo
+from typing import Any
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 
 def _env(name: str, default: str | None = None) -> str | None:
@@ -26,10 +28,63 @@ HEVY_CSV = DATA_DIR / "hevy_sets.csv"
 HEVY_EXERCISES_CSV = DATA_DIR / "hevy_exercises.csv"  # muscle groups of the exercises in hevy_sets.csv
 NUTRITION_CSV = DATA_DIR / "nutrition_daily.csv"
 INSIGHTS_JSON = DATA_DIR / "insights.json"
+SETTINGS_JSON = DATA_DIR / "settings.json"  # personal settings, shared with the dashboard
 DEBUG_DIR = Path("debug")
 
-# Garmin uses local calendar days; Hevy timestamps are converted to the same zone.
-TIMEZONE = ZoneInfo(_env("TZ", "Europe/Vienna"))
+# Problems found in settings.json or the environment, logged once by the command line
+SETTINGS_PROBLEMS: list[str] = []
+
+
+def load_settings(path: Path) -> dict[str, Any]:
+    """settings.json as a dict; missing or unreadable means no settings."""
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return {}
+    except (OSError, ValueError) as exc:
+        SETTINGS_PROBLEMS.append(f"{path} is not valid JSON ({exc}); using the defaults")
+        return {}
+    if not isinstance(data, dict):
+        SETTINGS_PROBLEMS.append(f"{path} must hold a JSON object; using the defaults")
+        return {}
+    return data
+
+
+def resolve_timezone(env_value: str | None, settings: dict[str, Any]) -> tuple[ZoneInfo, str]:
+    """Time zone and where it came from: environment, settings.json or the UTC default."""
+    for value, source in ((env_value, "environment"), (settings.get("timezone"), "settings.json")):
+        if not value:
+            continue
+        try:
+            return ZoneInfo(str(value)), source
+        except (ZoneInfoNotFoundError, ValueError):
+            SETTINGS_PROBLEMS.append(f"Unknown time zone {value!r} in the {source}")
+    return ZoneInfo("UTC"), "default"
+
+
+DEFAULT_GRIP_EXERCISES = {
+    "left": ["Left-hand Grip Strength", "Handkraft links"],
+    "right": ["Right-hand Grip Strength", "Handkraft rechts"],
+}
+
+
+def resolve_grip_exercises(settings: dict[str, Any]) -> tuple[str, ...]:
+    """Names of the Hevy exercises that hold grip-strength measurements, both hands."""
+    grip = settings.get("grip_exercises")
+    if grip is None:
+        grip = DEFAULT_GRIP_EXERCISES
+    if not isinstance(grip, dict):
+        SETTINGS_PROBLEMS.append('"grip_exercises" in settings.json must be {"left": [...], "right": [...]}')
+        grip = DEFAULT_GRIP_EXERCISES
+    names = [n for side in ("left", "right") for n in grip.get(side) or [] if isinstance(n, str) and n.strip()]
+    return tuple(n.strip() for n in names)
+
+
+SETTINGS = load_settings(SETTINGS_JSON)
+
+# Garmin uses local calendar days; Hevy timestamps are converted to the same zone. Set it in
+# settings.json ("timezone": "Europe/Vienna") or with SELFTOPO_TZ; without either it is UTC.
+TIMEZONE, TIMEZONE_SOURCE = resolve_timezone(_env("TZ"), SETTINGS)
 
 # Garmin authentication
 TOKEN_DIR = Path(os.environ.get("GARMIN_TOKEN_DIR", Path.home() / ".garminconnect"))
@@ -46,8 +101,8 @@ HEVY_TEMPLATES_URL = "https://api.hevyapp.com/v1/exercise_templates"
 HEVY_TEMPLATE_PAGE_SIZE = 100  # maximum allowed by the API
 HEVY_PAGE_SIZE = 10  # maximum allowed by the API
 # Hevy exercises that hold grip-strength measurements, not training sets: left out of hard sets,
-# tonnage and strength form. Same names as GRIP_EXERCISES in the dashboard.
-GRIP_EXERCISES = ("Left-hand Grip Strength", "Right-hand Grip Strength", "Handkraft links", "Handkraft rechts")
+# tonnage and strength form. "grip_exercises" in settings.json, read by the dashboard as well.
+GRIP_EXERCISES = resolve_grip_exercises(SETTINGS)
 
 # YAZIO: unofficial app API. Tokens live in a file (local runs, CI cache) or in YAZIO_TOKENS_JSON (CI seed).
 YAZIO_API_URL = os.environ.get("YAZIO_API_URL", "https://yzapi.yazio.com/v15")

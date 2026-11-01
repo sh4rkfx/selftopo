@@ -31,7 +31,7 @@ locally or once a day on GitHub Actions.
 flowchart LR
     G["Garmin Connect"] --> S
     H["Hevy API"] --> S
-    subgraph P["healthsync-data (private)"]
+    subgraph P["selftopo-data (private)"]
         S["Daily workflow<br/>sync + analyze"] --> C[("CSV files<br/>insights.json")]
     end
     subgraph O["selftopo (public)"]
@@ -44,7 +44,7 @@ flowchart LR
 | Repository | Visibility | Content |
 |---|---|---|
 | `selftopo` (this one) | public | Python code, dashboard, documentation, tests; the dashboard is published with GitHub Pages |
-| `healthsync-data` | **private** | The data files and the daily workflow with the Garmin and Hevy secrets. Workflow logs and caches stay private with it |
+| `selftopo-data` | **private** | The data files and the daily workflow with the Garmin and Hevy secrets. Workflow logs and caches stay private with it |
 
 The dashboard on GitHub Pages contains no data. In the browser you connect it once with a
 fine-grained token that can only read the data repository; it then loads the CSV files straight
@@ -60,7 +60,7 @@ Requirements: Python 3.10 or newer, a Garmin Connect account, and Hevy Pro for t
 
 ```bash
 git clone https://github.com/sh4rkfx/selftopo.git && cd selftopo
-git clone https://github.com/sh4rkfx/healthsync-data.git data   # your private data repository, see below
+git clone https://github.com/<you>/selftopo-data.git data      # your private data repository, see below
 python3 -m venv .venv && source .venv/bin/activate              # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 
@@ -83,7 +83,7 @@ stored in `~/.garminconnect`.
 The workflow runs in the private data repository. It checks out this repository's code, fetches
 the last 30 days every morning, recomputes the analysis and commits changed files.
 
-1. Create an empty **private** repository, for example `healthsync-data`.
+1. Create an empty **private** repository, for example `selftopo-data`.
 2. Copy the contents of [`templates/data-repo/`](templates/data-repo) into it, including the
    `.github` folder, together with any CSV files you already have, and push.
 3. Locally, run `python -m selftopo export-tokens` and copy the single line of JSON it prints.
@@ -94,9 +94,11 @@ the last 30 days every morning, recomputes the analysis and commits changed file
    | `GARMIN_TOKENS_JSON` | The JSON from step 3 |
    | `HEVY_API_KEY` | Your Hevy API key |
 
-   With the GitHub CLI: `python -m selftopo export-tokens | gh secret set GARMIN_TOKENS_JSON --repo <you>/healthsync-data`.
+   With the GitHub CLI: `python -m selftopo export-tokens | gh secret set GARMIN_TOKENS_JSON --repo <you>/selftopo-data`.
 5. Start the first run manually: *Actions → Sync Garmin and Hevy → Run workflow*. Use 365 days if
    the repository has no data yet.
+6. Set your time zone: connect the dashboard (see below) and save the card *Daten → Einstellungen*
+   once. Until then the workflow counts days in UTC.
 
 The workflow uses `sh4rkfx/selftopo` for the code. For a fork, set the repository variable
 `SELFTOPO_CODE_REPO` in the data repository to `<you>/selftopo`.
@@ -114,7 +116,7 @@ Without the steps below, YAZIO is skipped.
    writes the raw responses to `debug/`, then `python -m selftopo sync --source yazio --days 14`.
 3. Add the secret `YAZIO_TOKENS_JSON` to the data repository, with the output of
    `python -m selftopo yazio-tokens`. With the GitHub CLI:
-   `python -m selftopo yazio-tokens | gh secret set YAZIO_TOKENS_JSON --repo <you>/healthsync-data`.
+   `python -m selftopo yazio-tokens | gh secret set YAZIO_TOKENS_JSON --repo <you>/selftopo-data`.
 
 Without a local setup, GitHub can do the login: add the secrets `YAZIO_EMAIL` and `YAZIO_PASSWORD`
 to the data repository and start the workflow once. It logs in, and the tokens stay in the Actions
@@ -268,6 +270,35 @@ and periods of illness are the two most common sources of misleading results. Se
 
 All commands are run as `python -m selftopo <command>`.
 
+## Settings
+
+Personal settings live in `settings.json` at the root of the data repository (locally
+`data/settings.json`). The daily sync and the dashboard read the same file. Every key is optional.
+
+```json
+{
+  "timezone": "Europe/Berlin",
+  "step_goal": 8000,
+  "main_lifts": [
+    { "exercise": "Squat (Barbell)", "label": "Kniebeuge" },
+    { "exercise": "Pull Up (Weighted)", "label": "Klimmzug", "add_bodyweight": true }
+  ],
+  "grip_exercises": { "left": ["Left-hand Grip Strength"], "right": ["Right-hand Grip Strength"] }
+}
+```
+
+| Key | Default | Used by | Purpose |
+|---|---|---|---|
+| `timezone` | sync: UTC; dashboard: the browser's zone | both | IANA name. Local calendar days, sleep times and the day of Hevy workouts |
+| `step_goal` | `8000` | dashboard | Goal line and goal share of the steps charts |
+| `main_lifts` | barbell bench press, squat, deadlift, weighted pull-up | dashboard | e1RM charts, by exact Hevy exercise name. `label` is the chart title, `add_bodyweight` adds body weight to the load |
+| `grip_exercises` | `Left-hand Grip Strength`, `Right-hand Grip Strength` (and `Handkraft links`, `Handkraft rechts`) | both | Hevy exercises holding grip-strength readings; kept out of hard sets, tonnage and e1RM |
+
+The dashboard edits the file in the card *Daten → Einstellungen*. Its token can only read, so
+the card opens the file on GitHub (prefilled when it is new) and you save with *Commit changes*.
+Unknown keys are kept. Invalid values are reported in the card and in the sync log, and the
+default applies instead.
+
 ## Configuration
 
 | Environment variable | Default | Purpose |
@@ -280,7 +311,7 @@ All commands are run as `python -m selftopo <command>`.
 | `YAZIO_TOKEN_DIR` | `~/.yazio` | Where YAZIO tokens are stored |
 | `YAZIO_EMAIL`, `YAZIO_PASSWORD` | none | Optional, skips the prompts of `yazio-login` |
 | `SELFTOPO_DATA_DIR` | `data` | Folder for the CSV and JSON files (the old name `HEALTHSYNC_DATA_DIR` still works) |
-| `SELFTOPO_TZ` | `Europe/Vienna` | Time zone for local dates, sleep times and Hevy timestamps (old name `HEALTHSYNC_TZ` still works) |
+| `SELFTOPO_TZ` | `timezone` from `settings.json`, else UTC | Overrides the time zone of `settings.json` (old name `HEALTHSYNC_TZ` still works) |
 
 ## Troubleshooting
 
@@ -309,7 +340,7 @@ All commands are run as `python -m selftopo <command>`.
 ```
 selftopo/
   __main__.py     command line interface
-  config.py       paths, time zone, settings
+  config.py       paths, settings.json, time zone
   garmin.py       Garmin login, daily metrics, raw dumps
   activities.py   Garmin activities
   climbs.py       boulders and self evaluation of bouldering sessions
@@ -342,6 +373,19 @@ The workflow in `.github/workflows/test.yml` runs both on every push.
 
 ## Disclaimer
 
-selftopo uses the unofficial `garminconnect` library, which can break when Garmin changes its
-private API. The optional YAZIO import uses YAZIO's private app API in the same way. The Hevy API is official but requires Hevy Pro. Nothing here is medical advice; the
-numbers come from consumer devices and their estimates.
+**Not a medical device.** selftopo shows estimates from consumer devices and apps. It does not
+diagnose, treat or prevent anything, and its categories (for example the blood pressure ranges)
+are orientation, not a finding. Talk to a doctor about health questions.
+
+**Unofficial interfaces.** Garmin Connect is read with the unofficial `garminconnect` library and
+YAZIO with its private app API. Both can stop working without notice, and their terms of use may
+not allow this kind of access. You use them with your own account and at your own risk. The Hevy
+API is official and needs Hevy Pro.
+
+**No affiliation.** selftopo is an independent project and not affiliated with, endorsed or
+sponsored by Garmin, Hevy or YAZIO. Their names are trademarks of their owners and are used here
+only to say which services selftopo reads.
+
+## License
+
+[MIT](LICENSE)
