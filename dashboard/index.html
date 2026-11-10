@@ -599,6 +599,7 @@ kbd { font-family: var(--font-mono); font-size: 11.5px; border: 1px solid var(--
 .notable-list .warn .ic { color: var(--warn-ink); }
 .notable-list b { font-weight: 600; font-size: 13.5px; }
 .notable-list span { font-size: 12.5px; color: var(--ink-2); }
+.notable-list .calm { grid-column: 1 / -1; }
 .notable-calm { margin: 0; font-size: 13.5px; color: var(--ink-2); }
 .area-fazit { grid-column: 2 / 5; margin: 2px 0 0; font-size: 13.5px; line-height: 1.5; color: var(--ink-2); max-width: 82ch; }
 .area-fazit .fz-odd { color: var(--ink); }
@@ -788,6 +789,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       <div class="info" id="info-notable" hidden>
         <p>Jeder Wert der letzten 7 Tage wird mit deinem eigenen üblichen Bereich verglichen: dem 5. bis 95. Perzentil desselben Wochenwerts über die 120 Tage davor. Liegt er außerhalb, steht er hier, sonst nicht. Messwerte wie HRV oder Schlafdauer gehen als 7-Tage-Mittel ein, Trainingsmengen wie Arbeitssätze oder Trainingslast als 7-Tage-Summe; Tagessummen enden gestern, weil der laufende Tag noch nicht vollständig ist.</p>
         <p>Gelb heißt: in die Richtung, die für Erholung oder Gesundheit eher ungünstig ist, etwa niedrigere HRV oder kürzerer Schlaf. Neutral heißt: nur ungewöhnlich, ohne Wertung, etwa mehr Trainingslast als sonst. Ein Wert außerhalb des Bereichs ist ein Hinweis, keine Diagnose; jede fünfte Woche liegt bei mindestens einem Wert knapp daneben.</p>
+        <p id="notable-checked" hidden></p>
         <p class="source">Quelle: garmin_daily.csv · garmin_activities.csv · hevy_sets.csv · nutrition_daily.csv · mindestens 60 Vergleichswerte</p>
       </div>
       <ul class="notable-list" id="notable-list"></ul>
@@ -2716,7 +2718,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "{0} · üblich {1} bis {2}": "{0} · usual {1} to {2}",
 "{0} von {1} Werten außerhalb deines üblichen Bereichs": "{0} of {1} values outside your usual range",
 "Für den Vergleich braucht es mindestens {0} Tage Daten": "The comparison needs at least {0} days of data",
-"Diese Woche liegt alles in deinem üblichen Bereich: {0}.": "Everything is within your usual range this week: {0}.",
+"Diese Woche liegt alles in deinem üblichen Bereich.": "Everything is within your usual range this week.",
+"Verglichen werden diese Woche: {0}.": "Compared this week: {0}.",
 "Sobald genug Tage da sind, steht hier, was diese Woche von deinem Üblichen abweicht.": "As soon as there are enough days, this shows what differs from your usual this week.",
 "Diese Woche im üblichen Bereich: {0}.": "Within your usual range this week: {0}.",
 "Belastbar in deinen Daten: {0} {1} → {2} {3}, {4}.": "Robust in your data: {0} {1} → {2} {3}, {4}.",
@@ -4964,9 +4967,13 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     $("notable-sub").textContent = judged.length
       ? T("{0} von {1} Werten außerhalb deines üblichen Bereichs", [odd.length, judged.length])
       : T("Für den Vergleich braucht es mindestens {0} Tage Daten", [BASELINE_MIN + 7]);
+    // Which values were compared: in the ⓘ box, so the calm message stays one short line
+    const checked = $("notable-checked");
+    checked.textContent = judged.length ? T("Verglichen werden diese Woche: {0}.", [judged.map((b) => b.def.label()).join(", ")]) : "";
+    checked.hidden = !judged.length;
     if (!odd.length) {
-      $("notable-list").replaceChildren(html("li", {}, html("p", { class: "notable-calm", text: judged.length
-        ? T("Diese Woche liegt alles in deinem üblichen Bereich: {0}.", [judged.map((b) => b.def.label()).join(", ")])
+      $("notable-list").replaceChildren(html("li", { class: "calm" }, html("p", { class: "notable-calm", text: judged.length
+        ? T("Diese Woche liegt alles in deinem üblichen Bereich.")
         : T("Sobald genug Tage da sind, steht hier, was diese Woche von deinem Üblichen abweicht.") })));
       return;
     }
