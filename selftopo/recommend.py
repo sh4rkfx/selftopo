@@ -853,7 +853,8 @@ def evaluate_experiment(data: Data, entry: dict[str, Any]) -> dict[str, Any] | N
     end = start + timedelta(days=days - 1)
     elapsed = max(0, min(days, (data.today - start).days + 1))
     out = {"rule": rule.id if rule else entry.get("rule"), "start": start.isoformat(), "days": days,
-           "elapsed": elapsed, "status": "running" if data.today <= end else "done", "metrics": []}
+           "elapsed": elapsed, "status": "running" if data.today <= end else "done", "metrics": [],
+           "title": entry.get("title") if isinstance(entry.get("title"), dict) else None}
     metrics = entry.get("metrics") or ["hrv", "resting_hr", "sleep_score"]
     for metric in metrics:
         column = EXPERIMENT_METRICS.get(metric)

@@ -93,7 +93,8 @@ below Garmin's resting energy (total minus active calories); experiments only ch
 
 ```json
 {
-  "experiments": [{ "rule": "alcohol", "start": "2026-11-12", "days": 14, "metrics": ["hrv", "resting_hr", "sleep_score"] }],
+  "experiments": [{ "rule": "alcohol", "start": "2026-11-12", "days": 14, "metrics": ["hrv", "resting_hr", "sleep_score"],
+                    "title": { "text": "Experiment: 14 Tage ohne Alkohol", "vars": [] } }],
   "recommendations_hidden": {
     "steps": { "until": "2026-11-24" },
     "late-meal": { "dismissed": true, "reason": "Schichtdienst" }
@@ -102,7 +103,7 @@ below Garmin's resting energy (total minus active calories); experiments only ch
 ```
 
 An experiment compares its days with as many days before it: median and quartiles per metric,
-only from 10 days per phase. While it runs, its card is not offered; once done, it is not
+only from 10 days per phase; `title` is the card's title, written by the dashboard. While it runs, its card is not offered; once done, it is not
 suggested again. `until` hides a card up to that date, `dismissed` for good.
 
 ## recommendations.json
