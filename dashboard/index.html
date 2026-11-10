@@ -144,6 +144,15 @@ button { font: inherit; }
 .nav a[data-tint] svg.ic { color: var(--t-fg); }
 .nav a[aria-current="true"] svg.ic { color: inherit; }
 .nav a.nav-top { display: none; }
+/* Below 1280px the bar shows icons only; a caption under the current icon names the area */
+.bar-where { display: none; }
+@media (max-width: 1279px) {
+  .bar-where {
+    display: block; position: relative; height: 16px; max-width: 1240px; margin: -2px auto 0;
+    font-size: 0.6875rem; font-weight: 500; line-height: 14px; color: var(--ink-2); pointer-events: none;
+  }
+  .bar-where span { position: absolute; top: 0; left: 0; white-space: nowrap; }
+}
 @media (max-width: 1099px) {
   .nav { padding-right: 28px; -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); }
 }
@@ -734,6 +743,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     <button class="icon-btn" id="prefs-open" data-action="settings" type="button" aria-haspopup="dialog" aria-label="Einstellungen" title="Einstellungen"><svg class="ic" aria-hidden="true"><use href="#i-gear"/></svg></button>
     <button class="icon-btn" id="help-open" data-action="help" type="button" aria-haspopup="dialog" aria-label="Hilfe und Tastenkürzel" title="Hilfe und Tastenkürzel (Taste ?)">?</button>
   </div>
+  <div class="bar-where" aria-hidden="true"><span id="bar-where"></span></div>
 </div>
 
 <div class="wrap" id="top">
@@ -6767,6 +6777,17 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     // Highlight the area currently in view
     const links = new Map([...document.querySelectorAll("#nav a")].map((a) => [a.getAttribute("href").slice(1), a]));
     let ticking = false;
+    // Caption under the current icon while the bar shows icons only; clamped to the bar's edges
+    const where = $("bar-where");
+    const placeWhere = (a) => {
+      if (!where.offsetParent) return;
+      const text = a?.querySelector(".lbl")?.textContent ?? ""; // no icon for raw data: no caption
+      if (!a) { where.textContent = ""; return; }
+      if (where.textContent !== text) where.textContent = text;
+      const row = where.parentElement.getBoundingClientRect(), icon = a.getBoundingClientRect();
+      const left = icon.left + icon.width / 2 - row.left - where.offsetWidth / 2;
+      where.style.left = `${Math.round(Math.max(4, Math.min(row.width - where.offsetWidth - 4, left)))}px`;
+    };
     const spy = () => {
       ticking = false;
       const line = bar.getBoundingClientRect().bottom + 90;
@@ -6778,6 +6799,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       // At the very bottom the last area counts as current, even if it is short
       if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) current = AREAS[AREAS.length - 1];
       if (!current) current = "top";
+      placeWhere(links.get(current));
       for (const [area, a] of links) {
         const on = area === current;
         if (on !== (a.getAttribute("aria-current") === "true")) {
@@ -6794,6 +6816,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     window.addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(spy); } }, { passive: true });
     window.addEventListener("resize", spy);
     spy();
+    document.fonts?.ready.then(spy); // the caption is placed by measured widths
 
     // Help dialog
     for (const b of document.querySelectorAll('[data-action="help"]')) b.addEventListener("click", openHelp);
