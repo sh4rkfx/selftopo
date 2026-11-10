@@ -72,11 +72,24 @@ def parse(payload: Any, day: str) -> list[dict[str, Any]]:
     return rows
 
 
+def _empty_day(day: str) -> dict[str, Any]:
+    """Marks a day that was fetched with nothing set up, so it is not fetched again."""
+    return {"date": day}
+
+
+def _is_empty(rows: list[dict[str, Any]]) -> bool:
+    return not any(r.get("name") for r in rows)
+
+
 def sync(days: int, refresh: bool = False) -> None:
     """Fetch the last `days` days, one request per day, newest first.
 
     Days already stored are skipped except the newest ones (answers are often logged the next
-    morning), unless `refresh`. A failed request leaves the stored rows of that day untouched.
+    morning), unless `refresh`. A day fetched with nothing set up is stored as a row with only its
+    date, so it is not asked for again. A failed request leaves the stored rows of that day as
+    they are. While no behaviour has ever been found, the sync stops after EMPTY_DAYS_STOP empty
+    days in a row (fetched or stored), so people who don't use Lifestyle Logging cost only the
+    few requests of the refresh window per run.
     """
     end = config.today()
     start = end - timedelta(days=days - 1)
@@ -85,6 +98,7 @@ def sync(days: int, refresh: bool = False) -> None:
     by_day: dict[str, list[dict[str, Any]]] = {}
     for row in stored:
         by_day.setdefault(row["date"], []).append(row)
+    ever_used = any(row.get("name") for row in stored)
 
     client = garmin.connect()
     endpoint = getattr(client, "get_lifestyle_logging_data", None)
@@ -100,22 +114,19 @@ def sync(days: int, refresh: bool = False) -> None:
                 payload = garmin.safe_call(endpoint, iso)
                 time.sleep(config.GARMIN_REQUEST_DELAY_S)
                 if payload is not None:
-                    rows = parse(payload, iso)
                     fetched += 1
-                    if rows:
-                        by_day[iso] = rows
-                        empty_run = 0
-                    else:
-                        by_day.pop(iso, None)
-                        empty_run += 1
-                    if not stored and empty_run >= EMPTY_DAYS_STOP and fetched == empty_run:
-                        log.info("Lifestyle Logging: nothing set up in the last %d days, stopped", EMPTY_DAYS_STOP)
-                        break
+                    by_day[iso] = parse(payload, iso) or [_empty_day(iso)]
+            if iso in by_day and _is_empty(by_day[iso]):
+                empty_run += 1
+            elif iso in by_day:
+                empty_run, ever_used = 0, True
+            if not ever_used and empty_run >= EMPTY_DAYS_STOP:
+                log.info("Lifestyle Logging: nothing set up in the last %d days, stopped", EMPTY_DAYS_STOP)
+                break
             day -= timedelta(days=1)
     finally:
         garmin.save_tokens(client)
-        rows = [r for key in sorted(by_day) for r in sorted(by_day[key], key=lambda r: str(r["name"]))]
-        if rows or stored:
+        rows = [r for key in sorted(by_day) for r in sorted(by_day[key], key=lambda r: str(r.get("name") or ""))]
+        if rows:
             count = write_rows(config.LIFESTYLE_CSV, FIELDS, rows)
             log.info("Lifestyle Logging: %d rows in %s (%d days fetched)", count, config.LIFESTYLE_CSV, fetched)
-

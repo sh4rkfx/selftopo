@@ -112,8 +112,10 @@ notes typed with a reading are not copied.
 Lifestyle Logging, the habit diary of the Garmin Connect app (*More → Health Stats → Lifestyle
 Logging*): one row per behaviour and day. Garmin lists every behaviour you have set up on every
 day, answered or not. One request per day; days already stored are only fetched again within the
-last few days, because answers are often logged the next morning. If no behaviour is set up in
-the 7 newest days and the file does not exist yet, the sync stops asking.
+last few days, because answers are often logged the next morning. A day fetched with nothing set
+up is kept as a row with only its `date`, so it is not asked for again. As long as no behaviour
+has ever been found, the sync stops after 7 empty days in a row, so not using Lifestyle Logging
+costs only the requests for the newest few days per run.
 
 > **Not yet checked against real data.** Garmin does not document this endpoint; the mapping
 > follows the `garminconnect` library and other projects that read it. If the file stays empty or

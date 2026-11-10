@@ -82,7 +82,11 @@ def test_sync_skips_stored_days_and_keeps_them_on_failure(tmp_path, monkeypatch,
 
 
 def test_sync_stops_when_nothing_is_set_up(tmp_path, monkeypatch, given):
-    """Without stored data and without any behaviour in the 7 newest days, a 365-day sync stops after 7 requests and writes no file."""
+    """Without any behaviour, a 365-day sync stops after 7 empty days and remembers them.
+
+    The next run only asks for the refresh window again (today and yesterday here), because the
+    remembered empty days count towards the stop, so not using Lifestyle Logging costs little.
+    """
     calls = []
 
     class Client:
@@ -94,7 +98,30 @@ def test_sync_stops_when_nothing_is_set_up(tmp_path, monkeypatch, given):
     given(days=365, stored=None, garmin="empty log every day")
     lifestyle.sync(365)
     assert len(calls) == lifestyle.EMPTY_DAYS_STOP
-    assert not config.LIFESTYLE_CSV.exists()
+    rows = read_rows(config.LIFESTYLE_CSV)
+    assert len(rows) == lifestyle.EMPTY_DAYS_STOP and not any(r["name"] for r in rows)
+    calls.clear()
+    lifestyle.sync(365)
+    assert calls == ["2026-11-10", "2026-11-09"]
+
+
+def test_sync_remembers_empty_days_before_first_use(tmp_path, monkeypatch, given):
+    """Days before the first logged behaviour are stored as empty and not fetched again."""
+    calls = []
+
+    class Client:
+        def get_lifestyle_logging_data(self, day):
+            calls.append(day)
+            return {"dailyLogsReport": [entry(11, "Alcohol", "NO")] if day >= "2026-11-09" else []}
+
+    _setup(tmp_path, monkeypatch, Client())
+    given(days=10, garmin="behaviour set up from 2026-11-09")
+    lifestyle.sync(10)
+    assert len(calls) == 10
+    calls.clear()
+    lifestyle.sync(10)
+    assert calls == ["2026-11-10", "2026-11-09"]
+    assert [r["date"] for r in read_rows(config.LIFESTYLE_CSV) if r["name"]] == ["2026-11-09", "2026-11-10"]
 
 
 def test_sync_without_library_support_does_nothing(tmp_path, monkeypatch):
