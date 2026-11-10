@@ -28,6 +28,10 @@ on:
         description: "Optional, YYYY-MM-DD: attach the raw YAZIO responses of that day as a private artifact"
         required: false
         default: ""
+      push_test:
+        description: "Optional, yes: send a test push notification to every device that turned them on"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -128,6 +132,19 @@ jobs:
       - name: Analyze relationships
         if: ${{ !cancelled() }}
         run: python -m selftopo analyze
+
+      # Optional: the Today card as a push notification to the installed dashboard. Needs the secret
+      # VAPID_PRIVATE_KEY (python -m selftopo push-keys) and a device that turned notifications on.
+      # Never fails the run: a missed notification must not hide a good sync.
+      - name: Push notification
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        env:
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+          PUSH_TEST: ${{ inputs.push_test }}
+        run: |
+          if [ -z "$VAPID_PRIVATE_KEY" ]; then echo "No secret VAPID_PRIVATE_KEY, no push notifications."; exit 0; fi
+          if [ "$PUSH_TEST" = "yes" ]; then python -m selftopo push --test; else python -m selftopo push; fi
 
       # Only to check the field mapping once. The artifact contains health data and expires after a day.
       - name: Dump raw Garmin data

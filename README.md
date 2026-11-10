@@ -140,6 +140,7 @@ empty or invalid. If a run fails with `No usable Garmin tokens`, log in again wi
 | `source` | `all` | `all`, `garmin`, `activities`, `climbs`, `fitness`, `bp`, `lifestyle`, `hevy` or `yazio`. With many days, loads older data of one source only, e.g. `climbs` with `2000` days |
 | `garmin_dump_date`, `yazio_dump_date` | empty | `YYYY-MM-DD`: attach the raw responses of that day as a private artifact (deleted after one day), to check the field mapping |
 | `fitness_dump` | empty | `yes`: save the raw Garmin fitness responses to `debug/` in the data repository |
+| `push_test` | empty | `yes`: send a test push notification to every device that turned them on, see [docs/push.md](docs/push.md) |
 
 The schedule is `30 6 * * *` (06:30 UTC). GitHub often starts scheduled runs a few minutes to an
 hour late.
@@ -215,6 +216,10 @@ The app reloads when it opens and when it comes back after more than 15 minutes.
 remembered, it keeps the last loaded files in the browser and shows them, marked as offline, when
 GitHub cannot be reached. Disconnecting deletes that copy.
 
+The installed app can show the Today card of the recommendations as a push notification, sent by
+the daily workflow. It needs a key pair, one secret and a click on each device; see
+[docs/push.md](docs/push.md).
+
 ## Settings
 
 Personal settings live in `settings.json` at the root of the data repository. The daily sync and
@@ -240,6 +245,7 @@ the dashboard read the same file, and every key is optional.
 | `grip_exercises` | `Left-hand Grip Strength`, `Right-hand Grip Strength` (also `Handkraft links`, `Handkraft rechts`) | both | Hevy exercises holding dynamometer readings; kept out of hard sets, tonnage and e1RM |
 | `goals` | none | both | One goal per area for the recommendations, e.g. `{"koerper": {"metric": "weight", "target": 75, "by": "2027-03-31"}}`; see [docs/recommendations.md](docs/recommendations.md) |
 | `experiments`, `recommendations_hidden` | none | both | Running experiments and recommendations hidden with *Later* or *Does not fit*; written by the dashboard |
+| `push` | none | both | Public key and the devices that receive push notifications; written by the dashboard, see [docs/push.md](docs/push.md) |
 
 Edit the file under gear icon → *General*. The dashboard may only read your repository, so
 *Create on GitHub* opens a prefilled new file and *Edit on GitHub* copies the content for you to
@@ -304,6 +310,8 @@ python -m http.server 8000      # in the repository root, then open http://local
 |---|---|
 | `sync [--days N] [--source …] [--refresh]` | Fetch data and update the CSV files. `--refresh` fetches stored Garmin days again, e.g. to fill columns added in an update |
 | `analyze [--days N] [--top N]` | Test relationships and write `data/insights.json` |
+| `push-keys` | Make the key pair for push notifications |
+| `push [--test]` | Send today's Today card (or a test message) to the devices in `settings.json` |
 | `login`, `export-tokens` | Garmin login with email, password and MFA code; print the tokens for the secret |
 | `yazio-login`, `yazio-tokens` | The same for YAZIO |
 | `dump-raw [--date YYYY-MM-DD]`, `dump-yazio [--date …]`, `dump-fitness` | Save raw responses to `debug/`, to check the field mapping |
@@ -316,6 +324,7 @@ python -m http.server 8000      # in the repository root, then open http://local
 | `GARMIN_TOKEN_DIR` | `~/.garminconnect` | Where Garmin tokens are stored |
 | `YAZIO_TOKENS_JSON`, `YAZIO_EMAIL`, `YAZIO_PASSWORD` | none | YAZIO login, the same way |
 | `YAZIO_TOKEN_DIR` | `~/.yazio` | Where YAZIO tokens are stored |
+| `VAPID_PRIVATE_KEY` | none | Private key for push notifications (secret in the data repository) |
 | `SELFTOPO_DATA_DIR` | `data` | Folder for the data files (the old name `HEALTHSYNC_DATA_DIR` still works) |
 | `SELFTOPO_TZ` | `timezone` from `settings.json`, else UTC | Overrides the time zone (old name `HEALTHSYNC_TZ`) |
 
@@ -352,6 +361,8 @@ for a fork, `SELFTOPO_CODE_REF` (default `v1`) for another version, see below.
   other Pages sites could read it. Revoke it on GitHub if a device is lost.
 - Anyone with write access to the data repository can change its workflow and read its secrets.
   Do not add collaborators.
+- Push notifications go through the push service of the device's browser vendor, encrypted for
+  the device. Their text appears on the lock screen. See [docs/push.md](docs/push.md).
 - Raw dumps contain health data. They stay in `debug/`, which is not committed, or in artifacts
   that expire after a day.
 

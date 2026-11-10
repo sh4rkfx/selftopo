@@ -3,3 +3,4 @@ requests>=2.31
 tzdata>=2024.1  # time zone data for Windows, where the OS does not ship it
 pandas>=2.1  # analysis only
 scipy>=1.11  # analysis only: Spearman, Theil-Sen, Benjamini-Hochberg
+pywebpush>=2.0,<3  # push notifications (VAPID, encrypted payload); only for `push`
