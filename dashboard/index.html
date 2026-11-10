@@ -605,9 +605,10 @@ kbd { font-family: var(--font-mono); font-size: 11.5px; border: 1px solid var(--
 .area-fazit .fz-odd .ic { width: 14px; height: 14px; vertical-align: -2px; margin-right: 4px; color: var(--warn-ink); }
 .area-fazit .fz-finding { display: block; margin-top: 2px; }
 @media (max-width: 759px) { .area-fazit { grid-column: 1 / -1; } .notable { padding: 12px; } }
-/* Chips that lead to a card get a thin outline, so they read as buttons and not as labels */
-button.chip { font: inherit; font-size: 12.5px; border: 0; cursor: pointer; box-shadow: inset 0 0 0 1px var(--ring); }
+button.chip { font: inherit; font-size: 12.5px; border: 0; cursor: pointer; }
 button.chip:hover { box-shadow: inset 0 0 0 1px var(--ring-strong); }
+/* Chips that lead to a card get a thin outline, so they read as buttons and not as labels */
+button.chip { box-shadow: inset 0 0 0 1px var(--ring); }
 button.chip:active { box-shadow: inset 0 0 0 1px var(--ink-2); filter: brightness(0.96); }
 /* Phones and touch screens: controls reach 44 px. Chips grow a little and keep 8 px apart; info
    and toggle buttons get an invisible hit area around them, so the layout does not move. */
