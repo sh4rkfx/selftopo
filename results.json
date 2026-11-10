@@ -2,22 +2,22 @@
  "schema": 1,
  "run": {
   "repository": "sh4rkfx/selftopo",
-  "commit": "2dce92e48e4debd2b8d474df240d92eb65ec93d4",
-  "subject": "Push notifications for the Today card (#22)",
+  "commit": "7e0d74a69e7b26e3b3ae8a77b427d55b7ffabaf1",
+  "subject": "Dashboard: open at the overview after a reload (#23)",
   "branch": "main",
   "event": "push",
-  "run_url": "https://github.com/sh4rkfx/selftopo/actions/runs/42858298715",
+  "run_url": "https://github.com/sh4rkfx/selftopo/actions/runs/42858978709",
   "local_changes": null,
   "python": "3.12.16",
   "pytest": "9.2.0",
   "platform": "Linux",
-  "started": "2026-11-10T16:48:52+00:00",
-  "finished": "2026-11-10T16:49:00+00:00",
-  "wall_s": 7.302
+  "started": "2026-11-10T16:52:41+00:00",
+  "finished": "2026-11-10T16:52:49+00:00",
+  "wall_s": 8.183
  },
  "summary": {
-  "total": 120,
-  "passed": 120,
+  "total": 125,
+  "passed": 125,
   "failed": 0,
   "critical_failed": 0,
   "not_executable": 0,
@@ -26,7 +26,7 @@
   "light": "green",
   "reason": "all_passed",
   "red_share": 0.1,
-  "duration_s": 5.3848
+  "duration_s": 5.8994
  },
  "groups": {
   "tests/test_analyze.py": {
@@ -56,6 +56,10 @@
   "tests/test_lifestyle.py": {
    "title": "Lifestyle Logging",
    "description": "Parsing Garmin's daily log and fetching day by day. The response shape is assumed (see\nselftopo/lifestyle.py), so these tests pin the mapping, not Garmin's real answer."
+  },
+  "tests/test_navigation.py": {
+   "title": "Where the dashboard opens",
+   "description": "The page opens at the overview. A link opened fresh (#kraft) jumps to its area; a reload ignores\nboth the area in the address and the old scroll position. Runs the page's own startPosition in Node\nwith a stand-in browser; without Node these tests are skipped."
   },
   "tests/test_overview.py": {
    "title": "Overview tiles and time range",
@@ -157,11 +161,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.005421,
-    "call": 0.07046,
-    "teardown": 0.000161
+    "setup": 0.004983,
+    "call": 0.073483,
+    "teardown": 0.000197
    },
-   "duration_s": 0.076042
+   "duration_s": 0.078663
   },
   {
    "id": "tests/test_analyze.py::test_false_alarm_rate_on_pure_noise_stays_near_the_fdr_level",
@@ -211,11 +215,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000295,
-    "call": 2.65358,
-    "teardown": 0.000205
+    "setup": 0.000356,
+    "call": 2.778643,
+    "teardown": 0.000226
    },
-   "duration_s": 2.65408
+   "duration_s": 2.779225
   },
   {
    "id": "tests/test_analyze.py::test_circular_garmin_pairs_are_not_tested",
@@ -279,11 +283,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000322,
-    "call": 0.002582,
-    "teardown": 0.000126
+    "setup": 0.000321,
+    "call": 0.00256,
+    "teardown": 0.000118
    },
-   "duration_s": 0.00303
+   "duration_s": 0.002999
   },
   {
    "id": "tests/test_analyze.py::test_output_is_valid_json_without_nan",
@@ -329,11 +333,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.0003,
-    "call": 0.06926,
-    "teardown": 0.000155
+    "setup": 0.000263,
+    "call": 0.070798,
+    "teardown": 0.000171
    },
-   "duration_s": 0.069715
+   "duration_s": 0.071232
   },
   {
    "id": "tests/test_analyze.py::test_empty_data_gives_a_note",
@@ -371,11 +375,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000325,
-    "call": 0.000602,
-    "teardown": 0.000126
+    "setup": 0.000349,
+    "call": 0.000653,
+    "teardown": 0.000136
    },
-   "duration_s": 0.001053
+   "duration_s": 0.001138
   },
   {
    "id": "tests/test_analyze.py::test_load_daily_reads_all_three_files",
@@ -499,11 +503,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.001141,
-    "call": 0.030481,
-    "teardown": 0.000151
+    "setup": 0.00124,
+    "call": 0.030813,
+    "teardown": 0.000186
    },
-   "duration_s": 0.031773
+   "duration_s": 0.032239
   },
   {
    "id": "tests/test_analyze.py::test_nutrition_is_tested_against_the_following_night_and_next_training_day",
@@ -580,11 +584,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000272,
-    "call": 0.003009,
-    "teardown": 0.000103
+    "setup": 0.000349,
+    "call": 0.003126,
+    "teardown": 0.00011
    },
-   "duration_s": 0.003384
+   "duration_s": 0.003585
   },
   {
    "id": "tests/test_analyze.py::test_incomplete_and_unlogged_food_days_stay_empty",
@@ -652,11 +656,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000624,
-    "call": 0.010704,
-    "teardown": 0.000134
+    "setup": 0.000768,
+    "call": 0.012544,
+    "teardown": 0.000172
    },
-   "duration_s": 0.011462
+   "duration_s": 0.013484
   },
   {
    "id": "tests/test_bloodpressure.py::test_parse_finds_readings_anywhere_and_drops_notes",
@@ -714,11 +718,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000301,
-    "call": 0.002105,
-    "teardown": 0.000104
+    "setup": 0.000429,
+    "call": 0.002366,
+    "teardown": 0.000111
    },
-   "duration_s": 0.00251
+   "duration_s": 0.002906
   },
   {
    "id": "tests/test_bloodpressure.py::test_sync_replaces_the_window_in_chunks",
@@ -781,11 +785,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000591,
-    "call": 0.001848,
-    "teardown": 0.000114
+    "setup": 0.000687,
+    "call": 0.002026,
+    "teardown": 0.000122
    },
-   "duration_s": 0.002553
+   "duration_s": 0.002835
   },
   {
    "id": "tests/test_climbs.py::test_one_row_per_boulder_with_the_rest_that_follows",
@@ -866,11 +870,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000289,
-    "call": 0.002512,
-    "teardown": 0.000101
+    "setup": 0.000378,
+    "call": 0.002919,
+    "teardown": 0.000112
    },
-   "duration_s": 0.002902
+   "duration_s": 0.003409
   },
   {
    "id": "tests/test_climbs.py::test_rest_before_the_first_boulder_and_other_split_types_are_ignored",
@@ -921,11 +925,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000234,
-    "call": 0.000632,
-    "teardown": 9.6e-05
+    "setup": 0.000244,
+    "call": 0.00067,
+    "teardown": 9.9e-05
    },
-   "duration_s": 0.000962
+   "duration_s": 0.001013
   },
   {
    "id": "tests/test_climbs.py::test_session_summary_with_self_evaluation",
@@ -971,11 +975,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000223,
-    "call": 0.000733,
-    "teardown": 9.6e-05
+    "setup": 0.000246,
+    "call": 0.000734,
+    "teardown": 0.000115
    },
-   "duration_s": 0.001052
+   "duration_s": 0.001095
   },
   {
    "id": "tests/test_climbs.py::test_missing_self_evaluation_stays_empty",
@@ -1036,11 +1040,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000242,
-    "call": 0.000765,
-    "teardown": 0.000101
+    "setup": 0.000227,
+    "call": 0.00087,
+    "teardown": 9.7e-05
    },
-   "duration_s": 0.001108
+   "duration_s": 0.001194
   },
   {
    "id": "tests/test_climbs.py::test_sync_fetches_new_and_recent_sessions_and_keeps_older_ones",
@@ -1133,11 +1137,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000597,
-    "call": 0.003329,
-    "teardown": 0.000119
+    "setup": 0.000689,
+    "call": 0.003547,
+    "teardown": 0.00013
    },
-   "duration_s": 0.004045
+   "duration_s": 0.004366
   },
   {
    "id": "tests/test_climbs.py::test_failed_request_keeps_the_stored_session",
@@ -1183,11 +1187,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000621,
-    "call": 0.001489,
-    "teardown": 0.000163
+    "setup": 0.00066,
+    "call": 0.001619,
+    "teardown": 0.000129
    },
-   "duration_s": 0.002273
+   "duration_s": 0.002408
   },
   {
    "id": "tests/test_config.py::test_load_settings_missing_and_broken",
@@ -1264,11 +1268,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000627,
-    "call": 0.001626,
-    "teardown": 0.000109
+    "setup": 0.000659,
+    "call": 0.001719,
+    "teardown": 0.000129
    },
-   "duration_s": 0.002362
+   "duration_s": 0.002507
   },
   {
    "id": "tests/test_config.py::test_load_settings_reads_object",
@@ -1306,11 +1310,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000536,
-    "call": 0.000538,
-    "teardown": 0.000105
+    "setup": 0.000543,
+    "call": 0.000568,
+    "teardown": 0.000107
    },
-   "duration_s": 0.001179
+   "duration_s": 0.001218
   },
   {
    "id": "tests/test_config.py::test_timezone_environment_beats_settings_and_default_is_utc",
@@ -1378,11 +1382,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.00022,
-    "call": 0.00218,
+    "setup": 0.000225,
+    "call": 0.001678,
     "teardown": 0.0001
    },
-   "duration_s": 0.0025
+   "duration_s": 0.002003
   },
   {
    "id": "tests/test_config.py::test_unknown_timezone_falls_back_with_a_problem",
@@ -1433,11 +1437,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000229,
-    "call": 0.001275,
-    "teardown": 0.0001
+    "setup": 0.00024,
+    "call": 0.00142,
+    "teardown": 0.000101
    },
-   "duration_s": 0.001604
+   "duration_s": 0.001761
   },
   {
    "id": "tests/test_config.py::test_grip_exercises_from_settings_or_defaults",
@@ -1518,11 +1522,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000224,
-    "call": 0.001161,
-    "teardown": 0.000102
+    "setup": 0.000231,
+    "call": 0.001256,
+    "teardown": 0.0001
    },
-   "duration_s": 0.001487
+   "duration_s": 0.001587
   },
   {
    "id": "tests/test_dashboard.py::test_dictionary_is_valid_and_has_no_empty_entries",
@@ -1586,11 +1590,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000279,
-    "call": 0.003966,
-    "teardown": 0.0001
+    "setup": 0.000327,
+    "call": 0.004346,
+    "teardown": 0.000108
    },
-   "duration_s": 0.004345
+   "duration_s": 0.004781
   },
   {
    "id": "tests/test_dashboard.py::test_every_translated_literal_has_an_english_entry",
@@ -1645,11 +1649,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000244,
-    "call": 0.012356,
-    "teardown": 0.0001
+    "setup": 0.000242,
+    "call": 0.012893,
+    "teardown": 0.000152
    },
-   "duration_s": 0.0127
+   "duration_s": 0.013287
   },
   {
    "id": "tests/test_dashboard.py::test_placeholders_match",
@@ -1700,11 +1704,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000246,
-    "call": 0.005279,
-    "teardown": 9.7e-05
+    "setup": 0.000314,
+    "call": 0.00584,
+    "teardown": 0.000127
    },
-   "duration_s": 0.005622
+   "duration_s": 0.006281
   },
   {
    "id": "tests/test_dashboard.py::test_service_worker_has_a_version",
@@ -1726,9 +1730,9 @@
      "expr": "re.search(r'const VERSION = \"\\d+\";', sw)",
      "ok": true,
      "op": "truthy",
-     "left": "<re.Match object; span=(440, 461), match='const VERSION = \"22\";'>",
+     "left": "<re.Match object; span=(440, 461), match='const VERSION = \"23\";'>",
      "right": null,
-     "detail": "where <re.Match object; span=(440, 461), match='const VERSION = \"22\";'> = <function search>('const VERSION = \"\\\\d+\";', '// Service worker of the selftopo dashboard: makes it installable and opens it offline.\\n//\\n// App files in this fol...it open.navigate(url).catch(() => {});\\n      return;\\n    }\\n    await self.clients.openWindow(url);\\n  })());\\n});\\n')\nwhere <function search> = re.search"
+     "detail": "where <re.Match object; span=(440, 461), match='const VERSION = \"23\";'> = <function search>('const VERSION = \"\\\\d+\";', '// Service worker of the selftopo dashboard: makes it installable and opens it offline.\\n//\\n// App files in this fol...it open.navigate(url).catch(() => {});\\n      return;\\n    }\\n    await self.clients.openWindow(url);\\n  })());\\n});\\n')\nwhere <function search> = re.search"
     }
    ],
    "planned": [
@@ -1742,11 +1746,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000243,
-    "call": 0.000454,
-    "teardown": 9.6e-05
+    "setup": 0.000265,
+    "call": 0.000573,
+    "teardown": 0.000102
    },
-   "duration_s": 0.000793
+   "duration_s": 0.00094
   },
   {
    "id": "tests/test_fitness.py::test_endpoints_are_parsed_per_day",
@@ -1835,11 +1839,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000273,
-    "call": 0.00242,
-    "teardown": 0.000116
+    "setup": 0.000343,
+    "call": 0.002718,
+    "teardown": 0.000101
    },
-   "duration_s": 0.002809
+   "duration_s": 0.003162
   },
   {
    "id": "tests/test_fitness.py::test_status_of_the_primary_device",
@@ -1911,11 +1915,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000223,
-    "call": 0.000968,
-    "teardown": 9.5e-05
+    "setup": 0.000239,
+    "call": 0.001025,
+    "teardown": 9.9e-05
    },
-   "duration_s": 0.001286
+   "duration_s": 0.001363
   },
   {
    "id": "tests/test_fitness.py::test_sync_replaces_the_window_and_writes_today",
@@ -2004,11 +2008,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.00057,
-    "call": 0.00231,
-    "teardown": 0.000111
+    "setup": 0.000698,
+    "call": 0.0027,
+    "teardown": 0.000141
    },
-   "duration_s": 0.002991
+   "duration_s": 0.003539
   },
   {
    "id": "tests/test_lifestyle.py::test_parse_yes_no_amount_and_unanswered",
@@ -2086,11 +2090,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.00028,
-    "call": 0.002653,
-    "teardown": 9.8e-05
+    "setup": 0.000344,
+    "call": 0.002869,
+    "teardown": 0.000101
    },
-   "duration_s": 0.003031
+   "duration_s": 0.003314
   },
   {
    "id": "tests/test_lifestyle.py::test_sync_skips_stored_days_and_keeps_them_on_failure",
@@ -2153,11 +2157,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000562,
-    "call": 0.001695,
-    "teardown": 0.00012
+    "setup": 0.000582,
+    "call": 0.001939,
+    "teardown": 0.000126
    },
-   "duration_s": 0.002377
+   "duration_s": 0.002647
   },
   {
    "id": "tests/test_lifestyle.py::test_sync_stops_when_nothing_is_set_up",
@@ -2228,11 +2232,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000534,
-    "call": 0.002348,
-    "teardown": 0.000112
+    "setup": 0.00064,
+    "call": 0.002574,
+    "teardown": 0.000115
    },
-   "duration_s": 0.002994
+   "duration_s": 0.003329
   },
   {
    "id": "tests/test_lifestyle.py::test_sync_remembers_empty_days_before_first_use",
@@ -2300,11 +2304,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000552,
-    "call": 0.002472,
-    "teardown": 0.000111
+    "setup": 0.000601,
+    "call": 0.002663,
+    "teardown": 0.000116
    },
-   "duration_s": 0.003135
+   "duration_s": 0.00338
   },
   {
    "id": "tests/test_lifestyle.py::test_sync_without_library_support_does_nothing",
@@ -2337,11 +2341,232 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000483,
-    "call": 0.00044,
-    "teardown": 0.000105
+    "setup": 0.000494,
+    "call": 0.000503,
+    "teardown": 0.000107
    },
-   "duration_s": 0.001028
+   "duration_s": 0.001104
+  },
+  {
+   "id": "tests/test_navigation.py::test_reload_starts_at_the_overview",
+   "name": "test_reload_starts_at_the_overview",
+   "title": "Reload starts at the overview",
+   "file": "tests/test_navigation.py",
+   "line": 26,
+   "critical": false,
+   "doc": "Refreshing after clicking Ernährung: no jump to Ernährung, the address loses #ernaehrung.",
+   "inputs": [
+    {
+     "name": "address",
+     "value": "'#ernaehrung'"
+    },
+    {
+     "name": "navigation",
+     "value": "'reload'"
+    }
+   ],
+   "checks": [
+    {
+     "line": 29,
+     "expr": "start(\"#ernaehrung\", reload=True) == [[\"replace\", \"/selftopo/dashboard/\"], [\"scroll\", 0]]",
+     "ok": true,
+     "op": "==",
+     "left": "[['replace', '/selftopo/dashboard/'], ['scroll', 0]]",
+     "right": "[['replace', '/selftopo/dashboard/'], ['scroll', 0]]",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 29,
+     "expr": "start(\"#ernaehrung\", reload=True) == [[\"replace\", \"/selftopo/dashboard/\"], [\"scroll\", 0]]"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.00033,
+    "call": 0.173286,
+    "teardown": 0.000217
+   },
+   "duration_s": 0.173833
+  },
+  {
+   "id": "tests/test_navigation.py::test_reload_without_area_starts_at_the_top",
+   "name": "test_reload_without_area_starts_at_the_top",
+   "title": "Reload without area starts at the top",
+   "file": "tests/test_navigation.py",
+   "line": 32,
+   "critical": false,
+   "doc": "A reload of the plain address scrolls to the top instead of the old position.",
+   "inputs": [
+    {
+     "name": "address",
+     "value": "'(none)'"
+    },
+    {
+     "name": "navigation",
+     "value": "'reload'"
+    }
+   ],
+   "checks": [
+    {
+     "line": 35,
+     "expr": "start(\"\", reload=True) == [[\"scroll\", 0]]",
+     "ok": true,
+     "op": "==",
+     "left": "[['scroll', 0]]",
+     "right": "[['scroll', 0]]",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 35,
+     "expr": "start(\"\", reload=True) == [[\"scroll\", 0]]"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000339,
+    "call": 0.032181,
+    "teardown": 0.000184
+   },
+   "duration_s": 0.032704
+  },
+  {
+   "id": "tests/test_navigation.py::test_link_to_an_area_still_opens_it",
+   "name": "test_link_to_an_area_still_opens_it",
+   "title": "Link to an area still opens it",
+   "file": "tests/test_navigation.py",
+   "line": 38,
+   "critical": false,
+   "doc": "A bookmark or shared link like #kraft, opened fresh, goes to that area and keeps the address.",
+   "inputs": [
+    {
+     "name": "address",
+     "value": "'#kraft'"
+    },
+    {
+     "name": "navigation",
+     "value": "'navigate'"
+    }
+   ],
+   "checks": [
+    {
+     "line": 41,
+     "expr": "start(\"#kraft\", reload=False) == [[\"goTo\", \"kraft\", False]]",
+     "ok": true,
+     "op": "==",
+     "left": "[['goTo', 'kraft', False]]",
+     "right": "[['goTo', 'kraft', False]]",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 41,
+     "expr": "start(\"#kraft\", reload=False) == [[\"goTo\", \"kraft\", False]]"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000337,
+    "call": 0.031626,
+    "teardown": 0.000201
+   },
+   "duration_s": 0.032164
+  },
+  {
+   "id": "tests/test_navigation.py::test_unknown_area_opens_the_overview",
+   "name": "test_unknown_area_opens_the_overview",
+   "title": "Unknown area opens the overview",
+   "file": "tests/test_navigation.py",
+   "line": 44,
+   "critical": false,
+   "doc": "An old or mistyped anchor is dropped and the page starts at the top.",
+   "inputs": [
+    {
+     "name": "address",
+     "value": "'#gibtsnicht'"
+    },
+    {
+     "name": "navigation",
+     "value": "'navigate'"
+    }
+   ],
+   "checks": [
+    {
+     "line": 47,
+     "expr": "start(\"#gibtsnicht\", reload=False) == [[\"replace\", \"/selftopo/dashboard/\"], [\"scroll\", 0]]",
+     "ok": true,
+     "op": "==",
+     "left": "[['replace', '/selftopo/dashboard/'], ['scroll', 0]]",
+     "right": "[['replace', '/selftopo/dashboard/'], ['scroll', 0]]",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 47,
+     "expr": "start(\"#gibtsnicht\", reload=False) == [[\"replace\", \"/selftopo/dashboard/\"], [\"scroll\", 0]]"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000316,
+    "call": 0.031712,
+    "teardown": 0.000172
+   },
+   "duration_s": 0.0322
+  },
+  {
+   "id": "tests/test_navigation.py::test_scroll_restoration_is_switched_off",
+   "name": "test_scroll_restoration_is_switched_off",
+   "title": "Scroll restoration is switched off",
+   "file": "tests/test_navigation.py",
+   "line": 50,
+   "critical": false,
+   "doc": "Without this, the browser puts a reloaded page back where it was scrolled, often further down.",
+   "inputs": [],
+   "checks": [
+    {
+     "line": 54,
+     "expr": "'history.scrollRestoration = \"manual\"' in SCRIPT",
+     "ok": true,
+     "op": "in",
+     "left": "'history.scrollRestoration = \"manual\"'",
+     "right": "('<script>\\n'\n '(() => {\\n'\n '  \"use strict\";\\n'\n '\\n'\n '  // ------------------------------------------------------------------ language\\n'\n '\\n'\n '  // German is the source text everywhere. In English, T() looks the German text up in the\\n'\n '  // dictionary of the script block i18n-en; a missing entry stays German and is listed in\\n'\n '  // window.selftopoI18nMissing, which the tests check. Placeholders: T(\"{0} Tage\", [n]).\\n'\n '  // (Not t: that name is the time variable throughout this script.)\\n'\n '  const LANG_KEY = \"selftopo.lang\";\\n'\n '  function pickLanguage() {\\n'\n '    const asked = new URLSearchParams(location.search).get(\"lang\");\\n'\n '    if (asked === \"de\" || asked === \"en\") return asked;\\n'\n '    try {\\n'\n '      const saved = localStorage.getItem(LANG_KEY);\\n'\n '      if (saved === \"de\" || saved === \"en\") return saved;\\n'\n '    } catch { /* storage unavailable */ }\\n'\n '    const first = (navigator.languages && navigator.languages[0]) || navigator.language || '\n '\"de\";\\n'\n '    return /^de\\\\b/i.test(first) ? \"de\" : \"en\";\\n'\n '  }\\n'\n '  const LANG = pickLanguage();\\n'\n '  const LOCALE = LANG === \"de\" ? \"de-DE\" : \"en-GB\";\\n'\n '  const DATE_LOCALE = LANG === \"de\" ? \"de-AT\" : \"en-GB\";\\n'\n '  const I18N = (() => {\\n'\n '    if (LANG === \"de\") return {};\\n'\n '    try { return JSON.parse(document.getElementById(`i18n-${LANG}`).textContent); } catch { '\n 'return {}; }\\n'\n '  })();\\n'\n '  const i18nMissing = new Set();\\n'\n '  window.selftopoI18nMissing = i18nMissing;\\ … (+332270)",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 54,
+     "expr": "'history.scrollRestoration = \"manual\"' in SCRIPT"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000224,
+    "call": 0.021302,
+    "teardown": 0.000155
+   },
+   "duration_s": 0.021681
   },
   {
    "id": "tests/test_overview.py::test_weight_tile_follows_bmi_classes[None-]",
@@ -2387,11 +2612,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000378,
-    "call": 0.223662,
-    "teardown": 0.000154
+    "setup": 0.000477,
+    "call": 0.032687,
+    "teardown": 0.000211
    },
-   "duration_s": 0.224194
+   "duration_s": 0.033375
   },
   {
    "id": "tests/test_overview.py::test_weight_tile_follows_bmi_classes[17.9-crit]",
@@ -2437,11 +2662,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000388,
-    "call": 0.028318,
-    "teardown": 0.000128
+    "setup": 0.000421,
+    "call": 0.032842,
+    "teardown": 0.000239
    },
-   "duration_s": 0.028834
+   "duration_s": 0.033502
   },
   {
    "id": "tests/test_overview.py::test_weight_tile_follows_bmi_classes[18.5-good]",
@@ -2487,11 +2712,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000353,
-    "call": 0.029956,
-    "teardown": 0.00021
+    "setup": 0.000454,
+    "call": 0.0333,
+    "teardown": 0.000176
    },
-   "duration_s": 0.030519
+   "duration_s": 0.03393
   },
   {
    "id": "tests/test_overview.py::test_weight_tile_follows_bmi_classes[24.9-good]",
@@ -2537,11 +2762,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000406,
-    "call": 0.029578,
-    "teardown": 0.000156
+    "setup": 0.000483,
+    "call": 0.032485,
+    "teardown": 0.000204
    },
-   "duration_s": 0.03014
+   "duration_s": 0.033172
   },
   {
    "id": "tests/test_overview.py::test_weight_tile_follows_bmi_classes[25.0-warn]",
@@ -2587,11 +2812,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000425,
-    "call": 0.029122,
-    "teardown": 0.00016
+    "setup": 0.000454,
+    "call": 0.031841,
+    "teardown": 0.000211
    },
-   "duration_s": 0.029707
+   "duration_s": 0.032506
   },
   {
    "id": "tests/test_overview.py::test_weight_tile_follows_bmi_classes[29.9-warn]",
@@ -2637,11 +2862,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.0004,
-    "call": 0.031646,
-    "teardown": 0.000146
+    "setup": 0.000518,
+    "call": 0.031368,
+    "teardown": 0.000185
    },
-   "duration_s": 0.032192
+   "duration_s": 0.032071
   },
   {
    "id": "tests/test_overview.py::test_weight_tile_follows_bmi_classes[30.0-crit]",
@@ -2687,11 +2912,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000423,
-    "call": 0.030441,
-    "teardown": 0.000142
+    "setup": 0.000484,
+    "call": 0.031569,
+    "teardown": 0.000179
    },
-   "duration_s": 0.031006
+   "duration_s": 0.032232
   },
   {
    "id": "tests/test_overview.py::test_weight_tile_follows_bmi_classes[34.2-crit]",
@@ -2737,11 +2962,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000376,
-    "call": 0.027655,
-    "teardown": 0.000138
+    "setup": 0.000505,
+    "call": 0.031528,
+    "teardown": 0.000194
    },
-   "duration_s": 0.028169
+   "duration_s": 0.032227
   },
   {
    "id": "tests/test_overview.py::test_calorie_tile_follows_the_energy_balance[None-]",
@@ -2787,11 +3012,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000422,
-    "call": 0.029233,
-    "teardown": 0.000156
+    "setup": 0.00052,
+    "call": 0.031375,
+    "teardown": 0.000219
    },
-   "duration_s": 0.029811
+   "duration_s": 0.032114
   },
   {
    "id": "tests/test_overview.py::test_calorie_tile_follows_the_energy_balance[-335-good]",
@@ -2837,11 +3062,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000471,
-    "call": 0.029043,
-    "teardown": 0.00015
+    "setup": 0.000432,
+    "call": 0.030448,
+    "teardown": 0.000174
    },
-   "duration_s": 0.029664
+   "duration_s": 0.031054
   },
   {
    "id": "tests/test_overview.py::test_calorie_tile_follows_the_energy_balance[-1-good]",
@@ -2887,11 +3112,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000419,
-    "call": 0.028045,
-    "teardown": 0.000158
+    "setup": 0.000471,
+    "call": 0.033238,
+    "teardown": 0.000241
    },
-   "duration_s": 0.028622
+   "duration_s": 0.03395
   },
   {
    "id": "tests/test_overview.py::test_calorie_tile_follows_the_energy_balance[0-]",
@@ -2937,11 +3162,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000398,
-    "call": 0.028791,
-    "teardown": 0.000148
+    "setup": 0.000455,
+    "call": 0.031439,
+    "teardown": 0.000183
    },
-   "duration_s": 0.029337
+   "duration_s": 0.032077
   },
   {
    "id": "tests/test_overview.py::test_calorie_tile_follows_the_energy_balance[1-crit]",
@@ -2987,11 +3212,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000439,
-    "call": 0.028573,
-    "teardown": 0.000146
+    "setup": 0.000478,
+    "call": 0.032406,
+    "teardown": 0.000195
    },
-   "duration_s": 0.029158
+   "duration_s": 0.033079
   },
   {
    "id": "tests/test_overview.py::test_calorie_tile_follows_the_energy_balance[420-crit]",
@@ -3037,11 +3262,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000365,
-    "call": 0.028184,
-    "teardown": 0.000154
+    "setup": 0.000511,
+    "call": 0.032908,
+    "teardown": 0.000191
    },
-   "duration_s": 0.028703
+   "duration_s": 0.03361
   },
   {
    "id": "tests/test_overview.py::test_summary_counts_states_in_order_and_skips_zero",
@@ -3092,11 +3317,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000285,
-    "call": 0.061221,
-    "teardown": 0.00014
+    "setup": 0.000385,
+    "call": 0.062466,
+    "teardown": 0.000207
    },
-   "duration_s": 0.061646
+   "duration_s": 0.063058
   },
   {
    "id": "tests/test_overview.py::test_every_state_has_an_icon_and_a_word",
@@ -3127,7 +3352,7 @@
      "expr": "{\"check\", \"mid\", \"alert\"} <= icons",
      "ok": true,
      "op": "<=",
-     "left": "{'mid', 'check', 'alert'}",
+     "left": "{'mid', 'alert', 'check'}",
      "right": "{'aktivitaeten', 'alert', 'balance', 'bars', 'bolt', 'calendar', 'check', 'chevron', 'clock',\n 'cloud', 'daten', 'down', 'drop', 'egg', 'empfehlungen', 'erholung', 'ernaehrung', 'fitness',\n 'flame', 'flat', 'gear', 'hand', 'heart', 'hold', 'info', 'install', 'koerper', 'kraft',\n 'layers', 'list', 'mid', 'pie', 'pulse', 'pyramid', 'refresh', 'schlaf', 'slider', 'sport',\n 'steps', 'table', 'target', 'trend', 'ueberblick', 'up', 'wall', 'zusammenhaenge'}",
      "detail": null
     }
@@ -3147,11 +3372,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000283,
-    "call": 0.031834,
-    "teardown": 0.000165
+    "setup": 0.000331,
+    "call": 0.034538,
+    "teardown": 0.000178
    },
-   "duration_s": 0.032282
+   "duration_s": 0.035047
   },
   {
    "id": "tests/test_overview.py::test_one_week_is_the_first_range",
@@ -3202,11 +3427,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000276,
-    "call": 0.029695,
-    "teardown": 0.000136
+    "setup": 0.000417,
+    "call": 0.032453,
+    "teardown": 0.000218
    },
-   "duration_s": 0.030107
+   "duration_s": 0.033088
   },
   {
    "id": "tests/test_overview.py::test_week_axis_has_a_tick_per_day",
@@ -3261,11 +3486,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000313,
-    "call": 0.13321,
-    "teardown": 0.00014
+    "setup": 0.000339,
+    "call": 0.128891,
+    "teardown": 0.000213
    },
-   "duration_s": 0.133663
+   "duration_s": 0.129443
   },
   {
    "id": "tests/test_overview.py::test_state_colours_are_readable_in_light_and_dark",
@@ -3316,11 +3541,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000327,
-    "call": 0.001255,
-    "teardown": 0.0001
+    "setup": 0.000354,
+    "call": 0.0015,
+    "teardown": 0.000114
    },
-   "duration_s": 0.001682
+   "duration_s": 0.001968
   },
   {
    "id": "tests/test_overview.py::test_fonts_of_design_d_are_loaded",
@@ -3359,10 +3584,10 @@
    "trace": null,
    "durations": {
     "setup": 0.000265,
-    "call": 0.000392,
-    "teardown": 9.7e-05
+    "call": 0.000473,
+    "teardown": 0.000101
    },
-   "duration_s": 0.000754
+   "duration_s": 0.000839
   },
   {
    "id": "tests/test_parsers.py::test_body_composition_keeps_first_weigh_in_and_converts_grams",
@@ -3426,11 +3651,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000341,
-    "call": 0.001732,
-    "teardown": 9.9e-05
+    "setup": 0.000351,
+    "call": 0.001976,
+    "teardown": 0.000102
    },
-   "duration_s": 0.002172
+   "duration_s": 0.002429
   },
   {
    "id": "tests/test_parsers.py::test_sleep_times_are_local_across_daylight_saving",
@@ -3502,11 +3727,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000225,
+    "setup": 0.000272,
     "call": 0.00069,
-    "teardown": 9.8e-05
+    "teardown": 0.000101
    },
-   "duration_s": 0.001013
+   "duration_s": 0.001063
   },
   {
    "id": "tests/test_parsers.py::test_missing_payloads_give_empty_values",
@@ -3570,11 +3795,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000305,
-    "call": 0.000496,
-    "teardown": 9.5e-05
+    "setup": 0.000227,
+    "call": 0.000563,
+    "teardown": 9.4e-05
    },
-   "duration_s": 0.000896
+   "duration_s": 0.000884
   },
   {
    "id": "tests/test_parsers.py::test_negative_stress_means_not_enough_data",
@@ -3612,11 +3837,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000225,
-    "call": 0.000253,
+    "setup": 0.000219,
+    "call": 0.000277,
     "teardown": 9.4e-05
    },
-   "duration_s": 0.000572
+   "duration_s": 0.00059
   },
   {
    "id": "tests/test_parsers.py::test_readiness_prefers_the_morning_value",
@@ -3654,11 +3879,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000249,
-    "call": 0.000503,
-    "teardown": 9.4e-05
+    "setup": 0.000214,
+    "call": 0.000569,
+    "teardown": 9.5e-05
    },
-   "duration_s": 0.000846
+   "duration_s": 0.000878
   },
   {
    "id": "tests/test_parsers.py::test_activity_units",
@@ -3735,11 +3960,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000222,
-    "call": 0.001233,
-    "teardown": 9.7e-05
+    "setup": 0.000219,
+    "call": 0.001347,
+    "teardown": 9.8e-05
    },
-   "duration_s": 0.001552
+   "duration_s": 0.001664
   },
   {
    "id": "tests/test_parsers.py::test_activity_without_distance_has_empty_distance",
@@ -3777,11 +4002,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000257,
-    "call": 0.000306,
-    "teardown": 9.4e-05
+    "setup": 0.000228,
+    "call": 0.000354,
+    "teardown": 0.00014
    },
-   "duration_s": 0.000657
+   "duration_s": 0.000722
   },
   {
    "id": "tests/test_parsers.py::test_hevy_dates_use_local_time",
@@ -3823,11 +4048,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000258,
-    "call": 0.000439,
-    "teardown": 9.3e-05
+    "setup": 0.00031,
+    "call": 0.000515,
+    "teardown": 9.6e-05
    },
-   "duration_s": 0.00079
+   "duration_s": 0.000921
   },
   {
    "id": "tests/test_parsers.py::test_ci_password_login_stores_tokens",
@@ -3886,11 +4111,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000613,
-    "call": 0.001052,
-    "teardown": 0.000125
+    "setup": 0.00068,
+    "call": 0.001166,
+    "teardown": 0.000121
    },
-   "duration_s": 0.00179
+   "duration_s": 0.001967
   },
   {
    "id": "tests/test_parsers.py::test_ci_password_login_with_mfa_explains_the_local_way",
@@ -3944,11 +4169,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000542,
-    "call": 0.000662,
-    "teardown": 0.000112
+    "setup": 0.000565,
+    "call": 0.000755,
+    "teardown": 0.000115
    },
-   "duration_s": 0.001316
+   "duration_s": 0.001435
   },
   {
    "id": "tests/test_parsers.py::test_ci_password_login_refused",
@@ -3989,11 +4214,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000563,
-    "call": 0.00028,
+    "setup": 0.000564,
+    "call": 0.000331,
     "teardown": 0.00011
    },
-   "duration_s": 0.000953
+   "duration_s": 0.001005
   },
   {
    "id": "tests/test_parsers.py::test_ci_without_tokens_or_password_names_both_ways",
@@ -4047,11 +4272,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000536,
-    "call": 0.000696,
-    "teardown": 0.00011
+    "setup": 0.000535,
+    "call": 0.000775,
+    "teardown": 0.000115
    },
-   "duration_s": 0.001342
+   "duration_s": 0.001425
   },
   {
    "id": "tests/test_push.py::test_keys_have_the_formats_the_browser_and_pywebpush_need",
@@ -4064,7 +4289,7 @@
    "inputs": [
     {
      "name": "public",
-     "value": "'BOHqaH93TPcG…'"
+     "value": "'BCgnatuCTf2o…'"
     },
     {
      "name": "private",
@@ -4095,7 +4320,7 @@
      "op": "==",
      "left": "32",
      "right": "32",
-     "detail": "where 32 = len(b'\\xe8}\\x93\\x01\\x9c\\x98ziu\\xaf\\xbb\\x1fL\\x8d\\x97\\xc4#;\\xff\\x96qQ\\xe4N\\x82\\xc0\\xc0\\xe9\\x8f\\xc3y\\xd2')\nwhere b'\\xe8}\\x93\\x01\\x9c\\x98ziu\\xaf\\xbb\\x1fL\\x8d\\x97\\xc4#;\\xff\\x96qQ\\xe4N\\x82\\xc0\\xc0\\xe9\\x8f\\xc3y\\xd2' = _unb64('6H2TAZyYeml1r7sfTI2XxCM7_5ZxUeROgsDA6Y_DedI')"
+     "detail": "where 32 = len(b'\\x0b\\xd9\\x12\\r\\xed\\x87\\xf0\\x1a}H\\xff\\xa6 \\x01\\xb0\\xae\\x03.\\x81\\xf1b%T8\\xed\\xd6\\xaa\\x07}\\x94\\xa4y')\nwhere b'\\x0b\\xd9\\x12\\r\\xed\\x87\\xf0\\x1a}H\\xff\\xa6 \\x01\\xb0\\xae\\x03.\\x81\\xf1b%T8\\xed\\xd6\\xaa\\x07}\\x94\\xa4y' = _unb64('C9kSDe2H8Bp9SP-mIAGwrgMugfFiJVQ47daqB32UpHk')"
     },
     {
      "line": 46,
@@ -4103,7 +4328,7 @@
      "ok": true,
      "op": "not in",
      "left": "'='",
-     "right": "'BOHqaH93TPcG2GSvRCdRyjiThZedkFBg_qXtx60qw4bnY8Jw5QGc4rMLPY5Dc0JKP5NeiomStKAhaZoFA52W40U6H2TAZyYeml1r7sfTI2XxCM7_5ZxUeROgsDA6Y_DedI'",
+     "right": "'BCgnatuCTf2oVcc-tDeGze_IZwHNfbSG88gcMc_b3zCdVUZPbQEoshOqFuTS7jDxDxRGD8cATAWW6uppQLUMIHYC9kSDe2H8Bp9SP-mIAGwrgMugfFiJVQ47daqB32UpHk'",
      "detail": null
     },
     {
@@ -4113,7 +4338,7 @@
      "op": "is not",
      "left": "<cryptography.hazmat.bindings._rust.openssl.ec.ECPublicKey object>",
      "right": "None",
-     "detail": "where <cryptography.hazmat.bindings._rust.openssl.ec.ECPublicKey object> = <py_vapid.Vapid02 object>.public_key\nwhere <py_vapid.Vapid02 object> = from_raw(b'6H2TAZyYeml1r7sfTI2XxCM7_5ZxUeROgsDA6Y_DedI')\nwhere from_raw = <class 'py_vapid.Vapid02'>.from_raw\nwhere <built-in method encode of str object> = '6H2TAZyYeml1r7sfTI2XxCM7_5ZxUeROgsDA6Y_DedI'.encode"
+     "detail": "where <cryptography.hazmat.bindings._rust.openssl.ec.ECPublicKey object> = <py_vapid.Vapid02 object>.public_key\nwhere <py_vapid.Vapid02 object> = from_raw(b'C9kSDe2H8Bp9SP-mIAGwrgMugfFiJVQ47daqB32UpHk')\nwhere from_raw = <class 'py_vapid.Vapid02'>.from_raw\nwhere <built-in method encode of str object> = 'C9kSDe2H8Bp9SP-mIAGwrgMugfFiJVQ47daqB32UpHk'.encode"
     }
    ],
    "planned": [
@@ -4139,11 +4364,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000332,
-    "call": 0.020907,
-    "teardown": 0.000116
+    "setup": 0.000324,
+    "call": 0.023777,
+    "teardown": 0.00017
    },
-   "duration_s": 0.021355
+   "duration_s": 0.024271
   },
   {
    "id": "tests/test_push.py::test_message_texts_in_german_and_english",
@@ -4220,11 +4445,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000255,
-    "call": 0.001278,
-    "teardown": 0.000101
+    "setup": 0.000386,
+    "call": 0.001546,
+    "teardown": 0.000137
    },
-   "duration_s": 0.001634
+   "duration_s": 0.002069
   },
   {
    "id": "tests/test_push.py::test_numbers_dates_and_lists_are_formatted_per_language",
@@ -4275,11 +4500,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000227,
-    "call": 0.000715,
-    "teardown": 9.9e-05
+    "setup": 0.00025,
+    "call": 0.000784,
+    "teardown": 0.000101
    },
-   "duration_s": 0.001041
+   "duration_s": 0.001135
   },
   {
    "id": "tests/test_push.py::test_no_message_without_a_today_card_for_today",
@@ -4330,11 +4555,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000227,
-    "call": 0.000626,
-    "teardown": 9.6e-05
+    "setup": 0.000243,
+    "call": 0.000695,
+    "teardown": 9.8e-05
    },
-   "duration_s": 0.000949
+   "duration_s": 0.001036
   },
   {
    "id": "tests/test_push.py::test_incomplete_subscriptions_are_skipped",
@@ -4392,11 +4617,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000235,
-    "call": 0.001327,
-    "teardown": 0.0001
+    "setup": 0.000226,
+    "call": 0.001442,
+    "teardown": 0.000121
    },
-   "duration_s": 0.001662
+   "duration_s": 0.001789
   },
   {
    "id": "tests/test_push.py::test_expired_subscriptions_are_counted_not_fatal",
@@ -4454,11 +4679,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.107135,
-    "call": 0.001658,
-    "teardown": 0.000163
+    "setup": 0.171335,
+    "call": 0.001952,
+    "teardown": 0.000145
    },
-   "duration_s": 0.108956
+   "duration_s": 0.173432
   },
   {
    "id": "tests/test_push.py::test_run_sends_the_today_card_in_each_devices_language",
@@ -4522,11 +4747,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000734,
-    "call": 0.005192,
-    "teardown": 0.000126
+    "setup": 0.000755,
+    "call": 0.005661,
+    "teardown": 0.000129
    },
-   "duration_s": 0.006052
+   "duration_s": 0.006545
   },
   {
    "id": "tests/test_push.py::test_run_sends_nothing_without_secret_card_or_device",
@@ -4603,11 +4828,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000677,
-    "call": 0.005479,
-    "teardown": 0.000151
+    "setup": 0.000685,
+    "call": 0.00604,
+    "teardown": 0.000165
    },
-   "duration_s": 0.006307
+   "duration_s": 0.00689
   },
   {
    "id": "tests/test_push.py::test_run_test_sends_a_test_message_even_without_a_card",
@@ -4658,11 +4883,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000642,
-    "call": 0.003992,
-    "teardown": 0.000122
+    "setup": 0.00066,
+    "call": 0.004431,
+    "teardown": 0.000142
    },
-   "duration_s": 0.004756
+   "duration_s": 0.005233
   },
   {
    "id": "tests/test_push.py::test_dashboard_keeps_other_devices_when_saving",
@@ -4704,11 +4929,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000233,
-    "call": 0.031504,
-    "teardown": 0.00013
+    "setup": 0.000286,
+    "call": 0.032364,
+    "teardown": 0.000172
    },
-   "duration_s": 0.031867
+   "duration_s": 0.032822
   },
   {
    "id": "tests/test_push.py::test_every_push_text_has_an_english_translation",
@@ -4746,11 +4971,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000272,
-    "call": 0.002216,
-    "teardown": 0.000109
+    "setup": 0.000326,
+    "call": 0.002414,
+    "teardown": 0.000112
    },
-   "duration_s": 0.002597
+   "duration_s": 0.002852
   },
   {
    "id": "tests/test_push.py::test_real_signing_and_encryption_reach_the_push_service",
@@ -4810,9 +5035,9 @@
      "expr": "f\"k={public}\" in headers[\"authorization\"].replace(\" \", \"\")",
      "ok": true,
      "op": "in",
-     "left": "'k=BCWXPftbBcGtg1em04wCSikiYOv2XqsuEI6LL8MYUWVO2Ap7ZSRadmW2Y05EFWJ6cjrDOpKN3X7y-Ahp3oZ0UBI'",
-     "right": "'vapidt=eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJhdWQiOiJodHRwczovL3dlYi5wdXNoLmFwcGxlLmNvbSIsImV4cCI6MTc5NDM3MjUzOCwic3ViIjoiaHR0cHM6Ly9zb21lLXVzZXIuZ2l0aHViLmlvIn0.upbDvk7YsuftGQSJ-QdnEZYgVaN00DqrQVJAEZwtcROZIm1rSPGGgU8XfuwMvAczb43DphrfmBrWtAw-dS5WpQ,k=BCWXPftbBcGtg1em04wCSikiYOv2XqsuEI6LL8MYUWVO2Ap7ZSRadmW2Y05EFWJ6cjrDOpKN3X7y-Ahp3oZ0UBI'",
-     "detail": "where 'vapidt=eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJhdWQiOiJodHRwczovL3dlYi5wdXNoLmFwcGxlLmNvbSIsImV4cCI6MTc5NDM3MjUzOCwic...wMvAczb43DphrfmBrWtAw-dS5WpQ,k=BCWXPftbBcGtg1em04wCSikiYOv2XqsuEI6LL8MYUWVO2Ap7ZSRadmW2Y05EFWJ6cjrDOpKN3X7y-Ahp3oZ0UBI' = <built-in method replace of str object>(' ', '')\nwhere <built-in method replace of str object> = 'vapid t=eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJhdWQiOiJodHRwczovL3dlYi5wdXNoLmFwcGxlLmNvbSIsImV4cCI6MTc5NDM3MjUzOCwi...wMvAczb43DphrfmBrWtAw-dS5WpQ,k=BCWXPftbBcGtg1em04wCSikiYOv2XqsuEI6LL8MYUWVO2Ap7ZSRadmW2Y05EFWJ6cjrDOpKN3X7y-Ahp3oZ0UBI'.replace"
+     "left": "'k=BCo2DlLq84JQS9K5UJwkSPFBILblO1mV8Q-4skfONw03nYOPaUVeeKRMbKLwT0Fy0WyXioRpxFkwVLEMcsOuYZg'",
+     "right": "'vapidt=eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJhdWQiOiJodHRwczovL3dlYi5wdXNoLmFwcGxlLmNvbSIsImV4cCI6MTc5NDM3Mjc2OCwic3ViIjoiaHR0cHM6Ly9zb21lLXVzZXIuZ2l0aHViLmlvIn0.awseHSN_K8EgRXgzJZAmc5hKxRXxYAW315cljTd_XSx24-6hLbvHcyew0aqIkPn1H6n1aJcnHhDEpOwEDhRDCw,k=BCo2DlLq84JQS9K5UJwkSPFBILblO1mV8Q-4skfONw03nYOPaUVeeKRMbKLwT0Fy0WyXioRpxFkwVLEMcsOuYZg'",
+     "detail": "where 'vapidt=eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJhdWQiOiJodHRwczovL3dlYi5wdXNoLmFwcGxlLmNvbSIsImV4cCI6MTc5NDM3Mjc2OCwic...qIkPn1H6n1aJcnHhDEpOwEDhRDCw,k=BCo2DlLq84JQS9K5UJwkSPFBILblO1mV8Q-4skfONw03nYOPaUVeeKRMbKLwT0Fy0WyXioRpxFkwVLEMcsOuYZg' = <built-in method replace of str object>(' ', '')\nwhere <built-in method replace of str object> = 'vapid t=eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJhdWQiOiJodHRwczovL3dlYi5wdXNoLmFwcGxlLmNvbSIsImV4cCI6MTc5NDM3Mjc2OCwi...qIkPn1H6n1aJcnHhDEpOwEDhRDCw,k=BCo2DlLq84JQS9K5UJwkSPFBILblO1mV8Q-4skfONw03nYOPaUVeeKRMbKLwT0Fy0WyXioRpxFkwVLEMcsOuYZg'.replace"
     },
     {
      "line": 202,
@@ -4820,7 +5045,7 @@
      "ok": true,
      "op": "not in",
      "left": "b'selftopo'",
-     "right": "(b'\\xe8\\x1fTkO\\x7f\\xd46r\\x82\\xed.DT\\xe4\\x06\\x00\\x00\\x10\\x00A\\x04ih\\x0c\\x93\\xf0pJJ\\x1a{'\n b'\\x8b\\xf2_\\xd406\\xabi^QzJ\\xa6&\\x89\\xa7\\x02\\xc9\\\\7)\\xadq\\xc8\\x9b\\x9c\\xa5r\\x12\\xd95\\x8f'\n b'p\\xfd\\x81\\xb9i\\x8eY^)\\xd6$7.\\xd7\\x97\\x81\\x88\\x81|\\x01\\x93\\x91\\xa9*\\xf4E$\\xfc\\x7f\\xbd\\x94\\xc6'\n b'\\\\CQk\\xce\\x95\\xca\\xfc\\xa3\\xd9\\x8fE\\x82\\x00\\xd4+\\x7f:\\xc6+\\x7f\\xdbe\\xdd\\xdf\\xda\\x9e7(sno'\n b'$\"\\x0f\\xb8KL0\\x9d\\x9f\\xd8\\xc4\\x06\\xe7\\xd3\\x03\\xe2+dzGq\\xd7X\\x9d\\r}|\\xc9\\x84\\x82\\xfaE'\n b'S\\xeb\\x08]|\\x84-<\\xb1\\x06w9>\\x87\\xa1;A\\xf9\\xff\\x8cD\\xa3\\xb7\\x89\\xd4q 4\\x1f\\xb7\\xdbK'\n b'\\n\\xa87\\x7f\\x0b\\x8e[\\xbb\\xfc\\xe9\\xa2\\xef!\\xf4\\xfd\\xab\\x9d\\x85\\xba\\xb1\\x15\\x19J\\x8d'\n b'\\xa6\\x8a\\x0e\\xbc4\\xf5\\x81f\\x96SB\\xd5\\x1d#\\xa5')",
+     "right": "(b'\\x89F\\xea\\xee\\xd6|%\\xe3\\x9a\\xef\\xe0\\xffm\\xb7\\x9a\\xc4\\x00\\x00\\x10\\x00A\\x04\\xd4\\x169\\xadnS'\n b'\\xc8\\xb6\\xe2I\\xe7\\x85f\\x87\\xa5q\\x18\\xf8\\x80\\x8bz\\xd7\\xc9\\xcb\\ru<\\x9bLFP\\x05\\x0fw'\n b\"\\n\\xd0\\x04\\xcd\\x18\\x1f\\xc3\\xa8\\xb8\\x00\\xa1\\xb0'\\x17\\x85{\\x03\\xff\\x80rN\\tn\\xf1\\xe5&\\xcd?\"\n b'\\x9fh\\xa8\\xd8Zg\\x19#\\x9c\\x8b\\xe4\\xf7\\xdf!W\\x8f\\xbb\\xae7\\xdd?\\xfa&K\\xee\\x18\\x0b5(\\xcb<\\xab'\n b'\\xf2\\xb3\\x92\\n\\xd9\\x98\\x9d\\xd0\\xc9\\xcd\\xd9\\xc8\\x04\\x18_l\\xb0\\x9f\\xb5BE/!\\xe8y\\xcdR\\xf4'\n b'\\xb4\\x12\\xa3Q\\x06PA\\xf55\\xce\\x95\"\\xb8\\xd8\\x94\\xfc\\xb1\\xd8\\xe7?\\xd8\\x93&\\x84\\xbc\\xbd\\xb2N'\n b'Vb\\xe22\\x9d\\x8c\\xd9\\xcc\\x92\\x0c\\x8cG\\xc3\\x88~D\\xefw\\x9f\\x87c\\x05?\\x90\\x1c\\x88\\x96\\xd76w\\x80?'\n b']\\x8d\\x08\\xcd\\x16B]\\xbd\\x1d\\x07%\\xca\\xf9\\xb1\\xa2\\xfb(\\xf0\\xac+\\xe6\\xca]\\x83\\tN\\xa0')",
      "detail": null
     }
    ],
@@ -4851,11 +5076,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000246,
-    "call": 0.004959,
-    "teardown": 0.000129
+    "setup": 0.000261,
+    "call": 0.005671,
+    "teardown": 0.00012
    },
-   "duration_s": 0.005334
+   "duration_s": 0.006052
   },
   {
    "id": "tests/test_recommend.py::test_goals_are_read_per_area_and_bad_entries_reported",
@@ -4939,11 +5164,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000297,
-    "call": 0.005992,
-    "teardown": 0.000105
+    "setup": 0.000347,
+    "call": 0.006616,
+    "teardown": 0.00011
    },
-   "duration_s": 0.006394
+   "duration_s": 0.007073
   },
   {
    "id": "tests/test_recommend.py::test_without_goals_only_today_and_safety_appear",
@@ -5004,11 +5229,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000604,
-    "call": 0.023827,
-    "teardown": 0.000147
+    "setup": 0.000691,
+    "call": 0.026508,
+    "teardown": 0.000216
    },
-   "duration_s": 0.024578
+   "duration_s": 0.027415
   },
   {
    "id": "tests/test_recommend.py::test_weight_goal_shows_pace_forecast_and_the_missing_deficit",
@@ -5117,11 +5342,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000616,
-    "call": 0.031786,
-    "teardown": 0.000133
+    "setup": 0.000741,
+    "call": 0.03467,
+    "teardown": 0.000186
    },
-   "duration_s": 0.032535
+   "duration_s": 0.035597
   },
   {
    "id": "tests/test_recommend.py::test_weight_rule_never_suggests_more_than_one_percent_a_week",
@@ -5176,11 +5401,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000624,
-    "call": 0.030136,
-    "teardown": 0.00015
+    "setup": 0.000756,
+    "call": 0.035016,
+    "teardown": 0.000209
    },
-   "duration_s": 0.03091
+   "duration_s": 0.035981
   },
   {
    "id": "tests/test_recommend.py::test_no_weight_loss_advice_towards_a_bmi_below_20",
@@ -5212,7 +5437,7 @@
      "op": "not in",
      "left": "'weight-pace'",
      "right": "[]",
-     "detail": "where [] = rules({'schema': 1, 'generated_at': '2026-11-10T16:48:58+00:00', 'as_of': '2026-11-10', 'today': None, ...})"
+     "detail": "where [] = rules({'schema': 1, 'generated_at': '2026-11-10T16:52:48+00:00', 'as_of': '2026-11-10', 'today': None, ...})"
     }
    ],
    "planned": [
@@ -5226,11 +5451,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.0006,
-    "call": 0.027929,
-    "teardown": 0.000163
+    "setup": 0.000807,
+    "call": 0.032087,
+    "teardown": 0.000192
    },
-   "duration_s": 0.028692
+   "duration_s": 0.033086
   },
   {
    "id": "tests/test_recommend.py::test_no_weight_loss_advice_without_bmi_or_energy_data",
@@ -5254,7 +5479,7 @@
      "op": "not in",
      "left": "'weight-pace'",
      "right": "[]",
-     "detail": "where [] = rules({'schema': 1, 'generated_at': '2026-11-10T16:48:58+00:00', 'as_of': '2026-11-10', 'today': None, ...})\nwhere {'schema': 1, 'generated_at': '2026-11-10T16:48:58+00:00', 'as_of': '2026-11-10', 'today': None, ...} = build(Data(today=datetime.date(2026, 11, 10), days=            hrv  resting_hr  ...  protein_g  calories_kcal\\n2026-07-14   6...pty DataFrame\\nColumns: []\\nIndex: [], lifestyle=Empty DataFrame\\nColumns: []\\nIndex: [], insights={}, has_nutrition=False), goals={'koerper': {'metric': 'weight', 'target': 75, 'by': '2027-01-05'}})"
+     "detail": "where [] = rules({'schema': 1, 'generated_at': '2026-11-10T16:52:48+00:00', 'as_of': '2026-11-10', 'today': None, ...})\nwhere {'schema': 1, 'generated_at': '2026-11-10T16:52:48+00:00', 'as_of': '2026-11-10', 'today': None, ...} = build(Data(today=datetime.date(2026, 11, 10), days=            hrv  resting_hr  ...  protein_g  calories_kcal\\n2026-07-14   6...pty DataFrame\\nColumns: []\\nIndex: [], lifestyle=Empty DataFrame\\nColumns: []\\nIndex: [], insights={}, has_nutrition=False), goals={'koerper': {'metric': 'weight', 'target': 75, 'by': '2027-01-05'}})"
     },
     {
      "line": 180,
@@ -5263,7 +5488,7 @@
      "op": "not in",
      "left": "'weight-pace'",
      "right": "[]",
-     "detail": "where [] = rules({'schema': 1, 'generated_at': '2026-11-10T16:48:59+00:00', 'as_of': '2026-11-10', 'today': None, ...})\nwhere {'schema': 1, 'generated_at': '2026-11-10T16:48:59+00:00', 'as_of': '2026-11-10', 'today': None, ...} = build(Data(today=datetime.date(2026, 11, 10), days=            hrv  resting_hr  ...  protein_g  calories_kcal\\n2026-07-14   6...pty DataFrame\\nColumns: []\\nIndex: [], lifestyle=Empty DataFrame\\nColumns: []\\nIndex: [], insights={}, has_nutrition=False), goals={'koerper': {'metric': 'weight', 'target': 75, 'by': '2027-01-05'}})"
+     "detail": "where [] = rules({'schema': 1, 'generated_at': '2026-11-10T16:52:48+00:00', 'as_of': '2026-11-10', 'today': None, ...})\nwhere {'schema': 1, 'generated_at': '2026-11-10T16:52:48+00:00', 'as_of': '2026-11-10', 'today': None, ...} = build(Data(today=datetime.date(2026, 11, 10), days=            hrv  resting_hr  ...  protein_g  calories_kcal\\n2026-07-14   6...pty DataFrame\\nColumns: []\\nIndex: [], lifestyle=Empty DataFrame\\nColumns: []\\nIndex: [], insights={}, has_nutrition=False), goals={'koerper': {'metric': 'weight', 'target': 75, 'by': '2027-01-05'}})"
     }
    ],
    "planned": [
@@ -5281,11 +5506,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000691,
-    "call": 0.06862,
-    "teardown": 0.000166
+    "setup": 0.00077,
+    "call": 0.076601,
+    "teardown": 0.000219
    },
-   "duration_s": 0.069477
+   "duration_s": 0.07759
   },
   {
    "id": "tests/test_recommend.py::test_calorie_advice_never_goes_below_resting_metabolism",
@@ -5327,11 +5552,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000652,
-    "call": 0.033853,
-    "teardown": 0.000158
+    "setup": 0.000848,
+    "call": 0.037213,
+    "teardown": 0.0002
    },
-   "duration_s": 0.034663
+   "duration_s": 0.038261
   },
   {
    "id": "tests/test_recommend.py::test_today_card_on_low_readiness",
@@ -5395,11 +5620,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000587,
-    "call": 0.022564,
-    "teardown": 0.000173
+    "setup": 0.000744,
+    "call": 0.024079,
+    "teardown": 0.000218
    },
-   "duration_s": 0.023324
+   "duration_s": 0.025041
   },
   {
    "id": "tests/test_recommend.py::test_today_card_says_pause_when_it_looks_like_an_infection",
@@ -5448,11 +5673,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000752,
-    "call": 0.02717,
-    "teardown": 0.000157
+    "setup": 0.000815,
+    "call": 0.024142,
+    "teardown": 0.000194
    },
-   "duration_s": 0.028079
+   "duration_s": 0.025151
   },
   {
    "id": "tests/test_recommend.py::test_no_today_card_on_a_normal_day",
@@ -5494,11 +5719,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000669,
-    "call": 0.021794,
-    "teardown": 0.000161
+    "setup": 0.000734,
+    "call": 0.023412,
+    "teardown": 0.000231
    },
-   "duration_s": 0.022624
+   "duration_s": 0.024377
   },
   {
    "id": "tests/test_recommend.py::test_high_blood_pressure_only_advises_a_check_and_stops_experiments",
@@ -5557,11 +5782,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000688,
-    "call": 0.031166,
-    "teardown": 0.000186
+    "setup": 0.00078,
+    "call": 0.034172,
+    "teardown": 0.000207
    },
-   "duration_s": 0.03204
+   "duration_s": 0.035159
   },
   {
    "id": "tests/test_recommend.py::test_elevated_blood_pressure_suggests_endurance_and_less_salt",
@@ -5606,11 +5831,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000765,
-    "call": 0.031732,
-    "teardown": 0.000159
+    "setup": 0.00079,
+    "call": 0.035178,
+    "teardown": 0.000203
    },
-   "duration_s": 0.032656
+   "duration_s": 0.036171
   },
   {
    "id": "tests/test_recommend.py::test_too_few_blood_pressure_readings_say_nothing",
@@ -5648,11 +5873,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000658,
-    "call": 0.030084,
-    "teardown": 0.000199
+    "setup": 0.00082,
+    "call": 0.032491,
+    "teardown": 0.000197
    },
-   "duration_s": 0.030941
+   "duration_s": 0.033508
   },
   {
    "id": "tests/test_recommend.py::test_short_sleep_and_irregular_weekends",
@@ -5682,9 +5907,9 @@
      "expr": "{\"sleep-duration\", \"sleep-regularity\"} <= set(rules(result))",
      "ok": true,
      "op": "<=",
-     "left": "{'sleep-duration', 'sleep-regularity'}",
-     "right": "{'sleep-duration', 'sleep-regularity'}",
-     "detail": "where {'sleep-duration', 'sleep-regularity'} = set(['sleep-duration', 'sleep-regularity'])\nwhere ['sleep-duration', 'sleep-regularity'] = rules({'schema': 1, 'generated_at': '2026-11-10T16:48:59+00:00', 'as_of': '2026-11-10', 'today': None, ...})"
+     "left": "{'sleep-regularity', 'sleep-duration'}",
+     "right": "{'sleep-regularity', 'sleep-duration'}",
+     "detail": "where {'sleep-duration', 'sleep-regularity'} = set(['sleep-duration', 'sleep-regularity'])\nwhere ['sleep-duration', 'sleep-regularity'] = rules({'schema': 1, 'generated_at': '2026-11-10T16:52:48+00:00', 'as_of': '2026-11-10', 'today': None, ...})"
     }
    ],
    "planned": [
@@ -5698,11 +5923,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000712,
-    "call": 0.029193,
-    "teardown": 0.000157
+    "setup": 0.000789,
+    "call": 0.031102,
+    "teardown": 0.000204
    },
-   "duration_s": 0.030062
+   "duration_s": 0.032095
   },
   {
    "id": "tests/test_recommend.py::test_protein_steps_and_weighing",
@@ -5732,9 +5957,9 @@
      "expr": "{\"protein\", \"steps\", \"weighing\"} <= set(rules(result))",
      "ok": true,
      "op": "<=",
-     "left": "{'protein', 'weighing', 'steps'}",
-     "right": "{'protein', 'weighing', 'steps'}",
-     "detail": "where {'protein', 'steps', 'weighing'} = set(['protein', 'steps', 'weighing'])\nwhere ['protein', 'steps', 'weighing'] = rules({'schema': 1, 'generated_at': '2026-11-10T16:48:59+00:00', 'as_of': '2026-11-10', 'today': None, ...})"
+     "left": "{'protein', 'steps', 'weighing'}",
+     "right": "{'protein', 'steps', 'weighing'}",
+     "detail": "where {'protein', 'steps', 'weighing'} = set(['protein', 'steps', 'weighing'])\nwhere ['protein', 'steps', 'weighing'] = rules({'schema': 1, 'generated_at': '2026-11-10T16:52:48+00:00', 'as_of': '2026-11-10', 'today': None, ...})"
     },
     {
      "line": 286,
@@ -5761,11 +5986,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000687,
-    "call": 0.034201,
-    "teardown": 0.000164
+    "setup": 0.000773,
+    "call": 0.037487,
+    "teardown": 0.000194
    },
-   "duration_s": 0.035052
+   "duration_s": 0.038454
   },
   {
    "id": "tests/test_recommend.py::test_few_endurance_sessions_for_a_resting_hr_goal",
@@ -5793,7 +6018,7 @@
      "op": "in",
      "left": "'endurance'",
      "right": "['activity-minutes', 'endurance']",
-     "detail": "where ['activity-minutes', 'endurance'] = rules({'schema': 1, 'generated_at': '2026-11-10T16:48:59+00:00', 'as_of': '2026-11-10', 'today': None, ...})\nwhere {'schema': 1, 'generated_at': '2026-11-10T16:48:59+00:00', 'as_of': '2026-11-10', 'today': None, ...} = build(Data(today=datetime.date(2026, 11, 10), days=            hrv  resting_hr  ...  protein_g  calories_kcal\\n2026-07-14   6...pty DataFrame\\nColumns: []\\nIndex: [], lifestyle=Empty DataFrame\\nColumns: []\\nIndex: [], insights={}, has_nutrition=False), goals={'erholung': {'metric': 'resting_hr', 'target': 46}})"
+     "detail": "where ['activity-minutes', 'endurance'] = rules({'schema': 1, 'generated_at': '2026-11-10T16:52:48+00:00', 'as_of': '2026-11-10', 'today': None, ...})\nwhere {'schema': 1, 'generated_at': '2026-11-10T16:52:48+00:00', 'as_of': '2026-11-10', 'today': None, ...} = build(Data(today=datetime.date(2026, 11, 10), days=            hrv  resting_hr  ...  protein_g  calories_kcal\\n2026-07-14   6...pty DataFrame\\nColumns: []\\nIndex: [], lifestyle=Empty DataFrame\\nColumns: []\\nIndex: [], insights={}, has_nutrition=False), goals={'erholung': {'metric': 'resting_hr', 'target': 46}})"
     },
     {
      "line": 295,
@@ -5802,7 +6027,7 @@
      "op": "not in",
      "left": "'endurance'",
      "right": "['activity-minutes']",
-     "detail": "where ['activity-minutes'] = rules({'schema': 1, 'generated_at': '2026-11-10T16:48:59+00:00', 'as_of': '2026-11-10', 'today': None, ...})\nwhere {'schema': 1, 'generated_at': '2026-11-10T16:48:59+00:00', 'as_of': '2026-11-10', 'today': None, ...} = build(Data(today=datetime.date(2026, 11, 10), days=            hrv  resting_hr  ...  protein_g  calories_kcal\\n2026-07-14   6...pty DataFrame\\nColumns: []\\nIndex: [], lifestyle=Empty DataFrame\\nColumns: []\\nIndex: [], insights={}, has_nutrition=False), goals={'erholung': {'metric': 'resting_hr', 'target': 46}})"
+     "detail": "where ['activity-minutes'] = rules({'schema': 1, 'generated_at': '2026-11-10T16:52:48+00:00', 'as_of': '2026-11-10', 'today': None, ...})\nwhere {'schema': 1, 'generated_at': '2026-11-10T16:52:48+00:00', 'as_of': '2026-11-10', 'today': None, ...} = build(Data(today=datetime.date(2026, 11, 10), days=            hrv  resting_hr  ...  protein_g  calories_kcal\\n2026-07-14   6...pty DataFrame\\nColumns: []\\nIndex: [], lifestyle=Empty DataFrame\\nColumns: []\\nIndex: [], insights={}, has_nutrition=False), goals={'erholung': {'metric': 'resting_hr', 'target': 46}})"
     }
    ],
    "planned": [
@@ -5820,11 +6045,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000633,
-    "call": 0.066928,
-    "teardown": 0.000181
+    "setup": 0.000756,
+    "call": 0.073911,
+    "teardown": 0.000212
    },
-   "duration_s": 0.067742
+   "duration_s": 0.074879
   },
   {
    "id": "tests/test_recommend.py::test_training_volume_names_the_muscle_groups_below_ten_sets",
@@ -5866,11 +6091,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000651,
-    "call": 0.048709,
-    "teardown": 0.000196
+    "setup": 0.000826,
+    "call": 0.053011,
+    "teardown": 0.000195
    },
-   "duration_s": 0.049556
+   "duration_s": 0.054032
   },
   {
    "id": "tests/test_recommend.py::test_at_most_three_cards_the_rest_one_level_deeper",
@@ -5940,11 +6165,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000739,
-    "call": 0.030227,
-    "teardown": 0.000154
+    "setup": 0.000761,
+    "call": 0.032432,
+    "teardown": 0.000199
    },
-   "duration_s": 0.03112
+   "duration_s": 0.033392
   },
   {
    "id": "tests/test_recommend.py::test_hidden_recommendations_stay_away_until_their_date",
@@ -5966,9 +6191,9 @@
      "expr": "{\"steps\", \"sleep-duration\"} <= set(rules(build(data, goals=goals)))",
      "ok": true,
      "op": "<=",
-     "left": "{'sleep-duration', 'steps'}",
-     "right": "{'activity-minutes', 'sleep-duration', 'steps'}",
-     "detail": "where {'activity-minutes', 'sleep-duration', 'steps'} = set(['activity-minutes', 'steps', 'sleep-duration'])\nwhere ['activity-minutes', 'steps', 'sleep-duration'] = rules({'schema': 1, 'generated_at': '2026-11-10T16:48:59+00:00', 'as_of': '2026-11-10', 'today': None, ...})\nwhere {'schema': 1, 'generated_at': '2026-11-10T16:48:59+00:00', 'as_of': '2026-11-10', 'today': None, ...} = build(Data(today=datetime.date(2026, 11, 10), days=            hrv  resting_hr  ...  protein_g  calories_kcal\\n2026-07-14   6...pty DataFrame\\nColumns: []\\nIndex: [], lifestyle=Empty DataFrame\\nColumns: []\\nIndex: [] … (+150)"
+     "left": "{'steps', 'sleep-duration'}",
+     "right": "{'steps', 'activity-minutes', 'sleep-duration'}",
+     "detail": "where {'activity-minutes', 'sleep-duration', 'steps'} = set(['activity-minutes', 'steps', 'sleep-duration'])\nwhere ['activity-minutes', 'steps', 'sleep-duration'] = rules({'schema': 1, 'generated_at': '2026-11-10T16:52:48+00:00', 'as_of': '2026-11-10', 'today': None, ...})\nwhere {'schema': 1, 'generated_at': '2026-11-10T16:52:48+00:00', 'as_of': '2026-11-10', 'today': None, ...} = build(Data(today=datetime.date(2026, 11, 10), days=            hrv  resting_hr  ...  protein_g  calories_kcal\\n2026-07-14   6...pty DataFrame\\nColumns: []\\nIndex: [], lifestyle=Empty DataFrame\\nColumns: []\\nIndex: [] … (+150)"
     },
     {
      "line": 337,
@@ -5977,7 +6202,7 @@
      "op": "falsy",
      "left": "({'sleep-duration', 'steps'} & {'activity-minutes'})",
      "right": null,
-     "detail": "where {'activity-minutes'} = set(['activity-minutes'])\nwhere ['activity-minutes'] = rules({'schema': 1, 'generated_at': '2026-11-10T16:48:59+00:00', 'as_of': '2026-11-10', 'today': None, ...})\nwhere {'schema': 1, 'generated_at': '2026-11-10T16:48:59+00:00', 'as_of': '2026-11-10', 'today': None, ...} = build(Data(today=datetime.date(2026, 11, 10), days=            hrv  resting_hr  ...  protein_g  calories_kcal\\n2026-07-14   6...pty DataFrame\\nColumns: []\\nIndex: [], lifestyle=Empty DataFrame\\nColumns: []\\nIndex: [], insights={}, has_nutrition=False), goals={'aktivitaeten': {'metric': 'steps', ' … (+167)"
+     "detail": "where {'activity-minutes'} = set(['activity-minutes'])\nwhere ['activity-minutes'] = rules({'schema': 1, 'generated_at': '2026-11-10T16:52:48+00:00', 'as_of': '2026-11-10', 'today': None, ...})\nwhere {'schema': 1, 'generated_at': '2026-11-10T16:52:48+00:00', 'as_of': '2026-11-10', 'today': None, ...} = build(Data(today=datetime.date(2026, 11, 10), days=            hrv  resting_hr  ...  protein_g  calories_kcal\\n2026-07-14   6...pty DataFrame\\nColumns: []\\nIndex: [], lifestyle=Empty DataFrame\\nColumns: []\\nIndex: [], insights={}, has_nutrition=False), goals={'aktivitaeten': {'metric': 'steps', ' … (+167)"
     },
     {
      "line": 339,
@@ -5986,7 +6211,7 @@
      "op": "in",
      "left": "'steps'",
      "right": "['activity-minutes', 'steps', 'sleep-duration']",
-     "detail": "where ['activity-minutes', 'steps', 'sleep-duration'] = rules({'schema': 1, 'generated_at': '2026-11-10T16:48:59+00:00', 'as_of': '2026-11-10', 'today': None, ...})\nwhere {'schema': 1, 'generated_at': '2026-11-10T16:48:59+00:00', 'as_of': '2026-11-10', 'today': None, ...} = build(Data(today=datetime.date(2026, 11, 10), days=            hrv  resting_hr  ...  protein_g  calories_kcal\\n2026-07-14   6...pty DataFrame\\nColumns: []\\nIndex: [], lifestyle=Empty DataFrame\\nColumns: []\\nIndex: [], insights={}, has_nutrition=False), goals={'aktivitaeten': {'metric': 'steps', 'target': 10000}, 'schlaf': { … (+100)"
+     "detail": "where ['activity-minutes', 'steps', 'sleep-duration'] = rules({'schema': 1, 'generated_at': '2026-11-10T16:52:49+00:00', 'as_of': '2026-11-10', 'today': None, ...})\nwhere {'schema': 1, 'generated_at': '2026-11-10T16:52:49+00:00', 'as_of': '2026-11-10', 'today': None, ...} = build(Data(today=datetime.date(2026, 11, 10), days=            hrv  resting_hr  ...  protein_g  calories_kcal\\n2026-07-14   6...pty DataFrame\\nColumns: []\\nIndex: [], lifestyle=Empty DataFrame\\nColumns: []\\nIndex: [], insights={}, has_nutrition=False), goals={'aktivitaeten': {'metric': 'steps', 'target': 10000}, 'schlaf': { … (+100)"
     }
    ],
    "planned": [
@@ -6008,11 +6233,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000715,
-    "call": 0.06727,
-    "teardown": 0.000177
+    "setup": 0.000859,
+    "call": 0.073002,
+    "teardown": 0.0002
    },
-   "duration_s": 0.068162
+   "duration_s": 0.074061
   },
   {
    "id": "tests/test_recommend.py::test_alcohol_experiment_when_hrv_is_lower_after_drinking",
@@ -6074,11 +6299,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000695,
-    "call": 0.035686,
-    "teardown": 0.000167
+    "setup": 0.000811,
+    "call": 0.039904,
+    "teardown": 0.000215
    },
-   "duration_s": 0.036548
+   "duration_s": 0.04093
   },
   {
    "id": "tests/test_recommend.py::test_own_data_bedtime_finding_becomes_an_experiment",
@@ -6142,11 +6367,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000626,
-    "call": 0.031949,
-    "teardown": 0.000169
+    "setup": 0.000832,
+    "call": 0.034403,
+    "teardown": 0.00019
    },
-   "duration_s": 0.032744
+   "duration_s": 0.035425
   },
   {
    "id": "tests/test_recommend.py::test_experiment_result_needs_ten_days_per_phase",
@@ -6235,11 +6460,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000719,
-    "call": 0.029009,
-    "teardown": 0.000162
+    "setup": 0.000799,
+    "call": 0.030231,
+    "teardown": 0.000184
    },
-   "duration_s": 0.02989
+   "duration_s": 0.031214
   },
   {
    "id": "tests/test_recommend.py::test_running_experiment_hides_its_card",
@@ -6284,11 +6509,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000676,
-    "call": 0.030808,
-    "teardown": 0.000148
+    "setup": 0.000769,
+    "call": 0.033728,
+    "teardown": 0.000194
    },
-   "duration_s": 0.031632
+   "duration_s": 0.034691
   },
   {
    "id": "tests/test_recommend.py::test_output_is_valid_json_for_the_dashboard",
@@ -6311,7 +6536,7 @@
      "ok": true,
      "op": "not in",
      "left": "'NaN'",
-     "right": "('{\\n'\n '  \"schema\": 1,\\n'\n '  \"generated_at\": \"2026-11-10T16:48:59+00:00\",\\n'\n '  \"as_of\": \"2026-11-10\",\\n'\n '  \"today\": null,\\n'\n '  \"safety\": [],\\n'\n '  \"goals\": [\\n'\n '    {\\n'\n '      \"area\": \"aktivitaeten\",\\n'\n '      \"metric\": \"steps\",\\n'\n '      \"target\": 10000,\\n'\n '      \"by\": null,\\n'\n '      \"current\": 5000.0,\\n'\n '      \"pace_per_week\": 0.0,\\n'\n '      \"needed_per_week\": null,\\n'\n '      \"eta\": null,\\n'\n '      \"status\": \"off-track\",\\n'\n '      \"remaining\": 5000.0\\n'\n '    }\\n'\n '  ],\\n'\n '  \"cards\": [\\n'\n '    {\\n'\n '      \"rule\": \"activity-minutes\",\\n'\n '      \"number\": 17,\\n'\n '      \"kind\": \"lever\",\\n'\n '      \"evidence\": \"guideline\",\\n'\n '      \"areas\": [\\n'\n '        \"aktivitaeten\",\\n'\n '        \"erholung\",\\n'\n '        \"fitness\"\\n'\n '      ],\\n'\n '      \"sources\": [\\n'\n '        \"bull2020\"\\n'\n '      ],\\n'\n '      \"title\": {\\n'\n '        \"text\": \"Auf 150–300 Minuten Bewegung pro Woche kommen\",\\n'\n '        \"vars\": []\\n'\n '      },\\n'\n '      \"why\": {\\n'\n '        \"text\": \"Deine Aktivitäten der Uhr ergeben {0} min pro Woche. Die WHO empfiehlt '\n 'Erwachsenen 150–300 min mäßige oder 75–150 min intensive Bewegung pro Woche; zügiges Gehen '\n 'zählt.\",\\n'\n '        \"vars\": [\\n'\n '          {\\n'\n '            \"n\": 135.0,\\n'\n '            \"d\": 0\\n'\n '          }\\n'\n '        ]\\n'\n '      },\\n'\n '      \"measure\": {\\n'\n '        \"text\": \"Aktive Minuten pro Woche\",\\n'\n '        \"vars\": []\\n'\n '      },\\n'\n '      \"current\": {\\n'\n '        \"text\": \"{0} min/Woche\",\\n' … (+4509)"
+     "right": "('{\\n'\n '  \"schema\": 1,\\n'\n '  \"generated_at\": \"2026-11-10T16:52:49+00:00\",\\n'\n '  \"as_of\": \"2026-11-10\",\\n'\n '  \"today\": null,\\n'\n '  \"safety\": [],\\n'\n '  \"goals\": [\\n'\n '    {\\n'\n '      \"area\": \"aktivitaeten\",\\n'\n '      \"metric\": \"steps\",\\n'\n '      \"target\": 10000,\\n'\n '      \"by\": null,\\n'\n '      \"current\": 5000.0,\\n'\n '      \"pace_per_week\": 0.0,\\n'\n '      \"needed_per_week\": null,\\n'\n '      \"eta\": null,\\n'\n '      \"status\": \"off-track\",\\n'\n '      \"remaining\": 5000.0\\n'\n '    }\\n'\n '  ],\\n'\n '  \"cards\": [\\n'\n '    {\\n'\n '      \"rule\": \"activity-minutes\",\\n'\n '      \"number\": 17,\\n'\n '      \"kind\": \"lever\",\\n'\n '      \"evidence\": \"guideline\",\\n'\n '      \"areas\": [\\n'\n '        \"aktivitaeten\",\\n'\n '        \"erholung\",\\n'\n '        \"fitness\"\\n'\n '      ],\\n'\n '      \"sources\": [\\n'\n '        \"bull2020\"\\n'\n '      ],\\n'\n '      \"title\": {\\n'\n '        \"text\": \"Auf 150–300 Minuten Bewegung pro Woche kommen\",\\n'\n '        \"vars\": []\\n'\n '      },\\n'\n '      \"why\": {\\n'\n '        \"text\": \"Deine Aktivitäten der Uhr ergeben {0} min pro Woche. Die WHO empfiehlt '\n 'Erwachsenen 150–300 min mäßige oder 75–150 min intensive Bewegung pro Woche; zügiges Gehen '\n 'zählt.\",\\n'\n '        \"vars\": [\\n'\n '          {\\n'\n '            \"n\": 135.0,\\n'\n '            \"d\": 0\\n'\n '          }\\n'\n '        ]\\n'\n '      },\\n'\n '      \"measure\": {\\n'\n '        \"text\": \"Aktive Minuten pro Woche\",\\n'\n '        \"vars\": []\\n'\n '      },\\n'\n '      \"current\": {\\n'\n '        \"text\": \"{0} min/Woche\",\\n' … (+4509)"
     },
     {
      "line": 411,
@@ -6326,7 +6551,7 @@
      "expr": "cited <= set(result[\"sources\"])",
      "ok": true,
      "op": "<=",
-     "left": "{'bull2020', 'paluch2022'}",
+     "left": "{'paluch2022', 'bull2020'}",
      "right": "{'bull2020', 'cornelissen2013', 'drake2013', 'dueking2021', 'esc2024', 'garthe2011', 'he2013',\n 'madigan2015', 'manresa2021', 'milanovic2015', 'morton2018', 'neter2003', 'paluch2022',\n 'pietila2018', 'reimers2018', 'schoenfeld2017', 'schoenfeld2019', 'stutz2019', 'watson2015',\n 'windred2024', 'zheng2015'}",
      "detail": "where {'bull2020', 'cornelissen2013', 'drake2013', 'dueking2021', 'esc2024', 'garthe2011', ...} = set({'manresa2021': {'label': 'Manresa-Rocamora 2021', 'url': 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8507742/'}, 'd.../30374942/'}, 'garthe2011': {'label': 'Garthe 2011', 'url': 'https://lida.sport-iat.de/ta/Record/4020442?lng=en'}, ...})"
     }
@@ -6346,11 +6571,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000657,
-    "call": 0.048304,
-    "teardown": 0.000196
+    "setup": 0.000813,
+    "call": 0.052549,
+    "teardown": 0.000197
    },
-   "duration_s": 0.049157
+   "duration_s": 0.053559
   },
   {
    "id": "tests/test_recommend.py::test_daily_analysis_also_refreshes_the_recommendations",
@@ -6401,11 +6626,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000633,
-    "call": 0.096195,
-    "teardown": 0.000167
+    "setup": 0.000753,
+    "call": 0.192505,
+    "teardown": 0.000213
    },
-   "duration_s": 0.096995
+   "duration_s": 0.193471
   },
   {
    "id": "tests/test_recommend_dashboard.py::test_today_card_matches_the_python_rule",
@@ -6496,11 +6721,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000394,
-    "call": 0.118002,
-    "teardown": 0.000147
+    "setup": 0.00046,
+    "call": 0.13619,
+    "teardown": 0.000223
    },
-   "duration_s": 0.118543
+   "duration_s": 0.136873
   },
   {
    "id": "tests/test_recommend_dashboard.py::test_today_card_says_pause_on_the_infection_pattern",
@@ -6562,11 +6787,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000334,
-    "call": 0.059291,
-    "teardown": 0.000146
+    "setup": 0.000378,
+    "call": 0.071284,
+    "teardown": 0.00017
    },
-   "duration_s": 0.059771
+   "duration_s": 0.071832
   },
   {
    "id": "tests/test_recommend_dashboard.py::test_texts_from_the_file_are_formatted_for_the_language",
@@ -6617,11 +6842,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000298,
-    "call": 0.081933,
-    "teardown": 0.000155
+    "setup": 0.000333,
+    "call": 0.086021,
+    "teardown": 0.000174
    },
-   "duration_s": 0.082386
+   "duration_s": 0.086528
   },
   {
    "id": "tests/test_recommend_dashboard.py::test_goals_in_settings_are_checked_like_in_python",
@@ -6687,11 +6912,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000335,
-    "call": 0.032811,
-    "teardown": 0.00015
+    "setup": 0.00042,
+    "call": 0.035229,
+    "teardown": 0.000171
    },
-   "duration_s": 0.033296
+   "duration_s": 0.03582
   },
   {
    "id": "tests/test_recommend_dashboard.py::test_goal_metrics_match_the_python_rules",
@@ -6729,11 +6954,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000297,
-    "call": 0.031642,
-    "teardown": 0.000216
+    "setup": 0.000365,
+    "call": 0.034589,
+    "teardown": 0.000167
    },
-   "duration_s": 0.032155
+   "duration_s": 0.035121
   },
   {
    "id": "tests/test_recommend_dashboard.py::test_every_text_of_the_rules_has_an_english_translation",
@@ -6784,11 +7009,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000309,
-    "call": 0.086942,
-    "teardown": 0.000153
+    "setup": 0.000353,
+    "call": 0.030357,
+    "teardown": 0.000182
    },
-   "duration_s": 0.087404
+   "duration_s": 0.030892
   },
   {
    "id": "tests/test_yazio.py::test_meals_are_summed_to_daily_totals",
@@ -6826,11 +7051,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000424,
-    "call": 0.001868,
-    "teardown": 0.000108
+    "setup": 0.000373,
+    "call": 0.001957,
+    "teardown": 0.000146
    },
-   "duration_s": 0.0024
+   "duration_s": 0.002476
   },
   {
    "id": "tests/test_yazio.py::test_missing_nutrients_count_as_zero_and_nulls_are_ignored",
@@ -6881,11 +7106,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000245,
-    "call": 0.000442,
-    "teardown": 0.00012
+    "setup": 0.000257,
+    "call": 0.000481,
+    "teardown": 0.000109
    },
-   "duration_s": 0.000807
+   "duration_s": 0.000847
   },
   {
    "id": "tests/test_yazio.py::test_day_without_entries_gives_no_row",
@@ -6936,11 +7161,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.00022,
-    "call": 0.00053,
-    "teardown": 9.6e-05
+    "setup": 0.000227,
+    "call": 0.000577,
+    "teardown": 0.000107
    },
-   "duration_s": 0.000846
+   "duration_s": 0.000911
   },
   {
    "id": "tests/test_yazio.py::test_water_only_day_keeps_nutrients_empty",
@@ -6978,11 +7203,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000217,
-    "call": 0.00043,
-    "teardown": 9.4e-05
+    "setup": 0.000225,
+    "call": 0.000463,
+    "teardown": 0.000104
    },
-   "duration_s": 0.000741
+   "duration_s": 0.000792
   },
   {
    "id": "tests/test_yazio.py::test_normalize_adds_absolute_expiry_and_drops_unknown_fields",
@@ -7013,9 +7238,9 @@
      "expr": "3500 < tokens[\"expires_at\"] - time.time() <= 3600",
      "ok": true,
      "op": "<=",
-     "left": "3599.9996390342712",
+     "left": "3599.9996285438538",
      "right": "3600",
-     "detail": "where 1794329340.2294679 = <built-in function time>()\nwhere <built-in function time> = time.time"
+     "detail": "where 1794329569.8224218 = <built-in function time>()\nwhere <built-in function time> = time.time"
     },
     {
      "line": 70,
@@ -7058,11 +7283,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000219,
-    "call": 0.000872,
-    "teardown": 9.8e-05
+    "setup": 0.000222,
+    "call": 0.000908,
+    "teardown": 0.000106
    },
-   "duration_s": 0.001189
+   "duration_s": 0.001236
   },
   {
    "id": "tests/test_yazio.py::test_expiry_uses_a_safety_margin",
@@ -7090,7 +7315,7 @@
      "op": "truthy",
      "left": "True",
      "right": null,
-     "detail": "where True = <function _expired>({'expires_at': 1794329370.2306046})\nwhere <function _expired> = yazio._expired"
+     "detail": "where True = <function _expired>({'expires_at': 1794329599.8235962})\nwhere <function _expired> = yazio._expired"
     },
     {
      "line": 79,
@@ -7099,7 +7324,7 @@
      "op": "falsy",
      "left": "False",
      "right": null,
-     "detail": "where False = <function _expired>({'expires_at': 1794332940.2307532})\nwhere <function _expired> = yazio._expired"
+     "detail": "where False = <function _expired>({'expires_at': 1794333169.823756})\nwhere <function _expired> = yazio._expired"
     },
     {
      "line": 80,
@@ -7130,11 +7355,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000243,
-    "call": 0.000526,
-    "teardown": 9.4e-05
+    "setup": 0.000223,
+    "call": 0.000592,
+    "teardown": 0.000103
    },
-   "duration_s": 0.000863
+   "duration_s": 0.000918
   },
   {
    "id": "tests/test_yazio.py::test_is_configured_checks_file_and_secret",
@@ -7215,11 +7440,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000671,
-    "call": 0.001142,
-    "teardown": 0.000128
+    "setup": 0.000698,
+    "call": 0.001206,
+    "teardown": 0.000117
    },
-   "duration_s": 0.001941
+   "duration_s": 0.002021
   },
   {
    "id": "tests/test_yazio.py::test_expired_token_is_refreshed_and_the_new_refresh_token_is_kept",
@@ -7287,11 +7512,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.00056,
-    "call": 0.001507,
-    "teardown": 0.00011
+    "setup": 0.000605,
+    "call": 0.001531,
+    "teardown": 0.000119
    },
-   "duration_s": 0.002177
+   "duration_s": 0.002255
   },
   {
    "id": "tests/test_yazio.py::test_missing_tokens_in_ci_fail_with_instructions",
@@ -7336,11 +7561,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000576,
-    "call": 0.000291,
-    "teardown": 0.00011
+    "setup": 0.000567,
+    "call": 0.000301,
+    "teardown": 0.000117
    },
-   "duration_s": 0.000977
+   "duration_s": 0.000985
   },
   {
    "id": "tests/test_yazio.py::test_ci_logs_in_with_credentials_from_secrets_and_stores_tokens",
@@ -7434,11 +7659,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000602,
-    "call": 0.001987,
-    "teardown": 0.000119
+    "setup": 0.000617,
+    "call": 0.002093,
+    "teardown": 0.000124
    },
-   "duration_s": 0.002708
+   "duration_s": 0.002834
   },
   {
    "id": "tests/test_yazio.py::test_failed_refresh_falls_back_to_credentials_only_if_set",
@@ -7492,11 +7717,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000574,
-    "call": 0.000784,
-    "teardown": 0.000113
+    "setup": 0.000615,
+    "call": 0.00083,
+    "teardown": 0.000122
    },
-   "duration_s": 0.001471
+   "duration_s": 0.001567
   },
   {
    "id": "tests/test_yazio.py::test_sync_replaces_the_window_and_keeps_older_rows",
@@ -7559,11 +7784,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000573,
-    "call": 0.001948,
-    "teardown": 0.000206
+    "setup": 0.000603,
+    "call": 0.001985,
+    "teardown": 0.000228
    },
-   "duration_s": 0.002727
+   "duration_s": 0.002816
   }
  ]
 }
