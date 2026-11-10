@@ -137,7 +137,7 @@ empty or invalid. If a run fails with `No usable Garmin tokens`, log in again wi
 | Input | Default | Purpose |
 |---|---|---|
 | `days` | `30` | Days to fetch; `365` for the first run |
-| `source` | `all` | `all`, `garmin`, `activities`, `climbs`, `fitness`, `bp`, `hevy` or `yazio`. With many days, loads older data of one source only, e.g. `climbs` with `2000` days |
+| `source` | `all` | `all`, `garmin`, `activities`, `climbs`, `fitness`, `bp`, `lifestyle`, `hevy` or `yazio`. With many days, loads older data of one source only, e.g. `climbs` with `2000` days |
 | `garmin_dump_date`, `yazio_dump_date` | empty | `YYYY-MM-DD`: attach the raw responses of that day as a private artifact (deleted after one day), to check the field mapping |
 | `fitness_dump` | empty | `yes`: save the raw Garmin fitness responses to `debug/` in the data repository |
 
@@ -253,6 +253,7 @@ values are reported in the settings and in the sync log, and the default applies
 | `garmin_activities.csv` | One row per watch activity with duration, distance, elevation gain, heart rate and training load |
 | `garmin_climbs.csv`, `garmin_climb_sessions.csv` | Bouldering: one row per logged boulder (grade, completed or attempted, route timer, heart rate) and per session (tops, time on the wall, self evaluation) |
 | `garmin_blood_pressure.csv` | One row per blood pressure reading from a cuff synced to Garmin Connect or entered in the app |
+| `garmin_lifestyle.csv` | Lifestyle Logging from the Garmin Connect app: one row per behaviour and day (alcohol, caffeine, late meal, your own behaviours), yes/no or amount. Not yet checked against real data |
 | `garmin_fitness.csv`, `garmin_fitness_status.json` | VO2max, race predictions, Hill and Endurance Score per day; today's training status, loads, load focus and fitness age |
 | `hevy_sets.csv`, `hevy_exercises.csv` | One row per set; primary and secondary muscle groups of each exercise |
 | `nutrition_daily.csv` | Optional, from YAZIO: calories, protein, carbohydrates, fat and water per logged day |

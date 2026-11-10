@@ -22,6 +22,7 @@ ACTIVITIES_CSV = DATA_DIR / "garmin_activities.csv"
 CLIMBS_CSV = DATA_DIR / "garmin_climbs.csv"  # one row per logged boulder
 CLIMB_SESSIONS_CSV = DATA_DIR / "garmin_climb_sessions.csv"  # one row per bouldering session
 BLOOD_PRESSURE_CSV = DATA_DIR / "garmin_blood_pressure.csv"  # one row per reading
+LIFESTYLE_CSV = DATA_DIR / "garmin_lifestyle.csv"  # one row per Lifestyle Logging behaviour and day
 FITNESS_CSV = DATA_DIR / "garmin_fitness.csv"  # VO2max, race predictions, hill and endurance score
 FITNESS_STATUS_JSON = DATA_DIR / "garmin_fitness_status.json"  # today's training status and fitness age
 HEVY_CSV = DATA_DIR / "hevy_sets.csv"
