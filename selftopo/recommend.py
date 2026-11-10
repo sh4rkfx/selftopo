@@ -834,7 +834,7 @@ def rule_own_data(data: Data, goals: dict[str, Goal]) -> list[Card]:
                                    "Zusammenhang, keine Ursache; das Experiment prüft es.", {"t": name}, n(effect, 1),
                                    f.get("effect_unit", ""), {"t": outcome_name}, {"t": per},
                                    n(f.get("n", 0))),
-                              text("die Zielgröße"),
+                              text("{0}, 14 Tage", {"t": outcome_name}),
                               experiment={"days": EXPERIMENT_DAYS, "metrics": [outcome],
                                           "finding": {k: f.get(k) for k in ("driver", "outcome", "effect", "n", "q")}}))
     return cards
