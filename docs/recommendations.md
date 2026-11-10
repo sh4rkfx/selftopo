@@ -120,4 +120,4 @@ suggested again. `until` hides a card up to that date, `dismissed` for good.
 
 Texts are German templates with `{0}`, `{1}` …; the dashboard translates them and formats the
 values: `{"n": 0.11, "d": 2}` a number with decimals, `{"date": …}`, `{"clock": "23:00"}`,
-`{"t": "…"}` a word to translate, `{"list": [...]}` a list.
+`{"muscle": "chest"}` a Hevy muscle group, `{"t": "…"}` a word to translate, `{"list": [...]}` a list.

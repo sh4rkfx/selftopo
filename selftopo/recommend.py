@@ -9,8 +9,8 @@ an experiment, never as a fact.
 
 Texts are German templates with {0}, {1}, ... placeholders; the dashboard translates them with
 its dictionary and formats the values. A value is a number {"n": x, "d": decimals}, a date
-{"date": "YYYY-MM-DD"}, a month {"month": "YYYY-MM"}, a clock time {"clock": "HH:MM"}, a text to
-translate {"t": "..."} or a plain string.
+{"date": "YYYY-MM-DD"}, a clock time {"clock": "HH:MM"}, a Hevy muscle group {"muscle": "chest"}, a
+text to translate {"t": "..."}, a list {"list": [...]} or a plain string.
 
 selftopo is not a medical device. The rules are suggestions for healthy adults; values that
 could be medically relevant only lead to the advice to have them checked.
@@ -711,7 +711,7 @@ def rule_training_volume(data: Data, target: float) -> Card | None:
     return Card("training-volume", text("Sätze schrittweise auf {0} pro Woche anheben, etwa +2 pro Woche", n(target)),
                 text("Unter {0} harten Sätzen pro Woche: {1}. Mehr Wochensätze brachten mehr Muskelzuwachs; bei "
                      "gleichem Volumen ist die Zahl der Einheiten egal.", n(target),
-                     {"list": [{"t": m} for m in names]}),
+                     {"list": [{"muscle": m} for m in names]}),
                 text("Sätze je Muskelgruppe, Muskelmasse, 8–12 Wochen"),
                 text("{0} Sätze/Woche", n(min(below.values()), 1)), extra={"muscles": names})
 
