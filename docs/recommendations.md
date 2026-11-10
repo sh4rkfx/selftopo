@@ -28,6 +28,8 @@ that could be medically relevant only lead to the advice to have them checked.
   not fit* (for good). The page may only read your repository, so these changes, like the goals
   (gear icon → *General* → *Goals*), are saved by committing `settings.json` on GitHub.
 
+The installed app can also receive the Today card as a push notification; see [push.md](push.md).
+
 ## Goals
 
 Recommendations need a goal; without one, only the Today card and the blood-pressure rules

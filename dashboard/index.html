@@ -804,6 +804,13 @@ dialog.prefs[open] { display: flex; flex-direction: column; }
 .settings-grid { display: grid; gap: 12px 16px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top: 4px; }
 .settings-grid .field input.bad { border-color: var(--crit); }
 .settings-grid .field .sub { font-size: 0.75rem; }
+.push-key { display: grid; gap: 6px; margin: 12px 0; }
+.push-key input {
+  font: inherit; font-size: 0.8125rem; height: 36px; padding: 0 8px; border: 1px solid var(--ring-strong); border-radius: 7px;
+  background: var(--surface); color: var(--ink); min-width: 0; width: 100%; font-family: var(--font-mono);
+}
+.push-key label { font-size: 0.8125rem; font-weight: 600; }
+@media (pointer: coarse) { .push-key input { height: 44px; } }
 .settings-grid .goal-fields { grid-column: 1 / -1; border: 0; margin: 4px 0 0; padding: 0; min-width: 0; }
 .settings-grid .goal-fields legend { font-size: 0.8125rem; font-weight: 600; padding: 0; margin-bottom: 6px; }
 .settings-lifts { margin: 0; font-size: 0.8125rem; color: var(--ink-2); }
@@ -1780,6 +1787,21 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
           <button class="ghost-btn" type="button" id="prefs-help">Hilfe und Diagramme lesen</button>
         </div>
       </div>
+      <div class="prefs-group" id="push-group">
+        <h3>Push-Benachrichtigungen</h3>
+        <p class="sub">An Tagen, an denen die Heute-Karte erscheint, schickt der tägliche Workflow sie als Benachrichtigung auf dieses Gerät. Auf dem iPhone nur in der installierten App (Teilen → Zum Home-Bildschirm, ab iOS 16.4).</p>
+        <div class="field push-key">
+          <label for="push-key">Öffentlicher Schlüssel</label>
+          <input id="push-key" type="text" autocomplete="off" spellcheck="false" placeholder="B…">
+          <p class="sub">Einmal erzeugen mit <code>python -m selftopo push-keys</code>. Den privaten Schlüssel als Secret <code>VAPID_PRIVATE_KEY</code> im Daten-Repository hinterlegen; der öffentliche steht danach in settings.json.</p>
+        </div>
+        <p class="sub" id="push-status" role="status"></p>
+        <div class="picker-actions">
+          <button class="primary-btn" type="button" id="push-on">Auf diesem Gerät einschalten</button>
+          <button class="ghost-btn" type="button" id="push-off" hidden>Ausschalten</button>
+          <button class="ghost-btn" type="button" id="push-save" hidden>Zum Speichern</button>
+        </div>
+      </div>
       <div class="prefs-group">
         <h3>Über selftopo</h3>
         <p class="sub">Open Source unter MIT-Lizenz. Deine Daten liegen nur in deinem privaten Repository und in diesem Browser; einen Server von selftopo gibt es nicht.</p>
@@ -1796,6 +1818,22 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 
 <script type="application/json" id="i18n-en">
 {
+"Push-Benachrichtigungen": "Push notifications",
+"An Tagen, an denen die Heute-Karte erscheint, schickt der tägliche Workflow sie als Benachrichtigung auf dieses Gerät. Auf dem iPhone nur in der installierten App (Teilen → Zum Home-Bildschirm, ab iOS 16.4).": "On days with a Today card, the daily workflow sends it to this device as a notification. On the iPhone only in the installed app (Share → Add to Home Screen, iOS 16.4 or later).",
+"Öffentlicher Schlüssel": "Public key",
+"Einmal erzeugen mit <code>python -m selftopo push-keys</code>. Den privaten Schlüssel als Secret <code>VAPID_PRIVATE_KEY</code> im Daten-Repository hinterlegen; der öffentliche steht danach in settings.json.": "Make it once with <code>python -m selftopo push-keys</code>. Store the private key as the secret <code>VAPID_PRIVATE_KEY</code> in the data repository; the public one then goes into settings.json.",
+"Auf diesem Gerät einschalten": "Turn on for this device",
+"Ausschalten": "Turn off",
+"Zum Speichern": "Go to saving",
+"Dieser Browser kann keine Push-Benachrichtigungen. Auf dem iPhone erst zum Home-Bildschirm hinzufügen und in der App einschalten.": "This browser cannot receive push notifications. On the iPhone, add the page to the Home Screen first and turn them on in the app.",
+"Eingeschaltet. Speichere jetzt settings.json; ab dem nächsten Lauf des Workflows kommt die Heute-Karte. Zum Prüfen den Workflow mit push_test = yes starten.": "Turned on. Now save settings.json; from the next workflow run, the Today card arrives. To check, run the workflow with push_test = yes.",
+"Auf diesem Gerät eingeschaltet.": "On for this device.",
+"Dieses Gerät ist angemeldet, steht aber noch nicht in settings.json.": "This device is subscribed but not yet in settings.json.",
+"Ausgeschaltet. Speichere settings.json, damit der Workflow dieses Gerät nicht mehr anschreibt.": "Turned off. Save settings.json so the workflow stops sending to this device.",
+"Benachrichtigungen sind für diese Seite blockiert; erlaube sie in den Einstellungen des Browsers.": "Notifications are blocked for this page; allow them in the browser settings.",
+"Auf diesem Gerät aus.": "Off for this device.",
+"Trage zuerst den öffentlichen Schlüssel ein (python -m selftopo push-keys).": "Enter the public key first (python -m selftopo push-keys).",
+"Einschalten hat nicht geklappt: {0}": "Turning on failed: {0}",
 "{0}, 14 Tage": "{0}, 14 days",
 "im Bereich": "in range",
 "noch nicht": "not yet",
@@ -7289,6 +7327,92 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     return out;
   }
 
+  // ------------------------------------------------------------------ push notifications
+
+  // This device's subscription goes into settings.json ("push": {"subscriptions": [...]}); the
+  // daily workflow sends the Today card to every subscription (python -m selftopo push).
+  const pushDraft = { add: [], remove: [] };
+  const PUSH_KEY = /^[A-Za-z0-9_-]{86,88}$/;
+  function b64urlBytes(text) {
+    const b64 = text.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((text.length + 3) % 4);
+    return Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+  }
+  // Settings with this device's change applied: the public key from the field, subscriptions added or removed
+  function applyPush(out) {
+    const push = out.push && typeof out.push === "object" && !Array.isArray(out.push) ? { ...out.push } : {};
+    const key = $("push-key")?.value.trim();
+    if (key) push.public_key = key; else delete push.public_key;
+    let subs = Array.isArray(push.subscriptions) ? push.subscriptions.filter((x) => !pushDraft.remove.includes(x?.endpoint)) : [];
+    for (const add of pushDraft.add) if (!subs.some((x) => x?.endpoint === add.endpoint)) subs = [...subs, add];
+    if (subs.length) push.subscriptions = subs; else delete push.subscriptions;
+    if (Object.keys(push).length) out.push = push; else delete out.push;
+    return out;
+  }
+  const pushSupported = () => "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+  async function pushSubscription() {
+    if (!pushSupported()) return null;
+    const reg = await navigator.serviceWorker.getRegistration();
+    return reg ? reg.pushManager.getSubscription() : null;
+  }
+  function pushStatus(text, saved = false) {
+    $("push-status").textContent = text;
+    $("push-save").hidden = !saved;
+  }
+  async function refreshPush() {
+    const saved = (state.settings?.raw?.push?.subscriptions || []).map((x) => x?.endpoint);
+    if (!pushSupported()) {
+      pushStatus(T("Dieser Browser kann keine Push-Benachrichtigungen. Auf dem iPhone erst zum Home-Bildschirm hinzufügen und in der App einschalten."));
+      $("push-on").disabled = true;
+      return;
+    }
+    const sub = await pushSubscription().catch(() => null);
+    const on = Boolean(sub) && !pushDraft.remove.includes(sub.endpoint);
+    $("push-off").hidden = !on;
+    $("push-on").hidden = on;
+    if (on && pushDraft.add.some((a) => a.endpoint === sub.endpoint)) pushStatus(T("Eingeschaltet. Speichere jetzt settings.json; ab dem nächsten Lauf des Workflows kommt die Heute-Karte. Zum Prüfen den Workflow mit push_test = yes starten."), true);
+    else if (on && saved.includes(sub.endpoint)) pushStatus(T("Auf diesem Gerät eingeschaltet."));
+    else if (on) pushStatus(T("Dieses Gerät ist angemeldet, steht aber noch nicht in settings.json."), true);
+    else if (pushDraft.remove.length) pushStatus(T("Ausgeschaltet. Speichere settings.json, damit der Workflow dieses Gerät nicht mehr anschreibt."), true);
+    else pushStatus(Notification.permission === "denied" ? T("Benachrichtigungen sind für diese Seite blockiert; erlaube sie in den Einstellungen des Browsers.") : T("Auf diesem Gerät aus."));
+  }
+  async function pushOn() {
+    const key = $("push-key").value.trim();
+    if (!PUSH_KEY.test(key)) { pushStatus(T("Trage zuerst den öffentlichen Schlüssel ein (python -m selftopo push-keys).")); $("push-key").focus(); return; }
+    try {
+      if (await Notification.requestPermission() !== "granted") { refreshPush(); return; }
+      const reg = await navigator.serviceWorker.ready;
+      let sub = await reg.pushManager.getSubscription();
+      const same = sub && sub.options?.applicationServerKey
+        && new Uint8Array(sub.options.applicationServerKey).join() === b64urlBytes(key).join();
+      if (sub && !same) { await sub.unsubscribe(); sub = null; }
+      sub = sub || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64urlBytes(key) });
+      const j = sub.toJSON();
+      pushDraft.remove = pushDraft.remove.filter((e) => e !== j.endpoint);
+      pushDraft.add = [{ endpoint: j.endpoint, keys: { p256dh: j.keys.p256dh, auth: j.keys.auth }, lang: LANG, added: tToIso(todayT()) }];
+    } catch (err) {
+      pushStatus(T("Einschalten hat nicht geklappt: {0}", [err?.message || String(err)]));
+      return;
+    }
+    updateSettingsPreview();
+    refreshPush();
+  }
+  async function pushOff() {
+    const sub = await pushSubscription().catch(() => null);
+    if (sub) {
+      pushDraft.add = pushDraft.add.filter((a) => a.endpoint !== sub.endpoint);
+      if (!pushDraft.remove.includes(sub.endpoint)) pushDraft.remove.push(sub.endpoint);
+      await sub.unsubscribe().catch(() => {});
+    }
+    updateSettingsPreview();
+    refreshPush();
+  }
+  function setupPush() {
+    $("push-on").addEventListener("click", pushOn);
+    $("push-off").addEventListener("click", pushOff);
+    $("push-save").addEventListener("click", () => { openPrefs("general"); $("settings-copy").scrollIntoView({ block: "center" }); });
+    $("push-key").addEventListener("input", updateSettingsPreview);
+  }
+
   // ------------------------------------------------------------------ settings card
 
   const splitNames = (text) => String(text || "").split(",").map((n) => n.trim()).filter(Boolean);
@@ -7310,6 +7434,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     out.grip_exercises = { left: splitNames($("set-grip-left").value), right: splitNames($("set-grip-right").value) };
     const goals = goalsFromForm();
     if (Object.keys(goals).length) out.goals = goals; else delete out.goals;
+    applyPush(out);
     if (recoDraft.experiments.length) out.experiments = [...(Array.isArray(out.experiments) ? out.experiments : []), ...recoDraft.experiments];
     if (Object.keys(recoDraft.hidden).length) {
       const before = out.recommendations_hidden && typeof out.recommendations_hidden === "object" ? out.recommendations_hidden : {};
@@ -7353,6 +7478,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     $("set-grip-left").value = st.grip.left.join(", ");
     $("set-grip-right").value = st.grip.right.join(", ");
     fillGoalFields(st.goals || {});
+    $("push-key").value = typeof st.raw?.push?.public_key === "string" ? st.raw.push.public_key : "";
+    refreshPush();
     for (const el of document.querySelectorAll("[data-step-goal]")) el.textContent = fmt(STEP_GOAL);
     const problems = [...st.problems];
     if (state.settingsBroken) problems.unshift(T("settings.json ist kein gültiges JSON und wird ignoriert. Speichere die Datei hier neu."));
@@ -7383,6 +7510,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       $("set-tz-list").replaceChildren(...zones.map((z) => html("option", { value: z })));
     } catch { /* no list: free text still works */ }
     buildGoalFields();
+    setupPush();
     $("settings-form").addEventListener("input", updateSettingsPreview);
     $("settings-form").addEventListener("change", updateSettingsPreview);
     $("settings-form").addEventListener("submit", (e) => e.preventDefault());

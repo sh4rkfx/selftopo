@@ -96,6 +96,24 @@ def cmd_recommend(_: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_push_keys(_: argparse.Namespace) -> int:
+    from . import push
+
+    public, private = push.generate_keys()
+    print("Public key (dashboard: gear icon -> App -> Push notifications):")
+    print(f"  {public}")
+    print("Private key (data repository: Settings -> Secrets -> Actions -> VAPID_PRIVATE_KEY; keep it secret):")
+    print(f"  {private}")
+    return 0
+
+
+def cmd_push(args: argparse.Namespace) -> int:
+    from . import push
+
+    push.run(test=args.test)
+    return 0
+
+
 def cmd_export_tokens(_: argparse.Namespace) -> int:
     print(garmin.export_tokens())
     return 0
@@ -150,6 +168,13 @@ def build_parser() -> argparse.ArgumentParser:
     recommend = commands.add_parser("recommend", help="evaluate the rules for your goals, write "
                                     "data/recommendations.json (analyze does this too)")
     recommend.set_defaults(handler=cmd_recommend)
+
+    push_keys = commands.add_parser("push-keys", help="make the key pair for push notifications")
+    push_keys.set_defaults(handler=cmd_push_keys)
+
+    push = commands.add_parser("push", help="send today's Today card to the devices with notifications on")
+    push.add_argument("--test", action="store_true", help="send a test message instead")
+    push.set_defaults(handler=cmd_push)
 
     login = commands.add_parser("login", help="log in to Garmin with email/password and save tokens")
     login.set_defaults(handler=cmd_login)

@@ -12,6 +12,10 @@ files and settings stay compatible. The workflow in each data repository follows
   relationships in your own data only as 14-day experiments. `python -m selftopo analyze` writes
   `recommendations.json`; `python -m selftopo recommend` runs the rules alone.
   See [docs/recommendations.md](docs/recommendations.md).
+- Push notifications: the Today card on the installed dashboard, sent by the daily workflow
+  (`python -m selftopo push-keys`, secret `VAPID_PRIVATE_KEY`, new workflow step and input
+  `push_test`; copy the workflow template into existing data repositories). See
+  [docs/push.md](docs/push.md).
 
 ### Sync
 
