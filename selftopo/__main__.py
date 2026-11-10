@@ -54,9 +54,15 @@ def cmd_sync(args: argparse.Namespace) -> int:
 
 
 def cmd_analyze(args: argparse.Namespace) -> int:
-    from . import analyze  # pandas and scipy are only needed for this command
+    from . import analyze, recommend  # pandas and scipy are only needed for these commands
 
     result = analyze.run(args.days)
+    # The daily workflow only calls analyze, so the recommendations are refreshed here as well.
+    # A failing rule must not cost the analysis, which is already written.
+    try:
+        recommend.run()
+    except Exception:
+        log.exception("recommend: failed, recommendations.json not updated")
     period = result.get("period")
     if not period:
         print(result.get("note", "No data."))
@@ -74,6 +80,19 @@ def cmd_analyze(args: argparse.Namespace) -> int:
 def cmd_login(_: argparse.Namespace) -> int:
     garmin.login_interactive()
     print(f"Garmin tokens saved to {config.TOKEN_DIR}")
+    return 0
+
+
+def cmd_recommend(_: argparse.Namespace) -> int:
+    from . import recommend  # pandas is only needed for this command
+
+    result = recommend.run()
+    if result["today"]:
+        print(f"Today: {result['today']['title']['text']}")
+    for card in result["safety"] + result["cards"]:
+        print(f"  {card['number']:>2} {card['title']['text']}")
+    if not result["goals"]:
+        print('No goals set. Add "goals" to settings.json to get recommendations beyond the Today card.')
     return 0
 
 
@@ -122,10 +141,15 @@ def build_parser() -> argparse.ArgumentParser:
                       help="fetch stored Garmin days again, e.g. to fill newly added columns")
     sync.set_defaults(handler=cmd_sync)
 
-    analyze = commands.add_parser("analyze", help="find time-lagged relationships, write data/insights.json")
+    analyze = commands.add_parser("analyze", help="find time-lagged relationships, write data/insights.json "
+                                  "and data/recommendations.json")
     analyze.add_argument("--days", type=_positive_int, default=180, help="days to analyze (default: 180)")
     analyze.add_argument("--top", type=_positive_int, default=10, help="findings to print (default: 10)")
     analyze.set_defaults(handler=cmd_analyze)
+
+    recommend = commands.add_parser("recommend", help="evaluate the rules for your goals, write "
+                                    "data/recommendations.json (analyze does this too)")
+    recommend.set_defaults(handler=cmd_recommend)
 
     login = commands.add_parser("login", help="log in to Garmin with email/password and save tokens")
     login.set_defaults(handler=cmd_login)
@@ -161,7 +185,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     for problem in config.SETTINGS_PROBLEMS:
         log.warning("settings: %s", problem)
-    if config.TIMEZONE_SOURCE == "default" and args.handler in (cmd_sync, cmd_analyze):
+    if config.TIMEZONE_SOURCE == "default" and args.handler in (cmd_sync, cmd_analyze, cmd_recommend):
         log.warning('settings: no time zone set, using UTC. Add "timezone" to %s or set SELFTOPO_TZ.',
                     config.SETTINGS_JSON)
     try:

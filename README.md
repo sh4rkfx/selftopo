@@ -238,6 +238,8 @@ the dashboard read the same file, and every key is optional.
 | `step_goal` | `8000` | dashboard | Goal line and goal share of the steps charts |
 | `main_lifts` | barbell bench press, squat, deadlift, weighted pull-up | dashboard | e1RM charts by exact Hevy exercise name; `label` is the chart title, `add_bodyweight` adds body weight to the load. Without a match, the four most frequent exercises are shown |
 | `grip_exercises` | `Left-hand Grip Strength`, `Right-hand Grip Strength` (also `Handkraft links`, `Handkraft rechts`) | both | Hevy exercises holding dynamometer readings; kept out of hard sets, tonnage and e1RM |
+| `goals` | none | both | One goal per area for the recommendations, e.g. `{"koerper": {"metric": "weight", "target": 75, "by": "2027-03-31"}}`; see [docs/recommendations.md](docs/recommendations.md) |
+| `experiments`, `recommendations_hidden` | none | both | Running experiments and recommendations hidden with *Later* or *Does not fit*; written by the dashboard |
 
 Edit the file under gear icon → *General*. The dashboard may only read your repository, so
 *Create on GitHub* opens a prefilled new file and *Edit on GitHub* copies the content for you to
@@ -258,6 +260,7 @@ values are reported in the settings and in the sync log, and the default applies
 | `hevy_sets.csv`, `hevy_exercises.csv` | One row per set; primary and secondary muscle groups of each exercise |
 | `nutrition_daily.csv` | Optional, from YAZIO: calories, protein, carbohydrates, fat and water per logged day |
 | `insights.json` | Result of the analysis |
+| `recommendations.json` | Recommendations toward your goals: Today card, goals with forecast, cards and experiments ([docs/recommendations.md](docs/recommendations.md)) |
 | `settings.json` | Your settings, see above |
 
 Every column is described in [docs/data-reference.md](docs/data-reference.md).

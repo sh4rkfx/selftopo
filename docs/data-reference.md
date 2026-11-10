@@ -194,6 +194,11 @@ therefore treat days under 1,200 kcal (`MIN_COMPLETE_KCAL`) and the running day 
 logged and leave them out of means, the energy balance and the tests. Check the mapping against
 your data with `python -m selftopo dump-yazio --date <day>` after the first login.
 
+## recommendations.json
+
+Written by `python -m selftopo analyze` (and `recommend`) from the goals in `settings.json`, the
+CSV files and `insights.json`. Format, rules and thresholds: [recommendations.md](recommendations.md).
+
 ## insights.json
 
 Written by `python -m selftopo analyze`. Method: [analysis.md](analysis.md).
