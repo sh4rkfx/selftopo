@@ -9,14 +9,15 @@ Use GitHub's private reporting: **Security → Report a vulnerability** in this 
 do not open a public issue. Include what is affected, how to reproduce it and what an attacker
 could gain. Do not include anyone's health data or real credentials.
 
-You will get an answer within a week. Fixes are released as a patch version and the `v1` tag is
+You will get an answer within a week. Fixes are released as a patch version and the `v2` tag is
 moved, so data repositories pick them up with their next run.
 
 ## Supported versions
 
 | Version | Supported |
 |---|---|
-| 1.x (tag `v1`) | yes |
+| 2.x (tag `v2`) | yes |
+| 1.x (tag `v1`) | no; update to 2.x, your data stays compatible |
 | older states of `main` before 1.0.0 | no |
 
 ## Scope
