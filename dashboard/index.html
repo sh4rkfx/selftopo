@@ -1296,7 +1296,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
         <thead><tr><th scope="col">Chip</th><th scope="col">Bedeutung</th></tr></thead>
         <tbody>
           <tr><td><span class="chip"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>belastbar</span></td><td>Zusammenhänge, die der Korrektur für viele gleichzeitige Tests standhalten.</td></tr>
-          <tr><td><span class="chip"><svg class="ic" aria-hidden="true"><use href="#i-zusammenhaenge"/></svg>Paare</span></td><td>Zahl der getesteten Kombinationen aus Ursache und Wirkung.</td></tr>
+          <tr><td><span class="chip"><svg class="ic" aria-hidden="true"><use href="#i-zusammenhaenge"/></svg>Paare</span></td><td>Zahl der getesteten Wertepaare.</td></tr>
           <tr><td><span class="chip"><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg>Zeitraum</span></td><td>Tage, über die die Auswertung lief. Sie entsteht täglich im Workflow und hängt nicht vom oben gewählten Zeitraum ab.</td></tr>
         </tbody>
       </table>
@@ -2495,7 +2495,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "⟨i⟩belastbar": "⟨i⟩robust",
 "Zusammenhänge, die der Korrektur für viele gleichzeitige Tests standhalten.": "Relationships that survive the correction for many simultaneous tests.",
 "⟨i⟩Paare": "⟨i⟩pairs",
-"Zahl der getesteten Kombinationen aus Ursache und Wirkung.": "Number of tested combinations of cause and effect.",
+"Zahl der getesteten Wertepaare.": "Number of tested pairs of values.",
 "⟨i⟩Zeitraum": "⟨i⟩Period",
 "Tage, über die die Auswertung lief. Sie entsteht täglich im Workflow und hängt nicht vom oben gewählten Zeitraum ab.": "Days the analysis covered. It runs daily in the workflow and does not depend on the period selected above.",
 "Automatisch gefundene Zusammenhänge": "Relationships found automatically",
@@ -2719,7 +2719,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Diese Woche liegt alles in deinem üblichen Bereich: {0}.": "Everything is within your usual range this week: {0}.",
 "Sobald genug Tage da sind, steht hier, was diese Woche von deinem Üblichen abweicht.": "As soon as there are enough days, this shows what differs from your usual this week.",
 "Diese Woche im üblichen Bereich: {0}.": "Within your usual range this week: {0}.",
-"Belastbar in deinen Daten: {0} {1} → {2} {3}, {4}.": "Robust in your data: {0} {1} → {2} {3}, {4}.",
+"geht einher mit {0}, {1}": "coincides with {0}, {1}",
+"Belastbar in deinen Daten: {0} {1} ging mit {2} {3} einher ({4}).": "Robust in your data: {0} {1} coincided with {2} {3} ({4}).",
 "Gewicht, neuestes 7-Tage-Mittel": "Weight, newest 7-day average",
 "Änderung des 7-Tage-Mittels im Zeitraum": "Change of the 7-day average in the period",
 "Abnahmetempo: Änderung pro Woche über 28 Tage": "Rate of loss: change per week over 28 days",
@@ -2753,7 +2754,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Garmins Prognose für 5 km": "Garmin’s prediction for 5 km",
 "Trainingsstatus laut Garmin, heute": "Training status according to Garmin, today",
 "Zusammenhänge, die der Korrektur für viele Tests standhalten": "Relationships that survive the correction for many tests",
-"Getestete Kombinationen aus Ursache und Wirkung": "Tested combinations of cause and effect",
+"Getestete Wertepaare": "Tested pairs of values",
 "Zeitraum der Auswertung": "Period of the analysis",
 "Noch keine Auswertung. Sie entsteht mit python -m selftopo analyze.": "No analysis yet. It is created by python -m selftopo analyze.",
 "Dateien in den Einstellungen": "Files in the settings",
@@ -5009,7 +5010,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     const f = areaFinding(area);
     if (f) {
       const d = describeFinding(f);
-      parts.push(html("span", { class: "fz-finding", text: T("Belastbar in deinen Daten: {0} {1} → {2} {3}, {4}.", [d.driver, d.step, d.effect, d.outcome, d.timing]) }));
+      parts.push(html("span", { class: "fz-finding", text: T("Belastbar in deinen Daten: {0} {1} ging mit {2} {3} einher ({4}).", [d.driver, d.step, d.effect, d.outcome, d.timing]) }));
     }
     return parts;
   }
@@ -5161,7 +5162,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       const robust = ins.findings.filter((f) => f.status === "robust");
       const top = robust[0], d = top ? describeFinding(top) : null;
       put("zusammenhaenge", [C("insights-sub", T("Zusammenhänge, die der Korrektur für viele Tests standhalten"), "check", T("{0} belastbar", [robust.length])),
-        C("insights-sub", T("Getestete Kombinationen aus Ursache und Wirkung"), "zusammenhaenge", T("{0} Paare", [fmt(ins.tested)])),
+        C("insights-sub", T("Getestete Wertepaare"), "zusammenhaenge", T("{0} Paare", [fmt(ins.tested)])),
         ins.period ? C("insights-sub", T("Zeitraum der Auswertung"), "calendar", `${ddmm(isoToT(ins.period.start))}–${ddmm(isoToT(ins.period.end))}`) : null],
       T("{0} belastbare Zusammenhänge aus {1} getesteten Paaren.", [robust.length, fmt(ins.tested)]) + (d ? T(" Deutlichster: {0} {1}, {2} {3}.", [d.driver, d.step, d.outcome, d.effect]) : ""));
     } else {
@@ -6209,13 +6210,13 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       return b;
     }));
 
-    // One row per finding: "if" and "then" on the left, effect, ρ and days on the right, |ρ| as a bar
+    // One row per finding: the two values on the left, effect, ρ and days on the right, |ρ| as a bar
     const row = (f) => {
       const d = describeFinding(f);
       return html("li", {}, [
         html("div", { class: "ri-main" }, [
           html("div", { class: "ri-title", text: `${d.driver} ${d.step}` }),
-          html("div", { class: "ri-sub", text: `→ ${d.outcome}, ${d.timing}` }),
+          html("div", { class: "ri-sub", text: T("geht einher mit {0}, {1}", [d.outcome, d.timing]) }),
           html("div", { class: "ri-bar", title: T("Stärke ρ {0}", [fmtSigned(f.rho, 2)]) }, [html("i", { style: `width: ${Math.round(Math.min(1, Math.abs(f.rho)) * 100)}%` })]),
         ]),
         html("div", { class: "ri-side" }, [
