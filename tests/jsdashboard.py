@@ -20,7 +20,7 @@ SCRIPT = HTML[HTML.rindex("<script>"):]
 
 # The German defaults the helpers rely on, without the browser: dates in UTC, German locale
 STUBS = """
-const LANG = "de", DATE_LOCALE = "de-AT";
+const LANG = "de", LOCALE = "de-DE", DATE_LOCALE = "de-AT";
 const T = (text, vars) => (vars ? text.replace(/\\{(\\w+)\\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : text);
 """
 

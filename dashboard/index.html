@@ -67,6 +67,8 @@ img { max-width: 100%; }
   --st-warn-bg: #ffefc2; --st-warn-ink: #6b4a00; --st-warn-line: #a16207;
   --st-crit-bg: #ffd9d3; --st-crit-ink: #7a1f12; --st-crit-line: #b4352a;
   --st-pill: #ffffff;
+  --t-teal-fg: #0e6672; --t-teal-bg: #d9f0f2;
+  --today-bg: #1f1a17; --today-ink: #ffffff; --today-ink-2: #e7dfd3; --today-chip: #352d28; --today-line: #6b5f55; --today-accent: #fde68a;
   --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
@@ -90,6 +92,8 @@ img { max-width: 100%; }
     --st-warn-bg: #2a2410; --st-warn-ink: #fde68a; --st-warn-line: #eab308;
     --st-crit-bg: #2a1517; --st-crit-ink: #fca5a5; --st-crit-line: #f87171;
     --st-pill: rgba(0, 0, 0, 0.32);
+    --t-teal-fg: #7fd6e0; --t-teal-bg: rgba(127, 214, 224, 0.16);
+    --today-bg: #232c3a; --today-ink: #eef0f3; --today-ink-2: #c3c8d0; --today-chip: #2f3a4b; --today-line: #56637a; --today-accent: #fde68a;
     color-scheme: dark;
   }
 }
@@ -111,6 +115,8 @@ img { max-width: 100%; }
   --st-warn-bg: #2a2410; --st-warn-ink: #fde68a; --st-warn-line: #eab308;
   --st-crit-bg: #2a1517; --st-crit-ink: #fca5a5; --st-crit-line: #f87171;
   --st-pill: rgba(0, 0, 0, 0.32);
+  --t-teal-fg: #7fd6e0; --t-teal-bg: rgba(127, 214, 224, 0.16);
+  --today-bg: #232c3a; --today-ink: #eef0f3; --today-ink-2: #c3c8d0; --today-chip: #2f3a4b; --today-line: #56637a; --today-accent: #fde68a;
   color-scheme: dark;
 }
 
@@ -161,15 +167,13 @@ button { font: inherit; }
 .nav a[data-tint] svg.ic { color: var(--t-fg); }
 .nav a[aria-current="true"] svg.ic { color: inherit; }
 .nav a.nav-top { display: none; }
-/* Below 1280px the bar shows icons only; a caption under the current icon names the area */
-.bar-where { display: none; }
-@media (max-width: 1279px) {
-  .bar-where {
-    display: block; position: relative; height: 16px; max-width: 1240px; margin: -2px auto 0;
-    font-size: 0.6875rem; font-weight: 500; line-height: 14px; color: var(--ink-2); pointer-events: none;
-  }
-  .bar-where span { position: absolute; top: 0; left: 0; white-space: nowrap; }
+/* The bar shows icons only (nine areas and the range do not fit as words next to each other in
+   1240 px); a caption under the current icon names the area, and each icon has a tooltip */
+.bar-where {
+  display: block; position: relative; height: 16px; max-width: 1240px; margin: -2px auto 0;
+  font-size: 0.6875rem; font-weight: 500; line-height: 14px; color: var(--ink-2); pointer-events: none;
 }
+.bar-where span { position: absolute; top: 0; left: 0; white-space: nowrap; }
 @media (max-width: 1099px) {
   .nav { padding-right: 28px; -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); }
 }
@@ -197,13 +201,13 @@ button { font: inherit; }
 @media (min-width: 760px) {
   .top-tools { display: none !important; }
 }
-/* The overview icon replaces the brand; below 1280px the areas show icons only, so nothing scrolls */
+/* The overview icon replaces the brand; the areas show icons only, so nothing scrolls */
 @media (min-width: 760px) {
   .brand { display: none; }
   .nav a.nav-top { display: inline-flex; padding-inline: 8px; }
   .nav a.nav-top .lbl { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
-@media (min-width: 760px) and (max-width: 1279px) {
+@media (min-width: 760px) {
   .nav { -webkit-mask-image: none; mask-image: none; padding-right: 0; }
   .nav a { padding: 8px 9px; }
   .nav a svg.ic { width: 18px; height: 18px; }
@@ -323,6 +327,7 @@ a.tile:hover .area-tag { color: var(--ink); }
 .tint-violet { --t-fg: var(--t-violet-fg); --t-bg: var(--t-violet-bg); }
 .tint-blue { --t-fg: var(--t-blue-fg); --t-bg: var(--t-blue-bg); }
 .tint-gray { --t-fg: var(--t-gray-fg); --t-bg: var(--t-gray-bg); }
+.tint-teal { --t-fg: var(--t-teal-fg); --t-bg: var(--t-teal-bg); }
 
 /* Pills and badges */
 .pill { display: inline-flex; align-items: center; gap: 5px; padding: 1px 8px 1px 4px; border-radius: 999px; font-size: 0.75rem; font-weight: 500; color: var(--ink); white-space: nowrap; }
@@ -662,6 +667,81 @@ button.chip:hover { box-shadow: inset 0 0 0 1px var(--ring-strong); }
 /* Chips that lead to a card get a thin outline, so they read as buttons and not as labels */
 button.chip { box-shadow: inset 0 0 0 1px var(--ring); }
 button.chip:active { box-shadow: inset 0 0 0 1px var(--ink-2); filter: brightness(0.96); }
+/* Today card (rule 1 of the recommendations): only on days that call for an easy day or a pause */
+.today {
+  background: var(--today-bg); color: var(--today-ink); border-radius: 24px; padding: 20px 22px; display: grid; gap: 12px;
+  margin-bottom: 14px;
+}
+.today[hidden] { display: none; }
+.today-top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.today-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--today-accent); }
+.today h2 { font-size: 1.625rem; color: var(--today-ink); }
+.today p { color: var(--today-ink-2); max-width: 80ch; line-height: 1.5; }
+.today-reasons { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 0; padding: 0; }
+.today-reasons li { padding: 6px 12px; border-radius: 12px; background: var(--today-chip); font-size: 0.84375rem; }
+.today .ev-chip { background: var(--today-chip); color: var(--today-ink); }
+.today-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.today-actions .primary-btn { background: var(--today-ink); color: var(--today-bg); border-color: var(--today-ink); }
+.today-actions .ghost-btn { color: var(--today-ink); border-color: var(--today-line); }
+.today-actions .ghost-btn:hover { border-color: var(--today-ink); }
+@media (max-width: 759px) { .today { padding: 16px; border-radius: 18px; } .today h2 { font-size: 1.375rem; } }
+
+/* Recommendations area: goals, up to three cards, experiments */
+.reco-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+.goal, .reco, .experiment {
+  border: 1px solid var(--ring); border-radius: 18px; padding: 14px 16px; display: grid; gap: 8px; align-content: start;
+  background: var(--surface); min-width: 0;
+}
+.goal-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.goal-top b { font-size: 0.9375rem; }
+.goal-now { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px; }
+.goal-now .big { font-family: var(--font-display); font-size: 1.75rem; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.goal-now .to { color: var(--muted); font-size: 0.84375rem; }
+.goal p, .experiment p { font-size: 0.84375rem; color: var(--ink-2); }
+.state-badge { font-size: 0.71875rem; font-weight: 600; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+.state-badge.good { background: var(--st-good-bg); color: var(--st-good-ink); }
+.state-badge.warn { background: var(--st-warn-bg); color: var(--st-warn-ink); }
+.state-badge.none { background: var(--chip); color: var(--ink-2); }
+.progress { height: 8px; border-radius: 999px; background: var(--grid); overflow: hidden; }
+.progress > span { display: block; height: 100%; border-radius: 999px; background: var(--t-fg, var(--s1)); }
+.reco h4 { margin: 0; font-family: var(--font-display); font-size: 1.125rem; font-weight: 700; letter-spacing: -0.01em; line-height: 1.25; }
+.reco .why { font-size: 0.84375rem; color: var(--ink-2); line-height: 1.5; }
+.reco-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.ev-chip { font-size: 0.71875rem; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: var(--t-blue-bg); color: var(--t-blue-fg); }
+.ev-chip.own { background: var(--t-violet-bg); color: var(--t-violet-fg); }
+.ev-chip.plain { background: var(--chip); color: var(--ink-2); }
+.reco-measure { background: var(--area); border-radius: 12px; padding: 8px 12px; font-size: 0.84375rem; display: grid; gap: 2px; }
+.reco-measure .k { font-size: 0.71875rem; font-weight: 600; color: var(--muted); }
+.reco-sources { font-size: 0.75rem; color: var(--muted); }
+.reco-sources a { color: var(--ink-2); }
+.reco-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
+.reco-pending { font-size: 0.8125rem; color: var(--ink); background: var(--note); border-radius: 10px; padding: 8px 12px; display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; }
+.reco-more > summary { cursor: pointer; font-size: 0.8125rem; color: var(--ink-2); padding: 8px 0; }
+.reco-more[open] > summary { margin-bottom: 8px; }
+.reco-empty { font-size: 0.84375rem; color: var(--ink-2); display: grid; gap: 8px; justify-items: start; }
+.reco-note { font-size: 0.8125rem; color: var(--ink-2); }
+.exp-metrics { display: flex; flex-wrap: wrap; gap: 14px; }
+.exp-metrics div { display: grid; gap: 1px; min-width: 96px; }
+.exp-metrics .k { font-size: 0.75rem; color: var(--muted); }
+.exp-metrics b { font-size: 1.0625rem; font-variant-numeric: tabular-nums; }
+.exp-metrics .r { font-size: 0.71875rem; color: var(--muted); }
+
+/* Goals in the settings */
+.goal-fields { display: grid; gap: 10px; }
+.goal-row { display: grid; gap: 4px 10px; grid-template-columns: 7.5rem minmax(0, 1fr) minmax(0, 0.8fr) minmax(0, 1fr); align-items: end; }
+.goal-row .area-name { font-size: 0.8125rem; font-weight: 600; padding-bottom: 8px; }
+.goal-row label { font-size: 0.75rem; color: var(--ink-2); display: grid; gap: 3px; }
+.goal-row select, .goal-row input {
+  font: inherit; font-size: 0.8125rem; height: 36px; padding: 0 8px; border: 1px solid var(--ring-strong); border-radius: 7px;
+  background: var(--surface); color: var(--ink); min-width: 0; width: 100%;
+}
+.goal-row input.bad { border-color: var(--crit); }
+@media (max-width: 759px) {
+  .goal-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .goal-row .area-name { grid-column: 1 / -1; padding-bottom: 0; }
+  .goal-row select, .goal-row input { height: 44px; }
+}
+
 /* Phones and touch screens: controls reach 44 px. Chips grow a little and keep 8 px apart; info
    and toggle buttons get an invisible hit area around them, so the layout does not move. */
 @media (max-width: 759px), (pointer: coarse) {
@@ -724,6 +804,15 @@ dialog.prefs[open] { display: flex; flex-direction: column; }
 .settings-grid { display: grid; gap: 12px 16px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top: 4px; }
 .settings-grid .field input.bad { border-color: var(--crit); }
 .settings-grid .field .sub { font-size: 0.75rem; }
+.push-key { display: grid; gap: 6px; margin: 12px 0; }
+.push-key input {
+  font: inherit; font-size: 0.8125rem; height: 36px; padding: 0 8px; border: 1px solid var(--ring-strong); border-radius: 7px;
+  background: var(--surface); color: var(--ink); min-width: 0; width: 100%; font-family: var(--font-mono);
+}
+.push-key label { font-size: 0.8125rem; font-weight: 600; }
+@media (pointer: coarse) { .push-key input { height: 44px; } }
+.settings-grid .goal-fields { grid-column: 1 / -1; border: 0; margin: 4px 0 0; padding: 0; min-width: 0; }
+.settings-grid .goal-fields legend { font-size: 0.8125rem; font-weight: 600; padding: 0; margin-bottom: 6px; }
 .settings-lifts { margin: 0; font-size: 0.8125rem; color: var(--ink-2); }
 .settings-problems { margin: 0; padding-left: 18px; font-size: 0.8125rem; color: var(--ink); }
 .settings-problems li::marker { color: var(--crit); }
@@ -771,6 +860,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M15 7h6v6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-calendar" viewBox="0 0 24 24"><path d="M4 6h16v14H4zM4 10h16M8 3v4M16 3v4" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-check" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></g></symbol>
+    <symbol id="i-empfehlungen" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></g></symbol>
     <symbol id="i-mid" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16v.5"/></g></symbol>
     <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4l9 16H3zM12 10v4M12 17v.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-up" viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
@@ -790,14 +880,15 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     <a class="brand" href="#top" title="Zum Überblick (Taste 0)">selftopo</a>
     <nav class="nav" id="nav" aria-label="Bereiche">
       <a href="#top" class="nav-top" title="Überblick (Taste 0)"><svg class="ic" aria-hidden="true"><use href="#i-ueberblick"/></svg><span class="lbl">Überblick</span></a>
-      <a href="#koerper" class="tint-orange" data-tint title="Körper (Taste 1)"><svg class="ic" aria-hidden="true"><use href="#i-koerper"/></svg><span class="lbl">Körper</span></a>
-      <a href="#ernaehrung" class="tint-orange" data-tint title="Ernährung (Taste 2)"><svg class="ic" aria-hidden="true"><use href="#i-ernaehrung"/></svg><span class="lbl">Ernährung</span></a>
-      <a href="#erholung" class="tint-violet" data-tint title="Erholung (Taste 3)"><svg class="ic" aria-hidden="true"><use href="#i-erholung"/></svg><span class="lbl">Erholung</span></a>
-      <a href="#schlaf" class="tint-violet" data-tint title="Schlaf (Taste 4)"><svg class="ic" aria-hidden="true"><use href="#i-schlaf"/></svg><span class="lbl">Schlaf</span></a>
-      <a href="#sport" class="tint-blue" data-tint title="Sport (Taste 5)"><svg class="ic" aria-hidden="true"><use href="#i-sport"/></svg><span class="lbl">Sport</span></a>
-      <a href="#fitness" class="tint-blue" data-tint title="Fitness (Taste 6)"><svg class="ic" aria-hidden="true"><use href="#i-fitness"/></svg><span class="lbl">Fitness</span></a>
-      <a href="#aktivitaeten" class="tint-blue" data-tint title="Aktivitäten (Taste 7)"><svg class="ic" aria-hidden="true"><use href="#i-aktivitaeten"/></svg><span class="lbl">Aktivitäten</span></a>
-      <a href="#zusammenhaenge" class="tint-gray" data-tint title="Zusammenhänge (Taste 8)"><svg class="ic" aria-hidden="true"><use href="#i-zusammenhaenge"/></svg><span class="lbl">Zusammenhänge</span></a>
+      <a href="#empfehlungen" class="tint-teal" data-tint title="Empfehlungen (Taste 1)"><svg class="ic" aria-hidden="true"><use href="#i-empfehlungen"/></svg><span class="lbl">Empfehlungen</span></a>
+      <a href="#koerper" class="tint-orange" data-tint title="Körper (Taste 2)"><svg class="ic" aria-hidden="true"><use href="#i-koerper"/></svg><span class="lbl">Körper</span></a>
+      <a href="#ernaehrung" class="tint-orange" data-tint title="Ernährung (Taste 3)"><svg class="ic" aria-hidden="true"><use href="#i-ernaehrung"/></svg><span class="lbl">Ernährung</span></a>
+      <a href="#erholung" class="tint-violet" data-tint title="Erholung (Taste 4)"><svg class="ic" aria-hidden="true"><use href="#i-erholung"/></svg><span class="lbl">Erholung</span></a>
+      <a href="#schlaf" class="tint-violet" data-tint title="Schlaf (Taste 5)"><svg class="ic" aria-hidden="true"><use href="#i-schlaf"/></svg><span class="lbl">Schlaf</span></a>
+      <a href="#sport" class="tint-blue" data-tint title="Sport (Taste 6)"><svg class="ic" aria-hidden="true"><use href="#i-sport"/></svg><span class="lbl">Sport</span></a>
+      <a href="#fitness" class="tint-blue" data-tint title="Fitness (Taste 7)"><svg class="ic" aria-hidden="true"><use href="#i-fitness"/></svg><span class="lbl">Fitness</span></a>
+      <a href="#aktivitaeten" class="tint-blue" data-tint title="Aktivitäten (Taste 8)"><svg class="ic" aria-hidden="true"><use href="#i-aktivitaeten"/></svg><span class="lbl">Aktivitäten</span></a>
+      <a href="#zusammenhaenge" class="tint-gray" data-tint title="Zusammenhänge (Taste 9)"><svg class="ic" aria-hidden="true"><use href="#i-zusammenhaenge"/></svg><span class="lbl">Zusammenhänge</span></a>
     </nav>
     <div class="seg-host"><div class="seg small" role="group" aria-label="Zeitraum" data-range></div></div>
     <button class="icon-btn" id="install" data-action="install" type="button" hidden aria-label="Als App installieren" title="Als App installieren"><svg class="ic" aria-hidden="true"><use href="#i-install"/></svg></button>
@@ -830,6 +921,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   <div class="notice" id="notice" hidden></div>
 
   <section id="ueberblick" aria-label="Überblick, letzte 7 Tage">
+    <section class="today" id="today-card" aria-labelledby="today-title" hidden></section>
     <ul class="tile-sum" id="tile-sum" aria-label="Zusammenfassung der Kacheln" hidden></ul>
     <div class="tiles" id="tiles"><div class="loading">Daten werden geladen …</div></div>
     <div class="tiles-foot" id="tiles-foot">
@@ -867,6 +959,42 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       <ul class="notable-list" id="notable-list"></ul>
     </div>
 </section>
+
+  <section class="area tint-teal" id="empfehlungen" aria-labelledby="h-empfehlungen">
+    <div class="area-head">
+      <span class="area-icon" aria-hidden="true"><svg class="ic"><use href="#i-empfehlungen"/></svg></span>
+      <h2 id="h-empfehlungen">Empfehlungen</h2>
+      <p class="area-sum" id="sum-empfehlungen"></p>
+    </div>
+    <div class="info area-info" id="info-empfehlungen" hidden>
+      <p>Empfehlungen führen zu deinen Zielen. Jede zeigt ihren Beleg: <b>Aus Studien</b> (Studie oder Leitlinie, Quelle verlinkt) oder <b>In deinen Daten</b> (ein belastbarer Zusammenhang aus der Auswertung). Was nur in deinen Daten steckt, ist ein Zusammenhang, keine Ursache, und wird deshalb als Experiment angeboten: 14 Tage, dann vergleicht selftopo mit den 14 Tagen davor.</p>
+      <p>Die Regeln laufen täglich im Workflow mit <code>python -m selftopo analyze</code> und stehen mit Schwellen und Quellen in docs/recommendations.md. Die Heute-Karte im Überblick rechnet die Seite zusätzlich selbst, damit sie nicht einen Tag zu spät kommt.</p>
+      <p>selftopo ist kein Medizinprodukt; die Empfehlungen sind Vorschläge für gesunde Erwachsene. Ab einem Blutdruck von 140/90 mmHg im Mittel gibt es nur den Hinweis auf ärztliche Abklärung und keine Experimente.</p>
+    </div>
+    <div class="area-body" id="b-empfehlungen">
+      <div class="card span2" data-tab="Empfehlungen" data-icon="list">
+        <div class="card-head"><h3>Was dich deinen Zielen näher bringt</h3><p class="sub" id="reco-cards-sub"></p></div>
+        <div class="info" hidden>
+          <p>Höchstens drei Karten, der Rest unter „weitere“. Reihenfolge: zuerst Sicherheit, dann Leitlinien und Studien, dann Datenqualität, dann Experimente aus deinen Daten; bei gleicher Stufe die mit weniger Aufwand. „Später“ blendet eine Karte 14 Tage aus, „Passt nicht“ dauerhaft. Beides und gestartete Experimente stehen in settings.json; diese Seite darf nur lesen, gespeichert wird in den Einstellungen.</p>
+        </div>
+        <div id="reco-cards"></div>
+      </div>
+      <div class="card" data-tab="Ziele" data-icon="target">
+        <div class="card-head"><h3>Deine Ziele</h3><p class="sub" id="reco-goals-sub"></p></div>
+        <div class="info" hidden>
+          <p>Höchstens ein Ziel pro Bereich. Der aktuelle Wert ist das 7-Tage-Mittel (VO2max: der neueste Wert). Das Tempo ist der Trend der letzten 4 Wochen (Ruhepuls und aktive Minuten 8, VO2max 12 Wochen); die Prognose rechnet ihn bis zum Ziel weiter. Mit Datum steht dabei, welches Tempo nötig wäre.</p>
+        </div>
+        <div id="reco-goals"></div>
+      </div>
+      <div class="card" data-tab="Experimente" data-icon="calendar">
+        <div class="card-head"><h3>Experimente</h3><p class="sub" id="reco-exp-sub"></p></div>
+        <div class="info" hidden>
+          <p>Ein Experiment vergleicht seine Tage mit gleich vielen Tagen davor: Median und Spanne (mittlere Hälfte der Werte) je Kennzahl. Unter 10 Tagen pro Phase gibt es kein Ergebnis, nur „zu wenig Daten“. Ein abgeschlossenes Experiment wird nicht noch einmal vorgeschlagen.</p>
+        </div>
+        <div id="reco-exp"></div>
+      </div>
+    </div>
+  </section>
 
   <section class="area tint-orange" id="koerper" aria-labelledby="h-koerper">
     <div class="area-head">
@@ -1498,7 +1626,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       <h3>Tastenkürzel</h3>
       <table>
         <tbody>
-          <tr><td><kbd>1</kbd> bis <kbd>8</kbd></td><td>Zum Bereich springen: Körper, Ernährung, Erholung, Schlaf, Sport, Fitness, Aktivitäten, Zusammenhänge</td></tr>
+          <tr><td><kbd>1</kbd> bis <kbd>9</kbd></td><td>Zum Bereich springen: Empfehlungen, Körper, Ernährung, Erholung, Schlaf, Sport, Fitness, Aktivitäten, Zusammenhänge</td></tr>
           <tr><td><kbd>0</kbd></td><td>Zurück zum Überblick</td></tr>
           <tr><td><kbd>Z</kbd></td><td>Nächster Zeitraum; mit <kbd>Umschalt</kbd> der vorherige</td></tr>
           <tr><td><kbd>←</kbd> <kbd>→</kbd></td><td>Im ausgewählten Diagramm einen Tag weiter; mit <kbd>Umschalt</kbd> eine Woche</td></tr>
@@ -1573,6 +1701,9 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
             <label for="set-grip-right">Handkraft rechts (Hevy-Übung)</label>
             <input id="set-grip-right" type="text" autocomplete="off" spellcheck="false">
           </div>
+          <fieldset class="goal-fields" id="goal-fields">
+            <legend>Ziele für die Empfehlungen, höchstens eines pro Bereich</legend>
+          </fieldset>
         </form>
         <p class="settings-lifts" id="settings-lifts"></p>
         <div class="picker-actions">
@@ -1656,6 +1787,21 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
           <button class="ghost-btn" type="button" id="prefs-help">Hilfe und Diagramme lesen</button>
         </div>
       </div>
+      <div class="prefs-group" id="push-group">
+        <h3>Push-Benachrichtigungen</h3>
+        <p class="sub">An Tagen, an denen die Heute-Karte erscheint, schickt der tägliche Workflow sie als Benachrichtigung auf dieses Gerät. Auf dem iPhone nur in der installierten App (Teilen → Zum Home-Bildschirm, ab iOS 16.4).</p>
+        <div class="field push-key">
+          <label for="push-key">Öffentlicher Schlüssel</label>
+          <input id="push-key" type="text" autocomplete="off" spellcheck="false" placeholder="B…">
+          <p class="sub">Einmal erzeugen mit <code>python -m selftopo push-keys</code>. Den privaten Schlüssel als Secret <code>VAPID_PRIVATE_KEY</code> im Daten-Repository hinterlegen; der öffentliche steht danach in settings.json.</p>
+        </div>
+        <p class="sub" id="push-status" role="status"></p>
+        <div class="picker-actions">
+          <button class="primary-btn" type="button" id="push-on">Auf diesem Gerät einschalten</button>
+          <button class="ghost-btn" type="button" id="push-off" hidden>Ausschalten</button>
+          <button class="ghost-btn" type="button" id="push-save" hidden>Zum Speichern</button>
+        </div>
+      </div>
       <div class="prefs-group">
         <h3>Über selftopo</h3>
         <p class="sub">Open Source unter MIT-Lizenz. Deine Daten liegen nur in deinem privaten Repository und in diesem Browser; einen Server von selftopo gibt es nicht.</p>
@@ -1672,6 +1818,210 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 
 <script type="application/json" id="i18n-en">
 {
+"Push-Benachrichtigungen": "Push notifications",
+"An Tagen, an denen die Heute-Karte erscheint, schickt der tägliche Workflow sie als Benachrichtigung auf dieses Gerät. Auf dem iPhone nur in der installierten App (Teilen → Zum Home-Bildschirm, ab iOS 16.4).": "On days with a Today card, the daily workflow sends it to this device as a notification. On the iPhone only in the installed app (Share → Add to Home Screen, iOS 16.4 or later).",
+"Öffentlicher Schlüssel": "Public key",
+"Einmal erzeugen mit <code>python -m selftopo push-keys</code>. Den privaten Schlüssel als Secret <code>VAPID_PRIVATE_KEY</code> im Daten-Repository hinterlegen; der öffentliche steht danach in settings.json.": "Make it once with <code>python -m selftopo push-keys</code>. Store the private key as the secret <code>VAPID_PRIVATE_KEY</code> in the data repository; the public one then goes into settings.json.",
+"Auf diesem Gerät einschalten": "Turn on for this device",
+"Ausschalten": "Turn off",
+"Zum Speichern": "Go to saving",
+"Dieser Browser kann keine Push-Benachrichtigungen. Auf dem iPhone erst zum Home-Bildschirm hinzufügen und in der App einschalten.": "This browser cannot receive push notifications. On the iPhone, add the page to the Home Screen first and turn them on in the app.",
+"Eingeschaltet. Speichere jetzt settings.json; ab dem nächsten Lauf des Workflows kommt die Heute-Karte. Zum Prüfen den Workflow mit push_test = yes starten.": "Turned on. Now save settings.json; from the next workflow run, the Today card arrives. To check, run the workflow with push_test = yes.",
+"Auf diesem Gerät eingeschaltet.": "On for this device.",
+"Dieses Gerät ist angemeldet, steht aber noch nicht in settings.json.": "This device is subscribed but not yet in settings.json.",
+"Ausgeschaltet. Speichere settings.json, damit der Workflow dieses Gerät nicht mehr anschreibt.": "Turned off. Save settings.json so the workflow stops sending to this device.",
+"Benachrichtigungen sind für diese Seite blockiert; erlaube sie in den Einstellungen des Browsers.": "Notifications are blocked for this page; allow them in the browser settings.",
+"Auf diesem Gerät aus.": "Off for this device.",
+"Trage zuerst den öffentlichen Schlüssel ein (python -m selftopo push-keys).": "Enter the public key first (python -m selftopo push-keys).",
+"Einschalten hat nicht geklappt: {0}": "Turning on failed: {0}",
+"{0}, 14 Tage": "{0}, 14 days",
+"im Bereich": "in range",
+"noch nicht": "not yet",
+"Empfehlungen führen zu deinen Zielen. Jede zeigt ihren Beleg: <b>Aus Studien</b> (Studie oder Leitlinie, Quelle verlinkt) oder <b>In deinen Daten</b> (ein belastbarer Zusammenhang aus der Auswertung). Was nur in deinen Daten steckt, ist ein Zusammenhang, keine Ursache, und wird deshalb als Experiment angeboten: 14 Tage, dann vergleicht selftopo mit den 14 Tagen davor.": "Recommendations lead to your goals. Each shows its evidence: <b>From studies</b> (a study or guideline, source linked) or <b>In your data</b> (a robust relationship from the analysis). What only your data shows is a relationship, not a cause, so it is offered as an experiment: 14 days, then selftopo compares them with the 14 days before.",
+"Die Regeln laufen täglich im Workflow mit <code>python -m selftopo analyze</code> und stehen mit Schwellen und Quellen in docs/recommendations.md. Die Heute-Karte im Überblick rechnet die Seite zusätzlich selbst, damit sie nicht einen Tag zu spät kommt.": "The rules run daily in the workflow with <code>python -m selftopo analyze</code>; they are listed with thresholds and sources in docs/recommendations.md. The page also works out the Today card in the overview itself, so it is never a day late.",
+"selftopo ist kein Medizinprodukt; die Empfehlungen sind Vorschläge für gesunde Erwachsene. Ab einem Blutdruck von 140/90 mmHg im Mittel gibt es nur den Hinweis auf ärztliche Abklärung und keine Experimente.": "selftopo is not a medical device; the recommendations are suggestions for healthy adults. From an average blood pressure of 140/90 mmHg there is only the advice to have it checked by a doctor, and no experiments.",
+"Was dich deinen Zielen näher bringt": "What brings you closer to your goals",
+"Höchstens drei Karten, der Rest unter „weitere“. Reihenfolge: zuerst Sicherheit, dann Leitlinien und Studien, dann Datenqualität, dann Experimente aus deinen Daten; bei gleicher Stufe die mit weniger Aufwand. „Später“ blendet eine Karte 14 Tage aus, „Passt nicht“ dauerhaft. Beides und gestartete Experimente stehen in settings.json; diese Seite darf nur lesen, gespeichert wird in den Einstellungen.": "At most three cards, the rest under \"more\". Order: safety first, then guidelines and studies, then data quality, then experiments from your data; at the same level, the one with less effort. \"Later\" hides a card for 14 days, \"Does not fit\" for good. Both, and started experiments, live in settings.json; this page may only read, so you save them in the settings.",
+"Deine Ziele": "Your goals",
+"Höchstens ein Ziel pro Bereich. Der aktuelle Wert ist das 7-Tage-Mittel (VO2max: der neueste Wert). Das Tempo ist der Trend der letzten 4 Wochen (Ruhepuls und aktive Minuten 8, VO2max 12 Wochen); die Prognose rechnet ihn bis zum Ziel weiter. Mit Datum steht dabei, welches Tempo nötig wäre.": "At most one goal per area. The current value is the 7-day average (VO2max: the newest value). The pace is the trend of the last 4 weeks (resting HR and active minutes 8, VO2max 12 weeks); the forecast extends it to the goal. With a date, the pace that date needs is shown as well.",
+"Experimente": "Experiments",
+"Ein Experiment vergleicht seine Tage mit gleich vielen Tagen davor: Median und Spanne (mittlere Hälfte der Werte) je Kennzahl. Unter 10 Tagen pro Phase gibt es kein Ergebnis, nur „zu wenig Daten“. Ein abgeschlossenes Experiment wird nicht noch einmal vorgeschlagen.": "An experiment compares its days with as many days before: median and range (the middle half of the values) per metric. With fewer than 10 days per phase there is no result, only \"too little data\". A finished experiment is not suggested again.",
+"Ziele für die Empfehlungen, höchstens eines pro Bereich": "Goals for the recommendations, at most one per area",
+"Ziele": "Goals",
+" bis {0}": " by {0}",
+"1 Experiment": "1 experiment",
+"1 Ziel": "1 goal",
+"7-Tage-Mittel gegenüber Garmins Normalbereich.": "7-day average against Garmin's balanced range.",
+"Abstand, Tempo und Prognose": "Distance, pace and forecast",
+"Aktive Minuten pro Woche": "Active minutes per week",
+"Alle Muskelgruppen erreichen das Ziel.": "Every muscle group reaches the goal.",
+"Als Experiment starten ({0} Tage)": "Start as an experiment ({0} days)",
+"Aus Studien": "From studies",
+"Beispieldaten: Änderungen werden nicht gespeichert.": "Sample data: changes are not saved.",
+"Bereich {0}–{1} ms": "range {0}–{1} ms",
+"Darunter: {0}": "Below: {0}",
+"Datenqualität": "Data quality",
+"Die Ziele sind gesetzt; Werte dazu kommen mit dem nächsten Lauf des Workflows (python -m selftopo analyze).": "Your goals are set; their values come with the next workflow run (python -m selftopo analyze).",
+"Einschlafen vor": "Asleep before",
+"Empfehlungen": "Recommendations",
+"Empfehlungen aus deinen Daten startest du als Experiment: 14 Tage, dann vergleicht selftopo mit den 14 Tagen davor.": "Recommendations from your own data start as an experiment: 14 days, then selftopo compares them with the 14 days before.",
+"Empfehlungen brauchen ein Ziel, höchstens eines pro Bereich: etwa 75 kg bis Ende März, Ruhepuls unter 46 oder Einschlafen vor 23:00. Ohne Ziel bleibt es bei Überblick und Auffällig.": "Recommendations need a goal, at most one per area: say 75 kg by the end of March, resting HR below 46 or asleep before 23:00. Without a goal, there are only the overview and Notable.",
+"Entsteht mit `python -m selftopo analyze` aus den Zielen in settings.json; der GitHub-Workflow macht das täglich nach dem Abruf.": "Created by `python -m selftopo analyze` from the goals in settings.json; the GitHub workflow does this daily after fetching.",
+"Erst mit Zielen.": "Only with goals.",
+"Experiment": "Experiment",
+"Experiment vorgemerkt, Start heute.": "Experiment noted, starting today.",
+"Für heute und die nächsten Wochen: {0}": "For today and the coming weeks: {0}",
+"Garmins Bereich": "Garmin's range",
+"Gerade keine Empfehlung: deine Daten lösen für deine Ziele keine Regel aus.": "No recommendation right now: your data triggers no rule for your goals.",
+"Gerade keine Empfehlung: deine Daten lösen keine Regel aus.": "No recommendation right now: your data triggers no rule.",
+"HRV im Normalbereich": "HRV in its balanced range",
+"Heute": "Today",
+"Höchstens drei auf einmal, mit Beleg und Messung": "At most three at a time, with evidence and measurement",
+"In deinen Daten": "In your data",
+"In den Einstellungen speichern": "Save in the settings",
+"Kennzahl": "Metric",
+"Lege Ziele fest, dann zeigt selftopo, was dich ihnen näher bringt.": "Set goals, and selftopo shows what brings you closer to them.",
+"Leitlinie": "Guideline",
+"Median {0} → {1}": "median {0} → {1}",
+"Noch keine": "None yet",
+"Noch keine Auswertung: sie entsteht im täglichen Workflow.": "No evaluation yet: it is made by the daily workflow.",
+"Noch keine Ziele": "No goals yet",
+"Passt nicht": "Does not fit",
+"Quellen: ": "Sources: ",
+"Rückgängig": "Undo",
+"Seit {0} · Tag {1} von {2} · verglichen mit den {2} Tagen davor": "Since {0} · day {1} of {2} · compared with the {2} days before",
+"Später": "Later",
+"Tag {0} von {1}": "Day {0} of {1}",
+"Tempo {0} pro Woche": "pace {0} a week",
+"Vergleich mit den Tagen davor: Median und Spanne": "Compared with the days before: median and range",
+"Verstanden": "Got it",
+"Vorgemerkt: ausgeblendet bis {0}.": "Noted: hidden until {0}.",
+"Vorgemerkt: passt nicht.": "Noted: does not fit.",
+"Warum": "Why",
+"Warum? Regel und Quellen": "Why? Rule and sources",
+"Ziel: {0}": "Goal: {0}",
+"Ziele bearbeiten": "Edit goals",
+"Ziele festlegen": "Set goals",
+"Zielwert": "Target",
+"Zwischenstände sind unsicher; das Ergebnis gibt es nach Tag {0}, ab 10 Tagen pro Phase.": "Interim values are uncertain; the result comes after day {0}, from 10 days per phase.",
+"ab {0} pro Muskelgruppe": "{0} or more per muscle group",
+"abgeschlossen": "done",
+"auf Kurs": "on track",
+"außerhalb": "outside",
+"beim jetzigen Tempo nicht erreichbar": "not reached at the current pace",
+"bis (optional)": "by (optional)",
+"erreicht": "reached",
+"goals muss ein Objekt sein, ein Ziel pro Bereich.": "goals must be an object, one goal per area.",
+"goals.{0}: by muss ein Datum wie „2027-03-31“ sein.": "goals.{0}: by must be a date like \"2027-03-31\".",
+"goals.{0}: target muss eine Uhrzeit wie „23:00“ sein.": "goals.{0}: target must be a time like \"23:00\".",
+"goals.{0}: target muss eine positive Zahl sein.": "goals.{0}: target must be a positive number.",
+"goals.{0}: unbekannte Kennzahl.": "goals.{0}: unknown metric.",
+"goals: unbekannter Bereich „{0}“.": "goals: unknown area \"{0}\".",
+"jetzt {0}": "now {0}",
+"kein Ziel": "no goal",
+"keine Daten": "no data",
+"läuft": "running",
+"nötig {0}": "needed {0}",
+"recommendations.json fehlt noch. Es entsteht mit `python -m selftopo analyze`, im Daten-Repository täglich im Workflow.": "recommendations.json is missing. It is created by `python -m selftopo analyze`, daily by the workflow in the data repository.",
+"so etwa im {0}": "around {0}",
+"vor {0}": "before {0}",
+"vorgemerkt": "noted",
+"zu langsam": "too slow",
+"zu wenig Daten": "too little data",
+"{0} Empfehlungen": "{0} recommendations",
+"{0} Experimente": "{0} experiments",
+"{0} Ziele": "{0} goals",
+"{0} von mindestens 10 Tagen": "{0} of at least 10 days",
+"{0} von {1} Nächten rechtzeitig; Ziel: 5 von 7.": "{0} of {1} nights on time; goal: 5 of 7.",
+"{0} weitere": "{0} more",
+"{0} Änderung(en) vorgemerkt. Sie gelten, sobald settings.json gespeichert ist.": "{0} change(s) noted. They apply once settings.json is saved.",
+"1.000 Schritte": "1,000 steps",
+"10 Sätze": "10 sets",
+"100 Punkte": "100 points",
+"100 g": "100 g",
+"2–3 lockere Ausdauereinheiten pro Woche": "2–3 easy endurance sessions a week",
+"30 g": "30 g",
+"50 g": "50 g",
+"500 kcal": "500 kcal",
+"Abnahmetempo über 28 Tage, Muskelmasse": "Rate of loss over 28 days, muscle mass",
+"Am Wochenende liegt deine Schlafmitte {0} h später als unter der Woche. Regelmäßigkeit sagte in einer großen Beobachtungsstudie die Sterblichkeit stärker voraus als die Dauer.": "At weekends, the middle of your sleep is {0} h later than on weekdays. In a large observational study, regularity predicted mortality more strongly than duration.",
+"Auf 150–300 Minuten Bewegung pro Woche kommen": "Get to 150–300 minutes of activity a week",
+"Ausdauer 2–3× pro Woche, weniger Salz": "Endurance 2–3× a week, less salt",
+"Bettzeit 30 min früher, an Arbeitstagen zuerst": "Go to bed 30 min earlier, on workdays first",
+"Blutdruck ärztlich abklären lassen": "Have your blood pressure checked by a doctor",
+"Blutdruck-Mittel, 30 Tage": "Blood pressure average, 30 days",
+"Blutdruck-Mittel, 8 Wochen": "Blood pressure average, 8 weeks",
+"Dein Gewicht ändert sich um {0} kg pro Woche. Dein Zieldatum bräuchte mehr als 1 % pro Woche; selftopo rechnet mit höchstens {1} kg pro Woche, das schützt Muskelmasse und Kraft.": "Your weight changes by {0} kg a week. Your goal date would need more than 1 % a week; selftopo plans with at most {1} kg a week, which protects muscle mass and strength.",
+"Dein Gewicht ändert sich um {0} kg pro Woche. Für {1} kg bis {2} bräuchtest du {3} kg pro Woche.": "Your weight changes by {0} kg a week. For {1} kg by {2} you would need {3} kg a week.",
+"Dein Mittel der letzten 30 Tage liegt bei {0}/{1} mmHg, ab 120/70 gilt das als erhöht. Ausdauertraining senkte den Blutdruck im Mittel um 3,5/2,5 mmHg, weniger Salz um etwa 4/2 mmHg, jedes kg Abnahme um etwa 1 mmHg.": "Your average over the last 30 days is {0}/{1} mmHg; from 120/70 it counts as elevated. Endurance training lowered blood pressure by 3.5/2.5 mmHg on average, less salt by about 4/2 mmHg, each kg lost by about 1 mmHg.",
+"Dein Mittel der letzten 30 Tage liegt bei {0}/{1} mmHg, ab 140/90 gilt das als Bluthochdruck. selftopo schlägt dafür keine Selbstversuche vor.": "Your average over the last 30 days is {0}/{1} mmHg; from 140/90 it counts as high blood pressure. selftopo suggests no self-experiments for it.",
+"Deine Aktivitäten der Uhr ergeben {0} min pro Woche. Die WHO empfiehlt Erwachsenen 150–300 min mäßige oder 75–150 min intensive Bewegung pro Woche; zügiges Gehen zählt.": "Your watch activities add up to {0} min a week. The WHO recommends 150–300 min of moderate or 75–150 min of vigorous activity a week for adults; brisk walking counts.",
+"Deine VO2max steht seit 8 Wochen bei {0}, und in 4 Wochen war keine Intervalleinheit dabei. Intervall- und Dauertraining steigern VO2max beide, Intervalle etwas mehr. An Tagen mit niedriger Readiness hat die Heute-Karte Vorrang.": "Your VO2max has been at {0} for 8 weeks, and there was no interval session in 4 weeks. Interval and continuous training both raise VO2max, intervals a little more. On days with low readiness, the Today card comes first.",
+"Deutlich abnehmen und gleichzeitig viel Kraft aufbauen widerspricht sich: im Defizit wächst Kraft langsamer. Überlege, welches Ziel jetzt vorgeht.": "Losing a lot of weight and building a lot of strength at the same time conflict: in a deficit, strength grows more slowly. Decide which goal comes first now.",
+"Diese Woche jeden Tag vollständig loggen": "Log every day completely this week",
+"Du isst im Mittel {0} g/kg. Über etwa 1,6 g/kg brachte mehr Eiweiß im Mittel keinen weiteren Zuwachs an fettfreier Masse.": "You eat {0} g/kg on average. Above about 1.6 g/kg, more protein brought no further gain in lean mass on average.",
+"Du schläfst im Mittel {0} h. Erwachsene sollen regelmäßig 7 h oder mehr schlafen.": "You sleep {0} h on average. Adults should regularly sleep 7 h or more.",
+"Eine Intervalleinheit pro Woche, z. B. 4 × 4 min hart": "One interval session a week, e.g. 4 × 4 min hard",
+"Einschlafzeit, Schlafdauer": "Bedtime, sleep duration",
+"Einschlafzeit, Sleep Score nach Trainingsabenden": "Bedtime, Sleep Score after training evenings",
+"Eiweiß auf 1,6 g/kg anheben, z. B. eine eiweißreiche Mahlzeit mehr": "Raise protein to 1.6 g/kg, e.g. one more protein-rich meal",
+"Eiweiß g/kg, Muskelmasse": "Protein g/kg, muscle mass",
+"Experiment: 14 Tage die letzte große Mahlzeit spätestens 3 h vor dem Schlafen": "Experiment: 14 days with the last big meal at least 3 h before sleep",
+"Experiment: 14 Tage mehr {0}": "Experiment: 14 days of more {0}",
+"Experiment: 14 Tage ohne Alkohol": "Experiment: 14 days without alcohol",
+"Experiment: 14 Tage vor {0} einschlafen": "Experiment: 14 days asleep before {0}",
+"Experiment: 14 Tage weniger {0}": "Experiment: 14 days of less {0}",
+"Gleiche Aufstehzeit ± 30 min, auch am Wochenende": "Same wake-up time ± 30 min, weekends too",
+"HRV {0} ms unter deinem Bereich ab {1}": "HRV {0} ms, below your range from {1}",
+"HRV, Ruhepuls, Sleep Score vorher/nachher": "HRV, resting HR, Sleep Score before/after",
+"HRV, Sleep Score": "HRV, Sleep Score",
+"Heute Pause": "Rest today",
+"Heute locker statt schwer": "Easy today instead of hard",
+"Im Mittel gehst du {0} Schritte. Unter 60 Jahren flachte der Nutzen in Studien erst bei 8.000–10.000 Schritten ab; in 1.000er-Stufen ist das gut machbar.": "You walk {0} steps on average. Under 60, the benefit in studies only levelled off at 8,000–10,000 steps; steps of 1,000 make that manageable.",
+"In deinen Daten ging mehr {0} mit {1} {2} {3} einher, pro {4} ({5} Tage). Ein Zusammenhang, keine Ursache; das Experiment prüft es.": "In your data, more {0} went with {1} {2} {3}, per {4} ({5} days). A relationship, not a cause; the experiment tests it.",
+"In den letzten 4 Wochen waren es {0} pro Woche. Ausdauertraining senkte den Ruhepuls in Studien, Krafttraining nicht in beiden Geschlechtern.": "In the last 4 weeks it was {0} a week. Endurance training lowered resting HR in studies; strength training did not in both sexes.",
+"Intensive Einheiten früher legen; lockeres Training abends ist in Ordnung": "Move intense sessions earlier; easy training in the evening is fine",
+"Kein Koffein in den 6 Stunden vor dem Schlafen": "No caffeine in the 6 hours before sleep",
+"Kein schweres Kraft- oder Intervalltraining; locker, Technik oder Pause.": "No heavy strength or interval training; easy, technique or rest.",
+"Morgens nach dem Aufstehen wiegen, möglichst täglich": "Weigh yourself after getting up, ideally every day",
+"Nur {0} Wiegungen in 7 Tagen. Das 7-Tage-Mittel braucht mehr Werte, sonst ist das Tempo zum Ziel ungenau.": "Only {0} weigh-ins in 7 days. The 7-day average needs more values, otherwise the pace to the goal is imprecise.",
+"Nur {0} von 7 Tagen sind vollständig geloggt; ohne sie ist die Energiebilanz unsicher und die Empfehlung zum Abnehmtempo bleibt aus.": "Only {0} of 7 days are logged completely; without them the energy balance is uncertain and there is no advice on the rate of loss.",
+"Readiness und HRV der nächsten 2 Tage": "Readiness and HRV of the next 2 days",
+"Readiness {0}": "Readiness {0}",
+"Ruhepuls seit 3 Tagen erhöht und HRV deutlich tief: das passt auch zu einem Infekt. Fühlst du dich krank, trainiere nicht.": "Resting HR up for 3 days and HRV clearly low: this also fits an infection. If you feel ill, do not train.",
+"Ruhepuls {0} bpm über deinem 60-Tage-Mittel": "Resting HR {0} bpm above your 60-day average",
+"Ruhepuls, 8–12 Wochen": "Resting HR, 8–12 weeks",
+"Rund {0} kcal pro Tag weniger": "About {0} kcal a day less",
+"Schritte, Ziel-Tage": "Steps, goal days",
+"Schrittziel auf {0} anheben": "Raise the step goal to {0}",
+"Sleep Score": "Sleep Score",
+"Sleep Score, Einschlafzeit, HRV": "Sleep Score, bedtime, HRV",
+"Spätes Einschlafen ging in deinen Daten mit {0} {1} pro Stunde einher ({2} Tage).": "In your data, falling asleep later went with {0} {1} per hour ({2} days).",
+"Spätes Koffein an {0} von 14 Tagen. 400 mg Koffein 6 h vor dem Schlafen verkürzten den Schlaf in einer kleinen Studie um mehr als 1 h.": "Late caffeine on {0} of 14 days. In a small study, 400 mg of caffeine 6 h before bed shortened sleep by more than 1 h.",
+"Stunde": "hour",
+"Sätze je Muskelgruppe, Muskelmasse, 8–12 Wochen": "Sets per muscle group, muscle mass, 8–12 weeks",
+"Sätze schrittweise auf {0} pro Woche anheben, etwa +2 pro Woche": "Raise sets step by step to {0} a week, about +2 a week",
+"Tonne": "tonne",
+"Unter {0} harten Sätzen pro Woche: {1}. Mehr Wochensätze brachten mehr Muskelzuwachs; bei gleichem Volumen ist die Zahl der Einheiten egal.": "Below {0} hard sets a week: {1}. More weekly sets brought more muscle growth; at the same volume, the number of sessions does not matter.",
+"VO2max {0}": "VO2max {0}",
+"VO2max, 8–12 Wochen": "VO2max, 8–12 weeks",
+"Wiegungen pro Woche": "Weigh-ins per week",
+"Wochenend-Verschiebung der Schlafmitte": "Weekend shift of the middle of sleep",
+"aktive Zeit": "active time",
+"harte Sätze": "hard sets",
+"vollständig geloggte Tage": "completely logged days",
+"{0} Sätze/Woche": "{0} sets/week",
+"{0} g/kg": "{0} g/kg",
+"{0} h": "{0} h",
+"{0} in 14 Tagen": "{0} in 14 days",
+"{0} kg/Woche": "{0} kg/week",
+"{0} min/Woche": "{0} min/week",
+"{0} pro Tag": "{0} a day",
+"{0} pro Woche": "{0} a week",
+"{0} von 14 Tagen": "{0} of 14 days",
+"{0} von 7": "{0} of 7",
+"{0}-mal endete in 14 Tagen eine intensive Einheit weniger als 1 h vor dem Einschlafen. Abendtraining stört den Schlaf im Mittel nicht, intensives kurz vor dem Schlafen kann es.": "{0} times in 14 days, an intense session ended less than 1 h before falling asleep. Evening training does not disturb sleep on average; intense training shortly before bed can.",
+"{0}/{1} mmHg": "{0}/{1} mmHg",
 "Bankdrücken": "Bench press",
 "Kniebeuge": "Squat",
 "Kreuzheben": "Deadlift",
@@ -2690,14 +3040,15 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Fehler melden": "Report a problem",
 "Zum Überblick (Taste 0)": "To the overview (key 0)",
 "Überblick (Taste 0)": "Overview (key 0)",
-"Körper (Taste 1)": "Body (key 1)",
-"Ernährung (Taste 2)": "Nutrition (key 2)",
-"Erholung (Taste 3)": "Recovery (key 3)",
-"Schlaf (Taste 4)": "Sleep (key 4)",
-"Sport (Taste 5)": "Sport (key 5)",
-"Fitness (Taste 6)": "Fitness (key 6)",
-"Aktivitäten (Taste 7)": "Activities (key 7)",
-"Zusammenhänge (Taste 8)": "Insights (key 8)",
+"Empfehlungen (Taste 1)": "Recommendations (key 1)",
+"Körper (Taste 2)": "Body (key 2)",
+"Ernährung (Taste 3)": "Nutrition (key 3)",
+"Erholung (Taste 4)": "Recovery (key 4)",
+"Schlaf (Taste 5)": "Sleep (key 5)",
+"Sport (Taste 6)": "Sport (key 6)",
+"Fitness (Taste 7)": "Fitness (key 7)",
+"Aktivitäten (Taste 8)": "Activities (key 8)",
+"Zusammenhänge (Taste 9)": "Insights (key 9)",
 "Daten neu laden (Taste R)": "Reload data (key R)",
 "Hilfe und Tastenkürzel (Taste ?)": "Help and keyboard shortcuts (key ?)",
 "Hilfe und Tastenkürzel": "Help and keyboard shortcuts",
@@ -2831,8 +3182,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Jeder Wert der letzten 7 Tage wird mit deinem eigenen üblichen Bereich verglichen: dem 5. bis 95. Perzentil desselben Wochenwerts über die 120 Tage davor. Liegt er außerhalb, steht er hier, sonst nicht. Messwerte wie HRV oder Schlafdauer gehen als 7-Tage-Mittel ein, Trainingsmengen wie Arbeitssätze oder Trainingslast als 7-Tage-Summe; Tagessummen enden gestern, weil der laufende Tag noch nicht vollständig ist.": "Every value of the last 7 days is compared with your own usual range: the 5th to 95th percentile of the same weekly value over the 120 days before. If it falls outside, it is listed here, otherwise not. Measurements such as HRV or sleep duration count as a 7-day average, training amounts such as hard sets or training load as a 7-day sum; daily totals end yesterday, because the current day is not complete yet.",
 "Gelb heißt: in die Richtung, die für Erholung oder Gesundheit eher ungünstig ist, etwa niedrigere HRV oder kürzerer Schlaf. Neutral heißt: nur ungewöhnlich, ohne Wertung, etwa mehr Trainingslast als sonst. Ein Wert außerhalb des Bereichs ist ein Hinweis, keine Diagnose; jede fünfte Woche liegt bei mindestens einem Wert knapp daneben.": "Yellow means: in the direction that is rather unfavourable for recovery or health, such as lower HRV or shorter sleep. Neutral means: only unusual, without judgement, such as more training load than usual. A value outside the range is a hint, not a diagnosis; one week in five has at least one value just outside.",
 "Quelle: garmin_daily.csv · garmin_activities.csv · hevy_sets.csv · nutrition_daily.csv · mindestens 60 Vergleichswerte": "Source: garmin_daily.csv · garmin_activities.csv · hevy_sets.csv · nutrition_daily.csv · at least 60 values to compare with",
-"<kbd>1</kbd> bis <kbd>8</kbd>": "<kbd>1</kbd> to <kbd>8</kbd>",
-"Zum Bereich springen: Körper, Ernährung, Erholung, Schlaf, Sport, Fitness, Aktivitäten, Zusammenhänge": "Jump to an area: Body, Nutrition, Recovery, Sleep, Sport, Fitness, Activities, Insights",
+"<kbd>1</kbd> bis <kbd>9</kbd>": "<kbd>1</kbd> to <kbd>9</kbd>",
+"Zum Bereich springen: Empfehlungen, Körper, Ernährung, Erholung, Schlaf, Sport, Fitness, Aktivitäten, Zusammenhänge": "Jump to an area: Recommendations, Body, Nutrition, Recovery, Sleep, Sport, Fitness, Activities, Insights",
 "Deine eigenen Daten zeigt die Seite, wenn sie im Repo über einen lokalen Server läuft oder mit deinem privaten Daten-Repository verbunden ist (Zahnrad oben → Verbindung). Jeder Bereich lässt sich ein- und ausklappen; die Kennzahlen im Kopf bleiben sichtbar. Am Handy starten die Bereiche eingeklappt und zeigen ihre Karten einzeln über Tabs. Diese Einstellung und der Zeitraum werden in diesem Browser gespeichert. Das <b>ⓘ</b> an einer Karte erklärt, was sie zeigt und woher die Daten kommen. Berechnungen und Begriffe stehen unter <a href=\"#glossar\" id=\"help-glossary\">Rohdaten → So wird gerechnet</a>.": "The page shows your own data when it runs in the repository on a local server or is connected to your private data repository (gear icon at the top → Connection). Every area can be collapsed and expanded; the key figures in its header stay visible. On phones the areas start collapsed and show their cards one at a time in tabs. This setting and the period are saved in this browser. The <b>ⓘ</b> on a card explains what it shows and where the data comes from. Calculations and terms are under <a href=\"#glossar\" id=\"help-glossary\">Raw data → How it is calculated</a>.",
 "Dateien": "Files",
 "Eine Zeile pro Datei mit Zahl der Einträge und dem ersten und letzten Datum. Fehlt eine Datei, steht darunter, wie sie entsteht.": "One row per file with the number of entries and the first and last date. If a file is missing, the row says how it is created.",
@@ -2968,19 +3319,20 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     bp: "../data/garmin_blood_pressure.csv",
     fitnessStatus: "../data/garmin_fitness_status.json",
     settings: "../data/settings.json",
+    recommendations: "../data/recommendations.json",
   };
   const GITHUB_FILES = {
     garmin: "garmin_daily.csv", activities: "garmin_activities.csv", hevy: "hevy_sets.csv", insights: "insights.json",
     nutrition: "nutrition_daily.csv", climbs: "garmin_climbs.csv", climbSessions: "garmin_climb_sessions.csv",
     exercises: "hevy_exercises.csv", fitness: "garmin_fitness.csv", fitnessStatus: "garmin_fitness_status.json",
-    bp: "garmin_blood_pressure.csv", settings: "settings.json",
+    bp: "garmin_blood_pressure.csv", settings: "settings.json", recommendations: "recommendations.json",
   };
   // Template for new data repositories ("Use this template"), and the code repository with the README
   const TEMPLATE_REPO = "sh4rkfx/selftopo-data-template";
   const CODE_REPO_URL = "https://github.com/sh4rkfx/selftopo";
   // Every data file the page reads, in the order they are fetched; JSON_KEYS are JSON, the rest CSV
-  const FILE_KEYS = ["garmin", "activities", "hevy", "insights", "nutrition", "climbs", "climbSessions", "exercises", "fitness", "fitnessStatus", "bp", "settings"];
-  const JSON_KEYS = ["insights", "fitnessStatus", "settings"];
+  const FILE_KEYS = ["garmin", "activities", "hevy", "insights", "nutrition", "climbs", "climbSessions", "exercises", "fitness", "fitnessStatus", "bp", "settings", "recommendations"];
+  const JSON_KEYS = ["insights", "fitnessStatus", "settings", "recommendations"];
   // YAZIO days below this count as not fully logged and stay out of every mean (same value as
   // MIN_COMPLETE_KCAL in selftopo/analyze.py).
   const MIN_COMPLETE_KCAL = 1200;
@@ -3038,14 +3390,14 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   const DEFAULT_RANGE = 84;
   const OLD_RANGES = { 30: 28, 90: 84, 180: 365 }; // saved choices from before the change
   // Areas in page order; the position is also the keyboard shortcut (1 = Körper)
-  const AREAS = ["koerper", "ernaehrung", "erholung", "schlaf", "sport", "fitness", "aktivitaeten", "zusammenhaenge", "daten"];
+  const AREAS = ["empfehlungen", "koerper", "ernaehrung", "erholung", "schlaf", "sport", "fitness", "aktivitaeten", "zusammenhaenge", "daten"];
   // The raw data area is not in the navigation: it sits last, starts collapsed and is reached from the footer
   const NAV_AREAS = AREAS.filter((a) => a !== "daten");
   // Old links and the sports inside Sport: #kraft opens Sport with Kraft selected
   const GROUP_ALIAS = { kraft: ["sport", "kraft"], bouldern: ["sport", "bouldern"] };
   // Color family of each area (CSS classes tint-*); status colors are never used for areas
   const AREA_TINT = {
-    koerper: "orange", ernaehrung: "orange", erholung: "violet", schlaf: "violet",
+    empfehlungen: "teal", koerper: "orange", ernaehrung: "orange", erholung: "violet", schlaf: "violet",
     sport: "blue", fitness: "blue", aktivitaeten: "blue", zusammenhaenge: "gray", daten: "gray",
   };
   const PHONE = "(max-width: 759px)"; // same breakpoint as the CSS: icon bar, tabs, collapsed areas
@@ -3151,7 +3503,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     const grip = gripOk ? { left: cleanNames(g.left), right: cleanNames(g.right) } : DEFAULT_GRIP;
     GRIP_EXERCISES = gripMap(grip);
 
-    return { raw: s, found: Boolean(exists), problems, from, grip };
+    const goals = readGoals(s.goals, problems);
+    return { raw: s, found: Boolean(exists), problems, from, grip, goals };
   }
 
   // Sleep times as minutes relative to midnight of the wake-up date, so that
@@ -3288,7 +3641,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       const csvKeys = FILE_KEYS.filter((k) => !JSON_KEYS.includes(k));
       return {
         ...Object.fromEntries(csvKeys.map((k) => [k, parseCsv(embedded[k] || "")])),
-        insights: embedded.insights || null, fitnessStatus: embedded.fitnessStatus || null, settings: embedded.settings || null, source: "embedded",
+        insights: embedded.insights || null, fitnessStatus: embedded.fitnessStatus || null, settings: embedded.settings || null,
+        recommendations: embedded.recommendations || null, source: "embedded",
         found: Object.fromEntries(FILE_KEYS.map((k) => [k, embedded[k] != null])),
       };
     }
@@ -3323,14 +3677,17 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   function fromTexts(texts, source) {
     const json = (text) => { try { return text ? JSON.parse(text) : null; } catch { return null; } };
     const insights = json(texts.insights), fitnessStatus = json(texts.fitnessStatus), settings = json(texts.settings);
+    const recommendations = json(texts.recommendations);
     const csvKeys = FILE_KEYS.filter((k) => !JSON_KEYS.includes(k));
     return {
       ...Object.fromEntries(csvKeys.map((k) => [k, texts[k] ? parseCsv(texts[k]) : []])),
-      insights, fitnessStatus, settings, source, insightsBroken: texts.insights != null && insights == null,
+      insights, fitnessStatus, settings, recommendations, source, insightsBroken: texts.insights != null && insights == null,
+      recommendationsBroken: texts.recommendations != null && recommendations == null,
       settingsBroken: texts.settings != null && settings == null,
       found: {
         ...Object.fromEntries(csvKeys.map((k) => [k, texts[k] != null])),
         insights: insights != null, fitnessStatus: fitnessStatus != null, settings: texts.settings != null,
+        recommendations: texts.recommendations != null,
       },
     };
   }
@@ -3468,6 +3825,13 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       first: ins?.period?.start ? isoToT(ins.period.start) : null, last: ins?.period?.end ? isoToT(ins.period.end) : null,
       fix: T("Erzeugen mit `python -m selftopo analyze`; der GitHub-Workflow macht das täglich nach dem Abruf."),
     });
+    const rec = data.recommendations;
+    list.push({
+      key: "recommendations", label: T("Empfehlungen"), file: file("recommendations"), found: data.found.recommendations, broken: data.recommendationsBroken,
+      optional: true, rows: rec ? (rec.cards?.length || 0) + (rec.more?.length || 0) + (rec.safety?.length || 0) : 0, generated: rec?.generated_at || null,
+      first: null, last: rec?.as_of ? isoToT(rec.as_of) : null,
+      fix: T("Entsteht mit `python -m selftopo analyze` aus den Zielen in settings.json; der GitHub-Workflow macht das täglich nach dem Abruf."),
+    });
     list.push({
       key: "settings", label: T("Einstellungen"), file: file("settings"), found: data.found.settings, broken: data.settingsBroken,
       optional: true, rows: data.settings && typeof data.settings === "object" ? Object.keys(data.settings).length : 0, first: null, last: null,
@@ -3478,6 +3842,9 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 
   // ------------------------------------------------------------------ demo data
 
+  // Output of `python -m selftopo recommend` for the sample data below, with the goals weight 75 kg by
+  // 31 March, HRV in range and bedtime 23:00, and a running experiment without alcohol
+  const DEMO_RECOMMENDATIONS = {"schema":1,"as_of":"2026-11-10","today":null,"safety":[],"goals":[{"area":"koerper","metric":"weight","target":75,"by":"2027-03-31","current":79.62,"pace_per_week":-0.11,"needed_per_week":-0.229,"eta":"2027-08-31","status":"off-track","remaining":-4.62},{"area":"erholung","metric":"hrv","target":"range","by":null,"current":53.4,"pace_per_week":null,"needed_per_week":null,"eta":null,"status":"reached","range":[51.0,67.0]},{"area":"schlaf","metric":"bedtime","target":"23:00","by":null,"current":"23:21","pace_per_week":null,"needed_per_week":null,"eta":null,"status":"off-track","nights":7,"on_time":2}],"cards":[{"rule":"blood-pressure-elevated","number":19,"kind":"lever","evidence":"B","areas":[],"sources":["cornelissen2013","he2013","neter2003"],"title":{"text":"Ausdauer 2–3× pro Woche, weniger Salz","vars":[]},"why":{"text":"Dein Mittel der letzten 30 Tage liegt bei {0}/{1} mmHg, ab 120/70 gilt das als erhöht. Ausdauertraining senkte den Blutdruck im Mittel um 3,5/2,5 mmHg, weniger Salz um etwa 4/2 mmHg, jedes kg Abnahme um etwa 1 mmHg.","vars":[{"n":122.0,"d":0},{"n":78.0,"d":0}]},"measure":{"text":"Blutdruck-Mittel, 8 Wochen","vars":[]},"current":{"text":"{0}/{1} mmHg","vars":[{"n":122.0,"d":0},{"n":78.0,"d":0}]},"experiment":null,"readings":28},{"rule":"weight-pace","number":3,"kind":"lever","evidence":"B","areas":["koerper"],"sources":["garthe2011"],"title":{"text":"Rund {0} kcal pro Tag weniger","vars":[{"n":130.0,"d":0}]},"why":{"text":"Dein Gewicht ändert sich um {0} kg pro Woche. Für {1} kg bis {2} bräuchtest du {3} kg pro Woche.","vars":[{"n":-0.11,"d":2},{"n":75.0,"d":1},{"date":"2027-03-31"},{"n":-0.23,"d":2}]},"measure":{"text":"Abnahmetempo über 28 Tage, Muskelmasse","vars":[]},"current":{"text":"{0} kg/Woche","vars":[{"n":-0.11,"d":2}]},"experiment":null,"kcal_per_day":131},{"rule":"sleep-regularity","number":9,"kind":"lever","evidence":"B","areas":["schlaf"],"sources":["windred2024"],"title":{"text":"Gleiche Aufstehzeit ± 30 min, auch am Wochenende","vars":[]},"why":{"text":"Am Wochenende liegt deine Schlafmitte {0} h später als unter der Woche. Regelmäßigkeit sagte in einer großen Beobachtungsstudie die Sterblichkeit stärker voraus als die Dauer.","vars":[{"n":1.2,"d":1}]},"measure":{"text":"Wochenend-Verschiebung der Schlafmitte","vars":[]},"current":{"text":"{0} h","vars":[{"n":1.2,"d":1}]},"experiment":null}],"more":[{"rule":"endurance","number":6,"kind":"lever","evidence":"B","areas":["erholung"],"sources":["reimers2018"],"title":{"text":"2–3 lockere Ausdauereinheiten pro Woche","vars":[]},"why":{"text":"In den letzten 4 Wochen waren es {0} pro Woche. Ausdauertraining senkte den Ruhepuls in Studien, Krafttraining nicht in beiden Geschlechtern.","vars":[{"n":1.8,"d":1}]},"measure":{"text":"Ruhepuls, 8–12 Wochen","vars":[]},"current":{"text":"{0} pro Woche","vars":[{"n":1.8,"d":1}]},"experiment":null},{"rule":"bedtime-hrv","number":10,"kind":"experiment","evidence":"C","areas":["erholung","schlaf"],"sources":[],"title":{"text":"Experiment: 14 Tage vor {0} einschlafen","vars":[{"clock":"23:00"}]},"why":{"text":"Spätes Einschlafen ging in deinen Daten mit {0} {1} pro Stunde einher ({2} Tage).","vars":[{"n":-2.1,"d":1},"ms",{"n":175.0,"d":0}]},"measure":{"text":"HRV, Sleep Score","vars":[]},"current":null,"experiment":{"days":14,"metrics":["hrv","sleep_score"],"finding":{"driver":"bedtime_min","outcome":"hrv","effect":-2.1288,"n":175,"q":0.0073}}},{"rule":"own-data","number":13,"kind":"experiment","evidence":"C","areas":["erholung","schlaf"],"sources":[],"title":{"text":"Experiment: 14 Tage mehr {0}","vars":[{"t":"aktive Zeit"}]},"why":{"text":"In deinen Daten ging mehr {0} mit {1} {2} {3} einher, pro {4} ({5} Tage). Ein Zusammenhang, keine Ursache; das Experiment prüft es.","vars":[{"t":"aktive Zeit"},{"n":0.8,"d":1},"ms",{"t":"HRV"},{"t":"Stunde"},{"n":173.0,"d":0}]},"measure":{"text":"{0}, 14 Tage","vars":[{"t":"HRV"}]},"current":null,"experiment":{"days":14,"metrics":["hrv"],"finding":{"driver":"active_min","outcome":"hrv","effect":0.8082,"n":173,"q":0.0562}}}],"experiments":[{"rule":"alcohol","start":"2026-10-31","days":14,"elapsed":11,"status":"running","metrics":[{"metric":"hrv","before_n":14,"during_n":11,"before":55.5,"during":53.0,"before_iqr":[51.8,58.8],"during_iqr":[49.0,55.5]},{"metric":"resting_hr","before_n":14,"during_n":11,"before":48.5,"during":48.0,"before_iqr":[48.0,49.8],"during_iqr":[47.0,48.0]},{"metric":"sleep_score","before_n":14,"during_n":11,"before":82.5,"during":81.0,"before_iqr":[79.5,85.0],"during_iqr":[80.0,85.0]}],"title":{"text":"Experiment: 14 Tage ohne Alkohol","vars":[]}}],"notes":[],"sources":{"garthe2011":{"label":"Garthe 2011","url":"https://lida.sport-iat.de/ta/Record/4020442?lng=en"},"reimers2018":{"label":"Reimers 2018","url":"https://www.mdpi.com/2077-0383/7/12/503/htm"},"windred2024":{"label":"Windred 2024","url":"https://www.broadinstitute.org/publications/broad1346196"},"cornelissen2013":{"label":"Cornelissen 2013","url":"https://pubmed.ncbi.nlm.nih.gov/23525435/"},"he2013":{"label":"He 2013","url":"https://doi.org/10.1136/bmj.f1325"},"neter2003":{"label":"Neter 2003","url":"https://doi.org/10.1161/01.HYP.0000094221.86888.AE"}}};
   // Output of `python -m selftopo analyze` for the sample data below (trimmed to findings worth showing)
   const DEMO_INSIGHTS = {"tested":81,"robust":13,"period_days":180,"findings":[{"driver":"sleep_score","outcome":"strength_form_pct","lag_days":0,"timing":"same_day","n":96,"rho":0.5629,"p":0.0,"q":0.0,"effect":4.1909,"effect_unit":"%","status":"robust"},{"driver":"bedtime_min","outcome":"hrv","lag_days":0,"timing":"same_night","n":175,"rho":-0.3178,"p":0.0,"q":0.0007,"effect":-1.9829,"effect_unit":"ms","status":"robust"},{"driver":"readiness","outcome":"strength_form_pct","lag_days":0,"timing":"same_day","n":96,"rho":0.4093,"p":0.0,"q":0.0008,"effect":2.2092,"effect_unit":"%","status":"robust"},{"driver":"training_load","outcome":"readiness","lag_days":1,"timing":"next_night","n":174,"rho":-0.3067,"p":0.0,"q":0.0008,"effect":-5.4985,"effect_unit":"points","status":"robust"},{"driver":"hard_sets","outcome":"sleep_score","lag_days":2,"timing":"second_night","n":173,"rho":0.2708,"p":0.0003,"q":0.0051,"effect":7.5893,"effect_unit":"points","status":"robust"},{"driver":"bedtime_min","outcome":"readiness","lag_days":0,"timing":"same_night","n":175,"rho":-0.2627,"p":0.0004,"q":0.006,"effect":-2.8173,"effect_unit":"points","status":"robust"},{"driver":"hrv","outcome":"strength_form_pct","lag_days":0,"timing":"same_day","n":96,"rho":0.3278,"p":0.0011,"q":0.0124,"effect":2.6324,"effect_unit":"%","status":"robust"},{"driver":"active_min","outcome":"readiness","lag_days":1,"timing":"next_night","n":174,"rho":-0.2431,"p":0.0012,"q":0.0124,"effect":-1.8997,"effect_unit":"points","status":"robust"},{"driver":"hard_sets","outcome":"body_battery","lag_days":2,"timing":"second_night","n":173,"rho":0.2146,"p":0.0046,"q":0.0412,"effect":8.4848,"effect_unit":"points","status":"robust"},{"driver":"active_min","outcome":"hrv","lag_days":2,"timing":"second_night","n":173,"rho":0.2098,"p":0.0056,"q":0.0454,"effect":0.9286,"effect_unit":"ms","status":"robust"},{"driver":"stress_avg","outcome":"sleep_score","lag_days":2,"timing":"second_night","n":173,"rho":-0.2006,"p":0.0081,"q":0.0598,"effect":-2.6396,"effect_unit":"points","status":"robust"},{"driver":"sleep_hours","outcome":"resting_hr","lag_days":0,"timing":"same_night","n":175,"rho":-0.1951,"p":0.0097,"q":0.0652,"effect":-0.5027,"effect_unit":"bpm","status":"robust"},{"driver":"training_load","outcome":"hrv","lag_days":1,"timing":"next_night","n":174,"rho":-0.1841,"p":0.015,"q":0.0938,"effect":-1.8354,"effect_unit":"ms","status":"robust"},{"driver":"sleep_hours","outcome":"strength_form_pct","lag_days":0,"timing":"same_day","n":96,"rho":0.2265,"p":0.0265,"q":0.138,"effect":1.4179,"effect_unit":"%","status":"tendency"},{"driver":"stress_avg","outcome":"resting_hr","lag_days":2,"timing":"second_night","n":173,"rho":0.1716,"p":0.024,"q":0.138,"effect":0.5232,"effect_unit":"bpm","status":"tendency"},{"driver":"tonnage_t","outcome":"sleep_score","lag_days":1,"timing":"next_night","n":174,"rho":0.1674,"p":0.0273,"q":0.138,"effect":1.4629,"effect_unit":"points","status":"tendency"},{"driver":"active_min","outcome":"readiness","lag_days":2,"timing":"second_night","n":173,"rho":0.1561,"p":0.0403,"q":0.1757,"effect":1.1085,"effect_unit":"points","status":"tendency"},{"driver":"training_load","outcome":"resting_hr","lag_days":1,"timing":"next_night","n":174,"rho":0.1529,"p":0.044,"q":0.1757,"effect":0.6011,"effect_unit":"bpm","status":"tendency"},{"driver":"hard_sets","outcome":"readiness","lag_days":2,"timing":"second_night","n":173,"rho":0.1527,"p":0.0449,"q":0.1757,"effect":5.6695,"effect_unit":"points","status":"tendency"},{"driver":"bedtime_min","outcome":"resting_hr","lag_days":0,"timing":"same_night","n":175,"rho":0.1526,"p":0.0438,"q":0.1757,"effect":0.3696,"effect_unit":"bpm","status":"tendency"},{"driver":"tonnage_t","outcome":"sleep_score","lag_days":2,"timing":"second_night","n":173,"rho":0.1522,"p":0.0455,"q":0.1757,"effect":1.2334,"effect_unit":"points","status":"tendency"}]};
 
@@ -4694,7 +5061,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   const clockOf = (ms) => new Date(ms).toLocaleTimeString(DATE_LOCALE, { hour: "2-digit", minute: "2-digit" });
   const dayOf = (ms) => new Date(ms).toLocaleDateString(DATE_LOCALE, { day: "2-digit", month: "2-digit", year: "numeric" });
   const AREA_LABELS = {
-    koerper: T("Körper"), ernaehrung: T("Ernährung"), erholung: T("Erholung"), schlaf: T("Schlaf"), sport: "Sport", fitness: "Fitness",
+    empfehlungen: T("Empfehlungen"), koerper: T("Körper"), ernaehrung: T("Ernährung"), erholung: T("Erholung"), schlaf: T("Schlaf"), sport: "Sport", fitness: "Fitness",
     aktivitaeten: T("Aktivitäten"), zusammenhaenge: T("Zusammenhänge"), daten: T("Rohdaten"),
   };
 
@@ -4763,6 +5130,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     $("eyebrow").textContent = M.hasNutrition ? "Garmin Connect · Hevy · YAZIO" : "Garmin Connect · Hevy";
     renderHeader(M, lastWith);
     renderTiles(M, lastWith, at);
+    renderToday(M);
+    renderRecommendations();
 
     // Körper
     const wLast = lastWith("weight7");
@@ -6585,6 +6954,465 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     $("lift-copy").addEventListener("click", () => openPrefs("general"));
   }
 
+  // ------------------------------------------------------------------ recommendations
+
+  // Goals per area and their metrics, as GOAL_METRICS in selftopo/recommend.py: [metric, label, unit, kind]
+  const GOAL_METRICS = {
+    koerper: [["weight", T("Gewicht"), "kg", "number"]],
+    erholung: [["resting_hr", T("Ruhepuls"), "bpm", "number"], ["hrv", T("HRV im Normalbereich"), "", "none"]],
+    schlaf: [["sleep_hours", T("Schlafdauer"), "h", "number"], ["bedtime", T("Einschlafen vor"), "", "clock"]],
+    kraft: [["weekly_sets", T("Sätze pro Muskelgruppe und Woche"), "", "number"]],
+    fitness: [["vo2max", "VO2max", "", "number"]],
+    aktivitaeten: [["steps", T("Schritte pro Tag"), "", "number"], ["active_minutes", T("Aktive Minuten pro Woche"), "min", "number"]],
+  };
+  const GOAL_AREA_LABELS = {
+    koerper: T("Körper"), erholung: T("Erholung"), schlaf: T("Schlaf"), kraft: T("Kraft"), fitness: "Fitness", aktivitaeten: T("Aktivitäten"),
+  };
+  const goalMetric = (area, metric) => (GOAL_METRICS[area] || []).find((m) => m[0] === metric) || null;
+  // Metrics an experiment compares, with their unit and decimals
+  const EXPERIMENT_METRIC_LABELS = {
+    hrv: ["HRV", "ms", 0], resting_hr: [T("Ruhepuls"), "bpm", 1], sleep_score: ["Sleep Score", "", 0],
+    sleep_hours: [T("Schlafdauer"), "h", 1], steps: [T("Schritte"), "", 0], weight: [T("Gewicht"), "kg", 1],
+  };
+  const EXPERIMENT_DAYS = 14;
+  const HIDE_DAYS = 14;
+
+  // Goals in settings.json, checked like parse_goals in selftopo/recommend.py; problems go to the settings
+  function readGoals(raw, problems) {
+    const out = {};
+    if (raw == null) return out;
+    if (typeof raw !== "object" || Array.isArray(raw)) { problems.push(T("goals muss ein Objekt sein, ein Ziel pro Bereich.")); return out; }
+    for (const [area, g] of Object.entries(raw)) {
+      if (!GOAL_METRICS[area]) { problems.push(T("goals: unbekannter Bereich „{0}“.", [area])); continue; }
+      const m = g && goalMetric(area, g.metric);
+      if (!m) { problems.push(T("goals.{0}: unbekannte Kennzahl.", [area])); continue; }
+      let target = g.target;
+      if (m[3] === "none") target = null;
+      else if (m[3] === "clock" && !(typeof target === "string" && /^([01]\d|2[0-3]):[0-5]\d$/.test(target))) { problems.push(T("goals.{0}: target muss eine Uhrzeit wie „23:00“ sein.", [area])); continue; }
+      else if (m[3] === "number" && !(typeof target === "number" && target > 0)) { problems.push(T("goals.{0}: target muss eine positive Zahl sein.", [area])); continue; }
+      const by = typeof g.by === "string" && /^\d{4}-\d{2}-\d{2}$/.test(g.by) ? g.by : null;
+      if (g.by != null && g.by !== "" && !by) problems.push(T("goals.{0}: by muss ein Datum wie „2027-03-31“ sein.", [area]));
+      out[area] = { metric: m[0], target, by };
+    }
+    return out;
+  }
+
+  // One value of a text from recommendations.json, formatted for this language
+  function recoValue(v) {
+    if (v == null) return "";
+    if (typeof v !== "object") return String(v);
+    if ("n" in v) return fmt(v.n, v.d || 0);
+    if ("date" in v) return ddmm(isoToT(v.date));
+    if ("clock" in v) return v.clock;
+    if ("muscle" in v) return MUSCLE_LABELS[v.muscle] || v.muscle;
+    if ("t" in v) return T(v.t);
+    if ("list" in v) return (v.list || []).map(recoValue).join(", ");
+    if ("text" in v) return recoText(v);
+    return "";
+  }
+  // A text from recommendations.json: German template with {0}, {1}, … translated, then filled in
+  const recoText = (t) => (t && t.text ? T(t.text, (t.vars || []).map(recoValue)) : "");
+
+  // Rule 1, the same as rule_today in selftopo/recommend.py. It also runs here on the freshly
+  // loaded day, because Readiness arrives in the morning and the daily workflow may be a day behind.
+  function todayRule({ level, readiness, hrv7, hrvLow, rhr7, rhr60, lastRhr }) {
+    const readinessLow = level === "LOW" || level === "POOR";
+    const hrvBelow = hrv7 != null && hrvLow != null && hrv7 < hrvLow;
+    const gap = rhr7 != null && rhr60 != null ? rhr7 - rhr60 : null;
+    if (!(readinessLow || (hrvBelow && gap != null && gap >= 5))) return null;
+    const recent = lastRhr || [];
+    const pause = rhr60 != null && recent.length === 3 && recent.every((v) => v != null && v >= rhr60 + 5)
+      && hrv7 != null && hrvLow != null && hrv7 < hrvLow * 0.92;
+    const reasons = [];
+    if (readinessLow && readiness != null) reasons.push({ text: "Readiness {0}", vars: [{ n: readiness, d: 0 }] });
+    if (hrvBelow) reasons.push({ text: "HRV {0} ms unter deinem Bereich ab {1}", vars: [{ n: hrv7, d: 0 }, { n: hrvLow, d: 0 }] });
+    if (gap != null && gap >= 2.5) reasons.push({ text: "Ruhepuls {0} bpm über deinem 60-Tage-Mittel", vars: [{ n: gap, d: 1 }] });
+    return {
+      pause, reasons,
+      title: { text: pause ? "Heute Pause" : "Heute locker statt schwer" },
+      why: pause
+        ? { text: "Ruhepuls seit 3 Tagen erhöht und HRV deutlich tief: das passt auch zu einem Infekt. Fühlst du dich krank, trainiere nicht." }
+        : { text: "Kein schweres Kraft- oder Intervalltraining; locker, Technik oder Pause." },
+    };
+  }
+
+  // Changes from the buttons on the cards (experiment, later, does not fit), saved with settings.json
+  const recoDraft = { experiments: [], hidden: {} };
+  const draftCount = () => recoDraft.experiments.length + Object.keys(recoDraft.hidden).length;
+  const isoAdd = (iso, days) => tToIso(isoToT(iso) + days * DAY);
+
+  function renderToday(M) {
+    const box = $("today-card");
+    const today = todayT(), i = M.days.findIndex((d) => d.t === today);
+    const d = i >= 0 ? M.days[i] : null;
+    const card = d ? todayRule({
+      level: d.readyLevel, readiness: d.ready, hrv7: d.hrv7, hrvLow: d.hrvLow, rhr7: d.rhr7, rhr60: d.rhr60,
+      lastRhr: M.days.slice(Math.max(0, i - 2), i + 1).map((x) => x.rhr),
+    }) : null;
+    let seen = null;
+    try { seen = localStorage.getItem("selftopo.today.seen"); } catch { /* storage unavailable */ }
+    box.hidden = !card || seen === tToIso(today);
+    if (box.hidden) return;
+    const ok = html("button", { type: "button", class: "primary-btn", text: T("Verstanden") });
+    ok.addEventListener("click", () => {
+      try { localStorage.setItem("selftopo.today.seen", tToIso(today)); } catch { /* storage unavailable */ }
+      box.hidden = true;
+    });
+    box.replaceChildren(
+      html("div", { class: "today-top" }, [html("span", { class: "today-label", text: T("Heute") }), html("span", { class: "ev-chip", text: T("Aus Studien") })]),
+      html("h2", { id: "today-title", text: recoText(card.title) }),
+      card.reasons.length ? html("ul", { class: "today-reasons", "aria-label": T("Warum") }, card.reasons.map((r) => html("li", { text: recoText(r) }))) : null,
+      html("p", { text: recoText(card.why) }),
+      html("div", { class: "today-actions" }, [ok, html("a", { class: "ghost-btn", href: "#empfehlungen", text: T("Warum? Regel und Quellen") })]),
+    );
+  }
+
+  const GOAL_STATE = {
+    reached: ["good", T("erreicht")], "on-track": ["good", T("auf Kurs")], "off-track": ["warn", T("zu langsam")], "no-data": ["none", T("keine Daten")],
+  };
+  const monthYear = (iso) => fmtDate(isoToT(iso), { month: "long", year: "numeric" });
+
+  function goalView(g) {
+    const m = goalMetric(g.area, g.metric);
+    if (!m) return null;
+    const [, label, unit] = m;
+    const digits = { weight: 1, resting_hr: 1, sleep_hours: 1, vo2max: 0, steps: 0, active_minutes: 0, weekly_sets: 1, hrv: 0 }[g.metric] ?? 0;
+    const withUnit = (v, d = digits) => (v == null ? "–" : `${fmt(v, d)}${unit ? ` ${unit}` : ""}`);
+    let [cls, badge] = GOAL_STATE[g.status] || GOAL_STATE["no-data"];
+    let now = withUnit(g.current), to = "", note = "";
+    if (g.metric === "hrv") {
+      to = g.range ? T("Bereich {0}–{1} ms", [fmt(g.range[0]), fmt(g.range[1])]) : "";
+      now = g.current == null ? "–" : `${fmt(g.current)} ms`;
+      if (g.status === "off-track") badge = T("außerhalb");
+      if (g.status === "reached") badge = T("im Bereich");
+      note = T("7-Tage-Mittel gegenüber Garmins Normalbereich.");
+    } else if (g.metric === "bedtime") {
+      now = g.current || "–";
+      to = T("vor {0}", [g.target]);
+      note = g.nights ? T("{0} von {1} Nächten rechtzeitig; Ziel: 5 von 7.", [g.on_time, g.nights]) : "";
+      if (g.status === "off-track") badge = T("noch nicht");
+    } else if (g.metric === "weekly_sets") {
+      to = T("ab {0} pro Muskelgruppe", [fmt(g.target)]);
+      if (g.status === "off-track") badge = T("noch nicht");
+      note = g.below?.length ? T("Darunter: {0}", [g.below.map((x) => MUSCLE_LABELS[x] || x).join(", ")]) : T("Alle Muskelgruppen erreichen das Ziel.");
+    } else {
+      to = `${withUnit(g.target)}${g.by ? T(" bis {0}", [ddmm(isoToT(g.by))]) : ""}`;
+      const parts = [];
+      if (g.pace_per_week != null) parts.push(T("Tempo {0} pro Woche", [`${fmtSigned(g.pace_per_week, digits + 1)}${unit ? ` ${unit}` : ""}`]));
+      if (g.needed_per_week != null && g.status !== "reached") parts.push(T("nötig {0}", [`${fmtSigned(g.needed_per_week, digits + 1)}${unit ? ` ${unit}` : ""}`]));
+      if (g.eta && g.status !== "reached") parts.push(T("so etwa im {0}", [monthYear(g.eta)]));
+      else if (g.status === "off-track" && !g.eta) parts.push(T("beim jetzigen Tempo nicht erreichbar"));
+      note = parts.join(" · ");
+    }
+    return html("article", { class: "goal" }, [
+      html("div", { class: "goal-top" }, [html("b", { text: label }), html("span", { class: `state-badge ${cls}`, text: badge })]),
+      html("div", { class: "goal-now" }, [html("span", { class: "big", text: now }), to ? html("span", { class: "to", text: `→ ${to}` }) : null]),
+      note ? html("p", { text: note }) : null,
+    ]);
+  }
+
+  function evidenceChips(card) {
+    const chips = [];
+    if (card.evidence === "C") chips.push(html("span", { class: "ev-chip own", text: T("In deinen Daten") }));
+    else if (card.evidence === "B") chips.push(html("span", { class: "ev-chip", text: T("Aus Studien") }));
+    else if (card.evidence === "guideline") chips.push(html("span", { class: "ev-chip", text: T("Leitlinie") }));
+    else chips.push(html("span", { class: "ev-chip plain", text: T("Datenqualität") }));
+    for (const area of card.areas || []) {
+      if (state.recoGoals?.[area]) chips.push(html("span", { class: "ev-chip plain", text: T("Ziel: {0}", [GOAL_AREA_LABELS[area]]) }));
+    }
+    return chips;
+  }
+
+  function recoCard(card, R) {
+    const draftHidden = recoDraft.hidden[card.rule], draftExp = recoDraft.experiments.find((e) => e.rule === card.rule);
+    const sources = (card.sources || []).map((k) => R.sources?.[k]).filter(Boolean);
+    const node = html("article", { class: "reco", id: `reco-${card.rule}` }, [
+      html("div", { class: "reco-chips" }, evidenceChips(card)),
+      html("h4", { text: recoText(card.title) }),
+      html("p", { class: "why", text: recoText(card.why) }),
+      html("div", { class: "reco-measure" }, [
+        html("span", { class: "k", text: T("Messung") }),
+        html("span", { text: [recoText(card.measure), card.current ? T("jetzt {0}", [recoText(card.current)]) : null].filter(Boolean).join(" · ") }),
+      ]),
+      sources.length ? html("p", { class: "reco-sources" }, [T("Quellen: "), ...sources.flatMap((s, i) => [i ? ", " : null, html("a", { href: s.url, target: "_blank", rel: "noopener", text: s.label })]).filter(Boolean)]) : null,
+    ]);
+    if (draftHidden || draftExp) {
+      const undo = html("button", { type: "button", class: "ghost-btn", text: T("Rückgängig") });
+      undo.addEventListener("click", () => {
+        delete recoDraft.hidden[card.rule];
+        recoDraft.experiments = recoDraft.experiments.filter((e) => e.rule !== card.rule);
+        afterDraft();
+      });
+      node.append(html("p", { class: "reco-pending" }, [
+        draftExp ? T("Experiment vorgemerkt, Start heute.") : draftHidden.dismissed ? T("Vorgemerkt: passt nicht.") : T("Vorgemerkt: ausgeblendet bis {0}.", [ddmm(isoToT(draftHidden.until))]),
+        undo,
+      ]));
+      return node;
+    }
+    const actions = [];
+    if (card.experiment && card.kind === "experiment") {
+      const start = html("button", { type: "button", class: "primary-btn", text: T("Als Experiment starten ({0} Tage)", [card.experiment.days || EXPERIMENT_DAYS]) });
+      start.addEventListener("click", () => {
+        recoDraft.experiments.push({ rule: card.rule, start: tToIso(todayT()), days: card.experiment.days || EXPERIMENT_DAYS, metrics: card.experiment.metrics || [], title: card.title });
+        afterDraft();
+      });
+      actions.push(start);
+    }
+    const later = html("button", { type: "button", class: "ghost-btn", text: T("Später") });
+    later.addEventListener("click", () => { recoDraft.hidden[card.rule] = { until: isoAdd(tToIso(todayT()), HIDE_DAYS) }; afterDraft(); });
+    const no = html("button", { type: "button", class: "ghost-btn", text: T("Passt nicht") });
+    no.addEventListener("click", () => { recoDraft.hidden[card.rule] = { dismissed: true }; afterDraft(); });
+    node.append(html("div", { class: "reco-actions" }, [...actions, later, no]));
+    return node;
+  }
+
+  function experimentView(e) {
+    const days = e.days || EXPERIMENT_DAYS, elapsed = Math.min(days, e.elapsed ?? 0);
+    const metrics = (e.metrics || []).filter((m) => EXPERIMENT_METRIC_LABELS[m.metric]).map((m) => {
+      const [label, unit, d] = EXPERIMENT_METRIC_LABELS[m.metric];
+      const u = unit ? ` ${unit}` : "";
+      if (m.during == null || m.before == null) {
+        return html("div", {}, [html("span", { class: "k", text: label }), html("b", { text: T("zu wenig Daten") }), html("span", { class: "r", text: T("{0} von mindestens 10 Tagen", [m.during_n ?? 0]) })]);
+      }
+      return html("div", {}, [
+        html("span", { class: "k", text: label }),
+        html("b", { text: `${fmtSigned(m.during - m.before, d)}${u}` }),
+        html("span", { class: "r", text: T("Median {0} → {1}", [fmt(m.before, d), fmt(m.during, d)]) }),
+      ]);
+    });
+    return html("article", { class: "experiment" }, [
+      html("div", { class: "goal-top" }, [
+        html("b", { text: e.title ? recoText(e.title) : T("Experiment") }),
+        html("span", { class: `state-badge ${e.status === "done" ? "good" : "none"}`, text: e.status === "done" ? T("abgeschlossen") : e.pending ? T("vorgemerkt") : T("läuft") }),
+      ]),
+      html("p", { text: T("Seit {0} · Tag {1} von {2} · verglichen mit den {2} Tagen davor", [ddmm(isoToT(e.start)), elapsed, days]) }),
+      html("div", { class: "progress", role: "img", "aria-label": T("Tag {0} von {1}", [elapsed, days]) }, [html("span", { style: `width: ${Math.round((elapsed / days) * 100)}%` })]),
+      metrics.length ? html("div", { class: "exp-metrics" }, metrics) : null,
+      e.status !== "done" ? html("p", { text: T("Zwischenstände sind unsicher; das Ergebnis gibt es nach Tag {0}, ab 10 Tagen pro Phase.", [days]) }) : null,
+    ]);
+  }
+
+  function afterDraft() {
+    renderRecommendations();
+    updateSettingsPreview();
+  }
+
+  // The area "Empfehlungen": goals, at most three cards (the rest folded), experiments
+  function renderRecommendations() {
+    const R = state.recommendations;
+    const goals = state.recoGoals || {};
+    const goalCount = Object.keys(goals).length;
+    const cards = R ? R.cards || [] : [], more = R ? R.more || [] : [];
+    const shown = [...(R?.safety || []), ...cards];
+    const experiments = [...(R?.experiments || []), ...recoDraft.experiments.map((e) => ({ ...e, elapsed: 0, status: "running", pending: true, metrics: [] }))];
+
+    const chips = [];
+    if (goalCount) chips.push(chip("target", goalCount === 1 ? T("1 Ziel") : T("{0} Ziele", [goalCount])));
+    if (R) chips.push(chip("list", T("{0} Empfehlungen", [cards.length + more.length + (R.safety || []).length]), (R.safety || []).length ? "warn" : "neutral"));
+    if (experiments.length) chips.push(chip("calendar", experiments.length === 1 ? T("1 Experiment") : T("{0} Experimente", [experiments.length])));
+    $("sum-empfehlungen").replaceChildren(...chips);
+    $("fazit-empfehlungen").textContent = !goalCount ? T("Lege Ziele fest, dann zeigt selftopo, was dich ihnen näher bringt.")
+      : !R ? T("Noch keine Auswertung: sie entsteht im täglichen Workflow.")
+      : shown.length ? T("Für heute und die nächsten Wochen: {0}", [recoText(shown[0].title)])
+      : T("Gerade keine Empfehlung: deine Daten lösen keine Regel aus.");
+
+    const editGoals = html("button", { type: "button", class: "ghost-btn", text: goalCount ? T("Ziele bearbeiten") : T("Ziele festlegen") });
+    editGoals.addEventListener("click", () => { openPrefs("general"); $("goal-fields").scrollIntoView({ block: "start" }); });
+    const goalViews = (R?.goals || []).filter((g) => goals[g.area]).map(goalView).filter(Boolean);
+    $("reco-goals-sub").textContent = goalCount ? T("Abstand, Tempo und Prognose") : T("Noch keine Ziele");
+    $("reco-goals").replaceChildren(
+      goalViews.length ? html("div", { class: "reco-grid" }, goalViews)
+        : html("div", { class: "reco-empty" }, [html("p", {
+          text: goalCount ? T("Die Ziele sind gesetzt; Werte dazu kommen mit dem nächsten Lauf des Workflows (python -m selftopo analyze).")
+            : T("Empfehlungen brauchen ein Ziel, höchstens eines pro Bereich: etwa 75 kg bis Ende März, Ruhepuls unter 46 oder Einschlafen vor 23:00. Ohne Ziel bleibt es bei Überblick und Auffällig."),
+        })]),
+      html("div", { class: "reco-actions" }, [editGoals]),
+    );
+
+    const pending = draftCount();
+    const save = html("button", { type: "button", class: "primary-btn", text: T("In den Einstellungen speichern") });
+    save.addEventListener("click", () => { openPrefs("general"); $("settings-copy").scrollIntoView({ block: "center" }); });
+    const visible = shown;
+    $("reco-cards-sub").textContent = R ? T("Höchstens drei auf einmal, mit Beleg und Messung") : "";
+    $("reco-cards").replaceChildren(...[
+      pending ? html("p", { class: "reco-pending" }, [state.source === "demo" ? T("Beispieldaten: Änderungen werden nicht gespeichert.") : T("{0} Änderung(en) vorgemerkt. Sie gelten, sobald settings.json gespeichert ist.", [pending]), state.source === "demo" ? null : save]) : null,
+      visible.length ? html("div", { class: "reco-grid" }, visible.map((c) => recoCard(c, R)))
+        : html("p", { class: "reco-empty", text: !R ? T("recommendations.json fehlt noch. Es entsteht mit `python -m selftopo analyze`, im Daten-Repository täglich im Workflow.") : goalCount ? T("Gerade keine Empfehlung: deine Daten lösen für deine Ziele keine Regel aus.") : T("Erst mit Zielen.") }),
+      more.length ? html("details", { class: "reco-more" }, [html("summary", { text: T("{0} weitere", [more.length]) }), html("div", { class: "reco-grid" }, more.map((c) => recoCard(c, R)))]) : null,
+      ...(R?.notes || []).map((n) => html("p", { class: "reco-note", text: recoText(n) })),
+    ].filter(Boolean));
+
+    $("reco-exp-sub").textContent = experiments.length ? T("Vergleich mit den Tagen davor: Median und Spanne") : T("Noch keine");
+    $("reco-exp").replaceChildren(experiments.length ? html("div", { class: "reco-grid" }, experiments.map(experimentView))
+      : html("p", { class: "reco-empty", text: T("Empfehlungen aus deinen Daten startest du als Experiment: 14 Tage, dann vergleicht selftopo mit den 14 Tagen davor.") }));
+  }
+
+  // Sample recommendations for the demo, made by `python -m selftopo analyze` from the sample data
+  // with the goals below; their dates are moved to today, like the sample data itself.
+  function demoRecommendations() {
+    const R = JSON.parse(JSON.stringify(DEMO_RECOMMENDATIONS));
+    const shift = Math.round((todayT() - isoToT(R.as_of)) / DAY);
+    const move = (iso) => (typeof iso === "string" && /^\d{4}-\d{2}-\d{2}$/.test(iso) ? isoAdd(iso, shift) : iso);
+    const walk = (o) => {
+      if (Array.isArray(o)) return o.map(walk);
+      if (o && typeof o === "object") {
+        return Object.fromEntries(Object.entries(o).map(([k, v]) => [k, ["date", "as_of", "by", "eta", "start"].includes(k) ? move(v) : walk(v)]));
+      }
+      return o;
+    };
+    return walk(R);
+  }
+
+  // Goal rows in the settings: one per area with metric, target and an optional date
+  function buildGoalFields() {
+    const box = $("goal-fields");
+    for (const area of Object.keys(GOAL_METRICS)) {
+      const id = `goal-${area}`;
+      const select = html("select", { id: `${id}-metric` }, [
+        html("option", { value: "", text: T("kein Ziel") }),
+        ...GOAL_METRICS[area].map(([m, label]) => html("option", { value: m, text: label })),
+      ]);
+      const target = html("input", { id: `${id}-target`, type: "text", inputmode: "decimal", autocomplete: "off", spellcheck: "false" });
+      const by = html("input", { id: `${id}-by`, type: "date" });
+      box.append(html("div", { class: "goal-row" }, [
+        html("span", { class: "area-name", text: GOAL_AREA_LABELS[area] }),
+        html("label", {}, [T("Kennzahl"), select]),
+        html("label", {}, [T("Zielwert"), target]),
+        html("label", {}, [T("bis (optional)"), by]),
+      ]));
+      select.addEventListener("change", () => syncGoalRow(area));
+    }
+  }
+  function syncGoalRow(area) {
+    const m = goalMetric(area, $(`goal-${area}-metric`).value);
+    const target = $(`goal-${area}-target`), by = $(`goal-${area}-by`);
+    target.disabled = !m || m[3] === "none";
+    by.disabled = !m || m[3] !== "number";
+    target.closest("label").hidden = target.disabled;
+    by.closest("label").hidden = by.disabled;
+    target.placeholder = !m ? "" : m[3] === "clock" ? "23:00" : m[3] === "none" ? T("Garmins Bereich") : m[2];
+    if (target.disabled) target.value = "";
+    if (by.disabled) by.value = "";
+  }
+  function fillGoalFields(goals) {
+    for (const area of Object.keys(GOAL_METRICS)) {
+      const g = goals[area];
+      $(`goal-${area}-metric`).value = g ? g.metric : "";
+      $(`goal-${area}-target`).value = g && g.target != null ? String(g.target) : "";
+      $(`goal-${area}-by`).value = g?.by || "";
+      syncGoalRow(area);
+    }
+  }
+  // Goals as set in the form; an invalid target is marked and left out
+  function goalsFromForm() {
+    const out = {};
+    for (const area of Object.keys(GOAL_METRICS)) {
+      const metric = $(`goal-${area}-metric`)?.value, m = goalMetric(area, metric);
+      const input = $(`goal-${area}-target`);
+      if (!input) continue;
+      input.classList.remove("bad");
+      if (!m) continue;
+      const g = { metric };
+      if (m[3] === "number") {
+        const v = Number(input.value.trim().replace(",", "."));
+        if (!(input.value.trim() && v > 0)) { if (input.value.trim()) input.classList.add("bad"); continue; }
+        g.target = v;
+        if ($(`goal-${area}-by`).value) g.by = $(`goal-${area}-by`).value;
+      } else if (m[3] === "clock") {
+        if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(input.value.trim())) { if (input.value.trim()) input.classList.add("bad"); continue; }
+        g.target = input.value.trim();
+      }
+      out[area] = g;
+    }
+    return out;
+  }
+
+  // ------------------------------------------------------------------ push notifications
+
+  // This device's subscription goes into settings.json ("push": {"subscriptions": [...]}); the
+  // daily workflow sends the Today card to every subscription (python -m selftopo push).
+  const pushDraft = { add: [], remove: [] };
+  const PUSH_KEY = /^[A-Za-z0-9_-]{86,88}$/;
+  function b64urlBytes(text) {
+    const b64 = text.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((text.length + 3) % 4);
+    return Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+  }
+  // Settings with this device's change applied: the public key from the field, subscriptions added or removed
+  function applyPush(out) {
+    const push = out.push && typeof out.push === "object" && !Array.isArray(out.push) ? { ...out.push } : {};
+    const key = $("push-key")?.value.trim();
+    if (key) push.public_key = key; else delete push.public_key;
+    let subs = Array.isArray(push.subscriptions) ? push.subscriptions.filter((x) => !pushDraft.remove.includes(x?.endpoint)) : [];
+    for (const add of pushDraft.add) if (!subs.some((x) => x?.endpoint === add.endpoint)) subs = [...subs, add];
+    if (subs.length) push.subscriptions = subs; else delete push.subscriptions;
+    if (Object.keys(push).length) out.push = push; else delete out.push;
+    return out;
+  }
+  const pushSupported = () => "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+  async function pushSubscription() {
+    if (!pushSupported()) return null;
+    const reg = await navigator.serviceWorker.getRegistration();
+    return reg ? reg.pushManager.getSubscription() : null;
+  }
+  function pushStatus(text, saved = false) {
+    $("push-status").textContent = text;
+    $("push-save").hidden = !saved;
+  }
+  async function refreshPush() {
+    const saved = (state.settings?.raw?.push?.subscriptions || []).map((x) => x?.endpoint);
+    if (!pushSupported()) {
+      pushStatus(T("Dieser Browser kann keine Push-Benachrichtigungen. Auf dem iPhone erst zum Home-Bildschirm hinzufügen und in der App einschalten."));
+      $("push-on").disabled = true;
+      return;
+    }
+    const sub = await pushSubscription().catch(() => null);
+    const on = Boolean(sub) && !pushDraft.remove.includes(sub.endpoint);
+    $("push-off").hidden = !on;
+    $("push-on").hidden = on;
+    if (on && pushDraft.add.some((a) => a.endpoint === sub.endpoint)) pushStatus(T("Eingeschaltet. Speichere jetzt settings.json; ab dem nächsten Lauf des Workflows kommt die Heute-Karte. Zum Prüfen den Workflow mit push_test = yes starten."), true);
+    else if (on && saved.includes(sub.endpoint)) pushStatus(T("Auf diesem Gerät eingeschaltet."));
+    else if (on) pushStatus(T("Dieses Gerät ist angemeldet, steht aber noch nicht in settings.json."), true);
+    else if (pushDraft.remove.length) pushStatus(T("Ausgeschaltet. Speichere settings.json, damit der Workflow dieses Gerät nicht mehr anschreibt."), true);
+    else pushStatus(Notification.permission === "denied" ? T("Benachrichtigungen sind für diese Seite blockiert; erlaube sie in den Einstellungen des Browsers.") : T("Auf diesem Gerät aus."));
+  }
+  async function pushOn() {
+    const key = $("push-key").value.trim();
+    if (!PUSH_KEY.test(key)) { pushStatus(T("Trage zuerst den öffentlichen Schlüssel ein (python -m selftopo push-keys).")); $("push-key").focus(); return; }
+    try {
+      if (await Notification.requestPermission() !== "granted") { refreshPush(); return; }
+      const reg = await navigator.serviceWorker.ready;
+      let sub = await reg.pushManager.getSubscription();
+      const same = sub && sub.options?.applicationServerKey
+        && new Uint8Array(sub.options.applicationServerKey).join() === b64urlBytes(key).join();
+      if (sub && !same) { await sub.unsubscribe(); sub = null; }
+      sub = sub || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64urlBytes(key) });
+      const j = sub.toJSON();
+      pushDraft.remove = pushDraft.remove.filter((e) => e !== j.endpoint);
+      pushDraft.add = [{ endpoint: j.endpoint, keys: { p256dh: j.keys.p256dh, auth: j.keys.auth }, lang: LANG, added: tToIso(todayT()) }];
+    } catch (err) {
+      pushStatus(T("Einschalten hat nicht geklappt: {0}", [err?.message || String(err)]));
+      return;
+    }
+    updateSettingsPreview();
+    refreshPush();
+  }
+  async function pushOff() {
+    const sub = await pushSubscription().catch(() => null);
+    if (sub) {
+      pushDraft.add = pushDraft.add.filter((a) => a.endpoint !== sub.endpoint);
+      if (!pushDraft.remove.includes(sub.endpoint)) pushDraft.remove.push(sub.endpoint);
+      await sub.unsubscribe().catch(() => {});
+    }
+    updateSettingsPreview();
+    refreshPush();
+  }
+  function setupPush() {
+    $("push-on").addEventListener("click", pushOn);
+    $("push-off").addEventListener("click", pushOff);
+    $("push-save").addEventListener("click", () => { openPrefs("general"); $("settings-copy").scrollIntoView({ block: "center" }); });
+    $("push-key").addEventListener("input", updateSettingsPreview);
+  }
+
   // ------------------------------------------------------------------ settings card
 
   const splitNames = (text) => String(text || "").split(",").map((n) => n.trim()).filter(Boolean);
@@ -6604,6 +7432,14 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       }));
     }
     out.grip_exercises = { left: splitNames($("set-grip-left").value), right: splitNames($("set-grip-right").value) };
+    const goals = goalsFromForm();
+    if (Object.keys(goals).length) out.goals = goals; else delete out.goals;
+    applyPush(out);
+    if (recoDraft.experiments.length) out.experiments = [...(Array.isArray(out.experiments) ? out.experiments : []), ...recoDraft.experiments];
+    if (Object.keys(recoDraft.hidden).length) {
+      const before = out.recommendations_hidden && typeof out.recommendations_hidden === "object" ? out.recommendations_hidden : {};
+      out.recommendations_hidden = { ...before, ...recoDraft.hidden };
+    }
     return out;
   }
   const settingsText = () => `${JSON.stringify(settingsFromForm(), null, 2)}\n`;
@@ -6641,6 +7477,9 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     $("set-steps").value = String(STEP_GOAL);
     $("set-grip-left").value = st.grip.left.join(", ");
     $("set-grip-right").value = st.grip.right.join(", ");
+    fillGoalFields(st.goals || {});
+    $("push-key").value = typeof st.raw?.push?.public_key === "string" ? st.raw.push.public_key : "";
+    refreshPush();
     for (const el of document.querySelectorAll("[data-step-goal]")) el.textContent = fmt(STEP_GOAL);
     const problems = [...st.problems];
     if (state.settingsBroken) problems.unshift(T("settings.json ist kein gültiges JSON und wird ignoriert. Speichere die Datei hier neu."));
@@ -6670,7 +7509,10 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       const zones = typeof Intl.supportedValuesOf === "function" ? Intl.supportedValuesOf("timeZone") : [];
       $("set-tz-list").replaceChildren(...zones.map((z) => html("option", { value: z })));
     } catch { /* no list: free text still works */ }
+    buildGoalFields();
+    setupPush();
     $("settings-form").addEventListener("input", updateSettingsPreview);
+    $("settings-form").addEventListener("change", updateSettingsPreview);
     $("settings-form").addEventListener("submit", (e) => e.preventDefault());
     $("settings-copy").addEventListener("click", async () => {
       $("settings-status").textContent = (await copySettings())
@@ -7202,6 +8044,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
           const demo = data.source === "demo";
           state.settings = applySettings(demo ? null : data.settings ?? null, !demo && Boolean(data.found?.settings));
           state.settingsBroken = !demo && Boolean(data.settingsBroken);
+          state.recommendations = demo ? demoRecommendations() : data.recommendations || null;
+          state.recoGoals = demo ? Object.fromEntries(state.recommendations.goals.map((g) => [g.area, g])) : state.settings.goals;
           state.dataBranch = data.branch || null;
           state.model = buildModel(data.garmin, data.hevy, data.activities || [], data.nutrition || [], data.climbs || [], data.climbSessions || [],
             { exercises: data.exercises || [], fitness: data.fitness || [], bp: data.bp || [] });
