@@ -1710,7 +1710,6 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Schlaf": "Sleep",
 "Aktivitäten": "Activities",
 "Zusammenhänge": "Insights",
-"Die Daten reichen {0} Tage zurück, „Alles“ zeigt dasselbe": "The data goes back {0} days, “All” shows the same",
 "Letzte {0} Tage (Taste Z wechselt)": "Last {0} days (key Z switches)",
 "Alle vorhandenen Tage (Taste Z wechselt)": "All available days (key Z switches)",
 "{0} kg · {1} kg in {2} Tagen": "{0} kg · {1} kg in {2} days",
@@ -4601,7 +4600,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   // ---- time range
 
   const dataSpanDays = () => (state.model ? Math.round((state.model.t1 - state.model.t0) / DAY) + 1 : 0);
-  // A range at least as long as the data shows the same as "Alles"; such buttons are disabled.
+  // A range at least as long as the data shows the same as "Alles"; such ranges are not offered.
   const rangeAvailable = (days) => days === 0 || !state.model || days < dataSpanDays();
 
   function setRange(days) {
@@ -4616,22 +4615,19 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     setRange(options[(i + step + options.length) % options.length].days);
   }
   function renderRangeButtons() {
-    const span = dataSpanDays();
+    const offered = RANGES.filter((r) => rangeAvailable(r.days));
     const select = $("range-select");
-    select.replaceChildren(...RANGES.map((r) => {
+    select.replaceChildren(...offered.map((r) => {
       const o = html("option", { value: String(r.days), text: r.label });
-      o.disabled = !rangeAvailable(r.days);
       o.selected = state.range === r.days;
       return o;
     }));
     for (const seg of document.querySelectorAll("[data-range]")) {
-      seg.replaceChildren(...RANGES.map((r) => {
-        const off = !rangeAvailable(r.days);
+      seg.replaceChildren(...offered.map((r) => {
         const b = html("button", {
           type: "button", "aria-pressed": String(state.range === r.days), text: r.label,
-          title: off ? T("Die Daten reichen {0} Tage zurück, „Alles“ zeigt dasselbe", [span]) : r.days ? T("Letzte {0} Tage (Taste Z wechselt)", [r.days]) : T("Alle vorhandenen Tage (Taste Z wechselt)"),
+          title: r.days ? T("Letzte {0} Tage (Taste Z wechselt)", [r.days]) : T("Alle vorhandenen Tage (Taste Z wechselt)"),
         });
-        b.disabled = off;
         b.addEventListener("click", () => setRange(r.days));
         return b;
       }));
