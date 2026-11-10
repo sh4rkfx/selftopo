@@ -643,7 +643,7 @@ def rule_sleep_duration(data: Data, target: float | None) -> Card | None:
     """Rule 8: sleep below 7 h (or the goal) in the 7-day mean."""
     hours = data.mean("sleep_hours", 7)
     limit = max(7.0, float(target)) if target else 7.0
-    if hours is None or hours >= limit:
+    if hours is None or round(hours, 1) >= limit:  # compared as shown, so the card never says "7.0 h" is too little
         return None
     return Card("sleep-duration", text("Bettzeit 30 min früher, an Arbeitstagen zuerst"),
                 text("Du schläfst im Mittel {0} h. Erwachsene sollen regelmäßig 7 h oder mehr schlafen.",
@@ -794,6 +794,9 @@ def rule_caffeine(data: Data) -> Card | None:
 OWN_DATA_DRIVERS = {"training_load": "Trainingslast", "active_min": "aktive Zeit", "steps": "Schritte",
                     "hard_sets": "harte Sätze", "tonnage_t": "Tonnage", "calories_kcal": "Kalorien",
                     "protein_g": "Eiweiß", "carbs_g": "Kohlenhydrate", "fat_g": "Fett"}
+# The step of each behaviour in insights.json ("effect_per"), in German
+EFFECT_PER = {"100 points": "100 Punkte", "1 hour": "Stunde", "1,000 steps": "1.000 Schritte", "10 sets": "10 Sätze",
+              "1 t": "Tonne", "500 kcal": "500 kcal", "50 g": "50 g", "100 g": "100 g", "30 g": "30 g"}
 OUTCOME_NAMES = {"hrv": "HRV", "resting_hr": "Ruhepuls", "sleep_score": "Sleep Score", "sleep_hours": "Schlafdauer"}
 GOAL_OUTCOMES = {"erholung": {"hrv", "resting_hr"}, "schlaf": {"sleep_score", "sleep_hours"}}
 
@@ -823,12 +826,13 @@ def rule_own_data(data: Data, goals: dict[str, Goal]) -> list[Card]:
         elif driver in OWN_DATA_DRIVERS and "own-data" not in used:
             used.add("own-data")
             name, outcome_name = OWN_DATA_DRIVERS[driver], OUTCOME_NAMES.get(outcome, outcome)
+            per = EFFECT_PER.get(f.get("effect_per"), f.get("effect_per", ""))
             title = (text("Experiment: 14 Tage weniger {0}", {"t": name}) if effect * better < 0
                      else text("Experiment: 14 Tage mehr {0}", {"t": name}))
             cards.append(Card("own-data", title,
                               text("In deinen Daten ging mehr {0} mit {1} {2} {3} einher, pro {4} ({5} Tage). Ein "
                                    "Zusammenhang, keine Ursache; das Experiment prüft es.", {"t": name}, n(effect, 1),
-                                   f.get("effect_unit", ""), {"t": outcome_name}, {"t": f.get("effect_per", "")},
+                                   f.get("effect_unit", ""), {"t": outcome_name}, {"t": per},
                                    n(f.get("n", 0))),
                               text("die Zielgröße"),
                               experiment={"days": EXPERIMENT_DAYS, "metrics": [outcome],
