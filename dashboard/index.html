@@ -22,24 +22,24 @@ img { max-width: 100%; }
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
 <style>
 /* Layout: sticky bar with area navigation and time range. Below it the overview tiles, then one
    panel per area (Körper, Erholung, Schlaf, Kraft, Aktivitäten, Zusammenhänge, Daten). Each panel
    opens with a one-sentence answer and can be collapsed; cards inside, two columns from 900px.
    Three surface levels: page (outermost), area panel, card. */
 :root {
-  --page: #e8eae4;
-  --area: #f4f5f1;
-  --surface: #fdfdfb;
-  --bar: rgba(232, 234, 228, 0.88);
-  --ink: #0b0b0b;
-  --ink-2: #4f4e4a;
-  --muted: #67665f;
-  --grid: #e4e3dc;
-  --axis: #c0bfb4;
-  --ring: rgba(11, 11, 11, 0.09);
-  --ring-strong: rgba(11, 11, 11, 0.24);
+  --page: #fbf8f3;
+  --area: #f4eee5;
+  --surface: #ffffff;
+  --bar: rgba(251, 248, 243, 0.9);
+  --ink: #1f1a17;
+  --ink-2: #4a4540;
+  --muted: #625d57;
+  --grid: #ede6db;
+  --axis: #c9beae;
+  --ring: rgba(90, 70, 54, 0.15);
+  --ring-strong: rgba(31, 26, 23, 0.28);
   --s1: #2a78d6;
   --s2: #eb6834;
   --s3: #1baf7a;
@@ -53,50 +53,64 @@ img { max-width: 100%; }
   --pill-good: rgba(12, 163, 12, 0.12);
   --pill-warn: rgba(250, 178, 25, 0.22);
   --pill-crit: rgba(208, 59, 59, 0.13);
-  --note: #fff4d6;
+  --note: #fff1cc;
   /* Color families of the areas: Körper and Ernährung orange, Erholung and Schlaf violet,
      Kraft and Aktivitäten blue, Zusammenhänge and Daten gray. Status colors stay reserved. */
   --t-orange-fg: #a64a14; --t-orange-bg: #fbe9dc;
   --t-violet-fg: #5e40b8; --t-violet-bg: #ede8fb;
   --t-blue-fg: #1f5bb0; --t-blue-bg: #e2ecfa;
   --t-gray-fg: #4f4e4a; --t-gray-bg: #e6e5df;
-  --chip: #eceae3;
+  --chip: #efe8dd;
   --good-ink: #146a2b; --warn-ink: #805300; --crit-ink: #a8231b;
-  --font-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* Overview tiles filled by state: background, text, sparkline. Neutral tiles stay white. */
+  --st-good-bg: #d3f5e1; --st-good-ink: #1e4d33; --st-good-line: #2f7d52;
+  --st-warn-bg: #ffefc2; --st-warn-ink: #6b4a00; --st-warn-line: #a16207;
+  --st-crit-bg: #ffd9d3; --st-crit-ink: #7a1f12; --st-crit-line: #b4352a;
+  --st-pill: #ffffff;
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --page: #0a0b0a; --area: #131412; --surface: #1c1d1b; --bar: rgba(10, 11, 10, 0.86);
-    --ink: #f0efec; --ink-2: #c3c2b7; --muted: #9a9890;
-    --grid: #2c2c2a; --axis: #45453f; --ring: rgba(255, 255, 255, 0.09); --ring-strong: rgba(255, 255, 255, 0.24);
+    --page: #0e1116; --area: #13171d; --surface: #171b22; --bar: rgba(14, 17, 22, 0.88);
+    --ink: #eef0f3; --ink-2: #c3c8d0; --muted: #9aa3af;
+    --grid: #232933; --axis: #3d4552; --ring: rgba(255, 255, 255, 0.1); --ring-strong: rgba(255, 255, 255, 0.26);
     --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --other: #66655f;
     --band: rgba(57, 135, 229, 0.17);
     --pill-good: rgba(12, 163, 12, 0.20); --pill-warn: rgba(250, 178, 25, 0.18); --pill-crit: rgba(208, 59, 59, 0.24);
-    --note: #2a2414;
+    --note: #2a2410;
     --t-orange-fg: #f2a36e; --t-orange-bg: rgba(242, 163, 110, 0.16);
     --t-violet-fg: #b9a6f6; --t-violet-bg: rgba(185, 166, 246, 0.16);
     --t-blue-fg: #8ab7f2; --t-blue-bg: rgba(138, 183, 242, 0.16);
     --t-gray-fg: #c3c2b7; --t-gray-bg: rgba(255, 255, 255, 0.08);
-    --chip: #2a2a27;
+    --chip: #232933;
     --good-ink: #74d37f; --warn-ink: #f2c35b; --crit-ink: #f29086;
+    --st-good-bg: #132a1c; --st-good-ink: #86efac; --st-good-line: #4ade80;
+    --st-warn-bg: #2a2410; --st-warn-ink: #fde68a; --st-warn-line: #eab308;
+    --st-crit-bg: #2a1517; --st-crit-ink: #fca5a5; --st-crit-line: #f87171;
+    --st-pill: rgba(0, 0, 0, 0.32);
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --page: #0a0b0a; --area: #131412; --surface: #1c1d1b; --bar: rgba(10, 11, 10, 0.86);
-  --ink: #f0efec; --ink-2: #c3c2b7; --muted: #9a9890;
-  --grid: #2c2c2a; --axis: #45453f; --ring: rgba(255, 255, 255, 0.09); --ring-strong: rgba(255, 255, 255, 0.24);
+  --page: #0e1116; --area: #13171d; --surface: #171b22; --bar: rgba(14, 17, 22, 0.88);
+  --ink: #eef0f3; --ink-2: #c3c8d0; --muted: #9aa3af;
+  --grid: #232933; --axis: #3d4552; --ring: rgba(255, 255, 255, 0.1); --ring-strong: rgba(255, 255, 255, 0.26);
   --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --other: #66655f;
   --band: rgba(57, 135, 229, 0.17);
   --pill-good: rgba(12, 163, 12, 0.20); --pill-warn: rgba(250, 178, 25, 0.18); --pill-crit: rgba(208, 59, 59, 0.24);
-  --note: #2a2414;
+  --note: #2a2410;
   --t-orange-fg: #f2a36e; --t-orange-bg: rgba(242, 163, 110, 0.16);
   --t-violet-fg: #b9a6f6; --t-violet-bg: rgba(185, 166, 246, 0.16);
   --t-blue-fg: #8ab7f2; --t-blue-bg: rgba(138, 183, 242, 0.16);
   --t-gray-fg: #c3c2b7; --t-gray-bg: rgba(255, 255, 255, 0.08);
-  --chip: #2a2a27;
+  --chip: #232933;
   --good-ink: #74d37f; --warn-ink: #f2c35b; --crit-ink: #f29086;
+  --st-good-bg: #132a1c; --st-good-ink: #86efac; --st-good-line: #4ade80;
+  --st-warn-bg: #2a2410; --st-warn-ink: #fde68a; --st-warn-line: #eab308;
+  --st-crit-bg: #2a1517; --st-crit-ink: #fca5a5; --st-crit-line: #f87171;
+  --st-pill: rgba(0, 0, 0, 0.32);
   color-scheme: dark;
 }
 
@@ -108,8 +122,9 @@ html { scroll-padding-top: calc(var(--bar-h, 56px) + env(safe-area-inset-top, 0p
    Chart labels (.tick, .end-label, .ref-label, .axis-title) stay in px: chart margins are fixed. */
 body { background: var(--page); color: var(--ink); font-family: var(--font-sans); font-size: 0.875rem; line-height: 1.45; }
 h1, h2, h3 { margin: 0; text-wrap: balance; }
-h1 { font-size: 1.625rem; font-weight: 600; letter-spacing: -0.01em; line-height: 1.2; }
-h2 { font-size: 1.1875rem; font-weight: 600; letter-spacing: -0.005em; line-height: 1.25; }
+h1, h2 { font-family: var(--font-display); }
+h1 { font-size: 2rem; font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; }
+h2 { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.015em; line-height: 1.2; }
 h3 { font-size: 0.875rem; font-weight: 600; }
 p { margin: 0; }
 a { color: inherit; }
@@ -241,42 +256,61 @@ button { font: inherit; }
 code { font-family: var(--font-mono); font-size: 0.75rem; overflow-wrap: anywhere; }
 
 /* Overview tiles: each one links to its area */
-.tiles {
-  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
-  background: var(--surface); border: 1px solid var(--ring); border-radius: 14px; overflow: hidden;
-}
+.tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 /* Eight tiles: 2 or 4 columns. Ten tiles (with YAZIO): 2 or 5 columns, so no row is left half empty */
 @media (min-width: 640px) { .tiles:not(.ten) { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 @media (min-width: 720px) { .tiles.ten { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+/* Each tile is its own card. Filled green, yellow or red only past a threshold (see ⓘ); the pill
+   names the state in words and with an icon, so the colour is never the only signal. */
 .tile {
-  padding: 13px 16px 11px; display: grid; gap: 3px; align-content: start; min-width: 0;
-  box-shadow: -1px 0 0 var(--grid), 0 -1px 0 var(--grid); color: inherit; text-decoration: none;
+  padding: 16px 18px 14px; display: grid; gap: 4px; align-content: start; grid-template-rows: auto auto auto 1fr; min-width: 0;
+  background: var(--surface); border: 1px solid var(--ring); border-radius: 22px; color: inherit; text-decoration: none;
+  --st-ink: var(--ink-2);
 }
-a.tile:hover { background: var(--area); }
-a.tile:focus-visible { outline-offset: -3px; }
-.tile-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; min-width: 0; }
-.tile .label { font-size: 0.75rem; color: var(--ink-2); display: inline-flex; align-items: center; gap: 5px; min-width: 0; }
-.tile .label svg.ic { width: 14px; height: 14px; color: var(--t-fg); }
+.tile.good { background: var(--st-good-bg); border-color: transparent; --st-ink: var(--st-good-ink); --spark-line: var(--st-good-line); --spark-dot: var(--st-good-line); }
+.tile.warn { background: var(--st-warn-bg); border-color: transparent; --st-ink: var(--st-warn-ink); --spark-line: var(--st-warn-line); --spark-dot: var(--st-warn-line); }
+.tile.crit { background: var(--st-crit-bg); border-color: transparent; --st-ink: var(--st-crit-ink); --spark-line: var(--st-crit-line); --spark-dot: var(--st-crit-line); }
+a.tile:hover { border-color: var(--ring-strong); }
+a.tile.good:hover, a.tile.warn:hover, a.tile.crit:hover { border-color: var(--spark-line); }
+a.tile:focus-visible { outline-offset: 2px; border-radius: 22px; }
+.tile-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 4px 8px; min-width: 0; }
+.st-pill {
+  display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px 2px 6px; border-radius: 999px;
+  background: var(--st-pill); color: var(--st-ink); font-size: 0.71875rem; font-weight: 600; white-space: nowrap;
+}
+.st-pill svg.ic { width: 13px; height: 13px; }
+.tile-sum { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 0 0 12px; padding: 0; }
+.tile-sum li { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 999px; font-size: 0.8125rem; font-weight: 600; }
+.tile-sum svg.ic { width: 14px; height: 14px; }
+.tile-sum .crit { background: var(--st-crit-bg); color: var(--st-crit-ink); }
+.tile-sum .warn { background: var(--st-warn-bg); color: var(--st-warn-ink); }
+.tile-sum .good { background: var(--st-good-bg); color: var(--st-good-ink); }
+.tile-sum .none { background: var(--surface); border: 1px solid var(--ring); color: var(--ink-2); font-weight: 500; }
+.tile .label { font-size: 0.8125rem; font-weight: 600; color: var(--st-ink); display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
+.tile .label svg.ic { width: 16px; height: 16px; color: var(--t-fg); }
+.tile.good .label svg.ic, .tile.warn .label svg.ic, .tile.crit .label svg.ic { color: inherit; }
 .tile .delta svg.ic { width: 13px; height: 13px; flex: none; margin-top: 2px; }
 /* The text wraps next to its arrow, so a narrow tile does not leave the arrow alone on a line */
 .tiles .tile .delta { flex-wrap: nowrap; align-items: flex-start; }
 .tile .delta > span { min-width: 0; }
-.tile .delta.good { color: var(--good-ink); font-weight: 500; }
-.tile .delta.warn { color: var(--warn-ink); font-weight: 500; }
-.tile .delta.crit { color: var(--crit-ink); font-weight: 500; }
+.tile .delta.good, .tile .delta.warn, .tile .delta.crit { color: var(--st-ink); font-weight: 500; }
 .tiles-note { font-size: 0.71875rem; color: var(--muted); margin: 6px 2px 0; }
 .tiles-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 4px 0 0 2px; }
 .tiles-foot .tiles-note { margin: 0; }
 .tiles-foot .info-btn { flex: none; margin: 0 -4px 0 0; }
 #ueberblick > .info { margin-top: 6px; }
-@media (max-width: 759px) { .tile { padding: 10px 12px 8px; } .tile .value { font-size: 1.375rem; } }
+@media (max-width: 759px) {
+  .tiles { gap: 10px; }
+  .tile { padding: 12px 13px 10px; border-radius: 18px; }
+  .tile .value { font-size: 1.625rem; }
+}
 .tile .area-tag { display: inline-flex; align-items: center; gap: 4px; font-size: 0.6875rem; color: var(--muted); white-space: nowrap; }
 .tile .area-tag svg.ic { width: 13px; height: 13px; }
 a.tile:hover .area-tag { color: var(--ink); }
-.tile .value { font-size: 1.5625rem; font-weight: 600; letter-spacing: -0.01em; line-height: 1.15; font-variant-numeric: tabular-nums; }
-.tile .value small { font-size: 0.8125rem; font-weight: 400; color: var(--ink-2); margin-left: 3px; }
-.tile .delta { font-size: 0.75rem; color: var(--ink-2); min-height: 18px; display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: center; }
-.tile svg.spark { display: block; width: 100%; height: 28px; margin-top: 3px; }
+.tile .value { font-family: var(--font-display); font-size: 2.125rem; font-weight: 700; letter-spacing: -0.03em; line-height: 1.05; margin-top: 4px; font-variant-numeric: tabular-nums; }
+.tile .value small { font-family: var(--font-sans); font-size: 0.8125rem; font-weight: 500; letter-spacing: 0; color: var(--st-ink); margin-left: 4px; }
+.tile .delta { font-size: 0.78125rem; color: var(--st-ink); min-height: 18px; display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: center; }
+.tile svg.spark { display: block; width: 100%; height: 28px; margin-top: 4px; align-self: end; }
 .tiles .loading { grid-column: 1 / -1; padding: 28px 16px; color: var(--muted); text-align: center; }
 
 /* Chips: icon plus short value. Neutral by default; status colors only past a threshold. */
@@ -302,7 +336,7 @@ a.tile:hover .area-tag { color: var(--ink); }
 
 /* Area panels */
 .area {
-  background: var(--area); border: 1px solid var(--ring); border-radius: 16px;
+  background: var(--area); border: 1px solid var(--ring); border-radius: 24px;
   padding: 18px 18px 20px; display: grid; gap: 16px; min-width: 0;
 }
 .area-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: 4px 8px; align-items: center; }
@@ -356,7 +390,7 @@ ul.rows li:first-child { border-top: 0; }
 .ri-hint { font-size: 0.75rem; color: var(--ink-2); margin-top: 2px; }
 
 /* Cards */
-.card { background: var(--surface); border: 1px solid var(--ring); border-radius: 12px; padding: 14px 16px 12px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.card { background: var(--surface); border: 1px solid var(--ring); border-radius: 18px; padding: 14px 16px 12px; display: grid; gap: 8px; align-content: start; min-width: 0; }
 @media (max-width: 599px) { .card { padding: 12px 12px 10px; } }
 .card-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; align-items: start; }
 .card-head > :not(.info-btn) { grid-column: 1; }
@@ -601,7 +635,7 @@ kbd { font-family: var(--font-mono); font-size: 0.71875rem; border: 1px solid va
 .notice-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 
 /* Notable this week, and the conclusion under each area head */
-.notable { margin-top: 14px; background: var(--surface); border: 1px solid var(--ring); border-radius: 14px; padding: 14px 16px; display: grid; gap: 10px; }
+.notable { margin-top: 14px; background: var(--surface); border: 1px solid var(--ring); border-radius: 20px; padding: 14px 16px; display: grid; gap: 10px; }
 .notable-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; padding-right: 36px; position: relative; }
 .notable-head h2 { margin: 0; font-size: 1rem; }
 .notable-head .info-btn { position: absolute; right: -6px; top: -6px; }
@@ -737,6 +771,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M15 7h6v6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-calendar" viewBox="0 0 24 24"><path d="M4 6h16v14H4zM4 10h16M8 3v4M16 3v4" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-check" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></g></symbol>
+    <symbol id="i-mid" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16v.5"/></g></symbol>
     <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4l9 16H3zM12 10v4M12 17v.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-up" viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-down" viewBox="0 0 24 24"><path d="M7 7l10 10M17 9v8H9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
@@ -795,9 +830,10 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   <div class="notice" id="notice" hidden></div>
 
   <section id="ueberblick" aria-label="Überblick, letzte 7 Tage">
+    <ul class="tile-sum" id="tile-sum" aria-label="Zusammenfassung der Kacheln" hidden></ul>
     <div class="tiles" id="tiles"><div class="loading">Daten werden geladen …</div></div>
     <div class="tiles-foot" id="tiles-foot">
-      <p class="tiles-note">Werte: 7-Tage-Mittel · Pfeil: ggü. Vorwoche · farbig nur bei Abweichung</p>
+      <p class="tiles-note">Werte: 7-Tage-Mittel · Pfeil: ggü. Vorwoche · Farbe nur, wo eine Schwelle gilt</p>
     </div>
     <div class="info" id="info-tiles" hidden>
       <p>Die Kacheln zeigen immer die letzten 7 Tage, unabhängig vom gewählten Zeitraum. Die kleine Kurve zeigt die letzten 28 Tage; ein Tipp auf die Kachel springt zum Bereich. „Stand TT.MM.“ erscheint, wenn der neueste Wert älter als 2 Tage ist.</p>
@@ -2264,7 +2300,15 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Training und Erholung": "Training and recovery",
 "Zeitraum": "Period",
 "Daten werden geladen …": "Loading data …",
-"Werte: 7-Tage-Mittel · Pfeil: ggü. Vorwoche · farbig nur bei Abweichung": "Values: 7-day average · arrow: vs. previous week · coloured only when off",
+"Werte: 7-Tage-Mittel · Pfeil: ggü. Vorwoche · Farbe nur, wo eine Schwelle gilt": "Values: 7-day average · arrow: vs. previous week · colour only where a threshold applies",
+"Zusammenfassung der Kacheln": "Summary of the tiles",
+"gut": "good",
+"mittel": "fair",
+"schlecht": "poor",
+"{0} gut": "{0} good",
+"{0} mittel": "{0} fair",
+"{0} schlecht": "{0} poor",
+"{0} ohne Bewertung": "{0} not rated",
 "Die Kacheln zeigen immer die letzten 7 Tage, unabhängig vom gewählten Zeitraum. Die kleine Kurve zeigt die letzten 28 Tage; ein Tipp auf die Kachel springt zum Bereich. „Stand TT.MM.“ erscheint, wenn der neueste Wert älter als 2 Tage ist.": "The tiles always show the last 7 days, whatever period is selected. The small curve shows the last 28 days; tapping a tile jumps to its area. “as of DD/MM” appears when the newest value is older than 2 days.",
 "Kachel": "Tile",
 "Wert und Zeile darunter": "Value and line below",
@@ -4593,9 +4637,9 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     const lo = Math.min(...pts.map((p) => p.v)), hi = Math.max(...pts.map((p) => p.v));
     const x = (t) => 2 + ((t - t0) / Math.max(1, t1 - t0)) * 112;
     const y = (v) => 26 - ((v - lo) / Math.max(1e-9, hi - lo)) * 22;
-    svg("path", { d: "M" + pts.map((p) => `${x(p.t).toFixed(1)},${y(p.v).toFixed(1)}`).join("L"), fill: "none", "stroke-width": 1.5, "vector-effect": "non-scaling-stroke", "stroke-linejoin": "round" }, node, { stroke: "var(--axis)" });
+    svg("path", { d: "M" + pts.map((p) => `${x(p.t).toFixed(1)},${y(p.v).toFixed(1)}`).join("L"), fill: "none", "stroke-width": 1.5, "vector-effect": "non-scaling-stroke", "stroke-linejoin": "round" }, node, { stroke: "var(--spark-line, var(--axis))" });
     const last = pts[pts.length - 1];
-    svg("path", { d: `M${x(last.t).toFixed(1)},${y(last.v).toFixed(1)}h0`, "stroke-width": 5.5, "stroke-linecap": "round", "vector-effect": "non-scaling-stroke" }, node, { stroke: "var(--s1)" });
+    svg("path", { d: `M${x(last.t).toFixed(1)},${y(last.v).toFixed(1)}h0`, "stroke-width": 5.5, "stroke-linecap": "round", "vector-effect": "non-scaling-stroke" }, node, { stroke: "var(--spark-dot, var(--s1))" });
     return node;
   }
 
@@ -4877,6 +4921,12 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     $("notice").hidden = !parts.length;
   }
 
+  // Tile states: icon and word shown with the colour
+  const TILE_STATE = {
+    good: { icon: "check", word: () => T("gut"), sum: (n) => T("{0} gut", [n]) },
+    warn: { icon: "mid", word: () => T("mittel"), sum: (n) => T("{0} mittel", [n]) },
+    crit: { icon: "alert", word: () => T("schlecht"), sum: (n) => T("{0} schlecht", [n]) },
+  };
   function renderTiles(M, lastWith, at) {
     const spark = (key) => M.days.slice(-28).map((d) => ({ t: d.t, v: d[key] }));
     const weekAgo = (d, key) => (d ? at(d.t - 7 * DAY)?.[key] ?? null : null);
@@ -4898,8 +4948,11 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     const hrvRatio = h?.hrvLow ? h.hrv7 / h.hrvLow : null;
 
     // delta: { icon, text, level }; level only past a threshold, otherwise the line stays gray
-    const tile = (area, iconName, label, value, unit, delta, sparkData) => html("a", { class: `tile tint-${AREA_TINT[area]}`, href: `#${area === "sport" ? "kraft" : area}`, title: T("Zum Bereich {0}", [AREA_LABELS[area]]) }, [
-      html("span", { class: "label" }, [icon(iconName), label]),
+    const tile = (area, iconName, label, value, unit, delta, sparkData) => html("a", { class: `tile tint-${AREA_TINT[area]} ${TILE_STATE[delta?.level] ? delta.level : ""}`, href: `#${area === "sport" ? "kraft" : area}`, title: T("Zum Bereich {0}", [AREA_LABELS[area]]) }, [
+      html("span", { class: "tile-top" }, [
+        html("span", { class: "label" }, [icon(iconName), label]),
+        TILE_STATE[delta?.level] ? html("span", { class: "st-pill" }, [icon(TILE_STATE[delta.level].icon), TILE_STATE[delta.level].word()]) : null,
+      ]),
       html("span", { class: "value" }, [value, unit ? html("small", { text: unit }) : null]),
       html("span", { class: `delta ${delta?.level || ""}` }, delta ? [delta.icon ? icon(delta.icon) : null, html("span", { text: delta.text })] : []),
       sparkData ? sparkline(sparkData) : null,
@@ -4939,6 +4992,15 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     );
     $("tiles").replaceChildren(...tiles);
     $("tiles").classList.toggle("ten", M.hasNutrition);
+    // Summary above the tiles: how many are poor, fair, good and not rated
+    const count = (lvl) => tiles.filter((el) => el.classList.contains(lvl)).length;
+    const rated = ["crit", "warn", "good"].map((lvl) => ({ lvl, n: count(lvl) }));
+    const unrated = tiles.length - rated.reduce((a, r) => a + r.n, 0);
+    $("tile-sum").replaceChildren(
+      ...rated.filter((r) => r.n).map((r) => html("li", { class: r.lvl }, [icon(TILE_STATE[r.lvl].icon), TILE_STATE[r.lvl].sum(r.n)])),
+      ...(unrated ? [html("li", { class: "none", text: T("{0} ohne Bewertung", [unrated]) })] : []),
+    );
+    $("tile-sum").hidden = false;
   }
 
   // ------------------------------------------------------------------ personal baseline
