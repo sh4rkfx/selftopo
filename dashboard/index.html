@@ -3133,7 +3133,9 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     if (v == null || !Number.isFinite(v)) return "–";
     const key = digits;
     nf[key] ??= new Intl.NumberFormat(LOCALE, { minimumFractionDigits: digits, maximumFractionDigits: digits });
-    return nf[key].format(v).replace("-", "−");
+    const text = nf[key].format(v);
+    // A tiny negative value such as an axis tick of -2e-17 rounds to "-0,0": drop the sign
+    return (/^-0([.,]0+)?$/.test(text) ? text.slice(1) : text).replace("-", "−");
   }
   function fmtSigned(v, digits = 0) {
     if (v == null || !Number.isFinite(v)) return "–";
