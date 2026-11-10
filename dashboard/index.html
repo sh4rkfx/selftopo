@@ -7349,8 +7349,9 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   // Settings with this device's change applied: the public key from the field, subscriptions added or removed
   function applyPush(out) {
     const push = out.push && typeof out.push === "object" && !Array.isArray(out.push) ? { ...out.push } : {};
-    const key = $("push-key")?.value.trim();
-    if (key) push.public_key = key; else delete push.public_key;
+    const key = $("push-key")?.value.trim() || "";
+    const loaded = typeof state !== "undefined" && typeof state.settings?.raw?.push?.public_key === "string" ? state.settings.raw.push.public_key : "";
+    if (key !== loaded) { if (key) push.public_key = key; else delete push.public_key; } // untouched: the file's stays
     let subs = Array.isArray(push.subscriptions) ? push.subscriptions.filter((x) => !pushDraft.remove.includes(x?.endpoint)) : [];
     for (const add of pushDraft.add) if (!subs.some((x) => x?.endpoint === add.endpoint)) subs = [...subs, add];
     if (subs.length) push.subscriptions = subs; else delete push.subscriptions;
@@ -7427,8 +7428,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 
   const splitNames = (text) => String(text || "").split(",").map((n) => n.trim()).filter(Boolean);
   // settings.json as it would be with the values in the form; keys the page does not know stay as they are
-  function settingsFromForm(base = state.settings?.raw) {
-    const out = { ...(base || {}) };
+  // The fields of the settings form, put on `out`
+  function formFields(out) {
     const zone = $("set-tz").value.trim();
     if (zone) out.timezone = zone; else delete out.timezone;
     const goal = Number($("set-steps").value);
@@ -7446,6 +7447,10 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     if (out.grip_exercises || JSON.stringify(grip) !== JSON.stringify(DEFAULT_GRIP)) out.grip_exercises = grip;
     const goals = goalsFromForm();
     if (Object.keys(goals).length) out.goals = goals; else delete out.goals;
+    return out;
+  }
+  // Pending changes that add to what is there: push devices, experiments, hidden recommendations
+  function applyDrafts(out) {
     applyPush(out);
     if (recoDraft.experiments.length) out.experiments = [...(Array.isArray(out.experiments) ? out.experiments : []), ...recoDraft.experiments];
     if (Object.keys(recoDraft.hidden).length) {
@@ -7453,6 +7458,19 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       out.recommendations_hidden = { ...before, ...recoDraft.hidden };
     }
     return out;
+  }
+  function settingsFromForm(base = state.settings?.raw) {
+    return applyDrafts(formFields({ ...(base || {}) }));
+  }
+  // For saving on top of the current file: only the form fields changed since the page loaded
+  // replace what is there, so a change from another device to an untouched field survives
+  function mergeForSave(latest, loaded = state.settings?.raw || {}) {
+    const edited = formFields({ ...loaded });
+    const out = { ...latest };
+    for (const k of changedKeys(loaded, edited)) {
+      if (k in edited) out[k] = edited[k]; else delete out[k];
+    }
+    return applyDrafts(out);
   }
   const settingsText = () => `${JSON.stringify(settingsFromForm(), null, 2)}\n`;
   // Where "save" leads: a prefilled new file on GitHub, or the editor of the existing one
@@ -7483,7 +7501,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     return T("GitHub antwortet mit Fehler {0}. Versuche es in ein paar Minuten erneut.", [status]);
   }
   // Writes settings.json: reads the current file first, so changes from other devices stay, puts the
-  // form and the pending changes on top and commits. Returns { ok, keys } or { error, readOnly }.
+  // edited form fields and the pending changes on top and commits. Returns { ok, keys } or { error, readOnly }.
   async function writeSettings(cred = loadCredentials()) {
     if (state.source !== "github" || !cred || cred.repo !== state.dataRepo) return { error: T("Speichern geht nur mit verbundenem Daten-Repository.") };
     const branch = state.dataBranch;
@@ -7505,7 +7523,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       } catch {
         return { error: offline };
       }
-      const out = settingsFromForm(base);
+      const out = mergeForSave(base);
       const keys = changedKeys(base, out);
       if (sha && !keys.length) return { ok: true, keys };
       let res;

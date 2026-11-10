@@ -9,6 +9,7 @@ for GitHub; without Node these tests are skipped.
 
 import json
 
+from jsdashboard import run as run_plain
 from jsdashboard import run_async as run
 
 NAMES = ["b64Encode", "b64Decode", "changedKeys", "writeProblem", "writeSettings"]
@@ -35,7 +36,7 @@ def save(files: dict, responses: list, form: dict | None = None, source: str = "
       return {{ ok: status < 300, status }};
     }};
     const FORM = {json.dumps(form or {})};
-    globalThis.settingsFromForm = (base) => ({{ ...base, ...FORM }});
+    globalThis.mergeForSave = (base) => ({{ ...base, ...FORM }});
     globalThis.loadCredentials = () => ({{ repo: "me/data", token: "github_pat_x" }});
     """
     return run(NAMES, f"(async () => {{ {setup} const result = await writeSettings(); return {{ result, calls }}; }})()")
@@ -100,3 +101,33 @@ def test_only_with_a_connected_repository(given):
     given(source="demo")
     out = save({"sha": "s", "text": "{}"}, [], {"step_goal": 9000}, source="demo")
     assert "error" in out["result"] and out["calls"] == []
+
+
+def test_untouched_fields_keep_the_change_from_another_device(given):
+    """Saving after "Later": the time zone another device set meanwhile stays; only edited fields and drafts go on top."""
+    given(loaded='{"timezone": "Europe/Vienna", "step_goal": 8000}', latest='{"timezone": "Europe/Berlin", "step_goal": 8000}', edited="step goal 9000, Later on one card")
+    out = run_plain(
+        ["changedKeys", "mergeForSave"],
+        """(() => {
+          globalThis.formFields = (o) => ({ ...o, step_goal: 9000 });
+          globalThis.applyDrafts = (o) => ({ ...o, recommendations_hidden: { protein: { until: "2026-11-24" } } });
+          globalThis.state = { settings: { raw: { timezone: "Europe/Vienna", step_goal: 8000 } } };
+          return mergeForSave({ timezone: "Europe/Berlin", step_goal: 8000, custom: 1 });
+        })()""",
+    )
+    assert out == {"timezone": "Europe/Berlin", "step_goal": 9000, "custom": 1, "recommendations_hidden": {"protein": {"until": "2026-11-24"}}}
+
+
+def test_cleared_field_is_removed(given):
+    """A field emptied in the form is removed from the current file."""
+    given(edited="time zone cleared")
+    out = run_plain(
+        ["changedKeys", "mergeForSave"],
+        """(() => {
+          globalThis.formFields = (o) => { const c = { ...o }; delete c.timezone; return c; };
+          globalThis.applyDrafts = (o) => o;
+          globalThis.state = { settings: { raw: { timezone: "Europe/Vienna" } } };
+          return mergeForSave({ timezone: "Europe/Vienna", step_goal: 7000 });
+        })()""",
+    )
+    assert out == {"step_goal": 7000}

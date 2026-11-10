@@ -155,6 +155,7 @@ def test_dashboard_keeps_other_devices_when_saving(given):
         ["applyPush"],
         """(() => {
           globalThis.pushDraft = { add: [{ endpoint: "C" }], remove: ["A"] };
+          globalThis.state = { settings: { raw: {} } };
           globalThis.$ = () => ({ value: " BKEY " });
           return applyPush({ push: { subscriptions: [{ endpoint: "A" }, { endpoint: "B" }] } });
         })()""",
