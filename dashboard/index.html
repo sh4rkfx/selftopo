@@ -4930,6 +4930,15 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     $("notice").hidden = !parts.length;
   }
 
+  // Tile states past a threshold, explained in the tiles' ⓘ: "good", "warn", "crit", or "" for none
+  const bmiLevel = (bmi) => (bmi == null ? "" : bmi < 18.5 || bmi >= 30 ? "crit" : bmi >= 25 ? "warn" : "good");
+  const balanceLevel = (balance) => (balance == null ? "" : balance < 0 ? "good" : balance > 0 ? "crit" : "");
+  // Counts for the summary above the tiles: poor, fair, good, then not rated; only counts above zero
+  function tileSummary(levels) {
+    const rated = ["crit", "warn", "good"].map((level) => ({ level, n: levels.filter((l) => l === level).length }));
+    const none = levels.length - rated.reduce((a, r) => a + r.n, 0);
+    return [...rated, { level: "none", n: none }].filter((r) => r.n > 0);
+  }
   // Tile states: icon and word shown with the colour
   const TILE_STATE = {
     good: { icon: "check", word: () => T("gut"), sum: (n) => T("{0} gut", [n]) },
@@ -4946,9 +4955,9 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     const sl = lastWith("sleepH7"), ss = lastWith("sleep7"), bed = lastWith("bed7"), st7 = lastWith("steps7");
     const kc = lastWith("kcal7"), pk = lastWith("proteinKg7"), bal = lastWith("balance7"), bmi = lastWith("bmi7");
     // BMI from the scale, WHO classes: 18.5 to 24.9 normal, 25 to 29.9 overweight, from 30 obesity
-    const bmiLevel = !bmi ? "" : bmi.bmi7 < 18.5 || bmi.bmi7 >= 30 ? "crit" : bmi.bmi7 >= 25 ? "warn" : "good";
+    const weightLevel = bmiLevel(bmi?.bmi7);
     // Intake against Garmin's expenditure: a deficit is green, a surplus red
-    const balLevel = !bal ? "" : bal.balance7 < 0 ? "good" : bal.balance7 > 0 ? "crit" : "";
+    const kcalLevel = balanceLevel(bal?.balance7);
     const last7 = M.days.slice(-7), prev7 = M.days.slice(-14, -7);
     const setsLast7 = last7.reduce((a, d) => a + d.hardSets, 0), setsPrev7 = prev7.reduce((a, d) => a + d.hardSets, 0);
     const sessions7 = new Set(last7.flatMap((d) => [...d.sessions])).size;
@@ -4974,7 +4983,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     const tiles = [
       tile("koerper", "koerper", T("Gewicht"), fmt(w?.weight7, 1), "kg",
         asOf(w) ?? (weightDelta != null || bmi ? {
-          icon: weightDelta != null ? direction(weightDelta, 0.05) : null, level: bmiLevel,
+          icon: weightDelta != null ? direction(weightDelta, 0.05) : null, level: weightLevel,
           text: [bmi ? T("BMI {0}", [fmt(bmi.bmi7, 1)]) : null, weightDelta != null ? `${fmtSigned(weightDelta, 1)} kg` : null].filter(Boolean).join(" · "),
         } : null), spark("weight7")),
     ];
@@ -4982,7 +4991,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       tiles.push(
         tile("ernaehrung", "flame", T("Kalorien"), fmt(kc?.kcal7), "kcal",
           asOf(kc) ?? (bal
-            ? { icon: null, text: T("Bilanz {0} · {1}/7 Tage", [fmtSigned(bal.balance7), foodDays7]), level: balLevel }
+            ? { icon: null, text: T("Bilanz {0} · {1}/7 Tage", [fmtSigned(bal.balance7), foodDays7]), level: kcalLevel }
             : { icon: "calendar", text: T("{0} von 7 geloggt", [foodDays7]) }), spark("kcal7")),
         tile("ernaehrung", "egg", T("Eiweiß"), fmt(pk?.proteinKg7, 1), "g/kg",
           asOf(pk) ?? (pk ? (pk.proteinKg7 < PROTEIN_REFS[0]
@@ -5011,12 +5020,11 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     $("tiles").replaceChildren(...tiles);
     $("tiles").classList.toggle("ten", M.hasNutrition);
     // Summary above the tiles: how many are poor, fair, good and not rated
-    const count = (lvl) => tiles.filter((el) => el.classList.contains(lvl)).length;
-    const rated = ["crit", "warn", "good"].map((lvl) => ({ lvl, n: count(lvl) }));
-    const unrated = tiles.length - rated.reduce((a, r) => a + r.n, 0);
+    const levels = tiles.map((el) => Object.keys(TILE_STATE).find((l) => el.classList.contains(l)) || "");
     $("tile-sum").replaceChildren(
-      ...rated.filter((r) => r.n).map((r) => html("li", { class: r.lvl }, [icon(TILE_STATE[r.lvl].icon), TILE_STATE[r.lvl].sum(r.n)])),
-      ...(unrated ? [html("li", { class: "none", text: T("{0} ohne Bewertung", [unrated]) })] : []),
+      ...tileSummary(levels).map(({ level, n }) => (TILE_STATE[level]
+        ? html("li", { class: level }, [icon(TILE_STATE[level].icon), TILE_STATE[level].sum(n)])
+        : html("li", { class: "none", text: T("{0} ohne Bewertung", [n]) }))),
     );
     $("tile-sum").hidden = false;
   }

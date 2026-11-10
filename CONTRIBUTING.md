@@ -18,9 +18,13 @@ and documentation are all welcome.
 git clone https://github.com/sh4rkfx/selftopo.git && cd selftopo
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements-dev.txt
-pytest            # parsers, settings, analysis, dashboard dictionary; writes test-results/results.json
+pytest            # parsers, settings, analysis, dashboard dictionary and helpers; writes test-results/results.json
 ruff check .      # lint, line length 120
 ```
+
+Tests of the dashboard's pure helpers (tile colours, summary, time axis) cut those functions out of
+`dashboard/index.html` and run them in Node.js (`tests/jsdashboard.py`); GitHub's runners have Node.
+Without Node they are skipped. A helper that touches the page or the data files stays untested there.
 
 The dashboard needs no build: run `python -m http.server 8000` in the repository root and open
 <http://localhost:8000/dashboard/>. With a `data/` folder next to it, the page shows those files;
