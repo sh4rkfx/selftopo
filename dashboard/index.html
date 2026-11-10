@@ -804,8 +804,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       <table class="info-table">
         <thead><tr><th scope="col">Kachel</th><th scope="col">Wert und Zeile darunter</th></tr></thead>
         <tbody>
-          <tr><td><svg class="ic" aria-hidden="true"><use href="#i-koerper"/></svg>Gewicht</td><td>7-Tage-Mittel; darunter die Änderung gegenüber dem 7-Tage-Mittel von vor einer Woche.</td></tr>
-          <tr><td><svg class="ic" aria-hidden="true"><use href="#i-flame"/></svg>Kalorien</td><td>7-Tage-Mittel der vollständig geloggten Tage; darunter, wie viele der letzten 7 Tage vollständig geloggt sind, ohne heute. Nur mit YAZIO.</td></tr>
+          <tr><td><svg class="ic" aria-hidden="true"><use href="#i-koerper"/></svg>Gewicht</td><td>7-Tage-Mittel; darunter der BMI laut Waage und die Änderung gegenüber vor einer Woche. Grün bei BMI 18,5 bis 24,9, gelb bei 25 bis 29,9 (Übergewicht), rot ab 30 (Adipositas) oder unter 18,5, nach den Klassen der WHO.</td></tr>
+          <tr><td><svg class="ic" aria-hidden="true"><use href="#i-flame"/></svg>Kalorien</td><td>7-Tage-Mittel der vollständig geloggten Tage; darunter die mittlere Bilanz gegenüber dem Verbrauch laut Garmin und wie viele der letzten 7 Tage vollständig geloggt sind, ohne heute. Grün bei Defizit, rot bei Überschuss. Nur mit YAZIO.</td></tr>
           <tr><td><svg class="ic" aria-hidden="true"><use href="#i-egg"/></svg>Eiweiß</td><td>7-Tage-Mittel in g pro kg Körpergewicht; grün ab 1,6 g/kg, gelb darunter. Nur mit YAZIO.</td></tr>
           <tr><td><svg class="ic" aria-hidden="true"><use href="#i-pulse"/></svg>HRV</td><td>7-Tage-Mittel; darunter Garmins Normalbereich. Grün im Bereich, gelb darunter, rot mehr als 8 % unter der Untergrenze.</td></tr>
           <tr><td><svg class="ic" aria-hidden="true"><use href="#i-heart"/></svg>Ruhepuls</td><td>7-Tage-Mittel; darunter der Abstand zum 60-Tage-Mittel. Gelb ab +2,5 bpm, rot ab +5 bpm.</td></tr>
@@ -1806,6 +1806,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Gewicht": "Weight",
 "Kalorien": "Calories",
 "{0} von 7 geloggt": "{0} of 7 logged",
+"BMI {0}": "BMI {0}",
+"Bilanz {0} · {1}/7 Tage": "Balance {0} · {1}/7 days",
 "Eiweiß": "Protein",
 "Ziel ab {0}": "goal from {0}",
 "Ziel erreicht": "Goal reached",
@@ -2269,9 +2271,9 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Kachel": "Tile",
 "Wert und Zeile darunter": "Value and line below",
 "⟨i⟩Gewicht": "⟨i⟩Weight",
-"7-Tage-Mittel; darunter die Änderung gegenüber dem 7-Tage-Mittel von vor einer Woche.": "7-day average; below, the change against the 7-day average of one week earlier.",
+"7-Tage-Mittel; darunter der BMI laut Waage und die Änderung gegenüber vor einer Woche. Grün bei BMI 18,5 bis 24,9, gelb bei 25 bis 29,9 (Übergewicht), rot ab 30 (Adipositas) oder unter 18,5, nach den Klassen der WHO.": "7-day average; below, the BMI from the scale and the change against one week earlier. Green at BMI 18.5 to 24.9, yellow at 25 to 29.9 (overweight), red from 30 (obesity) or below 18.5, following the WHO classes.",
 "⟨i⟩Kalorien": "⟨i⟩Calories",
-"7-Tage-Mittel der vollständig geloggten Tage; darunter, wie viele der letzten 7 Tage vollständig geloggt sind, ohne heute. Nur mit YAZIO.": "7-day average of the fully logged days; below, how many of the last 7 days are fully logged, not counting today. YAZIO only.",
+"7-Tage-Mittel der vollständig geloggten Tage; darunter die mittlere Bilanz gegenüber dem Verbrauch laut Garmin und wie viele der letzten 7 Tage vollständig geloggt sind, ohne heute. Grün bei Defizit, rot bei Überschuss. Nur mit YAZIO.": "7-day average of the fully logged days; below, the mean balance against the expenditure according to Garmin and how many of the last 7 days are fully logged, not counting today. Green for a deficit, red for a surplus. YAZIO only.",
 "⟨i⟩Eiweiß": "⟨i⟩Protein",
 "7-Tage-Mittel in g pro kg Körpergewicht; grün ab 1,6 g/kg, gelb darunter. Nur mit YAZIO.": "7-day average in g per kg body weight; green from 1.6 g/kg, yellow below. YAZIO only.",
 "⟨i⟩HRV": "⟨i⟩HRV",
@@ -3830,7 +3832,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
         foodRaw: food ? { p: num(food.protein_g), c: num(food.carbs_g), f: num(food.fat_g) } : null,
         kcal: only(kcalIn), proteinG: only(num(food?.protein_g)), carbsG: only(num(food?.carbs_g)), fatG: only(num(food?.fat_g)),
         t,
-        weight, fatPct,
+        weight, fatPct, bmi: num(r.bmi),
         fatKg: num(r.fat_mass_kg) ?? (weight != null && fatPct != null ? weight * fatPct / 100 : null),
         muscle: num(r.muscle_mass_kg),
         sleep: num(r.sleep_score), sleepH: num(r.sleep_hours),
@@ -3863,6 +3865,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     }
 
     rollingMean(days, "weight", "weight7", 7);
+    rollingMean(days, "bmi", "bmi7", 7);
     rollingMean(days, "fatKg", "fat7", 7, 2);
     rollingMean(days, "muscle", "muscle7", 7, 2);
     rollingMean(days, "hrv", "hrv7", 7, 3);
@@ -4891,7 +4894,11 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 
     const w = lastWith("weight7"), h = lastWith("hrv7"), r = lastWith("rhr7"), rd = lastWith("ready");
     const sl = lastWith("sleepH7"), ss = lastWith("sleep7"), bed = lastWith("bed7"), st7 = lastWith("steps7");
-    const kc = lastWith("kcal7"), pk = lastWith("proteinKg7");
+    const kc = lastWith("kcal7"), pk = lastWith("proteinKg7"), bal = lastWith("balance7"), bmi = lastWith("bmi7");
+    // BMI from the scale, WHO classes: 18.5 to 24.9 normal, 25 to 29.9 overweight, from 30 obesity
+    const bmiLevel = !bmi ? "" : bmi.bmi7 < 18.5 || bmi.bmi7 >= 30 ? "crit" : bmi.bmi7 >= 25 ? "warn" : "good";
+    // Intake against Garmin's expenditure: a deficit is green, a surplus red
+    const balLevel = !bal ? "" : bal.balance7 < 0 ? "good" : bal.balance7 > 0 ? "crit" : "";
     const last7 = M.days.slice(-7), prev7 = M.days.slice(-14, -7);
     const setsLast7 = last7.reduce((a, d) => a + d.hardSets, 0), setsPrev7 = prev7.reduce((a, d) => a + d.hardSets, 0);
     const sessions7 = new Set(last7.flatMap((d) => [...d.sessions])).size;
@@ -4913,12 +4920,17 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 
     const tiles = [
       tile("koerper", "koerper", T("Gewicht"), fmt(w?.weight7, 1), "kg",
-        asOf(w) ?? (weightDelta != null ? { icon: direction(weightDelta, 0.05), text: `${fmtSigned(weightDelta, 1)} kg` } : null), spark("weight7")),
+        asOf(w) ?? (weightDelta != null || bmi ? {
+          icon: weightDelta != null ? direction(weightDelta, 0.05) : null, level: bmiLevel,
+          text: [bmi ? T("BMI {0}", [fmt(bmi.bmi7, 1)]) : null, weightDelta != null ? `${fmtSigned(weightDelta, 1)} kg` : null].filter(Boolean).join(" · "),
+        } : null), spark("weight7")),
     ];
     if (M.hasNutrition) {
       tiles.push(
         tile("ernaehrung", "flame", T("Kalorien"), fmt(kc?.kcal7), "kcal",
-          asOf(kc) ?? { icon: "calendar", text: T("{0} von 7 geloggt", [foodDays7]) }, spark("kcal7")),
+          asOf(kc) ?? (bal
+            ? { icon: null, text: T("Bilanz {0} · {1}/7 Tage", [fmtSigned(bal.balance7), foodDays7]), level: balLevel }
+            : { icon: "calendar", text: T("{0} von 7 geloggt", [foodDays7]) }), spark("kcal7")),
         tile("ernaehrung", "egg", T("Eiweiß"), fmt(pk?.proteinKg7, 1), "g/kg",
           asOf(pk) ?? (pk ? (pk.proteinKg7 < PROTEIN_REFS[0]
             ? { icon: "target", text: T("Ziel ab {0}", [fmt(PROTEIN_REFS[0], 1)]), level: "warn" }
