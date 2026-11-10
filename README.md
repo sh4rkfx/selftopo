@@ -52,7 +52,7 @@ flowchart LR
         K["Code, tag v2"] -. checked out by .-> S
         D["Dashboard on<br/>GitHub Pages"]
     end
-    C -- "GitHub API,<br/>read-only token" --> D
+    C -- "GitHub API,<br/>token for this repository" --> D
 ```
 
 | Repository | Visibility | Content |
@@ -89,8 +89,10 @@ and remembers which steps you have done.
 6. **First run.** *Actions → Sync Garmin and Hevy → Run workflow* with `365` days. It takes 10 to
    15 minutes. Afterwards **delete `GARMIN_PASSWORD` and `YAZIO_PASSWORD`**: the workflow keeps the
    login tokens in its cache.
-7. **Read-only token.** The link prefills name, expiry and *Contents: Read-only*. Under
-   *Repository access* choose *Only select repositories* and your data repository.
+7. **Token for the dashboard.** The link prefills name, expiry and *Contents: Read and write*, so
+   the dashboard saves your settings itself. Under *Repository access* choose *Only select
+   repositories* and your data repository. *Read-only* also works; then you save settings by hand
+   on GitHub.
 8. **Connect.** Paste repository and token under gear icon → *Connection*. Do this once on every
    device.
 9. **Time zone.** Gear icon → *General* → *Create on GitHub*, then *Commit changes*. Without
@@ -247,10 +249,15 @@ the dashboard read the same file, and every key is optional.
 | `experiments`, `recommendations_hidden` | none | both | Running experiments and recommendations hidden with *Later* or *Does not fit*; written by the dashboard |
 | `push` | none | both | Public key and the devices that receive push notifications; written by the dashboard, see [docs/push.md](docs/push.md) |
 
-Edit the file under gear icon → *General*. The dashboard may only read your repository, so
-*Create on GitHub* opens a prefilled new file and *Edit on GitHub* copies the content for you to
-paste; you save with *Commit changes* and reload. For main lifts, choose them under Sport →
-Strength → *Choose exercises* and use *Save for all devices*. Unknown keys are kept; invalid
+Edit the file under gear icon → *General* and press *Save*. With a token that has *Contents: Read
+and write*, the dashboard commits `settings.json` to the data repository itself
+("Dashboard: update settings (…)"), keeping changes made elsewhere in the meantime, and the next
+workflow run uses it. The same *Save* works for goals, *Later*, *Does not fit* and experiments in
+*Recommendations*, push notifications and *Save for all devices* under Sport → Strength →
+*Choose exercises*. With a read-only token, *Create on GitHub* opens a prefilled new file and
+*Edit on GitHub* copies the content for you to paste; you save with *Commit changes* and reload.
+An existing token can be given write access on GitHub under *Settings → Developer settings →
+Fine-grained tokens → (token) → Edit*. Unknown keys are kept; invalid
 values are reported in the settings and in the sync log, and the default applies.
 
 ## Data sources
@@ -355,7 +362,9 @@ for a fork, `SELFTOPO_CODE_REF` (default `v2`) for another version, see below.
   public repository.
 - Passwords: locally never stored, only tokens. On GitHub only if you add them as secrets for the
   browser setup; delete them after the first successful run.
-- The dashboard token can only read the data repository. It is kept in the browser (in
+- The dashboard token only applies to the data repository. With *Contents: Read and write* it can
+  change files there (that is how settings are saved), but not workflows or secrets; with
+  *Read-only* it cannot change anything. It is kept in the browser (in
   `localStorage` when *Remember on this device* is ticked) and sent only to `api.github.com`.
   All GitHub Pages sites of one account share the origin `<you>.github.io`, so scripts on your
   other Pages sites could read it. Revoke it on GitHub if a device is lost.

@@ -975,7 +975,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       <div class="card span2" data-tab="Empfehlungen" data-icon="list">
         <div class="card-head"><h3>Was dich deinen Zielen näher bringt</h3><p class="sub" id="reco-cards-sub"></p></div>
         <div class="info" hidden>
-          <p>Höchstens drei Karten, der Rest unter „weitere“. Reihenfolge: zuerst Sicherheit, dann Leitlinien und Studien, dann Datenqualität, dann Experimente aus deinen Daten; bei gleicher Stufe die mit weniger Aufwand. „Später“ blendet eine Karte 14 Tage aus, „Passt nicht“ dauerhaft. Beides und gestartete Experimente stehen in settings.json; diese Seite darf nur lesen, gespeichert wird in den Einstellungen.</p>
+          <p>Höchstens drei Karten, der Rest unter „weitere“. Reihenfolge: zuerst Sicherheit, dann Leitlinien und Studien, dann Datenqualität, dann Experimente aus deinen Daten; bei gleicher Stufe die mit weniger Aufwand. „Später“ blendet eine Karte 14 Tage aus, „Passt nicht“ dauerhaft. Beides und gestartete Experimente stehen in settings.json und werden mit „Speichern“ dort eingetragen.</p>
         </div>
         <div id="reco-cards"></div>
       </div>
@@ -1281,7 +1281,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
           <fieldset class="picker-list" id="lift-list"><legend class="vh">Übungen</legend></fieldset>
           <div class="picker-actions">
             <button class="ghost-btn" type="button" id="lift-reset">Standard wiederherstellen</button>
-            <button class="ghost-btn" type="button" id="lift-copy">Für alle Geräte speichern …</button>
+            <button class="ghost-btn" type="button" id="lift-copy">Für alle Geräte speichern</button>
             <span class="sub" id="lift-copy-status" role="status"></span>
           </div>
         </div>
@@ -1680,7 +1680,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       <div class="prefs-group">
         <h3>Persönliche Einstellungen</h3>
         <p class="sub" id="settings-sub"></p>
-        <p class="sub">Sie stehen in der Datei settings.json in deinem Daten-Repository, und der tägliche Abruf liest dieselbe Datei. Diese Seite darf das Repository nur lesen: Speichern öffnet die Datei auf GitHub, du bestätigst dort mit „Commit changes“ und lädst hier neu. Ohne Zeitzone nimmt die Seite die des Browsers, der Abruf auf GitHub aber UTC.</p>
+        <p class="sub">Sie stehen in der Datei settings.json in deinem Daten-Repository, und der tägliche Abruf liest dieselbe Datei. „Speichern“ schreibt sie direkt ins Repository, wenn der Token Schreibrecht hat; mit einem Lese-Token speicherst du auf GitHub mit „Commit changes“. Ohne Zeitzone nimmt die Seite die des Browsers, der Abruf auf GitHub aber UTC.</p>
         <ul class="settings-problems" id="settings-problems" hidden></ul>
         <form class="settings-grid" id="settings-form" novalidate>
           <div class="field">
@@ -1707,6 +1707,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
         </form>
         <p class="settings-lifts" id="settings-lifts"></p>
         <div class="picker-actions">
+          <button class="primary-btn" type="button" id="settings-save" hidden>Speichern</button>
           <a class="primary-btn" id="settings-github" target="_blank" rel="noopener" hidden>Auf GitHub speichern</a>
           <button class="ghost-btn" type="button" id="settings-copy">Inhalt kopieren</button>
           <span class="sub" id="settings-status" role="status" aria-live="polite"></span>
@@ -1737,7 +1738,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       </div>
       <form class="prefs-group" id="connect-form" novalidate>
         <h3 id="connect-title">Verbinden</h3>
-        <p class="sub">Die Seite liest deine CSV-Dateien direkt aus deinem privaten Daten-Repository. Dafür braucht sie einen Token, der nur dieses eine Repository lesen darf.</p>
+        <p class="sub">Die Seite liest deine CSV-Dateien direkt aus deinem privaten Daten-Repository und speichert dort deine Einstellungen. Dafür braucht sie einen Token nur für dieses eine Repository.</p>
         <div class="field">
           <label for="gh-repo">Daten-Repository</label>
           <input id="gh-repo" name="repo" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="besitzer/name">
@@ -1752,13 +1753,13 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
         <details class="token-help">
           <summary>So erstellst du den Token</summary>
           <ol>
-            <li>Auf GitHub <a href="https://github.com/settings/personal-access-tokens/new?name=selftopo+dashboard&amp;description=Read-only+access+for+the+selftopo+dashboard&amp;expires_in=366&amp;contents=read" target="_blank" rel="noopener">einen neuen Fine-grained Token anlegen</a>. Der Weg dorthin: Profilbild → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token.</li>
+            <li>Auf GitHub <a href="https://github.com/settings/personal-access-tokens/new?name=selftopo+dashboard&amp;description=selftopo+dashboard:+read+data,+save+settings&amp;expires_in=366&amp;contents=write" target="_blank" rel="noopener">einen neuen Fine-grained Token anlegen</a>. Der Weg dorthin: Profilbild → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token.</li>
             <li>Token name zum Beispiel „selftopo dashboard“, Expiration nach Wunsch, etwa ein Jahr.</li>
             <li>Repository access: <b>Only select repositories</b> und nur dein Daten-Repository auswählen.</li>
-            <li>Permissions → Repository permissions → <b>Contents: Read-only</b>. Mehr braucht die Seite nicht; „Metadata: Read-only“ setzt GitHub automatisch dazu.</li>
+            <li>Permissions → Repository permissions → <b>Contents: Read and write</b>, damit die Seite Einstellungen und Ziele selbst speichert. Mit „Read-only“ zeigt sie alles an, gespeichert wird dann von Hand auf GitHub. „Metadata: Read-only“ setzt GitHub automatisch dazu.</li>
             <li>Auf Generate token klicken, den Token kopieren und hier einfügen.</li>
           </ol>
-          <p class="sub">Der Token geht nur an api.github.com und bleibt in diesem Browser. Er kann nichts ändern und keine anderen Repositories lesen.</p>
+          <p class="sub">Der Token geht nur an api.github.com und bleibt in diesem Browser. Er gilt nur für dieses eine Repository. Mit Schreibrecht kann er dort Dateien ändern, aber keine Workflows und keine Secrets.</p>
         </details>
       </form>
     </section>
@@ -1799,7 +1800,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
         <div class="picker-actions">
           <button class="primary-btn" type="button" id="push-on">Auf diesem Gerät einschalten</button>
           <button class="ghost-btn" type="button" id="push-off" hidden>Ausschalten</button>
-          <button class="ghost-btn" type="button" id="push-save" hidden>Zum Speichern</button>
+          <button class="ghost-btn" type="button" id="push-save" hidden>Speichern</button>
         </div>
       </div>
       <div class="prefs-group">
@@ -1824,12 +1825,11 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Einmal erzeugen mit <code>python -m selftopo push-keys</code>. Den privaten Schlüssel als Secret <code>VAPID_PRIVATE_KEY</code> im Daten-Repository hinterlegen; der öffentliche steht danach in settings.json.": "Make it once with <code>python -m selftopo push-keys</code>. Store the private key as the secret <code>VAPID_PRIVATE_KEY</code> in the data repository; the public one then goes into settings.json.",
 "Auf diesem Gerät einschalten": "Turn on for this device",
 "Ausschalten": "Turn off",
-"Zum Speichern": "Go to saving",
 "Dieser Browser kann keine Push-Benachrichtigungen. Auf dem iPhone erst zum Home-Bildschirm hinzufügen und in der App einschalten.": "This browser cannot receive push notifications. On the iPhone, add the page to the Home Screen first and turn them on in the app.",
-"Eingeschaltet. Speichere jetzt settings.json; ab dem nächsten Lauf des Workflows kommt die Heute-Karte. Zum Prüfen den Workflow mit push_test = yes starten.": "Turned on. Now save settings.json; from the next workflow run, the Today card arrives. To check, run the workflow with push_test = yes.",
+"Eingeschaltet. Jetzt speichern; ab dem nächsten Lauf des Workflows kommt die Heute-Karte. Zum Prüfen den Workflow mit push_test = yes starten.": "Turned on. Now save; from the next workflow run, the Today card arrives. To check, run the workflow with push_test = yes.",
 "Auf diesem Gerät eingeschaltet.": "On for this device.",
 "Dieses Gerät ist angemeldet, steht aber noch nicht in settings.json.": "This device is subscribed but not yet in settings.json.",
-"Ausgeschaltet. Speichere settings.json, damit der Workflow dieses Gerät nicht mehr anschreibt.": "Turned off. Save settings.json so the workflow stops sending to this device.",
+"Ausgeschaltet. Jetzt speichern, damit der Workflow dieses Gerät nicht mehr anschreibt.": "Turned off. Now save, so the workflow stops sending to this device.",
 "Benachrichtigungen sind für diese Seite blockiert; erlaube sie in den Einstellungen des Browsers.": "Notifications are blocked for this page; allow them in the browser settings.",
 "Auf diesem Gerät aus.": "Off for this device.",
 "Trage zuerst den öffentlichen Schlüssel ein (python -m selftopo push-keys).": "Enter the public key first (python -m selftopo push-keys).",
@@ -1841,7 +1841,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Die Regeln laufen täglich im Workflow mit <code>python -m selftopo analyze</code> und stehen mit Schwellen und Quellen in docs/recommendations.md. Die Heute-Karte im Überblick rechnet die Seite zusätzlich selbst, damit sie nicht einen Tag zu spät kommt.": "The rules run daily in the workflow with <code>python -m selftopo analyze</code>; they are listed with thresholds and sources in docs/recommendations.md. The page also works out the Today card in the overview itself, so it is never a day late.",
 "selftopo ist kein Medizinprodukt; die Empfehlungen sind Vorschläge für gesunde Erwachsene. Ab einem Blutdruck von 140/90 mmHg im Mittel gibt es nur den Hinweis auf ärztliche Abklärung und keine Experimente.": "selftopo is not a medical device; the recommendations are suggestions for healthy adults. From an average blood pressure of 140/90 mmHg there is only the advice to have it checked by a doctor, and no experiments.",
 "Was dich deinen Zielen näher bringt": "What brings you closer to your goals",
-"Höchstens drei Karten, der Rest unter „weitere“. Reihenfolge: zuerst Sicherheit, dann Leitlinien und Studien, dann Datenqualität, dann Experimente aus deinen Daten; bei gleicher Stufe die mit weniger Aufwand. „Später“ blendet eine Karte 14 Tage aus, „Passt nicht“ dauerhaft. Beides und gestartete Experimente stehen in settings.json; diese Seite darf nur lesen, gespeichert wird in den Einstellungen.": "At most three cards, the rest under \"more\". Order: safety first, then guidelines and studies, then data quality, then experiments from your data; at the same level, the one with less effort. \"Later\" hides a card for 14 days, \"Does not fit\" for good. Both, and started experiments, live in settings.json; this page may only read, so you save them in the settings.",
+"Höchstens drei Karten, der Rest unter „weitere“. Reihenfolge: zuerst Sicherheit, dann Leitlinien und Studien, dann Datenqualität, dann Experimente aus deinen Daten; bei gleicher Stufe die mit weniger Aufwand. „Später“ blendet eine Karte 14 Tage aus, „Passt nicht“ dauerhaft. Beides und gestartete Experimente stehen in settings.json und werden mit „Speichern“ dort eingetragen.": "At most three cards, the rest under \"more\". Order: safety first, then guidelines and studies, then data quality, then experiments from your data; at the same level, the one with less effort. \"Later\" hides a card for 14 days, \"Does not fit\" for good. Both, and started experiments, live in settings.json; \"Save\" writes them there.",
 "Deine Ziele": "Your goals",
 "Höchstens ein Ziel pro Bereich. Der aktuelle Wert ist das 7-Tage-Mittel (VO2max: der neueste Wert). Das Tempo ist der Trend der letzten 4 Wochen (Ruhepuls und aktive Minuten 8, VO2max 12 Wochen); die Prognose rechnet ihn bis zum Ziel weiter. Mit Datum steht dabei, welches Tempo nötig wäre.": "At most one goal per area. The current value is the 7-day average (VO2max: the newest value). The pace is the trend of the last 4 weeks (resting HR and active minutes 8, VO2max 12 weeks); the forecast extends it to the goal. With a date, the pace that date needs is shown as well.",
 "Experimente": "Experiments",
@@ -1878,7 +1878,6 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Heute": "Today",
 "Höchstens drei auf einmal, mit Beleg und Messung": "At most three at a time, with evidence and measurement",
 "In deinen Daten": "In your data",
-"In den Einstellungen speichern": "Save in the settings",
 "Kennzahl": "Metric",
 "Lege Ziele fest, dann zeigt selftopo, was dich ihnen näher bringt.": "Set goals, and selftopo shows what brings you closer to them.",
 "Leitlinie": "Guideline",
@@ -1934,7 +1933,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "{0} von mindestens 10 Tagen": "{0} of at least 10 days",
 "{0} von {1} Nächten rechtzeitig; Ziel: 5 von 7.": "{0} of {1} nights on time; goal: 5 of 7.",
 "{0} weitere": "{0} more",
-"{0} Änderung(en) vorgemerkt. Sie gelten, sobald settings.json gespeichert ist.": "{0} change(s) noted. They apply once settings.json is saved.",
+"{0} Änderung(en) vorgemerkt. Sie gelten, sobald du speicherst.": "{0} change(s) pending. They apply once you save.",
 "1.000 Schritte": "1,000 steps",
 "10 Sätze": "10 sets",
 "100 Punkte": "100 points",
@@ -2082,7 +2081,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "GitHub ist nicht erreichbar. Besteht eine Internetverbindung? In einer eingebetteten Vorschau blockiert der Browser solche Anfragen.": "GitHub cannot be reached. Is there an internet connection? In an embedded preview the browser blocks such requests.",
 "GitHub lehnt den Token ab: falsch kopiert, abgelaufen oder widerrufen. Erstelle einen neuen und verbinde erneut.": "GitHub rejects the token: copied incorrectly, expired or revoked. Create a new one and connect again.",
 "{0} wurde nicht gefunden. Stimmt der Name, und hat der Token Zugriff auf genau dieses Repository?": "{0} was not found. Is the name right, and does the token have access to exactly this repository?",
-"GitHub verweigert den Zugriff. Hat der Token die Berechtigung „Contents: Read-only“? Sonst ist das stündliche Anfragelimit erreicht.": "GitHub denies access. Does the token have the permission “Contents: Read-only”? Otherwise the hourly request limit has been reached.",
+"GitHub verweigert den Zugriff. Hat der Token die Berechtigung „Contents“? Sonst ist das stündliche Anfragelimit erreicht.": "GitHub denies access. Does the token have the permission “Contents”? Otherwise the hourly request limit has been reached.",
 "GitHub antwortet mit Fehler {0}. Versuche es in ein paar Minuten erneut.": "GitHub answers with error {0}. Try again in a few minutes.",
 "Entsteht beim ersten Lauf des Workflows im Daten-Repository: Actions → Sync Garmin and Hevy → Run workflow.": "Created by the first run of the workflow in the data repository: Actions → Sync Garmin and Hevy → Run workflow.",
 "Garmin Tageswerte": "Garmin daily values",
@@ -2632,8 +2631,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Ersten Abruf starten": "Start the first sync",
 "Auf „Run workflow“ klicken, bei days `365` eintragen und starten. Der erste Lauf dauert 10 bis 15 Minuten. Danach läuft der Abruf jeden Morgen von selbst. Schlägt er fehl, steht der Grund im Log des Laufs.": "Click “Run workflow”, enter `365` for days and start it. The first run takes 10 to 15 minutes. After that the sync runs every morning by itself. If it fails, the run’s log says why.",
 "Ablauf öffnen": "Open workflow",
-"Lese-Token für diese Seite": "Read-only token for this page",
-"Name, Ablaufdatum und „Contents: Read-only“ sind vorausgefüllt. Unter Repository access „Only select repositories“ und {0} wählen, das lässt sich nicht vorausfüllen. Dann Generate token und den Token kopieren.": "Name, expiry and “Contents: Read-only” are prefilled. Under Repository access choose “Only select repositories” and {0}; this cannot be prefilled. Then Generate token and copy the token.",
+"Token für diese Seite": "Token for this page",
+"Name, Ablaufdatum und „Contents: Read and write“ sind vorausgefüllt; damit speichert die Seite deine Einstellungen selbst. Unter Repository access „Only select repositories“ und {0} wählen, das lässt sich nicht vorausfüllen. Dann Generate token und den Token kopieren.": "Name, expiry and “Contents: Read and write” are prefilled, so the page saves your settings itself. Under Repository access choose “Only select repositories” and {0}; this cannot be prefilled. Then Generate token and copy the token.",
 "Token erstellen": "Create token",
 "Seite verbinden": "Connect the page",
 "Repository und Token eintragen. Danach zeigt die Seite deine Daten, auf jedem Gerät, das du so verbindest.": "Enter repository and token. Then the page shows your data, on every device you connect this way.",
@@ -2822,7 +2821,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Quelle: hevy_sets.csv · weight_kg, reps, set_type · Körpergewicht aus garmin_daily.csv": "Source: hevy_sets.csv · weight_kg, reps, set_type · body weight from garmin_daily.csv",
 "Bis zu sechs Übungen. Die Auswahl gilt sofort und bleibt in diesem Browser gespeichert; „Für alle Geräte speichern“ übernimmt sie in die Einstellungen. Die Diagramme folgen der Reihenfolge deiner Klicks. Übungen ohne Sätze bis 10 Wiederholungen lassen kein e1RM zu und sind gesperrt.": "Up to six exercises. The choice applies at once and stays saved in this browser; “Save for all devices” copies it into the settings. The charts follow the order of your clicks. Exercises without sets of up to 10 repetitions allow no e1RM and are locked.",
 "Standard wiederherstellen": "Restore default",
-"Für alle Geräte speichern …": "Save for all devices …",
+"Für alle Geräte speichern": "Save for all devices",
 "Arbeitssätze pro Woche": "Hard sets per week",
 "Gezählt werden alle Sätze außer Aufwärmsätzen und Handkraft-Messungen. Der Tooltip zeigt zusätzlich Tonnage, Einheiten und die Trainingslast, die die Uhr beim Krafttraining gemessen hat.": "All sets count except warm-up sets and grip-strength readings. The tooltip also shows tonnage, sessions and the training load the watch measured during strength training.",
 "Quelle: hevy_sets.csv · set_type ≠ warmup": "Source: hevy_sets.csv · set_type ≠ warmup",
@@ -3003,7 +3002,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "English": "English",
 "Gilt für diesen Browser. Zahlen und Datumsangaben folgen der Sprache.": "Applies to this browser. Numbers and dates follow the language.",
 "Persönliche Einstellungen": "Personal settings",
-"Sie stehen in der Datei settings.json in deinem Daten-Repository, und der tägliche Abruf liest dieselbe Datei. Diese Seite darf das Repository nur lesen: Speichern öffnet die Datei auf GitHub, du bestätigst dort mit „Commit changes“ und lädst hier neu. Ohne Zeitzone nimmt die Seite die des Browsers, der Abruf auf GitHub aber UTC.": "They are stored in the file settings.json in your data repository, and the daily sync reads the same file. This page may only read the repository: saving opens the file on GitHub, you confirm there with “Commit changes” and reload here. Without a time zone, the page uses the browser’s, but the sync on GitHub uses UTC.",
+"Sie stehen in der Datei settings.json in deinem Daten-Repository, und der tägliche Abruf liest dieselbe Datei. „Speichern“ schreibt sie direkt ins Repository, wenn der Token Schreibrecht hat; mit einem Lese-Token speicherst du auf GitHub mit „Commit changes“. Ohne Zeitzone nimmt die Seite die des Browsers, der Abruf auf GitHub aber UTC.": "They live in the file settings.json in your data repository, and the daily sync reads the same file. “Save” writes it straight to the repository when the token may write; with a read-only token you save on GitHub with “Commit changes”. Without a time zone the page uses the browser's, but the sync on GitHub uses UTC.",
 "Zeitzone": "Time zone",
 "Schrittziel pro Tag": "Step goal per day",
 "Handkraft links (Hevy-Übung)": "Grip strength left (Hevy exercise)",
@@ -3012,17 +3011,17 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Inhalt kopieren": "Copy content",
 "settings.json ansehen": "View settings.json",
 "Daten-Repository": "Data repository",
-"Die Seite liest deine CSV-Dateien direkt aus deinem privaten Daten-Repository. Dafür braucht sie einen Token, der nur dieses eine Repository lesen darf.": "The page reads your CSV files directly from your private data repository. For that it needs a token that may read only this one repository.",
+"Die Seite liest deine CSV-Dateien direkt aus deinem privaten Daten-Repository und speichert dort deine Einstellungen. Dafür braucht sie einen Token nur für dieses eine Repository.": "The page reads your CSV files straight from your private data repository and saves your settings there. For that it needs a token for this one repository only.",
 "Fine-grained Token": "Fine-grained token",
 "Auf diesem Gerät merken": "Remember on this device",
 "Ohne Haken gilt die Verbindung nur, bis du den Tab schließt.": "Without the tick, the connection only lasts until you close the tab.",
 "So erstellst du den Token": "How to create the token",
-"Auf GitHub <a href=\"https://github.com/settings/personal-access-tokens/new?name=selftopo+dashboard&amp;description=Read-only+access+for+the+selftopo+dashboard&amp;expires_in=366&amp;contents=read\" target=\"_blank\" rel=\"noopener\">einen neuen Fine-grained Token anlegen</a>. Der Weg dorthin: Profilbild → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token.": "On GitHub, <a href=\"https://github.com/settings/personal-access-tokens/new?name=selftopo+dashboard&amp;description=Read-only+access+for+the+selftopo+dashboard&amp;expires_in=366&amp;contents=read\" target=\"_blank\" rel=\"noopener\">create a new fine-grained token</a>. The way there: profile picture → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token.",
+"Auf GitHub <a href=\"https://github.com/settings/personal-access-tokens/new?name=selftopo+dashboard&amp;description=selftopo+dashboard:+read+data,+save+settings&amp;expires_in=366&amp;contents=write\" target=\"_blank\" rel=\"noopener\">einen neuen Fine-grained Token anlegen</a>. Der Weg dorthin: Profilbild → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token.": "On GitHub, <a href=\"https://github.com/settings/personal-access-tokens/new?name=selftopo+dashboard&amp;description=selftopo+dashboard:+read+data,+save+settings&amp;expires_in=366&amp;contents=write\" target=\"_blank\" rel=\"noopener\">create a new fine-grained token</a>. The way there: profile picture → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token.",
 "Token name zum Beispiel „selftopo dashboard“, Expiration nach Wunsch, etwa ein Jahr.": "Token name, for example “selftopo dashboard”, expiration as you like, for example one year.",
 "Repository access: <b>Only select repositories</b> und nur dein Daten-Repository auswählen.": "Repository access: <b>Only select repositories</b> and select only your data repository.",
-"Permissions → Repository permissions → <b>Contents: Read-only</b>. Mehr braucht die Seite nicht; „Metadata: Read-only“ setzt GitHub automatisch dazu.": "Permissions → Repository permissions → <b>Contents: Read-only</b>. The page needs nothing more; GitHub adds “Metadata: Read-only” automatically.",
+"Permissions → Repository permissions → <b>Contents: Read and write</b>, damit die Seite Einstellungen und Ziele selbst speichert. Mit „Read-only“ zeigt sie alles an, gespeichert wird dann von Hand auf GitHub. „Metadata: Read-only“ setzt GitHub automatisch dazu.": "Permissions → Repository permissions → <b>Contents: Read and write</b>, so the page saves settings and goals itself. With “Read-only” it shows everything, and you save by hand on GitHub. GitHub adds “Metadata: Read-only” automatically.",
 "Auf Generate token klicken, den Token kopieren und hier einfügen.": "Click Generate token, copy the token and paste it here.",
-"Der Token geht nur an api.github.com und bleibt in diesem Browser. Er kann nichts ändern und keine anderen Repositories lesen.": "The token only goes to api.github.com and stays in this browser. It cannot change anything or read other repositories.",
+"Der Token geht nur an api.github.com und bleibt in diesem Browser. Er gilt nur für dieses eine Repository. Mit Schreibrecht kann er dort Dateien ändern, aber keine Workflows und keine Secrets.": "The token only goes to api.github.com and stays in this browser. It only applies to this one repository. With write access it can change files there, but no workflows and no secrets.",
 "Rund 15 Minuten, alles im Browser. Deine Daten landen in einem privaten GitHub-Repository, das nur du lesen kannst. Ein Ablauf dort holt sie jeden Morgen von Garmin und Hevy, und diese Seite liest sie direkt von GitHub. Einen Server von selftopo gibt es nicht. Du brauchst Garmin Connect und für das Krafttraining Hevy Pro.": "About 15 minutes, all in the browser. Your data ends up in a private GitHub repository that only you can read. A workflow there fetches it from Garmin and Hevy every morning, and this page reads it directly from GitHub. There is no selftopo server. You need Garmin Connect and, for strength training, Hevy Pro.",
 "Dein GitHub-Benutzername": "Your GitHub user name",
 "Name des Daten-Repositorys": "Name of the data repository",
@@ -3197,7 +3196,14 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Der Abruf aus YAZIO ist optional; die Einrichtung steht unter Einstellungen → Einrichtung.": "The YAZIO sync is optional; Settings → Setup explains it.",
 "Das HRV-Mittel lag an {0} von {1} Tagen unter dem Normalbereich.": "The HRV mean was below the normal range on {0} of {1} days.",
 "Deutlichster: {0} {1}, {2} {3}.": "Strongest: {0} {1}, {2} {3}.",
-"Sie entsteht mit python -m selftopo analyze.": "It is created by python -m selftopo analyze."
+"Sie entsteht mit python -m selftopo analyze.": "It is created by python -m selftopo analyze.",
+"Speichern": "Save",
+"Speichert …": "Saving …",
+"Speichern geht nur mit verbundenem Daten-Repository.": "Saving only works with a connected data repository.",
+"Dein Token darf nur lesen. Gib ihm auf GitHub die Berechtigung „Contents: Read and write“ (Settings → Developer settings → Fine-grained tokens → Token → Edit), dann speichert die Seite direkt. Bis dahin: „Auf GitHub bearbeiten“.": "Your token may only read. On GitHub, give it the permission “Contents: Read and write” (Settings → Developer settings → Fine-grained tokens → token → Edit), then the page saves directly. Until then: “Edit on GitHub”.",
+"settings.json wurde gerade woanders geändert. Aktualisiere die Seite und speichere noch einmal.": "settings.json was just changed elsewhere. Refresh the page and save again.",
+"Gespeichert. Der nächste Lauf des Workflows rechnet mit den neuen Einstellungen.": "Saved. The next workflow run uses the new settings.",
+"Nichts geändert, settings.json ist schon aktuell.": "Nothing changed, settings.json is already up to date."
 }
 </script>
 <script>
@@ -3741,7 +3747,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     }
     if (res.status === 401) return { message: T("GitHub lehnt den Token ab: falsch kopiert, abgelaufen oder widerrufen. Erstelle einen neuen und verbinde erneut.") };
     if (res.status === 404) return { message: T("{0} wurde nicht gefunden. Stimmt der Name, und hat der Token Zugriff auf genau dieses Repository?", [cred.repo]) };
-    if (res.status === 403) return { message: T("GitHub verweigert den Zugriff. Hat der Token die Berechtigung „Contents: Read-only“? Sonst ist das stündliche Anfragelimit erreicht.") };
+    if (res.status === 403) return { message: T("GitHub verweigert den Zugriff. Hat der Token die Berechtigung „Contents“? Sonst ist das stündliche Anfragelimit erreicht.") };
     return { network: res.status >= 500, message: T("GitHub antwortet mit Fehler {0}. Versuche es in ein paar Minuten erneut.", [res.status]) };
   }
   const checkGithub = async (cred) => (await probeGithub(cred))?.message ?? null;
@@ -6951,7 +6957,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       updateSettingsPreview();
       $("lift-copy-status").textContent = T("Standard wiederhergestellt.");
     });
-    $("lift-copy").addEventListener("click", () => openPrefs("general"));
+    $("lift-copy").dataset.save = "";
+    $("lift-copy").addEventListener("click", () => (state.source === "github" ? saveSettings($("lift-copy-status")) : openPrefs("general")));
   }
 
   // ------------------------------------------------------------------ recommendations
@@ -7230,12 +7237,14 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     );
 
     const pending = draftCount();
-    const save = html("button", { type: "button", class: "primary-btn", text: T("In den Einstellungen speichern") });
-    save.addEventListener("click", () => { openPrefs("general"); $("settings-copy").scrollIntoView({ block: "center" }); });
+    const save = html("button", { type: "button", class: "primary-btn", text: T("Speichern"), "data-save": "" });
+    const saveStatus = html("span", { class: "sub", role: "status" });
+    save.addEventListener("click", () => saveSettings(saveStatus));
     const visible = shown;
     $("reco-cards-sub").textContent = R ? T("Höchstens drei auf einmal, mit Beleg und Messung") : "";
     $("reco-cards").replaceChildren(...[
-      pending ? html("p", { class: "reco-pending" }, [state.source === "demo" ? T("Beispieldaten: Änderungen werden nicht gespeichert.") : T("{0} Änderung(en) vorgemerkt. Sie gelten, sobald settings.json gespeichert ist.", [pending]), state.source === "demo" ? null : save]) : null,
+      pending ? html("p", { class: "reco-pending" }, [state.source === "demo" ? T("Beispieldaten: Änderungen werden nicht gespeichert.") : T("{0} Änderung(en) vorgemerkt. Sie gelten, sobald du speicherst.", [pending]), state.source === "demo" ? null : save, saveStatus])
+        : state.saveNotice ? html("p", { class: "reco-pending", role: "status", text: state.saveNotice }) : null,
       visible.length ? html("div", { class: "reco-grid" }, visible.map((c) => recoCard(c, R)))
         : html("p", { class: "reco-empty", text: !R ? T("recommendations.json fehlt noch. Es entsteht mit `python -m selftopo analyze`, im Daten-Repository täglich im Workflow.") : goalCount ? T("Gerade keine Empfehlung: deine Daten lösen für deine Ziele keine Regel aus.") : T("Erst mit Zielen.") }),
       more.length ? html("details", { class: "reco-more" }, [html("summary", { text: T("{0} weitere", [more.length]) }), html("div", { class: "reco-grid" }, more.map((c) => recoCard(c, R)))]) : null,
@@ -7340,8 +7349,9 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   // Settings with this device's change applied: the public key from the field, subscriptions added or removed
   function applyPush(out) {
     const push = out.push && typeof out.push === "object" && !Array.isArray(out.push) ? { ...out.push } : {};
-    const key = $("push-key")?.value.trim();
-    if (key) push.public_key = key; else delete push.public_key;
+    const key = $("push-key")?.value.trim() || "";
+    const loaded = typeof state !== "undefined" && typeof state.settings?.raw?.push?.public_key === "string" ? state.settings.raw.push.public_key : "";
+    if (key !== loaded) { if (key) push.public_key = key; else delete push.public_key; } // untouched: the file's stays
     let subs = Array.isArray(push.subscriptions) ? push.subscriptions.filter((x) => !pushDraft.remove.includes(x?.endpoint)) : [];
     for (const add of pushDraft.add) if (!subs.some((x) => x?.endpoint === add.endpoint)) subs = [...subs, add];
     if (subs.length) push.subscriptions = subs; else delete push.subscriptions;
@@ -7369,10 +7379,10 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     const on = Boolean(sub) && !pushDraft.remove.includes(sub.endpoint);
     $("push-off").hidden = !on;
     $("push-on").hidden = on;
-    if (on && pushDraft.add.some((a) => a.endpoint === sub.endpoint)) pushStatus(T("Eingeschaltet. Speichere jetzt settings.json; ab dem nächsten Lauf des Workflows kommt die Heute-Karte. Zum Prüfen den Workflow mit push_test = yes starten."), true);
+    if (on && pushDraft.add.some((a) => a.endpoint === sub.endpoint)) pushStatus(T("Eingeschaltet. Jetzt speichern; ab dem nächsten Lauf des Workflows kommt die Heute-Karte. Zum Prüfen den Workflow mit push_test = yes starten."), true);
     else if (on && saved.includes(sub.endpoint)) pushStatus(T("Auf diesem Gerät eingeschaltet."));
     else if (on) pushStatus(T("Dieses Gerät ist angemeldet, steht aber noch nicht in settings.json."), true);
-    else if (pushDraft.remove.length) pushStatus(T("Ausgeschaltet. Speichere settings.json, damit der Workflow dieses Gerät nicht mehr anschreibt."), true);
+    else if (pushDraft.remove.length) pushStatus(T("Ausgeschaltet. Jetzt speichern, damit der Workflow dieses Gerät nicht mehr anschreibt."), true);
     else pushStatus(Notification.permission === "denied" ? T("Benachrichtigungen sind für diese Seite blockiert; erlaube sie in den Einstellungen des Browsers.") : T("Auf diesem Gerät aus."));
   }
   async function pushOn() {
@@ -7409,7 +7419,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   function setupPush() {
     $("push-on").addEventListener("click", pushOn);
     $("push-off").addEventListener("click", pushOff);
-    $("push-save").addEventListener("click", () => { openPrefs("general"); $("settings-copy").scrollIntoView({ block: "center" }); });
+    $("push-save").dataset.save = "";
+    $("push-save").addEventListener("click", () => saveSettings($("push-status")));
     $("push-key").addEventListener("input", updateSettingsPreview);
   }
 
@@ -7417,23 +7428,29 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 
   const splitNames = (text) => String(text || "").split(",").map((n) => n.trim()).filter(Boolean);
   // settings.json as it would be with the values in the form; keys the page does not know stay as they are
-  function settingsFromForm() {
-    const out = { ...(state.settings?.raw || {}) };
+  // The fields of the settings form, put on `out`
+  function formFields(out) {
     const zone = $("set-tz").value.trim();
     if (zone) out.timezone = zone; else delete out.timezone;
     const goal = Number($("set-steps").value);
     if ($("set-steps").value !== "" && Number.isFinite(goal) && goal > 0) out.step_goal = Math.round(goal); else delete out.step_goal;
     const lifts = state.model?.lifts;
-    if (lifts?.length) {
+    // Main lifts and grip exercises only when chosen or already in the file, so defaults stay defaults
+    if (lifts?.length && (state.liftCustom || Array.isArray(out.main_lifts))) {
       out.main_lifts = lifts.map((l) => ({
         exercise: l.exercise,
         ...(l.label && l.label !== l.exercise ? { label: l.label } : {}),
         ...(l.addBodyweight ? { add_bodyweight: true } : {}),
       }));
     }
-    out.grip_exercises = { left: splitNames($("set-grip-left").value), right: splitNames($("set-grip-right").value) };
+    const grip = { left: splitNames($("set-grip-left").value), right: splitNames($("set-grip-right").value) };
+    if (out.grip_exercises || JSON.stringify(grip) !== JSON.stringify(DEFAULT_GRIP)) out.grip_exercises = grip;
     const goals = goalsFromForm();
     if (Object.keys(goals).length) out.goals = goals; else delete out.goals;
+    return out;
+  }
+  // Pending changes that add to what is there: push devices, experiments, hidden recommendations
+  function applyDrafts(out) {
     applyPush(out);
     if (recoDraft.experiments.length) out.experiments = [...(Array.isArray(out.experiments) ? out.experiments : []), ...recoDraft.experiments];
     if (Object.keys(recoDraft.hidden).length) {
@@ -7441,6 +7458,19 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       out.recommendations_hidden = { ...before, ...recoDraft.hidden };
     }
     return out;
+  }
+  function settingsFromForm(base = state.settings?.raw) {
+    return applyDrafts(formFields({ ...(base || {}) }));
+  }
+  // For saving on top of the current file: only the form fields changed since the page loaded
+  // replace what is there, so a change from another device to an untouched field survives
+  function mergeForSave(latest, loaded = state.settings?.raw || {}) {
+    const edited = formFields({ ...loaded });
+    const out = { ...latest };
+    for (const k of changedKeys(loaded, edited)) {
+      if (k in edited) out[k] = edited[k]; else delete out[k];
+    }
+    return applyDrafts(out);
   }
   const settingsText = () => `${JSON.stringify(settingsFromForm(), null, 2)}\n`;
   // Where "save" leads: a prefilled new file on GitHub, or the editor of the existing one
@@ -7450,6 +7480,108 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     return state.settings?.found
       ? { url: `https://github.com/${state.dataRepo}/edit/${branch}/settings.json`, label: T("Auf GitHub bearbeiten"), paste: true }
       : { url: `https://github.com/${state.dataRepo}/new/${branch}?filename=settings.json&value=${encodeURIComponent(settingsText())}`, label: T("Auf GitHub anlegen"), paste: false };
+  }
+  // ---- saving settings.json directly: needs a token with "Contents: Read and write"
+
+  const b64Encode = (text) => {
+    const bytes = new TextEncoder().encode(text);
+    let bin = "";
+    for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+    return btoa(bin);
+  };
+  const b64Decode = (b64) => new TextDecoder().decode(Uint8Array.from(atob(String(b64).replace(/\s/g, "")), (c) => c.charCodeAt(0)));
+  // Top-level keys whose value differs, for the commit message
+  function changedKeys(before, after) {
+    const keys = new Set([...Object.keys(before || {}), ...Object.keys(after || {})]);
+    return [...keys].filter((k) => JSON.stringify(before?.[k]) !== JSON.stringify(after?.[k])).sort();
+  }
+  function writeProblem(status) {
+    if (status === 401) return T("GitHub lehnt den Token ab: falsch kopiert, abgelaufen oder widerrufen. Erstelle einen neuen und verbinde erneut.");
+    if (status === 403 || status === 404) return T("Dein Token darf nur lesen. Gib ihm auf GitHub die Berechtigung „Contents: Read and write“ (Settings → Developer settings → Fine-grained tokens → Token → Edit), dann speichert die Seite direkt. Bis dahin: „Auf GitHub bearbeiten“.");
+    return T("GitHub antwortet mit Fehler {0}. Versuche es in ein paar Minuten erneut.", [status]);
+  }
+  // Writes settings.json: reads the current file first, so changes from other devices stay, puts the
+  // edited form fields and the pending changes on top and commits. Returns { ok, keys } or { error, readOnly }.
+  async function writeSettings(cred = loadCredentials()) {
+    if (state.source !== "github" || !cred || cred.repo !== state.dataRepo) return { error: T("Speichern geht nur mit verbundenem Daten-Repository.") };
+    const branch = state.dataBranch;
+    const offline = T("GitHub ist nicht erreichbar. Besteht eine Internetverbindung? In einer eingebetteten Vorschau blockiert der Browser solche Anfragen.");
+    for (let attempt = 0; attempt < 2; attempt++) {
+      let sha = null, base = {};
+      try {
+        const res = await githubRequest(cred, `/contents/settings.json${branch ? `?ref=${encodeURIComponent(branch)}` : ""}`);
+        if (res.ok) {
+          const file = await res.json();
+          sha = file.sha;
+          try {
+            const parsed = JSON.parse(b64Decode(file.content));
+            if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) base = parsed;
+          } catch { /* unreadable file: replaced by the form */ }
+        } else if (res.status !== 404) {
+          return { error: writeProblem(res.status), readOnly: res.status === 403 };
+        }
+      } catch {
+        return { error: offline };
+      }
+      const out = mergeForSave(base);
+      const keys = changedKeys(base, out);
+      if (sha && !keys.length) return { ok: true, keys };
+      let res;
+      try {
+        res = await fetch(`https://api.github.com/repos/${cred.repo}/contents/settings.json`, {
+          method: "PUT",
+          headers: { Authorization: `Bearer ${cred.token}`, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
+          body: JSON.stringify({
+            message: `Dashboard: update settings (${keys.join(", ")})`,
+            content: b64Encode(`${JSON.stringify(out, null, 2)}\n`),
+            ...(sha ? { sha } : {}),
+            ...(branch ? { branch } : {}),
+          }),
+        });
+      } catch {
+        return { error: offline };
+      }
+      if (res.ok) return { ok: true, keys };
+      // Changed elsewhere between reading and writing: read again and put the changes on top once more
+      if ((res.status === 409 || res.status === 422) && attempt === 0) continue;
+      return { error: writeProblem(res.status), readOnly: res.status === 403 || res.status === 404 };
+    }
+    return { error: T("settings.json wurde gerade woanders geändert. Aktualisiere die Seite und speichere noch einmal.") };
+  }
+  let saving = null;
+  // Saves and reports in `status`; after success the page loads again, so it shows what was saved.
+  // Without write access it opens the settings, where saving by hand on GitHub still works.
+  function saveSettings(status = $("settings-status")) {
+    if (saving) return saving;
+    saving = (async () => {
+      for (const b of document.querySelectorAll("[data-save]")) b.disabled = true;
+      status.textContent = T("Speichert …");
+      try {
+        const result = await writeSettings();
+        if (!result.ok) {
+          if (result.readOnly) state.settingsReadOnly = true;
+          updateSettingsPreview();
+          if (status !== $("settings-status")) { status.textContent = ""; openPrefs("general"); }
+          $("settings-status").textContent = result.error;
+          return false;
+        }
+        recoDraft.experiments = [];
+        recoDraft.hidden = {};
+        pushDraft.add = [];
+        pushDraft.remove = [];
+        state.settingsReadOnly = false;
+        const notice = result.keys.length ? T("Gespeichert. Der nächste Lauf des Workflows rechnet mit den neuen Einstellungen.") : T("Nichts geändert, settings.json ist schon aktuell.");
+        state.saveNotice = notice;
+        await loadAndRender(); // shows the saved file; the Recommendations area keeps the notice
+        state.saveNotice = null;
+        if (document.body.contains(status)) status.textContent = notice;
+        return true;
+      } finally {
+        for (const b of document.querySelectorAll("[data-save]")) b.disabled = false;
+        saving = null;
+      }
+    })();
+    return saving;
   }
   function updateSettingsPreview() {
     if (!state.settings) return;
@@ -7464,8 +7596,11 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       lifts.length ? lifts.map((l) => l.label).join(", ") : T("noch keine Hevy-Übungen mit e1RM"),
       lifts.length ? T(" · wie gerade unter Sport → Kraft → e1RM gewählt.") : "",
     );
+    // Direct saving with the connected token; by hand on GitHub once the token turned out to be read-only
     const target = settingsTarget(), link = $("settings-github");
-    link.hidden = !target;
+    const direct = Boolean(target) && !state.settingsReadOnly;
+    $("settings-save").hidden = !direct;
+    link.hidden = !target || direct;
     if (target) { link.href = target.url; link.textContent = target.label; }
   }
   // Fills the form from the loaded settings; runs after every load, not on every redraw
@@ -7514,6 +7649,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     $("settings-form").addEventListener("input", updateSettingsPreview);
     $("settings-form").addEventListener("change", updateSettingsPreview);
     $("settings-form").addEventListener("submit", (e) => e.preventDefault());
+    $("settings-save").dataset.save = "";
+    $("settings-save").addEventListener("click", () => saveSettings());
     $("settings-copy").addEventListener("click", async () => {
       $("settings-status").textContent = (await copySettings())
         ? T("Kopiert.")
@@ -7942,9 +8079,9 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       { id: "run", title: T("Ersten Abruf starten"),
         text: T("Auf „Run workflow“ klicken, bei days `365` eintragen und starten. Der erste Lauf dauert 10 bis 15 Minuten. Danach läuft der Abruf jeden Morgen von selbst. Schlägt er fehl, steht der Grund im Log des Laufs."),
         actions: [[T("Ablauf öffnen"), repoUrl("/actions/workflows/sync.yml"), true]] },
-      { id: "token", title: T("Lese-Token für diese Seite"),
-        text: T("Name, Ablaufdatum und „Contents: Read-only“ sind vorausgefüllt. Unter Repository access „Only select repositories“ und {0} wählen, das lässt sich nicht vorausfüllen. Dann Generate token und den Token kopieren.", [repo]),
-        actions: [[T("Token erstellen"), `https://github.com/settings/personal-access-tokens/new?${query({ name: "selftopo dashboard", description: "Read-only access for the selftopo dashboard", target_name: owner, expires_in: 366, contents: "read" })}`]] },
+      { id: "token", title: T("Token für diese Seite"),
+        text: T("Name, Ablaufdatum und „Contents: Read and write“ sind vorausgefüllt; damit speichert die Seite deine Einstellungen selbst. Unter Repository access „Only select repositories“ und {0} wählen, das lässt sich nicht vorausfüllen. Dann Generate token und den Token kopieren.", [repo]),
+        actions: [[T("Token erstellen"), `https://github.com/settings/personal-access-tokens/new?${query({ name: "selftopo dashboard", description: "selftopo dashboard: read data, save settings", target_name: owner, expires_in: 366, contents: "write" })}`]] },
       { id: "connect", title: T("Seite verbinden"), text: T("Repository und Token eintragen. Danach zeigt die Seite deine Daten, auf jedem Gerät, das du so verbindest."),
         actions: [[T("Verbinden"), () => openConnect(full || undefined), true]] },
       { id: "settings", title: T("Zeitzone speichern"),

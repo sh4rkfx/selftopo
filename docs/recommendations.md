@@ -25,8 +25,8 @@ that could be medically relevant only lead to the advice to have them checked.
 - **Area *Recommendations*** (first in the bar, key 1): the cards with their evidence, measurement
   and sources; your goals with pace and forecast; running and finished experiments.
 - **Buttons on a card:** *Start as an experiment (14 days)*, *Later* (hidden for 14 days) and *Does
-  not fit* (for good). The page may only read your repository, so these changes, like the goals
-  (gear icon → *General* → *Goals*), are saved by committing `settings.json` on GitHub.
+  not fit* (for good). *Save* writes them, like the goals (gear icon → *General* → *Goals*), to
+  `settings.json` in the data repository; with a read-only token you commit the file on GitHub.
 
 The installed app can also receive the Today card as a push notification; see [push.md](push.md).
 
