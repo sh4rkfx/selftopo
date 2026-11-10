@@ -173,7 +173,7 @@ button { font: inherit; }
   .bar .seg-host, .brand, .bar .icon-btn { display: none !important; }
   .bar-in { padding-block: 3px; padding-left: max(8px, env(safe-area-inset-left, 0px)); padding-right: max(8px, env(safe-area-inset-right, 0px)); }
   .nav { justify-content: space-between; gap: 0; padding-right: 0; overflow: visible; -webkit-mask-image: none; mask-image: none; }
-  .nav a, .nav a.nav-top { display: inline-grid; place-items: center; width: 36px; height: 44px; padding: 0; border-radius: 10px; }
+  .nav a, .nav a.nav-top { display: inline-grid; place-items: center; flex: 1 1 0; min-width: 0; max-width: 44px; height: 44px; padding: 0; border-radius: 10px; }
   .nav a svg.ic { width: 20px; height: 20px; }
   .nav a .lbl { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
@@ -261,7 +261,7 @@ a.tile:focus-visible { outline-offset: -3px; }
 .tiles-note { font-size: 11.5px; color: var(--muted); margin: 6px 2px 0; }
 .tiles-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 4px 0 0 2px; }
 .tiles-foot .tiles-note { margin: 0; }
-.tiles-foot .info-btn { margin: 0 -4px 0 0; }
+.tiles-foot .info-btn { flex: none; margin: 0 -4px 0 0; }
 #ueberblick > .info { margin-top: 6px; }
 @media (max-width: 759px) { .tile { padding: 10px 12px 8px; } .tile .value { font-size: 22px; } }
 .tile .area-tag { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: var(--muted); white-space: nowrap; }
@@ -618,6 +618,24 @@ kbd { font-family: var(--font-mono); font-size: 11.5px; border: 1px solid var(--
 @media (max-width: 759px) { .area-fazit { grid-column: 1 / -1; } .notable { padding: 12px; } }
 button.chip { font: inherit; font-size: 12.5px; border: 0; cursor: pointer; }
 button.chip:hover { box-shadow: inset 0 0 0 1px var(--ring-strong); }
+/* Chips that lead to a card get a thin outline, so they read as buttons and not as labels */
+button.chip { box-shadow: inset 0 0 0 1px var(--ring); }
+button.chip:active { box-shadow: inset 0 0 0 1px var(--ink-2); filter: brightness(0.96); }
+/* Phones and touch screens: controls reach 44 px. Chips grow a little and keep 8 px apart; info
+   and toggle buttons get an invisible hit area around them, so the layout does not move. */
+@media (max-width: 759px), (pointer: coarse) {
+  .area-sum { gap: 8px; }
+  .primary-btn, .ghost-btn { min-height: 44px; }
+  .top-tools .icon-btn { width: 44px; height: 44px; }
+  .top-tools .range-select { height: 44px; }
+  button.chip { position: relative; min-height: 36px; padding-block: 0; }
+  button.chip::after { content: ""; position: absolute; inset: -4px; }
+  .info-btn, .area-toggle { position: relative; }
+  /* 50% - 22px grows any button to a 44 px hit area, whatever its own size (34, 38 px, ...) */
+  .info-btn::after, .area-toggle::after { content: ""; position: absolute; inset: calc(50% - 22px); }
+  footer .link-btn, footer a { display: inline-flex; align-items: center; min-height: 44px; }
+  footer { row-gap: 0; }
+}
 @keyframes card-flash { from { box-shadow: 0 0 0 3px var(--s1); } to { box-shadow: 0 0 0 3px transparent; } }
 .card.flash { animation: card-flash 1.6s ease-out; }
 @media (prefers-reduced-motion: reduce) { .card.flash { animation: none; outline: 2px solid var(--s1); } }
