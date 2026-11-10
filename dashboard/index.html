@@ -3649,6 +3649,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       found: {
         ...Object.fromEntries(csvKeys.map((k) => [k, texts[k] != null])),
         insights: insights != null, fitnessStatus: fitnessStatus != null, settings: texts.settings != null,
+        recommendations: texts.recommendations != null,
       },
     };
   }
