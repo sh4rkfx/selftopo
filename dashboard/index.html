@@ -1775,6 +1775,9 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Bereich {0}–{1}": "range {0}–{1}",
 "{0} ggü. 60 Tagen": "{0} vs. 60 days",
 "Readiness, zuletzt": "Readiness, latest",
+"HRV ggü. 7-Tage-Mittel (ms)": "HRV vs. 7-day average (ms)",
+"HRV der Folgenacht ggü. 7-Tage-Mittel (ms)": "HRV of the following night vs. 7-day average (ms)",
+"Tagesform im Krafttraining (%)": "Strength form (%)",
 "Sätze, 7 Tage": "Sets, 7 days",
 "Einheit": "session",
 "Einheiten": "sessions",
@@ -4483,7 +4486,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   function scatterChart(host, o) {
     const pts = o.points;
     if (pts.length < 3) return emptyNote(host, o.empty || T("Zu wenige Datenpunkte im gewählten Zeitraum."));
-    const f = svgFrame(host, o.height || 230, { l: 46, r: 14, t: 10, b: 40 }, o.label);
+    const f = svgFrame(host, o.height || 230, { l: 46, r: 14, t: o.yTitle ? 24 : 10, b: 40 }, o.label);
     const xsRaw = pts.map((p) => p.x), ysRaw = pts.map((p) => p.y);
     const padX = (Math.max(...xsRaw) - Math.min(...xsRaw)) * 0.05 || 1;
     const padY = (Math.max(...ysRaw) - Math.min(...ysRaw)) * 0.08 || 1;
@@ -4502,6 +4505,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       svgText(f.root, xx, f.m.t + f.ph + 15, o.xTick(v), "tick", "middle");
     }
     svgText(f.root, f.m.l + f.pw, f.H - 4, o.xTitle, "axis-title", "end");
+    if (o.yTitle) svgText(f.root, 2, 11, o.yTitle, "axis-title", "start"); // above the y axis, with its unit
 
     const fit = pearson(o.fitPoints || pts);
     if (fit) {
@@ -5384,7 +5388,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     mount("c-sleep-hrv", (host) => {
       const fit = scatterChart(host, {
         points, fitPoints: goodPoints.length >= 3 ? goodPoints : points, color: "var(--s1)", zero: true, xStep: 60,
-        label: T("Einschlafzeit gegen HRV-Abweichung"), xTitle: T("Einschlafzeit"), xTick: fmtClock, yTick: (v) => fmtSigned(v, 0),
+        label: T("Einschlafzeit gegen HRV-Abweichung"), xTitle: T("Einschlafzeit"), yTitle: T("HRV ggü. 7-Tage-Mittel (ms)"), xTick: fmtClock, yTick: (v) => fmtSigned(v, 0),
         empty: T("Keine Nächte mit Einschlafzeit und HRV im Zeitraum."),
       });
       $("sleep-hrv-sub").textContent = fit
@@ -6166,7 +6170,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     mount("c-kcal-hrv", (host) => {
       const fit = scatterChart(host, {
         points, color: "var(--s1)", zero: true, label: T("Kalorien gegen HRV-Abweichung der Folgenacht"),
-        xTitle: T("Kalorien des Tages (YAZIO)"), xTick: (v) => fmt(v), yTick: (v) => `${fmtSigned(v, 0)}`,
+        xTitle: T("Kalorien des Tages (YAZIO)"), yTitle: T("HRV der Folgenacht ggü. 7-Tage-Mittel (ms)"), xTick: (v) => fmt(v), yTick: (v) => `${fmtSigned(v, 0)}`,
         empty: food.length ? T("Zu wenige geloggte Tage mit HRV-Wert der Folgenacht im Zeitraum.") : none,
       });
       $("kcal-hrv-sub").textContent = fit
@@ -6255,7 +6259,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     mount("c-corr3", (host) => {
       const fit = scatterChart(host, {
         points: p0, color: "var(--s1)", zero: true, xFloor: 0, label: T("Trainingslast gegen HRV-Abweichung der Folgenacht"),
-        xTitle: T("Trainingslast des Tages (Garmin)"), xTick: (v) => fmt(v), yTick: (v) => `${fmtSigned(v, 0)}`,
+        xTitle: T("Trainingslast des Tages (Garmin)"), yTitle: T("HRV der Folgenacht ggü. 7-Tage-Mittel (ms)"), xTick: (v) => fmt(v), yTick: (v) => `${fmtSigned(v, 0)}`,
         empty: T("Keine Aktivitäten im Zeitraum (garmin_activities.csv fehlt oder ist leer)."),
       });
       $("corr3-sub").textContent = fit
@@ -6281,7 +6285,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     mount("c-corr1", (host) => {
       const fit = scatterChart(host, {
         points: p1, color: "var(--s1)", zero: true, xFloor: 0, label: T("Tonnage gegen HRV-Abweichung der Folgenacht"),
-        xTitle: T("Tonnage am Trainingstag (t)"), xTick: (v) => fmt(v, 1), yTick: (v) => `${fmtSigned(v, 0)}`,
+        xTitle: T("Tonnage am Trainingstag (t)"), yTitle: T("HRV der Folgenacht ggü. 7-Tage-Mittel (ms)"), xTick: (v) => fmt(v, 1), yTick: (v) => `${fmtSigned(v, 0)}`,
       });
       $("corr1-sub").textContent = fit ? T("r = {0} bei {1} Trainingstagen{2}", [fmtSigned(fit.r, 2), fit.n, fewPoints(fit)]) : "";
     });
@@ -6309,7 +6313,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     mount("c-corr2", (host) => {
       const fit = scatterChart(host, {
         points: p2, color: "var(--s1)", zero: true, label: T("Schlafscore gegen Tagesform im Training"),
-        xTitle: T("Schlafscore der Vornacht"), xTick: (v) => fmt(v), yTick: (v) => `${fmtSigned(v, 0)} %`,
+        xTitle: T("Schlafscore der Vornacht"), yTitle: T("Tagesform im Krafttraining (%)"), xTick: (v) => fmt(v), yTick: (v) => `${fmtSigned(v, 0)} %`,
       });
       $("corr2-sub").textContent = fit ? T("r = {0} bei {1} Einheiten{2}", [fmtSigned(fit.r, 2), fit.n, fewPoints(fit)]) : "";
     });
