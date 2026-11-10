@@ -8106,6 +8106,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   }
 
   async function start() {
+    // The browser would restore the old scroll position after a reload, mostly somewhere further down.
+    try { history.scrollRestoration = "manual"; } catch { /* not supported */ }
     translateStatic();
     try {
       const raw = localStorage.getItem("healthsync.range");
@@ -8134,9 +8136,20 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     await loadAndRender();
     window.addEventListener("scroll", hideTip, { passive: true });
 
-    // Deep link such as #kraft: open that area and scroll to it once the content has its final height
+    startPosition();
+  }
+
+  // The page opens at the overview. A link opened fresh (#kraft) jumps to its area once the content
+  // has its final height; a reload ignores the area in the address and the old scroll position.
+  const isReload = () => performance.getEntriesByType?.("navigation")?.[0]?.type === "reload";
+  function startPosition(reload = isReload()) {
     const hash = decodeURIComponent(location.hash.slice(1));
-    if (knownTarget(hash)) requestAnimationFrame(() => goTo(hash, false));
+    if (!reload && hash !== "top" && knownTarget(hash)) {
+      requestAnimationFrame(() => goTo(hash, false));
+      return;
+    }
+    if (location.hash) { try { history.replaceState(null, "", location.pathname + location.search); } catch { /* history unavailable */ } }
+    window.scrollTo(0, 0);
   }
   start();
 })();
