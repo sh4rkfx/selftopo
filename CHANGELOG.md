@@ -4,6 +4,15 @@ All notable changes. Versions follow [semantic versioning](https://semver.org): 
 version, data files and settings stay compatible. The workflow in each data repository follows
 the tag of its major version (`v2`, before that `v1`).
 
+## Unreleased
+
+### Dashboard
+
+- *Save* writes `settings.json` to the data repository directly when the dashboard token has
+  *Contents: Read and write*: settings, goals, recommendation choices, push notifications and main
+  lifts. It reads the current file first, so changes from other devices stay. With a read-only
+  token, saving by hand on GitHub works as before. New tokens are prefilled with write access.
+
 ## 2.0.0 – 2026-11-10
 
 New major version because the data repository gets a new workflow (push notifications, input

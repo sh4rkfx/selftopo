@@ -21,8 +21,8 @@ Google or Mozilla), encrypted with keys only your device knows.
    [templates/data-repo/.github/workflows/sync.yml](../templates/data-repo/.github/workflows/sync.yml).
    Copy the template over `.github/workflows/sync.yml` in the data repository.
 4. **On each device.** Open the installed app, gear icon → *App* → *Push notifications*, paste the
-   public key, *Turn on for this device* and allow notifications. Then save `settings.json`
-   (*Go to saving*) the usual way. On the iPhone and iPad this only works in the app added to the
+   public key, *Turn on for this device* and allow notifications. Then press *Save*
+   (with a read-only token: save `settings.json` on GitHub as described in the README). On the iPhone and iPad this only works in the app added to the
    Home Screen (iOS/iPadOS 16.4 or later), not in Safari.
 5. **Check.** *Actions → Sync → Run workflow* with `push_test` = `yes` sends a test message to
    every device.

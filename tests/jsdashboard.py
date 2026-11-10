@@ -27,11 +27,11 @@ const T = (text, vars) => (vars ? text.replace(/\\{(\\w+)\\}/g, (m, k) => (k in 
 
 def declaration(name: str) -> str:
     """The source of the top-level declaration `name` in the dashboard script."""
-    match = re.search(rf"\n  (?:function {re.escape(name)}\(|const {re.escape(name)} = )", SCRIPT)
+    match = re.search(rf"\n  (?:(?:async )?function {re.escape(name)}\(|const {re.escape(name)} = )", SCRIPT)
     assert match, f"{name} not found in dashboard/index.html"
     start = match.start() + 1
     depth, i, quote = 0, start, None
-    is_function = SCRIPT.startswith("function", start + 2)
+    is_function = SCRIPT.startswith(("function", "async function"), start + 2)
     while i < len(SCRIPT):
         c = SCRIPT[i]
         if quote:
@@ -61,6 +61,18 @@ def run(names: list[str], expression: str):
     if not node:
         pytest.skip("Node.js is not installed")
     source = STUBS + "\n".join(declaration(n) for n in names) + f"\nprocess.stdout.write(JSON.stringify({expression}));"
+    out = subprocess.run([node, "-e", source], capture_output=True, text=True, timeout=30)
+    assert out.returncode == 0, out.stderr[-2000:]
+    return json.loads(out.stdout)
+
+
+def run_async(names: list[str], expression: str):
+    """Like run, for an expression that returns a promise; returns its resolved JSON value."""
+    node = shutil.which("node")
+    if not node:
+        pytest.skip("Node.js is not installed")
+    write = "(v) => process.stdout.write(JSON.stringify(v))"
+    source = STUBS + "\n".join(declaration(n) for n in names) + f"\nPromise.resolve({expression}).then({write});"
     out = subprocess.run([node, "-e", source], capture_output=True, text=True, timeout=30)
     assert out.returncode == 0, out.stderr[-2000:]
     return json.loads(out.stdout)
