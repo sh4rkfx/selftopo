@@ -18,6 +18,16 @@ that could be medically relevant only lead to the advice to have them checked.
 - **Measurable:** each card names the metric and the period that show whether it works.
 - **Rule-based:** every rule, threshold and source is in `selftopo/recommend.py` and below.
 
+## In the dashboard
+
+- **Today card**, top of the overview: rule 1, computed by the page itself on the freshly loaded
+  day, so it is never a day late. *Got it* hides it for the day.
+- **Area *Recommendations*** (first in the bar, key 1): the cards with their evidence, measurement
+  and sources; your goals with pace and forecast; running and finished experiments.
+- **Buttons on a card:** *Start as an experiment (14 days)*, *Later* (hidden for 14 days) and *Does
+  not fit* (for good). The page may only read your repository, so these changes, like the goals
+  (gear icon → *General* → *Goals*), are saved by committing `settings.json` on GitHub.
+
 ## Goals
 
 Recommendations need a goal; without one, only the Today card and the blood-pressure rules
