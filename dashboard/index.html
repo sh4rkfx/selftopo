@@ -1806,6 +1806,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Bereich {0}–{1}": "range {0}–{1}",
 "{0} ggü. 60 Tagen": "{0} vs. 60 days",
 "Readiness, zuletzt": "Readiness, latest",
+"Stufe {0}": "Level {0}",
 "Sätze, 7 Tage": "Sets, 7 days",
 "Einheit": "session",
 "Einheiten": "sessions",
@@ -3002,6 +3003,11 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   const DAY = 86400000;
   const HARD_SET_TYPES = new Set(["normal", "failure", "dropset"]);
   const READINESS_LABELS = { PRIME: "Optimal", HIGH: T("Hoch"), MODERATE: T("Mittel"), LOW: T("Niedrig"), POOR: T("Sehr niedrig") };
+  // "Stufe mittel", not a bare "Mittel" that reads like the 7-day mean the other tiles show
+  const readinessLevelText = (level) => {
+    const label = READINESS_LABELS[level] || level || "";
+    return label ? T("Stufe {0}", [label.toLowerCase()]) : "";
+  };
   const HRV_STATUS_LABELS = { BALANCED: T("Ausgeglichen"), UNBALANCED: T("Unausgeglichen"), LOW: T("Niedrig"), POOR: T("Schlecht") };
 
   // ------------------------------------------------------------------ small helpers
@@ -4896,7 +4902,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       tile("erholung", "heart", T("Ruhepuls"), fmt(r?.rhr7, 1), "bpm",
         rhrGap != null ? { icon: direction(rhrGap, 0.3), text: T("{0} ggü. 60 Tagen", [fmtSigned(rhrGap, 1)]), level: rhrGap > 5 ? "crit" : rhrGap > 2.5 ? "warn" : "" } : null, spark("rhr7")),
       tile("erholung", "bolt", rd && rd.t === M.t1 ? "Readiness" : T("Readiness, zuletzt"), fmt(rd?.ready), "",
-        rd ? { icon: null, text: `${READINESS_LABELS[rd.readyLevel] || rd.readyLevel || ""}${rd.t === M.t1 ? "" : `, ${ddmm(rd.t)}`}`, level: rd.readyLevel === "LOW" || rd.readyLevel === "POOR" ? "warn" : "" } : null, spark("ready")),
+        rd ? { icon: null, text: `${readinessLevelText(rd.readyLevel)}${rd.t === M.t1 ? "" : `, ${ddmm(rd.t)}`}`, level: rd.readyLevel === "LOW" || rd.readyLevel === "POOR" ? "warn" : "" } : null, spark("ready")),
       tile("schlaf", "schlaf", T("Schlaf"), sl ? fmtDuration(sl.sleepH7 * 60).replace(" h", "") : "–", "h",
         bed || ss ? { icon: "clock", text: [bed ? fmtClock(bed.bed7) : null, ss ? `Score ${fmt(ss.sleep7)}` : null].filter(Boolean).join(" · ") } : null, spark("sleepH7")),
       tile("sport", "kraft", T("Sätze, 7 Tage"), fmt(setsLast7), "",
