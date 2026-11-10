@@ -146,13 +146,17 @@ def test_weight_goal_shows_pace_forecast_and_the_missing_deficit(tmp_path, monke
 
 
 def test_weight_rule_never_suggests_more_than_one_percent_a_week(tmp_path, monkeypatch, given):
-    """A goal date that needs more than 1 % of body weight a week is capped at 1 %, and the card says so."""
+    """A goal date that needs more than 1 % of body weight a week is capped at 1 %, and the card says so.
+
+    Without YAZIO, intake is estimated from Garmin's expenditure (2,600 kcal at a stable weight); the
+    880 kcal for 1 % would end below the resting energy of 1,800 kcal, so the card asks for 800.
+    """
     by = TODAY + timedelta(weeks=4)
     data = write(tmp_path, monkeypatch)
     given(weight=80, goal="70 kg in 4 weeks")
     card = next(c for c in build(data, goals={"koerper": {"metric": "weight", "target": 70, "by": by.isoformat()}})["cards"]
                 if c["rule"] == "weight-pace")
-    assert card["kcal_per_day"] == pytest.approx(0.8 * 7700 / 7, abs=10)
+    assert card["kcal_per_day"] == 800
     assert "höchstens" in card["why"]["text"]
 
 
@@ -163,6 +167,17 @@ def test_no_weight_loss_advice_towards_a_bmi_below_20(tmp_path, monkeypatch, giv
     given(weight=80, bmi=24.7, goal="62 kg (BMI about 19)")
     result = build(data, goals={"koerper": {"metric": "weight", "target": 62, "by": by.isoformat()}})
     assert "weight-pace" not in rules(result)
+
+
+def test_no_weight_loss_advice_without_bmi_or_energy_data(tmp_path, monkeypatch, given):
+    """Safety fails closed: without a BMI, or without Garmin's resting energy, the limits cannot be checked, so no card."""
+    by = TODAY + timedelta(weeks=8)
+    goals = {"koerper": {"metric": "weight", "target": 75, "by": by.isoformat()}}
+    given(cases="no BMI; no calories_total/calories_active")
+    data = write(tmp_path, monkeypatch, garmin=garmin_rows(bmi=None))
+    assert "weight-pace" not in rules(build(data, goals=goals))
+    data = write(tmp_path, monkeypatch, garmin=garmin_rows(calories_total=None, calories_active=None))
+    assert "weight-pace" not in rules(build(data, goals=goals))
 
 
 def test_calorie_advice_never_goes_below_resting_metabolism(tmp_path, monkeypatch, given):

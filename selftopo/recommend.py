@@ -520,11 +520,13 @@ def rule_weight_pace(data: Data, goal: Goal, progress: dict[str, Any]) -> Card |
     current, pace, needed = progress["current"], progress["pace_per_week"], progress["needed_per_week"]
     if pace is None or needed is None or needed >= 0:  # only for losing weight
         return None
+    # Safety fails closed: without a BMI the lower limit cannot be checked, so there is no card
     bmi = data.mean("bmi", 14, minimum=1)
-    if bmi is not None:
-        height2 = current / bmi
-        if bmi < MIN_BMI or float(goal.target) / height2 < MIN_BMI:
-            return None
+    if bmi is None:
+        return None
+    height2 = current / bmi
+    if bmi < MIN_BMI or float(goal.target) / height2 < MIN_BMI:
+        return None
     max_rate = -current * MAX_LOSS_PCT_PER_WEEK / 100
     capped = needed < max_rate
     rate = max(needed, max_rate)
@@ -534,9 +536,19 @@ def rule_weight_pace(data: Data, goal: Goal, progress: dict[str, Any]) -> Card |
     kcal = -gap * KCAL_PER_KG / 7
     measure = text("Abnahmetempo über 28 Tage, Muskelmasse")
     current_text = text("{0} kg/Woche", n(pace, 2))
-    intake = data.mean("intake_kcal", 14)
+    # Safety: the intake this leads to stays above Garmin's resting energy (total minus active
+    # calories). Intake is the mean of completely logged days; without YAZIO it is estimated from
+    # Garmin's expenditure and the observed pace. Without either, there is no card.
     bmr = (data.days["calories_total"] - data.days["calories_active"]).iloc[-28:].dropna()
-    if intake is not None and len(bmr) >= 7 and intake - kcal < float(bmr.median()):
+    if len(bmr) < 7:
+        return None
+    intake = data.mean("calories_kcal", 14)
+    if intake is None:
+        expenditure = data.mean("calories_total", 28, minimum=7)
+        if expenditure is None:
+            return None
+        intake = expenditure + pace * KCAL_PER_KG / 7
+    if intake - kcal < float(bmr.median()):
         kcal = max(0.0, intake - float(bmr.median()))
         if kcal < 50:
             return None
