@@ -243,8 +243,9 @@ code { font-family: var(--font-mono); font-size: 12px; overflow-wrap: anywhere; 
   display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
   background: var(--surface); border: 1px solid var(--ring); border-radius: 14px; overflow: hidden;
 }
-@media (min-width: 640px) { .tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-@media (min-width: 900px) { .tiles.ten { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+/* Eight tiles: 2 or 4 columns. Ten tiles (with YAZIO): 2 or 5 columns, so no row is left half empty */
+@media (min-width: 640px) { .tiles:not(.ten) { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (min-width: 720px) { .tiles.ten { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
 .tile {
   padding: 13px 16px 11px; display: grid; gap: 3px; align-content: start; min-width: 0;
   box-shadow: -1px 0 0 var(--grid), 0 -1px 0 var(--grid); color: inherit; text-decoration: none;
@@ -254,7 +255,10 @@ a.tile:focus-visible { outline-offset: -3px; }
 .tile-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; min-width: 0; }
 .tile .label { font-size: 12px; color: var(--ink-2); display: inline-flex; align-items: center; gap: 5px; min-width: 0; }
 .tile .label svg.ic { width: 14px; height: 14px; color: var(--t-fg); }
-.tile .delta svg.ic { width: 13px; height: 13px; }
+.tile .delta svg.ic { width: 13px; height: 13px; flex: none; margin-top: 2px; }
+/* The text wraps next to its arrow, so a narrow tile does not leave the arrow alone on a line */
+.tiles .tile .delta { flex-wrap: nowrap; align-items: flex-start; }
+.tile .delta > span { min-width: 0; }
 .tile .delta.good { color: var(--good-ink); font-weight: 500; }
 .tile .delta.warn { color: var(--warn-ink); font-weight: 500; }
 .tile .delta.crit { color: var(--crit-ink); font-weight: 500; }
