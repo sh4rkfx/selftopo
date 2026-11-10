@@ -185,7 +185,7 @@ connected; a yellow notice says so.
 
 | Control | Effect |
 |---|---|
-| Range: 4 weeks, 12 weeks, 1 year, all | Whole weeks, so weekly charts have at most one partial week at each end. 12 weeks is the default. The overview and *Notable* always show the last 7 days |
+| Range: 1 week, 4 weeks, 12 weeks, 1 year, all | Whole weeks, so weekly charts have at most one partial week at each end. 12 weeks is the default; with 1 week the time axis has a tick per day. The overview and *Notable* always show the last 7 days |
 | Gear icon | Settings: General (language, personal settings), Connection (repository, token, file status), Setup (guide), App (install, reload, help, about) |
 | Round chevron | Collapse or expand an area; its chips and conclusion stay visible |
 | Phone tabs | On phones an open area shows one card at a time |

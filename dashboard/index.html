@@ -2727,6 +2727,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "HRV Ø": "HRV avg",
 "endurance|Mittel": "Intermediate",
 "Punkte": "points",
+"1 Woche": "1 week",
 "4 Wochen": "4 weeks",
 "12 Wochen": "12 weeks",
 "1 Jahr": "1 year",
@@ -2982,6 +2983,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   // Whole weeks, so weekly charts have at most one partial week at each end: 4 weeks show the
   // current block, 12 weeks a training cycle or a diet phase, a year the seasons.
   const RANGES = [
+    { days: 7, label: T("1 Woche") },
     { days: 28, label: T("4 Wochen") },
     { days: 84, label: T("12 Wochen") },
     { days: 365, label: T("1 Jahr") },
@@ -4139,6 +4141,10 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   }
   function timeTicks(x0, x1) {
     const span = (x1 - x0) / DAY, out = [];
+    if (span <= 14) { // one week: a tick per day
+      for (let t = x0; t <= x1; t += DAY) out.push({ t, label: ddmm(t) });
+      return out;
+    }
     if (span <= 50) {
       for (let t = x0 + ((8 - dow(x0)) % 7) * DAY; t <= x1; t += 7 * DAY) out.push({ t, label: ddmm(t) });
       return out;
