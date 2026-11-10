@@ -613,6 +613,7 @@ kbd { font-family: var(--font-mono); font-size: 11.5px; border: 1px solid var(--
 .area-fazit .fz-odd { color: var(--ink); }
 .area-fazit .fz-odd .ic { width: 14px; height: 14px; vertical-align: -2px; margin-right: 4px; color: var(--warn-ink); }
 .area-fazit .fz-finding { display: block; margin-top: 2px; }
+.area-fazit:empty { display: none; }
 @media (max-width: 759px) { .area-fazit { grid-column: 1 / -1; } .notable { padding: 12px; } }
 button.chip { font: inherit; font-size: 12.5px; border: 0; cursor: pointer; }
 button.chip:hover { box-shadow: inset 0 0 0 1px var(--ring-strong); }
@@ -1795,23 +1796,13 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Fett {0} kg": "Fat {0} kg",
 "Muskel {0} kg": "Muscle {0} kg",
 "Keine Messung im Zeitraum": "No weigh-in in the period",
-"{0} kg im 7-Tage-Mittel, {1} kg in {2} Tagen.": "{0} kg as 7-day average, {1} kg in {2} days.",
-" Fettmasse {0} kg, Muskelmasse {1} kg.": " Fat mass {0} kg, muscle mass {1} kg.",
 "Keine Gewichtsmessungen im Zeitraum.": "No weigh-ins in the period.",
 "nicht eingerichtet": "not set up",
 "kein geloggter Tag": "no logged day",
-"Durchschnittlich {0} kcal und {1} g Eiweiß pro kg an {2} vollständig geloggten von {3} Tagen.": "On average {0} kcal and {1} g protein per kg on {2} fully logged of {3} days.",
-" Bilanz laut Garmin {0} kcal pro Tag.": " Balance according to Garmin {0} kcal per day.",
-"Im Zeitraum kein vollständig geloggter Tag.": "No fully logged day in the period.",
 "Puls {0}{1}": "HR {0}{1}",
 "Keine Werte im Zeitraum": "No values in the period",
-"Ruhepuls {0} bpm": "Resting HR {0} bpm",
-"Keine HRV- oder Ruhepuls-Werte im Zeitraum.": "No HRV or resting HR values in the period.",
 "Wochenende {0}": "Weekend {0}",
 "Keine Schlafdaten": "No sleep data",
-"Durchschnittlich {0} Schlaf pro Nacht, eingeschlafen {1}, aufgewacht {2}.": "On average {0} of sleep per night, asleep at {1}, awake at {2}.",
-" Am Wochenende liegt die Schlafmitte {0}.": " At the weekend the midpoint of sleep is {0}.",
-"Keine Schlafdaten im Zeitraum.": "No sleep data in the period.",
 "Krafteinheit": "strength session",
 "Krafteinheiten": "strength sessions",
 "Keine Krafteinheiten": "No strength sessions",
@@ -1819,21 +1810,11 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Keine Boulder-Sessions": "No bouldering sessions",
 "Top {0}": "Top {0}",
 "Handkraft {0} kg": "Grip {0} kg",
-"{0} Krafteinheiten mit {1} Arbeitssätzen pro Woche. ": "{0} strength sessions with {1} hard sets per week. ",
-"Keine Krafteinheiten im Zeitraum. ": "No strength sessions in the period. ",
-", schwerster Top {0}": ", hardest top {0}",
 "Keine Boulder-Sessions im Zeitraum.": "No bouldering sessions in the period.",
-" Handkraft zuletzt {0} kg.": " Latest grip strength {0} kg.",
 "Keine Aktivitäten": "No activities",
 "{0} Aktivitäten": "{0} activities",
 "Ziel an {0} %": "goal on {0} %",
-"{0} Aktivitäten, {1} Stunden pro Woche.": "{0} activities, {1} hours per week.",
-"Keine Aktivitäten der Uhr im Zeitraum.": "No watch activities in the period.",
-" Schritte durchschnittlich {0}, Ziel an {1} % der Tage.": " Steps on average {0}, goal reached on {1} % of days.",
 "Noch keine Fitnessdaten": "No fitness data yet",
-"5 km in {0}": "5 km in {0}",
-"{0} belastbare Zusammenhänge aus {1} getesteten Paaren.": "{0} robust relationships out of {1} tested pairs.",
-" Deutlichster: {0} {1}, {2} {3}.": " Strongest: {0} {1}, {2} {3}.",
 "Noch keine Auswertung": "No analysis yet",
 "Quelle fehlt": "source missing",
 "Quellen fehlen": "sources missing",
@@ -2681,7 +2662,6 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 " und ": " and ",
 "fehlen": "missing",
 "fehlt": "missing",
-". Das HRV-Mittel lag an {0} von {1} Tagen unter dem Normalbereich.": ". The HRV mean was below the normal range on {0} of {1} days.",
 "{0} Schritte": "{0} steps",
 "{0} belastbar": "{0} robust",
 "{0} Paare": "{0} pairs",
@@ -2742,7 +2722,6 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Energiebilanz: YAZIO minus Verbrauch laut Garmin": "Energy balance: YAZIO minus expenditure according to Garmin",
 "{0} kcal/Tag": "{0} kcal/day",
 "Vollständig geloggte Tage im Zeitraum": "Fully logged days in the period",
-"Noch keine Ernährungsdaten. Der Abruf aus YAZIO ist optional; die Einrichtung steht unter Einstellungen → Einrichtung.": "No nutrition data yet. The YAZIO sync is optional; Settings → Setup explains it.",
 "Erholung aus HRV und Ruhepuls": "Recovery from HRV and resting HR",
 "HRV, 7-Tage-Mittel": "HRV, 7-day average",
 "Ruhepuls, 7-Tage-Mittel; in Klammern der Abstand zum 60-Tage-Mittel": "Resting HR, 7-day average; in brackets the difference from the 60-day average",
@@ -2765,7 +2744,6 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Zusammenhänge, die der Korrektur für viele Tests standhalten": "Relationships that survive the correction for many tests",
 "Getestete Kombinationen aus Ursache und Wirkung": "Tested combinations of cause and effect",
 "Zeitraum der Auswertung": "Period of the analysis",
-"Noch keine Auswertung. Sie entsteht mit python -m selftopo analyze.": "No analysis yet. It is created by python -m selftopo analyze.",
 "Dateien in den Einstellungen": "Files in the settings",
 "Auffällig diese Woche": "Notable this week",
 "Welche Datei fehlt, steht in den Einstellungen unter Verbindung": "The settings list the missing file under Connection",
@@ -2783,7 +2761,11 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "niedriger": "lower",
 "höher": "higher",
 "{0} aufklappen": "Expand {0}",
-"{0} einklappen": "Collapse {0}"
+"{0} einklappen": "Collapse {0}",
+"Der Abruf aus YAZIO ist optional; die Einrichtung steht unter Einstellungen → Einrichtung.": "The YAZIO sync is optional; Settings → Setup explains it.",
+"Das HRV-Mittel lag an {0} von {1} Tagen unter dem Normalbereich.": "The HRV mean was below the normal range on {0} of {1} days.",
+"Deutlichster: {0} {1}, {2} {3}.": "Strongest: {0} {1}, {2} {3}.",
+"Sie entsteht mit python -m selftopo analyze.": "It is created by python -m selftopo analyze."
 }
 </script>
 <script>
@@ -5004,8 +4986,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       .sort((a, b) => Math.abs(b.rho ?? 0) - Math.abs(a.rho ?? 0));
     return robust.find((f) => FINDING_AREAS[f.driver] === area) || robust.find((f) => FINDING_AREAS[f.outcome] === area) || null;
   }
-  // Conclusion under an area head: unusual this week, the period in one sentence, one robust finding
-  function areaFazit(area, trend) {
+  // Conclusion under an area head: unusual this week, a note the chips cannot show, one robust finding
+  function areaFazit(area, note) {
     const parts = [];
     const checks = (state.baseline || []).filter((b) => b.def.area === area && b.status);
     const odd = checks.filter((b) => b.status !== "normal");
@@ -5015,7 +4997,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     } else if (checks.length) {
       parts.push(T("Diese Woche im üblichen Bereich: {0}.", [checks.map((b) => b.def.label()).join(", ")]));
     }
-    if (trend) parts.push(`${parts.length ? " " : ""}${trend}`);
+    if (note) parts.push(`${parts.length ? " " : ""}${note}`);
     const f = areaFinding(area);
     if (f) {
       const d = describeFinding(f);
@@ -5052,11 +5034,12 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 
   // One sentence per area that answers its question; stays visible when the area is collapsed.
   function renderSummaries(M, days, x0, x1, lastWith) {
-    // chips, then the conclusion; the raw data area keeps its sentence for screen readers only
-    const put = (area, chips, sentence) => {
-      $(`sum-${area}`).replaceChildren(...chips.filter(Boolean), ...(area === "daten" ? [html("span", { class: "vh", text: sentence })] : []));
+    // chips, then the conclusion. The note adds only what the chips do not already show; the raw
+    // data area has no conclusion and keeps its note for screen readers only.
+    const put = (area, chips, note = "") => {
+      $(`sum-${area}`).replaceChildren(...chips.filter(Boolean), ...(area === "daten" ? [html("span", { class: "vh", text: note })] : []));
       const fz = $(`fazit-${area}`);
-      if (fz) fz.replaceChildren(...areaFazit(area, sentence));
+      if (fz) fz.replaceChildren(...areaFazit(area, note));
     };
     const C = (target, tip, ...args) => linkChip(chip(...args), target, tip);
     const weeks = Math.max(1, days.length / 7);
@@ -5073,11 +5056,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
         dF != null ? C("comp-sub", T("Änderung der Fettmasse im Zeitraum"), "layers", T("Fett {0} kg", [fmtSigned(dF, 1)])) : null,
         dM != null ? C("comp-sub", T("Änderung der Muskelmasse im Zeitraum"), "kraft", T("Muskel {0} kg", [fmtSigned(dM, 1)])) : null,
         linkChip(bpChip(M, x0, x1), "bp-sub", T("Blutdruck, Mittel im Zeitraum"))]
-      : [C("weight-sub", T("Gewicht"), "koerper", T("Keine Messung im Zeitraum")), linkChip(bpChip(M, x0, x1), "bp-sub", T("Blutdruck, Mittel im Zeitraum"))],
-    wIn.length
-      ? T("{0} kg im 7-Tage-Mittel, {1} kg in {2} Tagen.", [fmt(wIn[wIn.length - 1].weight7, 1), fmtSigned(dW, 1), fmt(days.length)])
-        + (dF != null && dM != null ? T(" Fettmasse {0} kg, Muskelmasse {1} kg.", [fmtSigned(dF, 1), fmtSigned(dM, 1)]) : "")
-      : T("Keine Gewichtsmessungen im Zeitraum."));
+      : [C("weight-sub", T("Gewicht"), "koerper", T("Keine Messung im Zeitraum")), linkChip(bpChip(M, x0, x1), "bp-sub", T("Blutdruck, Mittel im Zeitraum"))]);
 
     // Ernährung
     const food = days.filter((d) => d.foodComplete);
@@ -5090,9 +5069,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
           bal != null ? C("balance-sub", T("Energiebilanz: YAZIO minus Verbrauch laut Garmin"), "balance", T("{0} kcal/Tag", [fmtSigned(bal)])) : null,
           C("kcal-sub", T("Vollständig geloggte Tage im Zeitraum"), "calendar", T("{0}/{1} Tage", [food.length, days.length]))]
         : [C("kcal-sub", T("Kalorien pro Tag"), "ernaehrung", T("kein geloggter Tag"))],
-    !M.hasNutrition ? T("Noch keine Ernährungsdaten. Der Abruf aus YAZIO ist optional; die Einrichtung steht unter Einstellungen → Einrichtung.")
-      : food.length ? T("Durchschnittlich {0} kcal und {1} g Eiweiß pro kg an {2} vollständig geloggten von {3} Tagen.", [fmt(kcal), fmt(perKg, 1), food.length, fmt(days.length)])
-        + (bal != null ? T(" Bilanz laut Garmin {0} kcal pro Tag.", [fmtSigned(bal)]) : "") : T("Im Zeitraum kein vollständig geloggter Tag."));
+    !M.hasNutrition ? T("Der Abruf aus YAZIO ist optional; die Einrichtung steht unter Einstellungen → Einrichtung.") : "");
 
     // Erholung
     const h = lastWith("hrv7"), r = lastWith("rhr7");
@@ -5105,8 +5082,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
         h ? C("hrv-sub", T("HRV, 7-Tage-Mittel"), "pulse", `HRV ${fmt(h.hrv7)} ms`, h.hrvLow != null && h.hrv7 < h.hrvLow ? "warn" : "neutral") : null,
         r ? C("rhr-sub", T("Ruhepuls, 7-Tage-Mittel; in Klammern der Abstand zum 60-Tage-Mittel"), "heart", T("Puls {0}{1}", [fmt(r.rhr7, 1), gap != null ? ` (${fmtSigned(gap, 1)})` : ""]), gap != null && gap > 2.5 ? "warn" : "neutral") : null]
       : [C("hrv-sub", "HRV", "erholung", T("Keine Werte im Zeitraum"))],
-    h || r ? [h ? `HRV ${fmt(h.hrv7)} ms` : null, r ? T("Ruhepuls {0} bpm", [fmt(r.rhr7, 1)]) : null].filter(Boolean).join(", ")
-      + (banded.length ? T(". Das HRV-Mittel lag an {0} von {1} Tagen unter dem Normalbereich.", [below, banded.length]) : ".") : T("Keine HRV- oder Ruhepuls-Werte im Zeitraum."));
+    banded.length ? T("Das HRV-Mittel lag an {0} von {1} Tagen unter dem Normalbereich.", [below, banded.length]) : "");
 
     // Schlaf
     const nights = days.filter((d) => d.bed != null), slept = days.filter((d) => d.sleepH != null);
@@ -5117,9 +5093,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       ? [C("sleep-times-sub", T("Mittlere Schlafdauer pro Nacht"), "schlaf", fmtDuration(mean(slept.map((d) => d.sleepH)) * 60)),
         nights.length ? C("sleep-times-sub", T("Mittlere Einschlaf- und Aufwachzeit"), "clock", `${fmtClock(bedAvg)}–${fmtClock(wakeAvg)}`) : null,
         jetlag != null ? C("sleep-week-sub", T("Verschiebung der Schlafmitte am Wochenende"), "calendar", T("Wochenende {0}", [fmtSignedDuration(jetlag)]), Math.abs(jetlag) >= 60 ? "warn" : "neutral") : null]
-      : [C("sleep-times-sub", T("Schlafenszeiten"), "schlaf", T("Keine Schlafdaten"))],
-    slept.length ? T("Durchschnittlich {0} Schlaf pro Nacht, eingeschlafen {1}, aufgewacht {2}.", [fmtDuration(mean(slept.map((d) => d.sleepH)) * 60), fmtClock(bedAvg), fmtClock(wakeAvg)])
-      + (jetlag != null ? T(" Am Wochenende liegt die Schlafmitte {0}.", [shiftText(jetlag)]) : "") : T("Keine Schlafdaten im Zeitraum."));
+      : [C("sleep-times-sub", T("Schlafenszeiten"), "schlaf", T("Keine Schlafdaten"))]);
 
     // Sport: Kraft and Bouldern
     const workouts = M.strengthSessions.filter((s) => s.t >= x0 && s.t <= x1 && s.source !== "watch");
@@ -5134,9 +5108,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       C("bsessions-sub", T("Boulder-Sessions im Zeitraum"), "hold", bSessions.length ? (bSessions.length === 1 ? T("1 Boulder-Session") : T("{0} Boulder-Sessions", [bSessions.length])) : T("Keine Boulder-Sessions")),
       bTop ? C("peak-sub", T("Schwerster getoppter Boulder im Zeitraum"), "trend", T("Top {0}", [bTop.grade])) : null,
       gMax ? C("grip-sub", T("Letzte Handkraft-Messung, stärkere Hand"), "hand", T("Handkraft {0} kg", [fmt(gMax, 1)])) : null,
-    ], (workouts.length ? T("{0} Krafteinheiten mit {1} Arbeitssätzen pro Woche. ", [workouts.length, fmt(sets / weeks)]) : T("Keine Krafteinheiten im Zeitraum. "))
-      + (bSessions.length ? `${T("{0} Boulder-Sessions", [bSessions.length])}${bTop ? T(", schwerster Top {0}", [bTop.grade]) : ""}.` : T("Keine Boulder-Sessions im Zeitraum."))
-      + (gMax ? T(" Handkraft zuletzt {0} kg.", [fmt(gMax, 1)]) : ""));
+    ]);
 
     // Aktivitäten
     const acts = days.flatMap((d) => d.activities);
@@ -5148,8 +5120,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       acts.length ? C("recent-sub", T("Aktivitäten im Zeitraum"), "list", T("{0} Aktivitäten", [acts.length])) : null,
       stepDays.length ? C("steps-sub", T("Mittlere Schritte pro Tag"), "steps", T("{0} Schritte", [fmt(mean(stepDays.map((d) => d.steps)))])) : null,
       goalPct != null ? C("steps-sub", T("Anteil der Tage mit erreichtem Schrittziel"), "target", T("Ziel an {0} %", [fmt(goalPct)]), goalPct < 50 ? "warn" : "neutral") : null,
-    ], (acts.length ? T("{0} Aktivitäten, {1} Stunden pro Woche.", [acts.length, fmt(hours / weeks, 1)]) : T("Keine Aktivitäten der Uhr im Zeitraum."))
-      + (stepDays.length ? T(" Schritte durchschnittlich {0}, Ziel an {1} % der Tage.", [fmt(mean(stepDays.map((d) => d.steps))), fmt(goalPct)]) : ""));
+    ]);
 
     // Fitness
     const F = M.fitness, fs = state.fitnessStatus;
@@ -5161,9 +5132,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       hill ? C("hill-sub", "Hill Score", "aktivitaeten", `Hill ${fmt(hill.hill)}`) : null,
       endu ? C("endurance-sub", "Endurance Score", "trend", `Endurance ${fmt(endu.endurance)}`) : null,
       fs?.training_status ? C("tstatus-sub", T("Trainingsstatus laut Garmin, heute"), "bolt", statusLabel(fs.training_status)) : null,
-    ] : [C("vo2-sub", "VO2max", "fitness", T("Noch keine Fitnessdaten"))],
-    [vo2 ? `VO2max ${fmt(vo2.vo2, 1)}` : null, race ? T("5 km in {0}", [fmtRace(race.r5)]) : null, hill ? `Hill Score ${fmt(hill.hill)}` : null,
-      endu ? `Endurance Score ${fmt(endu.endurance)}` : null, fs?.training_status ? `Status ${statusLabel(fs.training_status)}` : null].filter(Boolean).join(", ") + ".");
+    ] : [C("vo2-sub", "VO2max", "fitness", T("Noch keine Fitnessdaten"))]);
 
     // Zusammenhänge
     const ins = state.insights;
@@ -5173,9 +5142,9 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       put("zusammenhaenge", [C("insights-sub", T("Zusammenhänge, die der Korrektur für viele Tests standhalten"), "check", T("{0} belastbar", [robust.length])),
         C("insights-sub", T("Getestete Kombinationen aus Ursache und Wirkung"), "zusammenhaenge", T("{0} Paare", [fmt(ins.tested)])),
         ins.period ? C("insights-sub", T("Zeitraum der Auswertung"), "calendar", `${ddmm(isoToT(ins.period.start))}–${ddmm(isoToT(ins.period.end))}`) : null],
-      T("{0} belastbare Zusammenhänge aus {1} getesteten Paaren.", [robust.length, fmt(ins.tested)]) + (d ? T(" Deutlichster: {0} {1}, {2} {3}.", [d.driver, d.step, d.outcome, d.effect]) : ""));
+      d ? T("Deutlichster: {0} {1}, {2} {3}.", [d.driver, d.step, d.outcome, d.effect]) : "");
     } else {
-      put("zusammenhaenge", [C("insights-sub", T("Automatisch gefundene Zusammenhänge"), "info", T("Noch keine Auswertung"))], T("Noch keine Auswertung. Sie entsteht mit python -m selftopo analyze."));
+      put("zusammenhaenge", [C("insights-sub", T("Automatisch gefundene Zusammenhänge"), "info", T("Noch keine Auswertung"))], T("Sie entsteht mit python -m selftopo analyze."));
     }
 
     // Daten
