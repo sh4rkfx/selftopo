@@ -13,7 +13,7 @@ on:
         required: false
         default: "30"
       source:
-        description: "Source to fetch: all, garmin, activities, climbs, fitness, bp, hevy or yazio (with many days it loads older data of that source only)"
+        description: "Source to fetch: all, garmin, activities, climbs, fitness, bp, lifestyle, hevy or yazio (with many days it loads older data of that source only)"
         required: false
         default: "all"
       fitness_dump:

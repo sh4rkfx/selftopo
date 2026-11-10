@@ -379,6 +379,9 @@ def dump_raw(day: date) -> Path:
     client = connect()
     raw = fetch_raw_day(client, day)
     raw["body_composition"] = safe_call(client.get_body_composition, day.isoformat(), day.isoformat())
+    # Lifestyle Logging (habit diary), see lifestyle.py; older library versions lack the method
+    lifestyle = getattr(client, "get_lifestyle_logging_data", None)
+    raw["lifestyle"] = safe_call(lifestyle, day.isoformat()) if lifestyle else None
     # Activity summaries plus full details, e.g. to find climbing-specific fields
     activities = safe_call(client.get_activities_by_date, day.isoformat(), day.isoformat()) or []
     raw["activities"] = activities

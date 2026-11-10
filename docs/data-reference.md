@@ -107,6 +107,28 @@ notes typed with a reading are not copied.
 | `source` | text | Garmin's source type, e.g. `DEVICE` or `MANUAL` |
 | `category` | text | Garmin's own category; the dashboard uses the ESC 2024 home thresholds instead |
 
+## garmin_lifestyle.csv
+
+Lifestyle Logging, the habit diary of the Garmin Connect app (*More → Health Stats → Lifestyle
+Logging*): one row per behaviour and day. Garmin lists every behaviour you have set up on every
+day, answered or not. One request per day; days already stored are only fetched again within the
+last few days, because answers are often logged the next morning. If no behaviour is set up in
+the 7 newest days and the file does not exist yet, the sync stops asking.
+
+> **Not yet checked against real data.** Garmin does not document this endpoint; the mapping
+> follows the `garminconnect` library and other projects that read it. If the file stays empty or
+> looks wrong, run `python -m selftopo dump-raw --date YYYY-MM-DD` and look at the `lifestyle` part.
+
+| Column | Unit | Notes |
+|---|---|---|
+| `date` | | Calendar day of the log |
+| `behaviour_id` | | Garmin's id of the behaviour; stays the same when you rename it. `#n` if the answer has none |
+| `name` | text | Name as shown in the app, e.g. `Alcohol` or `Late caffeine` (depends on the app language) |
+| `kind` | | `check` (yes/no) or `count` (an amount, e.g. drinks) |
+| `status` | | `yes`, `no`, or empty when not answered that day |
+| `value` | | `1`/`0` for yes/no; for `count` the sum of the logged amounts (a yes without amount is `1`); empty when not answered. Empty is not the same as `0` |
+| `sleep_related` | | `1` if Garmin marks the behaviour as relevant for sleep |
+
 ## garmin_fitness.csv
 
 One row per day on which Garmin reports at least one of these values. Each sync replaces the
