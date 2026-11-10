@@ -2,18 +2,18 @@
  "schema": 1,
  "run": {
   "repository": "sh4rkfx/selftopo",
-  "commit": "99f2297a64265ab67a86dd8edde86f0a2ba361d5",
-  "subject": "Explain why scatter charts show r and the insights list ρ (#14)",
+  "commit": "f555cb4a13a1d3e00898feea7c700907b8c707cf",
+  "subject": "Add a one-week range (#15)",
   "branch": "main",
   "event": "push",
-  "run_url": "https://github.com/sh4rkfx/selftopo/actions/runs/42808321516",
+  "run_url": "https://github.com/sh4rkfx/selftopo/actions/runs/42811354743",
   "local_changes": null,
   "python": "3.12.16",
   "pytest": "9.2.0",
   "platform": "Linux",
-  "started": "2026-11-10T11:33:03+00:00",
-  "finished": "2026-11-10T11:33:08+00:00",
-  "wall_s": 4.616
+  "started": "2026-11-10T11:55:24+00:00",
+  "finished": "2026-11-10T11:55:29+00:00",
+  "wall_s": 4.906
  },
  "summary": {
   "total": 52,
@@ -26,7 +26,7 @@
   "light": "green",
   "reason": "all_passed",
   "red_share": 0.1,
-  "duration_s": 2.9301
+  "duration_s": 2.8951
  },
  "groups": {
   "tests/test_analyze.py": {
@@ -137,11 +137,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.001001,
-    "call": 0.07164,
-    "teardown": 0.000179
+    "setup": 0.006278,
+    "call": 0.069516,
+    "teardown": 0.000138
    },
-   "duration_s": 0.07282
+   "duration_s": 0.075932
   },
   {
    "id": "tests/test_analyze.py::test_false_alarm_rate_on_pure_noise_stays_near_the_fdr_level",
@@ -191,11 +191,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000287,
-    "call": 2.654758,
-    "teardown": 0.000161
+    "setup": 0.00029,
+    "call": 2.612148,
+    "teardown": 0.000157
    },
-   "duration_s": 2.655206
+   "duration_s": 2.612595
   },
   {
    "id": "tests/test_analyze.py::test_circular_garmin_pairs_are_not_tested",
@@ -259,11 +259,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000312,
-    "call": 0.002427,
-    "teardown": 0.000133
+    "setup": 0.000308,
+    "call": 0.002437,
+    "teardown": 0.000108
    },
-   "duration_s": 0.002872
+   "duration_s": 0.002853
   },
   {
    "id": "tests/test_analyze.py::test_output_is_valid_json_without_nan",
@@ -309,11 +309,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000245,
-    "call": 0.066324,
-    "teardown": 0.000172
+    "setup": 0.000247,
+    "call": 0.065465,
+    "teardown": 0.000135
    },
-   "duration_s": 0.066741
+   "duration_s": 0.065847
   },
   {
    "id": "tests/test_analyze.py::test_empty_data_gives_a_note",
@@ -351,11 +351,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.00028,
-    "call": 0.000587,
-    "teardown": 0.000107
+    "setup": 0.000241,
+    "call": 0.000555,
+    "teardown": 0.000104
    },
-   "duration_s": 0.000974
+   "duration_s": 0.0009
   },
   {
    "id": "tests/test_analyze.py::test_load_daily_reads_all_three_files",
@@ -479,11 +479,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.001109,
-    "call": 0.027814,
-    "teardown": 0.000143
+    "setup": 0.001073,
+    "call": 0.029739,
+    "teardown": 0.000133
    },
-   "duration_s": 0.029066
+   "duration_s": 0.030945
   },
   {
    "id": "tests/test_analyze.py::test_nutrition_is_tested_against_the_following_night_and_next_training_day",
@@ -560,11 +560,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000269,
-    "call": 0.003149,
-    "teardown": 0.000108
+    "setup": 0.00027,
+    "call": 0.003045,
+    "teardown": 9.9e-05
    },
-   "duration_s": 0.003526
+   "duration_s": 0.003414
   },
   {
    "id": "tests/test_analyze.py::test_incomplete_and_unlogged_food_days_stay_empty",
@@ -632,11 +632,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000657,
-    "call": 0.01074,
-    "teardown": 0.000125
+    "setup": 0.000629,
+    "call": 0.010684,
+    "teardown": 0.000155
    },
-   "duration_s": 0.011522
+   "duration_s": 0.011468
   },
   {
    "id": "tests/test_bloodpressure.py::test_parse_finds_readings_anywhere_and_drops_notes",
@@ -694,11 +694,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000274,
-    "call": 0.002113,
-    "teardown": 0.000108
+    "setup": 0.000338,
+    "call": 0.002101,
+    "teardown": 0.000105
    },
-   "duration_s": 0.002495
+   "duration_s": 0.002544
   },
   {
    "id": "tests/test_bloodpressure.py::test_sync_replaces_the_window_in_chunks",
@@ -761,11 +761,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000622,
-    "call": 0.001815,
-    "teardown": 0.000117
+    "setup": 0.000552,
+    "call": 0.001789,
+    "teardown": 0.000112
    },
-   "duration_s": 0.002554
+   "duration_s": 0.002453
   },
   {
    "id": "tests/test_climbs.py::test_one_row_per_boulder_with_the_rest_that_follows",
@@ -846,11 +846,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000291,
-    "call": 0.002597,
-    "teardown": 0.000109
+    "setup": 0.000331,
+    "call": 0.002543,
+    "teardown": 0.000101
    },
-   "duration_s": 0.002997
+   "duration_s": 0.002975
   },
   {
    "id": "tests/test_climbs.py::test_rest_before_the_first_boulder_and_other_split_types_are_ignored",
@@ -901,11 +901,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.00023,
-    "call": 0.000645,
-    "teardown": 0.000102
+    "setup": 0.000233,
+    "call": 0.000627,
+    "teardown": 9.6e-05
    },
-   "duration_s": 0.000977
+   "duration_s": 0.000956
   },
   {
    "id": "tests/test_climbs.py::test_session_summary_with_self_evaluation",
@@ -951,11 +951,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000218,
-    "call": 0.00075,
-    "teardown": 0.0001
+    "setup": 0.000245,
+    "call": 0.000748,
+    "teardown": 0.000127
    },
-   "duration_s": 0.001068
+   "duration_s": 0.00112
   },
   {
    "id": "tests/test_climbs.py::test_missing_self_evaluation_stays_empty",
@@ -1016,11 +1016,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000258,
-    "call": 0.000816,
-    "teardown": 0.000104
+    "setup": 0.000223,
+    "call": 0.000772,
+    "teardown": 9.5e-05
    },
-   "duration_s": 0.001178
+   "duration_s": 0.00109
   },
   {
    "id": "tests/test_climbs.py::test_sync_fetches_new_and_recent_sessions_and_keeps_older_ones",
@@ -1113,11 +1113,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000628,
-    "call": 0.003253,
-    "teardown": 0.000127
+    "setup": 0.00062,
+    "call": 0.003222,
+    "teardown": 0.000118
    },
-   "duration_s": 0.004008
+   "duration_s": 0.00396
   },
   {
    "id": "tests/test_climbs.py::test_failed_request_keeps_the_stored_session",
@@ -1163,11 +1163,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000637,
-    "call": 0.001523,
-    "teardown": 0.000132
+    "setup": 0.000616,
+    "call": 0.001517,
+    "teardown": 0.000126
    },
-   "duration_s": 0.002292
+   "duration_s": 0.002259
   },
   {
    "id": "tests/test_config.py::test_load_settings_missing_and_broken",
@@ -1244,11 +1244,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000606,
-    "call": 0.001621,
-    "teardown": 0.000144
+    "setup": 0.000668,
+    "call": 0.001569,
+    "teardown": 0.000122
    },
-   "duration_s": 0.002371
+   "duration_s": 0.002359
   },
   {
    "id": "tests/test_config.py::test_load_settings_reads_object",
@@ -1286,11 +1286,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000548,
-    "call": 0.000604,
-    "teardown": 0.000113
+    "setup": 0.000533,
+    "call": 0.000557,
+    "teardown": 0.000104
    },
-   "duration_s": 0.001265
+   "duration_s": 0.001194
   },
   {
    "id": "tests/test_config.py::test_timezone_environment_beats_settings_and_default_is_utc",
@@ -1358,11 +1358,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000256,
-    "call": 0.001635,
-    "teardown": 0.000124
+    "setup": 0.000245,
+    "call": 0.007389,
+    "teardown": 0.00011
    },
-   "duration_s": 0.002015
+   "duration_s": 0.007744
   },
   {
    "id": "tests/test_config.py::test_unknown_timezone_falls_back_with_a_problem",
@@ -1413,11 +1413,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000229,
-    "call": 0.001314,
-    "teardown": 0.000134
+    "setup": 0.000246,
+    "call": 0.001234,
+    "teardown": 9.6e-05
    },
-   "duration_s": 0.001677
+   "duration_s": 0.001576
   },
   {
    "id": "tests/test_config.py::test_grip_exercises_from_settings_or_defaults",
@@ -1498,11 +1498,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000233,
-    "call": 0.001196,
-    "teardown": 0.000124
+    "setup": 0.000223,
+    "call": 0.001161,
+    "teardown": 9.9e-05
    },
-   "duration_s": 0.001553
+   "duration_s": 0.001483
   },
   {
    "id": "tests/test_dashboard.py::test_dictionary_is_valid_and_has_no_empty_entries",
@@ -1528,7 +1528,7 @@
      "expr": "block",
      "ok": true,
      "op": "truthy",
-     "left": "<re.Match object; span=(135257, 257639), match='<script type=\"application/json\" id=\"i18n-en\">\\n{\\>",
+     "left": "<re.Match object; span=(135257, 257660), match='<script type=\"application/json\" id=\"i18n-en\">\\n{\\>",
      "right": null,
      "detail": null
     },
@@ -1537,9 +1537,9 @@
      "expr": "len(d) > 1000",
      "ok": true,
      "op": ">",
-     "left": "1164",
+     "left": "1165",
      "right": "1000",
-     "detail": "where 1164 = len({'Bankdrücken': 'Bench press', 'Kniebeuge': 'Squat', 'Kreuzheben': 'Deadlift', 'Klimmzug mit Zusatzgewicht': 'Weighted pull-up', ...})"
+     "detail": "where 1165 = len({'Bankdrücken': 'Bench press', 'Kniebeuge': 'Squat', 'Kreuzheben': 'Deadlift', 'Klimmzug mit Zusatzgewicht': 'Weighted pull-up', ...})"
     },
     {
      "line": 28,
@@ -1566,11 +1566,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000261,
-    "call": 0.003638,
-    "teardown": 0.000114
+    "setup": 0.00036,
+    "call": 0.003541,
+    "teardown": 9.7e-05
    },
-   "duration_s": 0.004013
+   "duration_s": 0.003998
   },
   {
    "id": "tests/test_dashboard.py::test_every_translated_literal_has_an_english_entry",
@@ -1587,11 +1587,11 @@
     },
     {
      "name": "translated_literals",
-     "value": "725"
+     "value": "726"
     },
     {
      "name": "dictionary_entries",
-     "value": "1164"
+     "value": "1165"
     }
    ],
    "checks": [
@@ -1600,7 +1600,7 @@
      "expr": "block",
      "ok": true,
      "op": "truthy",
-     "left": "<re.Match object; span=(135257, 257639), match='<script type=\"application/json\" id=\"i18n-en\">\\n{\\>",
+     "left": "<re.Match object; span=(135257, 257660), match='<script type=\"application/json\" id=\"i18n-en\">\\n{\\>",
      "right": null,
      "detail": null
     },
@@ -1625,11 +1625,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000233,
-    "call": 0.010822,
-    "teardown": 0.000129
+    "setup": 0.000226,
+    "call": 0.010724,
+    "teardown": 9.9e-05
    },
-   "duration_s": 0.011184
+   "duration_s": 0.011049
   },
   {
    "id": "tests/test_dashboard.py::test_placeholders_match",
@@ -1646,7 +1646,7 @@
     },
     {
      "name": "dictionary_entries",
-     "value": "1164"
+     "value": "1165"
     }
    ],
    "checks": [
@@ -1655,7 +1655,7 @@
      "expr": "block",
      "ok": true,
      "op": "truthy",
-     "left": "<re.Match object; span=(135257, 257639), match='<script type=\"application/json\" id=\"i18n-en\">\\n{\\>",
+     "left": "<re.Match object; span=(135257, 257660), match='<script type=\"application/json\" id=\"i18n-en\">\\n{\\>",
      "right": null,
      "detail": null
     },
@@ -1680,11 +1680,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000257,
-    "call": 0.00452,
-    "teardown": 0.000114
+    "setup": 0.000238,
+    "call": 0.004449,
+    "teardown": 0.000108
    },
-   "duration_s": 0.004891
+   "duration_s": 0.004795
   },
   {
    "id": "tests/test_dashboard.py::test_service_worker_has_a_version",
@@ -1706,9 +1706,9 @@
      "expr": "re.search(r'const VERSION = \"\\d+\";', sw)",
      "ok": true,
      "op": "truthy",
-     "left": "<re.Match object; span=(440, 461), match='const VERSION = \"18\";'>",
+     "left": "<re.Match object; span=(440, 461), match='const VERSION = \"19\";'>",
      "right": null,
-     "detail": "where <re.Match object; span=(440, 461), match='const VERSION = \"18\";'> = <function search>('const VERSION = \"\\\\d+\";', '// Service worker of the selftopo dashboard: makes it installable and opens it offline.\\n//\\n// App files in this fol...t hit = await cache.match(key, { ignoreSearch: true });\\n      return hit || Response.error();\\n    }\\n  })());\\n});\\n')\nwhere <function search> = re.search"
+     "detail": "where <re.Match object; span=(440, 461), match='const VERSION = \"19\";'> = <function search>('const VERSION = \"\\\\d+\";', '// Service worker of the selftopo dashboard: makes it installable and opens it offline.\\n//\\n// App files in this fol...t hit = await cache.match(key, { ignoreSearch: true });\\n      return hit || Response.error();\\n    }\\n  })());\\n});\\n')\nwhere <function search> = re.search"
     }
    ],
    "planned": [
@@ -1722,11 +1722,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.00024,
-    "call": 0.000538,
-    "teardown": 0.000106
+    "setup": 0.000224,
+    "call": 0.000486,
+    "teardown": 9.6e-05
    },
-   "duration_s": 0.000884
+   "duration_s": 0.000806
   },
   {
    "id": "tests/test_fitness.py::test_endpoints_are_parsed_per_day",
@@ -1815,11 +1815,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000314,
-    "call": 0.002579,
-    "teardown": 0.000105
+    "setup": 0.000338,
+    "call": 0.00244,
+    "teardown": 9.6e-05
    },
-   "duration_s": 0.002998
+   "duration_s": 0.002874
   },
   {
    "id": "tests/test_fitness.py::test_status_of_the_primary_device",
@@ -1891,11 +1891,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.00023,
-    "call": 0.000976,
-    "teardown": 0.000105
+    "setup": 0.000246,
+    "call": 0.000973,
+    "teardown": 9.5e-05
    },
-   "duration_s": 0.001311
+   "duration_s": 0.001314
   },
   {
    "id": "tests/test_fitness.py::test_sync_replaces_the_window_and_writes_today",
@@ -1984,11 +1984,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000638,
-    "call": 0.002466,
-    "teardown": 0.000132
+    "setup": 0.000611,
+    "call": 0.00232,
+    "teardown": 0.000112
    },
-   "duration_s": 0.003236
+   "duration_s": 0.003043
   },
   {
    "id": "tests/test_parsers.py::test_body_composition_keeps_first_weigh_in_and_converts_grams",
@@ -2052,11 +2052,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000278,
-    "call": 0.001781,
-    "teardown": 0.000104
+    "setup": 0.000326,
+    "call": 0.001648,
+    "teardown": 9.6e-05
    },
-   "duration_s": 0.002163
+   "duration_s": 0.00207
   },
   {
    "id": "tests/test_parsers.py::test_sleep_times_are_local_across_daylight_saving",
@@ -2128,11 +2128,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000233,
-    "call": 0.000642,
-    "teardown": 0.000105
+    "setup": 0.000224,
+    "call": 0.000649,
+    "teardown": 9.2e-05
    },
-   "duration_s": 0.00098
+   "duration_s": 0.000965
   },
   {
    "id": "tests/test_parsers.py::test_missing_payloads_give_empty_values",
@@ -2196,11 +2196,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000228,
-    "call": 0.000519,
-    "teardown": 0.0001
+    "setup": 0.000215,
+    "call": 0.000498,
+    "teardown": 9.2e-05
    },
-   "duration_s": 0.000847
+   "duration_s": 0.000805
   },
   {
    "id": "tests/test_parsers.py::test_negative_stress_means_not_enough_data",
@@ -2238,11 +2238,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000218,
-    "call": 0.000251,
-    "teardown": 9.9e-05
+    "setup": 0.000214,
+    "call": 0.000257,
+    "teardown": 9.1e-05
    },
-   "duration_s": 0.000568
+   "duration_s": 0.000562
   },
   {
    "id": "tests/test_parsers.py::test_readiness_prefers_the_morning_value",
@@ -2280,11 +2280,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000211,
-    "call": 0.000535,
-    "teardown": 0.000101
+    "setup": 0.000219,
+    "call": 0.000527,
+    "teardown": 9.3e-05
    },
-   "duration_s": 0.000847
+   "duration_s": 0.000839
   },
   {
    "id": "tests/test_parsers.py::test_activity_units",
@@ -2361,11 +2361,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000215,
-    "call": 0.0013,
-    "teardown": 0.000104
+    "setup": 0.000213,
+    "call": 0.0012,
+    "teardown": 9.4e-05
    },
-   "duration_s": 0.001619
+   "duration_s": 0.001507
   },
   {
    "id": "tests/test_parsers.py::test_activity_without_distance_has_empty_distance",
@@ -2404,10 +2404,10 @@
    "trace": null,
    "durations": {
     "setup": 0.000226,
-    "call": 0.000331,
-    "teardown": 0.000103
+    "call": 0.000319,
+    "teardown": 9e-05
    },
-   "duration_s": 0.00066
+   "duration_s": 0.000635
   },
   {
    "id": "tests/test_parsers.py::test_hevy_dates_use_local_time",
@@ -2449,11 +2449,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000223,
-    "call": 0.000488,
-    "teardown": 0.000102
+    "setup": 0.000216,
+    "call": 0.000454,
+    "teardown": 9.3e-05
    },
-   "duration_s": 0.000813
+   "duration_s": 0.000763
   },
   {
    "id": "tests/test_parsers.py::test_ci_password_login_stores_tokens",
@@ -2512,11 +2512,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000606,
-    "call": 0.001045,
-    "teardown": 0.000122
+    "setup": 0.000613,
+    "call": 0.001017,
+    "teardown": 0.000116
    },
-   "duration_s": 0.001773
+   "duration_s": 0.001746
   },
   {
    "id": "tests/test_parsers.py::test_ci_password_login_with_mfa_explains_the_local_way",
@@ -2570,11 +2570,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000563,
-    "call": 0.000658,
-    "teardown": 0.000159
+    "setup": 0.000588,
+    "call": 0.000638,
+    "teardown": 0.000141
    },
-   "duration_s": 0.00138
+   "duration_s": 0.001367
   },
   {
    "id": "tests/test_parsers.py::test_ci_password_login_refused",
@@ -2615,11 +2615,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000525,
-    "call": 0.0003,
-    "teardown": 0.00012
+    "setup": 0.000522,
+    "call": 0.000306,
+    "teardown": 0.00011
    },
-   "duration_s": 0.000945
+   "duration_s": 0.000938
   },
   {
    "id": "tests/test_parsers.py::test_ci_without_tokens_or_password_names_both_ways",
@@ -2673,11 +2673,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000555,
-    "call": 0.000682,
-    "teardown": 0.000147
+    "setup": 0.000517,
+    "call": 0.000689,
+    "teardown": 0.000111
    },
-   "duration_s": 0.001384
+   "duration_s": 0.001317
   },
   {
    "id": "tests/test_yazio.py::test_meals_are_summed_to_daily_totals",
@@ -2715,11 +2715,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000246,
-    "call": 0.00184,
-    "teardown": 0.000117
+    "setup": 0.000308,
+    "call": 0.001764,
+    "teardown": 9.7e-05
    },
-   "duration_s": 0.002203
+   "duration_s": 0.002169
   },
   {
    "id": "tests/test_yazio.py::test_missing_nutrients_count_as_zero_and_nulls_are_ignored",
@@ -2770,11 +2770,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000258,
-    "call": 0.000427,
-    "teardown": 0.000102
+    "setup": 0.000219,
+    "call": 0.000444,
+    "teardown": 9.3e-05
    },
-   "duration_s": 0.000787
+   "duration_s": 0.000756
   },
   {
    "id": "tests/test_yazio.py::test_day_without_entries_gives_no_row",
@@ -2825,11 +2825,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000249,
-    "call": 0.000508,
-    "teardown": 0.000101
+    "setup": 0.000211,
+    "call": 0.000523,
+    "teardown": 0.000102
    },
-   "duration_s": 0.000858
+   "duration_s": 0.000836
   },
   {
    "id": "tests/test_yazio.py::test_water_only_day_keeps_nutrients_empty",
@@ -2867,11 +2867,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000222,
-    "call": 0.000399,
-    "teardown": 0.000129
+    "setup": 0.000245,
+    "call": 0.0004,
+    "teardown": 9.1e-05
    },
-   "duration_s": 0.00075
+   "duration_s": 0.000736
   },
   {
    "id": "tests/test_yazio.py::test_normalize_adds_absolute_expiry_and_drops_unknown_fields",
@@ -2893,8 +2893,8 @@
      "expr": "set(tokens) == {\"access_token\", \"refresh_token\", \"expires_at\"}",
      "ok": true,
      "op": "==",
-     "left": "{'refresh_token', 'access_token', 'expires_at'}",
-     "right": "{'refresh_token', 'access_token', 'expires_at'}",
+     "left": "{'access_token', 'refresh_token', 'expires_at'}",
+     "right": "{'access_token', 'refresh_token', 'expires_at'}",
      "detail": null
     },
     {
@@ -2902,9 +2902,9 @@
      "expr": "3500 < tokens[\"expires_at\"] - time.time() <= 3600",
      "ok": true,
      "op": "<=",
-     "left": "3599.9996588230133",
+     "left": "3599.999678373337",
      "right": "3600",
-     "detail": "where 1794310388.0899274 = <built-in function time>()\nwhere <built-in function time> = time.time"
+     "detail": "where 1794311729.7631073 = <built-in function time>()\nwhere <built-in function time> = time.time"
     },
     {
      "line": 70,
@@ -2947,11 +2947,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000214,
-    "call": 0.000856,
+    "setup": 0.000236,
+    "call": 0.000813,
     "teardown": 0.000106
    },
-   "duration_s": 0.001176
+   "duration_s": 0.001155
   },
   {
    "id": "tests/test_yazio.py::test_expiry_uses_a_safety_margin",
@@ -2979,7 +2979,7 @@
      "op": "truthy",
      "left": "True",
      "right": null,
-     "detail": "where True = <function _expired>({'expires_at': 1794310418.091082})\nwhere <function _expired> = yazio._expired"
+     "detail": "where True = <function _expired>({'expires_at': 1794311759.7642136})\nwhere <function _expired> = yazio._expired"
     },
     {
      "line": 79,
@@ -2988,7 +2988,7 @@
      "op": "falsy",
      "left": "False",
      "right": null,
-     "detail": "where False = <function _expired>({'expires_at': 1794313988.0912354})\nwhere <function _expired> = yazio._expired"
+     "detail": "where False = <function _expired>({'expires_at': 1794315329.7643611})\nwhere <function _expired> = yazio._expired"
     },
     {
      "line": 80,
@@ -3019,11 +3019,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000217,
-    "call": 0.000559,
-    "teardown": 0.0001
+    "setup": 0.000214,
+    "call": 0.000538,
+    "teardown": 9.1e-05
    },
-   "duration_s": 0.000876
+   "duration_s": 0.000843
   },
   {
    "id": "tests/test_yazio.py::test_is_configured_checks_file_and_secret",
@@ -3104,11 +3104,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000576,
-    "call": 0.001102,
-    "teardown": 0.000115
+    "setup": 0.000534,
+    "call": 0.001103,
+    "teardown": 0.000106
    },
-   "duration_s": 0.001793
+   "duration_s": 0.001743
   },
   {
    "id": "tests/test_yazio.py::test_expired_token_is_refreshed_and_the_new_refresh_token_is_kept",
@@ -3176,11 +3176,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000557,
-    "call": 0.001595,
-    "teardown": 0.000117
+    "setup": 0.000517,
+    "call": 0.001482,
+    "teardown": 0.000108
    },
-   "duration_s": 0.002269
+   "duration_s": 0.002107
   },
   {
    "id": "tests/test_yazio.py::test_missing_tokens_in_ci_fail_with_instructions",
@@ -3225,11 +3225,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000564,
-    "call": 0.000262,
-    "teardown": 0.000116
+    "setup": 0.000558,
+    "call": 0.000255,
+    "teardown": 0.000107
    },
-   "duration_s": 0.000942
+   "duration_s": 0.00092
   },
   {
    "id": "tests/test_yazio.py::test_ci_logs_in_with_credentials_from_secrets_and_stores_tokens",
@@ -3323,11 +3323,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000551,
-    "call": 0.001976,
-    "teardown": 0.000123
+    "setup": 0.000526,
+    "call": 0.001988,
+    "teardown": 0.000116
    },
-   "duration_s": 0.00265
+   "duration_s": 0.00263
   },
   {
    "id": "tests/test_yazio.py::test_failed_refresh_falls_back_to_credentials_only_if_set",
@@ -3381,11 +3381,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000572,
-    "call": 0.00076,
-    "teardown": 0.00012
+    "setup": 0.000536,
+    "call": 0.000758,
+    "teardown": 0.00011
    },
-   "duration_s": 0.001452
+   "duration_s": 0.001404
   },
   {
    "id": "tests/test_yazio.py::test_sync_replaces_the_window_and_keeps_older_rows",
@@ -3448,11 +3448,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000566,
-    "call": 0.001938,
-    "teardown": 0.000155
+    "setup": 0.000559,
+    "call": 0.002012,
+    "teardown": 0.000179
    },
-   "duration_s": 0.002659
+   "duration_s": 0.00275
   }
  ]
 }
