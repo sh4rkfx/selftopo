@@ -8,8 +8,12 @@ selftopo/lifestyle.py), so these tests pin the mapping, not Garmin's real answer
 
 from datetime import date
 
+import pytest
+
 from selftopo import config, lifestyle
 from selftopo.csvstore import read_rows, write_rows
+
+pytestmark = pytest.mark.critical  # wrong or lost habit entries
 
 
 def entry(behaviour_id, name, status=None, kind="BOOLEAN", details=None, sleep=True):
