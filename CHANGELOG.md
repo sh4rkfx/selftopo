@@ -3,6 +3,24 @@
 All notable changes. Versions follow [semantic versioning](https://semver.org): within 1.x, data
 files and settings stay compatible. The workflow in each data repository follows the tag `v1`.
 
+## Unreleased
+
+### Recommendations
+
+- Goals in `settings.json`, one per area, with pace and forecast.
+- Rules 1–17 and 19–21 of the recommendation catalogue with their sources and safety limits;
+  relationships in your own data only as 14-day experiments. `python -m selftopo analyze` writes
+  `recommendations.json`; `python -m selftopo recommend` runs the rules alone.
+  See [docs/recommendations.md](docs/recommendations.md).
+
+### Sync
+
+- Garmin Lifestyle Logging in `garmin_lifestyle.csv` (source `lifestyle`).
+
+### Dashboard
+
+- Design D, one-week range, weight coloured by BMI and calories by energy balance.
+
 ## 1.0.0 – 2026-11-01
 
 First public release.
