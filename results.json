@@ -2,22 +2,22 @@
  "schema": 1,
  "run": {
   "repository": "sh4rkfx/selftopo",
-  "commit": "3d09e744afb305d819037b1727610d474f9bfddc",
-  "subject": "Sync Garmin Lifestyle Logging (untested against real data) (#18)",
+  "commit": "cac2966bf8b5bf0ae8293ccc53095646b4449596",
+  "subject": "Tests for the overview tiles, one-week range and design D (#19)",
   "branch": "main",
   "event": "push",
-  "run_url": "https://github.com/sh4rkfx/selftopo/actions/runs/42811410127",
+  "run_url": "https://github.com/sh4rkfx/selftopo/actions/runs/42813743511",
   "local_changes": null,
   "python": "3.12.16",
   "pytest": "9.2.0",
   "platform": "Linux",
-  "started": "2026-11-10T11:55:48+00:00",
-  "finished": "2026-11-10T11:55:53+00:00",
-  "wall_s": 4.537
+  "started": "2026-11-10T12:12:43+00:00",
+  "finished": "2026-11-10T12:12:50+00:00",
+  "wall_s": 6.411
  },
  "summary": {
-  "total": 57,
-  "passed": 57,
+  "total": 77,
+  "passed": 77,
   "failed": 0,
   "critical_failed": 0,
   "not_executable": 0,
@@ -26,7 +26,7 @@
   "light": "green",
   "reason": "all_passed",
   "red_share": 0.1,
-  "duration_s": 2.9382
+  "duration_s": 4.159
  },
  "groups": {
   "tests/test_analyze.py": {
@@ -56,6 +56,10 @@
   "tests/test_lifestyle.py": {
    "title": "Lifestyle Logging",
    "description": "Parsing Garmin's daily log and fetching day by day. The response shape is assumed (see\nselftopo/lifestyle.py), so these tests pin the mapping, not Garmin's real answer."
+  },
+  "tests/test_overview.py": {
+   "title": "Overview tiles and time range",
+   "description": "Weight coloured by BMI, calories by energy balance, tiles filled by state with a summary above\nthem (design D), and the one-week range. The helpers run in Node; without Node these tests are\nskipped."
   },
   "tests/test_parsers.py": {
    "title": "Garmin and Hevy parsers",
@@ -141,11 +145,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.0064,
-    "call": 0.071015,
-    "teardown": 0.000166
+    "setup": 0.005743,
+    "call": 0.070385,
+    "teardown": 0.000132
    },
-   "duration_s": 0.077581
+   "duration_s": 0.07626
   },
   {
    "id": "tests/test_analyze.py::test_false_alarm_rate_on_pure_noise_stays_near_the_fdr_level",
@@ -195,11 +199,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000293,
-    "call": 2.635879,
-    "teardown": 0.000162
+    "setup": 0.000256,
+    "call": 2.621208,
+    "teardown": 0.000161
    },
-   "duration_s": 2.636334
+   "duration_s": 2.621625
   },
   {
    "id": "tests/test_analyze.py::test_circular_garmin_pairs_are_not_tested",
@@ -263,11 +267,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000326,
-    "call": 0.002495,
-    "teardown": 0.000142
+    "setup": 0.000285,
+    "call": 0.002439,
+    "teardown": 0.00014
    },
-   "duration_s": 0.002963
+   "duration_s": 0.002864
   },
   {
    "id": "tests/test_analyze.py::test_output_is_valid_json_without_nan",
@@ -313,11 +317,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000249,
-    "call": 0.068588,
-    "teardown": 0.000161
+    "setup": 0.000278,
+    "call": 0.06624,
+    "teardown": 0.000137
    },
-   "duration_s": 0.068998
+   "duration_s": 0.066655
   },
   {
    "id": "tests/test_analyze.py::test_empty_data_gives_a_note",
@@ -355,11 +359,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000294,
-    "call": 0.000614,
-    "teardown": 0.000115
+    "setup": 0.000266,
+    "call": 0.000591,
+    "teardown": 9.8e-05
    },
-   "duration_s": 0.001023
+   "duration_s": 0.000955
   },
   {
    "id": "tests/test_analyze.py::test_load_daily_reads_all_three_files",
@@ -483,11 +487,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.001188,
-    "call": 0.028542,
-    "teardown": 0.000151
+    "setup": 0.001105,
+    "call": 0.027449,
+    "teardown": 0.000131
    },
-   "duration_s": 0.029881
+   "duration_s": 0.028685
   },
   {
    "id": "tests/test_analyze.py::test_nutrition_is_tested_against_the_following_night_and_next_training_day",
@@ -564,11 +568,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000282,
-    "call": 0.003075,
-    "teardown": 0.00015
+    "setup": 0.000271,
+    "call": 0.003029,
+    "teardown": 0.000101
    },
-   "duration_s": 0.003507
+   "duration_s": 0.003401
   },
   {
    "id": "tests/test_analyze.py::test_incomplete_and_unlogged_food_days_stay_empty",
@@ -636,11 +640,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.00063,
-    "call": 0.010757,
-    "teardown": 0.000133
+    "setup": 0.000582,
+    "call": 0.010471,
+    "teardown": 0.00012
    },
-   "duration_s": 0.01152
+   "duration_s": 0.011173
   },
   {
    "id": "tests/test_bloodpressure.py::test_parse_finds_readings_anywhere_and_drops_notes",
@@ -698,9 +702,9 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000318,
-    "call": 0.002113,
-    "teardown": 0.000132
+    "setup": 0.000338,
+    "call": 0.002124,
+    "teardown": 0.000101
    },
    "duration_s": 0.002563
   },
@@ -765,11 +769,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000568,
-    "call": 0.001823,
-    "teardown": 0.000115
+    "setup": 0.000555,
+    "call": 0.001802,
+    "teardown": 0.000112
    },
-   "duration_s": 0.002506
+   "duration_s": 0.002469
   },
   {
    "id": "tests/test_climbs.py::test_one_row_per_boulder_with_the_rest_that_follows",
@@ -850,11 +854,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000287,
-    "call": 0.002567,
+    "setup": 0.000325,
+    "call": 0.002522,
     "teardown": 0.000101
    },
-   "duration_s": 0.002955
+   "duration_s": 0.002948
   },
   {
    "id": "tests/test_climbs.py::test_rest_before_the_first_boulder_and_other_split_types_are_ignored",
@@ -905,11 +909,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000246,
-    "call": 0.000646,
+    "setup": 0.00023,
+    "call": 0.000626,
     "teardown": 9.7e-05
    },
-   "duration_s": 0.000989
+   "duration_s": 0.000953
   },
   {
    "id": "tests/test_climbs.py::test_session_summary_with_self_evaluation",
@@ -955,11 +959,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000249,
-    "call": 0.000715,
-    "teardown": 0.000116
+    "setup": 0.000223,
+    "call": 0.000722,
+    "teardown": 9.4e-05
    },
-   "duration_s": 0.00108
+   "duration_s": 0.001039
   },
   {
    "id": "tests/test_climbs.py::test_missing_self_evaluation_stays_empty",
@@ -1020,11 +1024,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000223,
-    "call": 0.000808,
-    "teardown": 9.7e-05
+    "setup": 0.00024,
+    "call": 0.000752,
+    "teardown": 0.000118
    },
-   "duration_s": 0.001128
+   "duration_s": 0.00111
   },
   {
    "id": "tests/test_climbs.py::test_sync_fetches_new_and_recent_sessions_and_keeps_older_ones",
@@ -1117,11 +1121,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000615,
-    "call": 0.003271,
-    "teardown": 0.000121
+    "setup": 0.000583,
+    "call": 0.003255,
+    "teardown": 0.000132
    },
-   "duration_s": 0.004007
+   "duration_s": 0.00397
   },
   {
    "id": "tests/test_climbs.py::test_failed_request_keeps_the_stored_session",
@@ -1167,11 +1171,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000616,
-    "call": 0.001608,
-    "teardown": 0.000199
+    "setup": 0.000639,
+    "call": 0.001486,
+    "teardown": 0.000157
    },
-   "duration_s": 0.002423
+   "duration_s": 0.002282
   },
   {
    "id": "tests/test_config.py::test_load_settings_missing_and_broken",
@@ -1248,11 +1252,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.0009,
-    "call": 0.002164,
-    "teardown": 0.000124
+    "setup": 0.00062,
+    "call": 0.001577,
+    "teardown": 0.000106
    },
-   "duration_s": 0.003188
+   "duration_s": 0.002303
   },
   {
    "id": "tests/test_config.py::test_load_settings_reads_object",
@@ -1290,11 +1294,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.00063,
-    "call": 0.000564,
-    "teardown": 0.000149
+    "setup": 0.000525,
+    "call": 0.000529,
+    "teardown": 0.000104
    },
-   "duration_s": 0.001343
+   "duration_s": 0.001158
   },
   {
    "id": "tests/test_config.py::test_timezone_environment_beats_settings_and_default_is_utc",
@@ -1362,11 +1366,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000241,
-    "call": 0.002127,
-    "teardown": 9.9e-05
+    "setup": 0.000223,
+    "call": 0.007286,
+    "teardown": 9.8e-05
    },
-   "duration_s": 0.002467
+   "duration_s": 0.007607
   },
   {
    "id": "tests/test_config.py::test_unknown_timezone_falls_back_with_a_problem",
@@ -1417,11 +1421,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000257,
-    "call": 0.001326,
-    "teardown": 0.000117
+    "setup": 0.000222,
+    "call": 0.00122,
+    "teardown": 0.000115
    },
-   "duration_s": 0.0017
+   "duration_s": 0.001557
   },
   {
    "id": "tests/test_config.py::test_grip_exercises_from_settings_or_defaults",
@@ -1502,11 +1506,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000265,
-    "call": 0.001233,
-    "teardown": 0.000115
+    "setup": 0.000222,
+    "call": 0.001135,
+    "teardown": 9.8e-05
    },
-   "duration_s": 0.001613
+   "duration_s": 0.001455
   },
   {
    "id": "tests/test_dashboard.py::test_dictionary_is_valid_and_has_no_empty_entries",
@@ -1570,11 +1574,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000293,
-    "call": 0.004525,
-    "teardown": 0.000107
+    "setup": 0.000312,
+    "call": 0.003609,
+    "teardown": 9.6e-05
    },
-   "duration_s": 0.004925
+   "duration_s": 0.004017
   },
   {
    "id": "tests/test_dashboard.py::test_every_translated_literal_has_an_english_entry",
@@ -1629,11 +1633,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000286,
-    "call": 0.012967,
-    "teardown": 0.00014
+    "setup": 0.00023,
+    "call": 0.010821,
+    "teardown": 9.8e-05
    },
-   "duration_s": 0.013393
+   "duration_s": 0.011149
   },
   {
    "id": "tests/test_dashboard.py::test_placeholders_match",
@@ -1684,11 +1688,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000232,
-    "call": 0.005196,
-    "teardown": 0.000137
+    "setup": 0.000243,
+    "call": 0.00454,
+    "teardown": 9.6e-05
    },
-   "duration_s": 0.005565
+   "duration_s": 0.004879
   },
   {
    "id": "tests/test_dashboard.py::test_service_worker_has_a_version",
@@ -1710,9 +1714,9 @@
      "expr": "re.search(r'const VERSION = \"\\d+\";', sw)",
      "ok": true,
      "op": "truthy",
-     "left": "<re.Match object; span=(440, 461), match='const VERSION = \"19\";'>",
+     "left": "<re.Match object; span=(440, 461), match='const VERSION = \"20\";'>",
      "right": null,
-     "detail": "where <re.Match object; span=(440, 461), match='const VERSION = \"19\";'> = <function search>('const VERSION = \"\\\\d+\";', '// Service worker of the selftopo dashboard: makes it installable and opens it offline.\\n//\\n// App files in this fol...t hit = await cache.match(key, { ignoreSearch: true });\\n      return hit || Response.error();\\n    }\\n  })());\\n});\\n')\nwhere <function search> = re.search"
+     "detail": "where <re.Match object; span=(440, 461), match='const VERSION = \"20\";'> = <function search>('const VERSION = \"\\\\d+\";', '// Service worker of the selftopo dashboard: makes it installable and opens it offline.\\n//\\n// App files in this fol...t hit = await cache.match(key, { ignoreSearch: true });\\n      return hit || Response.error();\\n    }\\n  })());\\n});\\n')\nwhere <function search> = re.search"
     }
    ],
    "planned": [
@@ -1726,11 +1730,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000238,
-    "call": 0.000496,
-    "teardown": 0.000116
+    "setup": 0.000218,
+    "call": 0.000446,
+    "teardown": 9.5e-05
    },
-   "duration_s": 0.00085
+   "duration_s": 0.000759
   },
   {
    "id": "tests/test_fitness.py::test_endpoints_are_parsed_per_day",
@@ -1819,11 +1823,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000253,
-    "call": 0.00276,
-    "teardown": 0.000105
+    "setup": 0.000308,
+    "call": 0.002451,
+    "teardown": 0.000103
    },
-   "duration_s": 0.003118
+   "duration_s": 0.002862
   },
   {
    "id": "tests/test_fitness.py::test_status_of_the_primary_device",
@@ -1895,11 +1899,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000292,
-    "call": 0.001196,
-    "teardown": 0.000104
+    "setup": 0.000225,
+    "call": 0.000959,
+    "teardown": 9.2e-05
    },
-   "duration_s": 0.001592
+   "duration_s": 0.001276
   },
   {
    "id": "tests/test_fitness.py::test_sync_replaces_the_window_and_writes_today",
@@ -1988,19 +1992,19 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.00076,
-    "call": 0.003023,
-    "teardown": 0.000203
+    "setup": 0.000543,
+    "call": 0.002325,
+    "teardown": 0.000109
    },
-   "duration_s": 0.003986
+   "duration_s": 0.002977
   },
   {
    "id": "tests/test_lifestyle.py::test_parse_yes_no_amount_and_unanswered",
    "name": "test_parse_yes_no_amount_and_unanswered",
    "title": "Parse yes no amount and unanswered",
    "file": "tests/test_lifestyle.py",
-   "line": 24,
-   "critical": false,
+   "line": 28,
+   "critical": true,
    "doc": "Yes is 1, no is 0, an amount is summed over its details, and not answered stays empty.\n\nA counted behaviour answered yes without an amount counts as 1. Entries without a name are\nskipped, and an empty or unknown response gives no rows.",
    "inputs": [
     {
@@ -2010,7 +2014,7 @@
    ],
    "checks": [
     {
-     "line": 41,
+     "line": 45,
      "expr": "[(r[\"name\"], r[\"kind\"], r[\"status\"], r[\"value\"], r[\"sleep_related\"]) for r in rows] == [\n        (\"Alcohol\", \"count\", \"yes\", 3.5, 1),\n        (\"Late caffeine\", \"check\", \"no\", 0, 1),\n        (\"Late meal\", \"check\", \"yes\", 1, 1),\n        (\"Coffee\", \"count\", \"yes\", 1, 1),\n        (\"Meditation\", \"check\", None, None, 0),\n    ]",
      "ok": true,
      "op": "==",
@@ -2019,7 +2023,7 @@
      "detail": null
     },
     {
-     "line": 48,
+     "line": 52,
      "expr": "rows[0][\"behaviour_id\"] == \"11\"",
      "ok": true,
      "op": "==",
@@ -2027,7 +2031,7 @@
      "right": "'11'"
     },
     {
-     "line": 48,
+     "line": 52,
      "expr": "rows[0][\"date\"] == \"2026-11-09\"",
      "ok": true,
      "op": "==",
@@ -2035,7 +2039,7 @@
      "right": "'2026-11-09'"
     },
     {
-     "line": 49,
+     "line": 53,
      "expr": "lifestyle.parse(None, \"2026-11-09\") == []",
      "ok": true,
      "op": "==",
@@ -2043,7 +2047,7 @@
      "right": "[]"
     },
     {
-     "line": 49,
+     "line": 53,
      "expr": "lifestyle.parse({}, \"2026-11-09\") == []",
      "ok": true,
      "op": "==",
@@ -2053,15 +2057,15 @@
    ],
    "planned": [
     {
-     "line": 41,
+     "line": 45,
      "expr": "[(r[\"name\"], r[\"kind\"], r[\"status\"], r[\"value\"], r[\"sleep_related\"]) for r in rows] == [\n        (\"Alcohol\", \"count\", \"yes\", 3.5, 1),\n        (\"Late caffeine\", \"check\", \"no\", 0, 1),\n        (\"Late meal\", \"check\", \"yes\", 1, 1),\n        (\"Coffee\", \"count\", \"yes\", 1, 1),\n        (\"Meditation\", \"check\", None, None, 0),\n    ]"
     },
     {
-     "line": 48,
+     "line": 52,
      "expr": "rows[0][\"behaviour_id\"] == \"11\" and rows[0][\"date\"] == \"2026-11-09\""
     },
     {
-     "line": 49,
+     "line": 53,
      "expr": "lifestyle.parse(None, \"2026-11-09\") == [] and lifestyle.parse({}, \"2026-11-09\") == []"
     }
    ],
@@ -2070,19 +2074,19 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000283,
-    "call": 0.002766,
-    "teardown": 0.000108
+    "setup": 0.00031,
+    "call": 0.002661,
+    "teardown": 9.7e-05
    },
-   "duration_s": 0.003157
+   "duration_s": 0.003068
   },
   {
    "id": "tests/test_lifestyle.py::test_sync_skips_stored_days_and_keeps_them_on_failure",
    "name": "test_sync_skips_stored_days_and_keeps_them_on_failure",
    "title": "Sync skips stored days and keeps them on failure",
    "file": "tests/test_lifestyle.py",
-   "line": 61,
-   "critical": false,
+   "line": 65,
+   "critical": true,
    "doc": "Stored older days are not fetched again; the newest days are. A failed request keeps the stored rows.",
    "inputs": [
     {
@@ -2104,7 +2108,7 @@
    ],
    "checks": [
     {
-     "line": 79,
+     "line": 83,
      "expr": "calls == [\"2026-11-10\", \"2026-11-09\", \"2026-11-07\"]",
      "ok": true,
      "op": "==",
@@ -2113,7 +2117,7 @@
      "detail": null
     },
     {
-     "line": 80,
+     "line": 84,
      "expr": "[(r[\"date\"], r[\"value\"]) for r in read_rows(config.LIFESTYLE_CSV)] == [\n        (\"2026-11-07\", \"0\"), (\"2026-11-08\", \"1\"), (\"2026-11-09\", \"1\"), (\"2026-11-10\", \"0\")]",
      "ok": true,
      "op": "==",
@@ -2124,11 +2128,11 @@
    ],
    "planned": [
     {
-     "line": 79,
+     "line": 83,
      "expr": "calls == [\"2026-11-10\", \"2026-11-09\", \"2026-11-07\"]"
     },
     {
-     "line": 80,
+     "line": 84,
      "expr": "[(r[\"date\"], r[\"value\"]) for r in read_rows(config.LIFESTYLE_CSV)] == [\n        (\"2026-11-07\", \"0\"), (\"2026-11-08\", \"1\"), (\"2026-11-09\", \"1\"), (\"2026-11-10\", \"0\")]"
     }
    ],
@@ -2137,19 +2141,19 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000636,
-    "call": 0.001919,
-    "teardown": 0.000131
+    "setup": 0.00055,
+    "call": 0.001696,
+    "teardown": 0.000118
    },
-   "duration_s": 0.002686
+   "duration_s": 0.002364
   },
   {
    "id": "tests/test_lifestyle.py::test_sync_stops_when_nothing_is_set_up",
    "name": "test_sync_stops_when_nothing_is_set_up",
    "title": "Sync stops when nothing is set up",
    "file": "tests/test_lifestyle.py",
-   "line": 84,
-   "critical": false,
+   "line": 88,
+   "critical": true,
    "doc": "Without any behaviour, a 365-day sync stops after 7 empty days and remembers them.\n\nThe next run only asks for the refresh window again (today and yesterday here), because the\nremembered empty days count towards the stop, so not using Lifestyle Logging costs little.",
    "inputs": [
     {
@@ -2167,7 +2171,7 @@
    ],
    "checks": [
     {
-     "line": 100,
+     "line": 104,
      "expr": "len(calls) == lifestyle.EMPTY_DAYS_STOP",
      "ok": true,
      "op": "==",
@@ -2176,7 +2180,7 @@
      "detail": "where 7 = len(['2026-11-10', '2026-11-09', '2026-11-08', '2026-11-07', '2026-11-06', '2026-11-05', ...])"
     },
     {
-     "line": 102,
+     "line": 106,
      "expr": "len(rows) == lifestyle.EMPTY_DAYS_STOP",
      "ok": true,
      "op": "==",
@@ -2184,7 +2188,7 @@
      "right": "7"
     },
     {
-     "line": 105,
+     "line": 109,
      "expr": "calls == [\"2026-11-10\", \"2026-11-09\"]",
      "ok": true,
      "op": "==",
@@ -2195,15 +2199,15 @@
    ],
    "planned": [
     {
-     "line": 100,
+     "line": 104,
      "expr": "len(calls) == lifestyle.EMPTY_DAYS_STOP"
     },
     {
-     "line": 102,
+     "line": 106,
      "expr": "len(rows) == lifestyle.EMPTY_DAYS_STOP and not any(r[\"name\"] for r in rows)"
     },
     {
-     "line": 105,
+     "line": 109,
      "expr": "calls == [\"2026-11-10\", \"2026-11-09\"]"
     }
    ],
@@ -2212,19 +2216,19 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.00054,
-    "call": 0.002319,
-    "teardown": 0.000117
+    "setup": 0.000568,
+    "call": 0.002406,
+    "teardown": 0.000112
    },
-   "duration_s": 0.002976
+   "duration_s": 0.003086
   },
   {
    "id": "tests/test_lifestyle.py::test_sync_remembers_empty_days_before_first_use",
    "name": "test_sync_remembers_empty_days_before_first_use",
    "title": "Sync remembers empty days before first use",
    "file": "tests/test_lifestyle.py",
-   "line": 108,
-   "critical": false,
+   "line": 112,
+   "critical": true,
    "doc": "Days before the first logged behaviour are stored as empty and not fetched again.",
    "inputs": [
     {
@@ -2238,7 +2242,7 @@
    ],
    "checks": [
     {
-     "line": 120,
+     "line": 124,
      "expr": "len(calls) == 10",
      "ok": true,
      "op": "==",
@@ -2247,7 +2251,7 @@
      "detail": "where 10 = len(['2026-11-10', '2026-11-09', '2026-11-08', '2026-11-07', '2026-11-06', '2026-11-05', ...])"
     },
     {
-     "line": 123,
+     "line": 127,
      "expr": "calls == [\"2026-11-10\", \"2026-11-09\"]",
      "ok": true,
      "op": "==",
@@ -2256,7 +2260,7 @@
      "detail": null
     },
     {
-     "line": 124,
+     "line": 128,
      "expr": "[r[\"date\"] for r in read_rows(config.LIFESTYLE_CSV) if r[\"name\"]] == [\"2026-11-09\", \"2026-11-10\"]",
      "ok": true,
      "op": "==",
@@ -2267,15 +2271,15 @@
    ],
    "planned": [
     {
-     "line": 120,
+     "line": 124,
      "expr": "len(calls) == 10"
     },
     {
-     "line": 123,
+     "line": 127,
      "expr": "calls == [\"2026-11-10\", \"2026-11-09\"]"
     },
     {
-     "line": 124,
+     "line": 128,
      "expr": "[r[\"date\"] for r in read_rows(config.LIFESTYLE_CSV) if r[\"name\"]] == [\"2026-11-09\", \"2026-11-10\"]"
     }
    ],
@@ -2284,24 +2288,24 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000532,
-    "call": 0.002536,
-    "teardown": 0.000119
+    "setup": 0.000571,
+    "call": 0.002476,
+    "teardown": 0.000112
    },
-   "duration_s": 0.003187
+   "duration_s": 0.003159
   },
   {
    "id": "tests/test_lifestyle.py::test_sync_without_library_support_does_nothing",
    "name": "test_sync_without_library_support_does_nothing",
    "title": "Sync without library support does nothing",
    "file": "tests/test_lifestyle.py",
-   "line": 127,
-   "critical": false,
+   "line": 131,
+   "critical": true,
    "doc": "An older garminconnect without the method skips the source instead of failing the sync.",
    "inputs": [],
    "checks": [
     {
-     "line": 131,
+     "line": 135,
      "expr": "not config.LIFESTYLE_CSV.exists()",
      "ok": true,
      "op": "falsy",
@@ -2312,7 +2316,7 @@
    ],
    "planned": [
     {
-     "line": 131,
+     "line": 135,
      "expr": "not config.LIFESTYLE_CSV.exists()"
     }
    ],
@@ -2321,11 +2325,1032 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.00052,
-    "call": 0.000423,
-    "teardown": 0.000139
+    "setup": 0.000473,
+    "call": 0.000434,
+    "teardown": 0.000102
    },
-   "duration_s": 0.001082
+   "duration_s": 0.001009
+  },
+  {
+   "id": "tests/test_overview.py::test_weight_tile_follows_bmi_classes[None-]",
+   "name": "test_weight_tile_follows_bmi_classes[None-]",
+   "title": "Weight tile follows bmi classes [None-]",
+   "file": "tests/test_overview.py",
+   "line": 18,
+   "critical": false,
+   "doc": "Green from 18.5 to under 25, yellow from 25 to under 30, red from 30 and under 18.5; no BMI, no colour.",
+   "inputs": [
+    {
+     "name": "bmi",
+     "value": "None"
+    },
+    {
+     "name": "level",
+     "value": "''"
+    },
+    {
+     "name": "bmi",
+     "value": "None"
+    }
+   ],
+   "checks": [
+    {
+     "line": 24,
+     "expr": "run([\"bmiLevel\"], f\"bmiLevel({'null' if bmi is None else bmi})\") == level",
+     "ok": true,
+     "op": "==",
+     "left": "''",
+     "right": "''",
+     "detail": "where '' = run(['bmiLevel'], 'bmiLevel(null)')"
+    }
+   ],
+   "planned": [
+    {
+     "line": 24,
+     "expr": "run([\"bmiLevel\"], f\"bmiLevel({'null' if bmi is None else bmi})\") == level"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000437,
+    "call": 0.16672,
+    "teardown": 0.000145
+   },
+   "duration_s": 0.167302
+  },
+  {
+   "id": "tests/test_overview.py::test_weight_tile_follows_bmi_classes[17.9-crit]",
+   "name": "test_weight_tile_follows_bmi_classes[17.9-crit]",
+   "title": "Weight tile follows bmi classes [17.9-crit]",
+   "file": "tests/test_overview.py",
+   "line": 18,
+   "critical": false,
+   "doc": "Green from 18.5 to under 25, yellow from 25 to under 30, red from 30 and under 18.5; no BMI, no colour.",
+   "inputs": [
+    {
+     "name": "bmi",
+     "value": "17.9"
+    },
+    {
+     "name": "level",
+     "value": "'crit'"
+    },
+    {
+     "name": "bmi",
+     "value": "17.9"
+    }
+   ],
+   "checks": [
+    {
+     "line": 24,
+     "expr": "run([\"bmiLevel\"], f\"bmiLevel({'null' if bmi is None else bmi})\") == level",
+     "ok": true,
+     "op": "==",
+     "left": "'crit'",
+     "right": "'crit'",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 24,
+     "expr": "run([\"bmiLevel\"], f\"bmiLevel({'null' if bmi is None else bmi})\") == level"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000379,
+    "call": 0.027927,
+    "teardown": 0.000132
+   },
+   "duration_s": 0.028438
+  },
+  {
+   "id": "tests/test_overview.py::test_weight_tile_follows_bmi_classes[18.5-good]",
+   "name": "test_weight_tile_follows_bmi_classes[18.5-good]",
+   "title": "Weight tile follows bmi classes [18.5-good]",
+   "file": "tests/test_overview.py",
+   "line": 18,
+   "critical": false,
+   "doc": "Green from 18.5 to under 25, yellow from 25 to under 30, red from 30 and under 18.5; no BMI, no colour.",
+   "inputs": [
+    {
+     "name": "bmi",
+     "value": "18.5"
+    },
+    {
+     "name": "level",
+     "value": "'good'"
+    },
+    {
+     "name": "bmi",
+     "value": "18.5"
+    }
+   ],
+   "checks": [
+    {
+     "line": 24,
+     "expr": "run([\"bmiLevel\"], f\"bmiLevel({'null' if bmi is None else bmi})\") == level",
+     "ok": true,
+     "op": "==",
+     "left": "'good'",
+     "right": "'good'",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 24,
+     "expr": "run([\"bmiLevel\"], f\"bmiLevel({'null' if bmi is None else bmi})\") == level"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000366,
+    "call": 0.029562,
+    "teardown": 0.000131
+   },
+   "duration_s": 0.030059
+  },
+  {
+   "id": "tests/test_overview.py::test_weight_tile_follows_bmi_classes[24.9-good]",
+   "name": "test_weight_tile_follows_bmi_classes[24.9-good]",
+   "title": "Weight tile follows bmi classes [24.9-good]",
+   "file": "tests/test_overview.py",
+   "line": 18,
+   "critical": false,
+   "doc": "Green from 18.5 to under 25, yellow from 25 to under 30, red from 30 and under 18.5; no BMI, no colour.",
+   "inputs": [
+    {
+     "name": "bmi",
+     "value": "24.9"
+    },
+    {
+     "name": "level",
+     "value": "'good'"
+    },
+    {
+     "name": "bmi",
+     "value": "24.9"
+    }
+   ],
+   "checks": [
+    {
+     "line": 24,
+     "expr": "run([\"bmiLevel\"], f\"bmiLevel({'null' if bmi is None else bmi})\") == level",
+     "ok": true,
+     "op": "==",
+     "left": "'good'",
+     "right": "'good'",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 24,
+     "expr": "run([\"bmiLevel\"], f\"bmiLevel({'null' if bmi is None else bmi})\") == level"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000404,
+    "call": 0.028832,
+    "teardown": 0.000133
+   },
+   "duration_s": 0.029369
+  },
+  {
+   "id": "tests/test_overview.py::test_weight_tile_follows_bmi_classes[25.0-warn]",
+   "name": "test_weight_tile_follows_bmi_classes[25.0-warn]",
+   "title": "Weight tile follows bmi classes [25.0-warn]",
+   "file": "tests/test_overview.py",
+   "line": 18,
+   "critical": false,
+   "doc": "Green from 18.5 to under 25, yellow from 25 to under 30, red from 30 and under 18.5; no BMI, no colour.",
+   "inputs": [
+    {
+     "name": "bmi",
+     "value": "25.0"
+    },
+    {
+     "name": "level",
+     "value": "'warn'"
+    },
+    {
+     "name": "bmi",
+     "value": "25.0"
+    }
+   ],
+   "checks": [
+    {
+     "line": 24,
+     "expr": "run([\"bmiLevel\"], f\"bmiLevel({'null' if bmi is None else bmi})\") == level",
+     "ok": true,
+     "op": "==",
+     "left": "'warn'",
+     "right": "'warn'",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 24,
+     "expr": "run([\"bmiLevel\"], f\"bmiLevel({'null' if bmi is None else bmi})\") == level"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000366,
+    "call": 0.028373,
+    "teardown": 0.000145
+   },
+   "duration_s": 0.028884
+  },
+  {
+   "id": "tests/test_overview.py::test_weight_tile_follows_bmi_classes[29.9-warn]",
+   "name": "test_weight_tile_follows_bmi_classes[29.9-warn]",
+   "title": "Weight tile follows bmi classes [29.9-warn]",
+   "file": "tests/test_overview.py",
+   "line": 18,
+   "critical": false,
+   "doc": "Green from 18.5 to under 25, yellow from 25 to under 30, red from 30 and under 18.5; no BMI, no colour.",
+   "inputs": [
+    {
+     "name": "bmi",
+     "value": "29.9"
+    },
+    {
+     "name": "level",
+     "value": "'warn'"
+    },
+    {
+     "name": "bmi",
+     "value": "29.9"
+    }
+   ],
+   "checks": [
+    {
+     "line": 24,
+     "expr": "run([\"bmiLevel\"], f\"bmiLevel({'null' if bmi is None else bmi})\") == level",
+     "ok": true,
+     "op": "==",
+     "left": "'warn'",
+     "right": "'warn'",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 24,
+     "expr": "run([\"bmiLevel\"], f\"bmiLevel({'null' if bmi is None else bmi})\") == level"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000417,
+    "call": 0.02832,
+    "teardown": 0.000141
+   },
+   "duration_s": 0.028878
+  },
+  {
+   "id": "tests/test_overview.py::test_weight_tile_follows_bmi_classes[30.0-crit]",
+   "name": "test_weight_tile_follows_bmi_classes[30.0-crit]",
+   "title": "Weight tile follows bmi classes [30.0-crit]",
+   "file": "tests/test_overview.py",
+   "line": 18,
+   "critical": false,
+   "doc": "Green from 18.5 to under 25, yellow from 25 to under 30, red from 30 and under 18.5; no BMI, no colour.",
+   "inputs": [
+    {
+     "name": "bmi",
+     "value": "30.0"
+    },
+    {
+     "name": "level",
+     "value": "'crit'"
+    },
+    {
+     "name": "bmi",
+     "value": "30.0"
+    }
+   ],
+   "checks": [
+    {
+     "line": 24,
+     "expr": "run([\"bmiLevel\"], f\"bmiLevel({'null' if bmi is None else bmi})\") == level",
+     "ok": true,
+     "op": "==",
+     "left": "'crit'",
+     "right": "'crit'",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 24,
+     "expr": "run([\"bmiLevel\"], f\"bmiLevel({'null' if bmi is None else bmi})\") == level"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000371,
+    "call": 0.029874,
+    "teardown": 0.000131
+   },
+   "duration_s": 0.030376
+  },
+  {
+   "id": "tests/test_overview.py::test_weight_tile_follows_bmi_classes[34.2-crit]",
+   "name": "test_weight_tile_follows_bmi_classes[34.2-crit]",
+   "title": "Weight tile follows bmi classes [34.2-crit]",
+   "file": "tests/test_overview.py",
+   "line": 18,
+   "critical": false,
+   "doc": "Green from 18.5 to under 25, yellow from 25 to under 30, red from 30 and under 18.5; no BMI, no colour.",
+   "inputs": [
+    {
+     "name": "bmi",
+     "value": "34.2"
+    },
+    {
+     "name": "level",
+     "value": "'crit'"
+    },
+    {
+     "name": "bmi",
+     "value": "34.2"
+    }
+   ],
+   "checks": [
+    {
+     "line": 24,
+     "expr": "run([\"bmiLevel\"], f\"bmiLevel({'null' if bmi is None else bmi})\") == level",
+     "ok": true,
+     "op": "==",
+     "left": "'crit'",
+     "right": "'crit'",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 24,
+     "expr": "run([\"bmiLevel\"], f\"bmiLevel({'null' if bmi is None else bmi})\") == level"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000395,
+    "call": 0.027555,
+    "teardown": 0.000152
+   },
+   "duration_s": 0.028102
+  },
+  {
+   "id": "tests/test_overview.py::test_calorie_tile_follows_the_energy_balance[None-]",
+   "name": "test_calorie_tile_follows_the_energy_balance[None-]",
+   "title": "Calorie tile follows the energy balance [None-]",
+   "file": "tests/test_overview.py",
+   "line": 27,
+   "critical": false,
+   "doc": "Intake below expenditure (negative balance) is green, above it red; exactly even or unknown stays white.",
+   "inputs": [
+    {
+     "name": "balance",
+     "value": "None"
+    },
+    {
+     "name": "level",
+     "value": "''"
+    },
+    {
+     "name": "balance_kcal_per_day",
+     "value": "None"
+    }
+   ],
+   "checks": [
+    {
+     "line": 31,
+     "expr": "run([\"balanceLevel\"], f\"balanceLevel({'null' if balance is None else balance})\") == level",
+     "ok": true,
+     "op": "==",
+     "left": "''",
+     "right": "''",
+     "detail": "where '' = run(['balanceLevel'], 'balanceLevel(null)')"
+    }
+   ],
+   "planned": [
+    {
+     "line": 31,
+     "expr": "run([\"balanceLevel\"], f\"balanceLevel({'null' if balance is None else balance})\") == level"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000375,
+    "call": 0.027227,
+    "teardown": 0.000137
+   },
+   "duration_s": 0.027739
+  },
+  {
+   "id": "tests/test_overview.py::test_calorie_tile_follows_the_energy_balance[-335-good]",
+   "name": "test_calorie_tile_follows_the_energy_balance[-335-good]",
+   "title": "Calorie tile follows the energy balance [-335-good]",
+   "file": "tests/test_overview.py",
+   "line": 27,
+   "critical": false,
+   "doc": "Intake below expenditure (negative balance) is green, above it red; exactly even or unknown stays white.",
+   "inputs": [
+    {
+     "name": "balance",
+     "value": "-335"
+    },
+    {
+     "name": "level",
+     "value": "'good'"
+    },
+    {
+     "name": "balance_kcal_per_day",
+     "value": "-335"
+    }
+   ],
+   "checks": [
+    {
+     "line": 31,
+     "expr": "run([\"balanceLevel\"], f\"balanceLevel({'null' if balance is None else balance})\") == level",
+     "ok": true,
+     "op": "==",
+     "left": "'good'",
+     "right": "'good'",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 31,
+     "expr": "run([\"balanceLevel\"], f\"balanceLevel({'null' if balance is None else balance})\") == level"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000372,
+    "call": 0.02704,
+    "teardown": 0.000136
+   },
+   "duration_s": 0.027548
+  },
+  {
+   "id": "tests/test_overview.py::test_calorie_tile_follows_the_energy_balance[-1-good]",
+   "name": "test_calorie_tile_follows_the_energy_balance[-1-good]",
+   "title": "Calorie tile follows the energy balance [-1-good]",
+   "file": "tests/test_overview.py",
+   "line": 27,
+   "critical": false,
+   "doc": "Intake below expenditure (negative balance) is green, above it red; exactly even or unknown stays white.",
+   "inputs": [
+    {
+     "name": "balance",
+     "value": "-1"
+    },
+    {
+     "name": "level",
+     "value": "'good'"
+    },
+    {
+     "name": "balance_kcal_per_day",
+     "value": "-1"
+    }
+   ],
+   "checks": [
+    {
+     "line": 31,
+     "expr": "run([\"balanceLevel\"], f\"balanceLevel({'null' if balance is None else balance})\") == level",
+     "ok": true,
+     "op": "==",
+     "left": "'good'",
+     "right": "'good'",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 31,
+     "expr": "run([\"balanceLevel\"], f\"balanceLevel({'null' if balance is None else balance})\") == level"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000359,
+    "call": 0.028619,
+    "teardown": 0.00015
+   },
+   "duration_s": 0.029128
+  },
+  {
+   "id": "tests/test_overview.py::test_calorie_tile_follows_the_energy_balance[0-]",
+   "name": "test_calorie_tile_follows_the_energy_balance[0-]",
+   "title": "Calorie tile follows the energy balance [0-]",
+   "file": "tests/test_overview.py",
+   "line": 27,
+   "critical": false,
+   "doc": "Intake below expenditure (negative balance) is green, above it red; exactly even or unknown stays white.",
+   "inputs": [
+    {
+     "name": "balance",
+     "value": "0"
+    },
+    {
+     "name": "level",
+     "value": "''"
+    },
+    {
+     "name": "balance_kcal_per_day",
+     "value": "0"
+    }
+   ],
+   "checks": [
+    {
+     "line": 31,
+     "expr": "run([\"balanceLevel\"], f\"balanceLevel({'null' if balance is None else balance})\") == level",
+     "ok": true,
+     "op": "==",
+     "left": "''",
+     "right": "''",
+     "detail": "where '' = run(['balanceLevel'], 'balanceLevel(0)')"
+    }
+   ],
+   "planned": [
+    {
+     "line": 31,
+     "expr": "run([\"balanceLevel\"], f\"balanceLevel({'null' if balance is None else balance})\") == level"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000418,
+    "call": 0.026947,
+    "teardown": 0.000129
+   },
+   "duration_s": 0.027494
+  },
+  {
+   "id": "tests/test_overview.py::test_calorie_tile_follows_the_energy_balance[1-crit]",
+   "name": "test_calorie_tile_follows_the_energy_balance[1-crit]",
+   "title": "Calorie tile follows the energy balance [1-crit]",
+   "file": "tests/test_overview.py",
+   "line": 27,
+   "critical": false,
+   "doc": "Intake below expenditure (negative balance) is green, above it red; exactly even or unknown stays white.",
+   "inputs": [
+    {
+     "name": "balance",
+     "value": "1"
+    },
+    {
+     "name": "level",
+     "value": "'crit'"
+    },
+    {
+     "name": "balance_kcal_per_day",
+     "value": "1"
+    }
+   ],
+   "checks": [
+    {
+     "line": 31,
+     "expr": "run([\"balanceLevel\"], f\"balanceLevel({'null' if balance is None else balance})\") == level",
+     "ok": true,
+     "op": "==",
+     "left": "'crit'",
+     "right": "'crit'",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 31,
+     "expr": "run([\"balanceLevel\"], f\"balanceLevel({'null' if balance is None else balance})\") == level"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000406,
+    "call": 0.029333,
+    "teardown": 0.000143
+   },
+   "duration_s": 0.029882
+  },
+  {
+   "id": "tests/test_overview.py::test_calorie_tile_follows_the_energy_balance[420-crit]",
+   "name": "test_calorie_tile_follows_the_energy_balance[420-crit]",
+   "title": "Calorie tile follows the energy balance [420-crit]",
+   "file": "tests/test_overview.py",
+   "line": 27,
+   "critical": false,
+   "doc": "Intake below expenditure (negative balance) is green, above it red; exactly even or unknown stays white.",
+   "inputs": [
+    {
+     "name": "balance",
+     "value": "420"
+    },
+    {
+     "name": "level",
+     "value": "'crit'"
+    },
+    {
+     "name": "balance_kcal_per_day",
+     "value": "420"
+    }
+   ],
+   "checks": [
+    {
+     "line": 31,
+     "expr": "run([\"balanceLevel\"], f\"balanceLevel({'null' if balance is None else balance})\") == level",
+     "ok": true,
+     "op": "==",
+     "left": "'crit'",
+     "right": "'crit'",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 31,
+     "expr": "run([\"balanceLevel\"], f\"balanceLevel({'null' if balance is None else balance})\") == level"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000364,
+    "call": 0.027026,
+    "teardown": 0.000147
+   },
+   "duration_s": 0.027537
+  },
+  {
+   "id": "tests/test_overview.py::test_summary_counts_states_in_order_and_skips_zero",
+   "name": "test_summary_counts_states_in_order_and_skips_zero",
+   "title": "Summary counts states in order and skips zero",
+   "file": "tests/test_overview.py",
+   "line": 34,
+   "critical": false,
+   "doc": "The chips above the tiles read poor, fair, good, then not rated, and leave out states no tile has.",
+   "inputs": [
+    {
+     "name": "tile_levels",
+     "value": "['good', '', 'crit', 'good', '', '', 'crit', 'good', '', '']"
+    }
+   ],
+   "checks": [
+    {
+     "line": 38,
+     "expr": "run([\"tileSummary\"], f\"tileSummary({levels!r})\".replace(\"'\", '\"')) == [\n        {\"level\": \"crit\", \"n\": 2}, {\"level\": \"good\", \"n\": 3}, {\"level\": \"none\", \"n\": 5}]",
+     "ok": true,
+     "op": "==",
+     "left": "[{'level': 'crit', 'n': 2}, {'level': 'good', 'n': 3}, {'level': 'none', 'n': 5}]",
+     "right": "[{'level': 'crit', 'n': 2}, {'level': 'good', 'n': 3}, {'level': 'none', 'n': 5}]",
+     "detail": null
+    },
+    {
+     "line": 40,
+     "expr": "run([\"tileSummary\"], \"tileSummary([])\") == []",
+     "ok": true,
+     "op": "==",
+     "left": "[]",
+     "right": "[]",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 38,
+     "expr": "run([\"tileSummary\"], f\"tileSummary({levels!r})\".replace(\"'\", '\"')) == [\n        {\"level\": \"crit\", \"n\": 2}, {\"level\": \"good\", \"n\": 3}, {\"level\": \"none\", \"n\": 5}]"
+    },
+    {
+     "line": 40,
+     "expr": "run([\"tileSummary\"], \"tileSummary([])\") == []"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000272,
+    "call": 0.057565,
+    "teardown": 0.000134
+   },
+   "duration_s": 0.057971
+  },
+  {
+   "id": "tests/test_overview.py::test_every_state_has_an_icon_and_a_word",
+   "name": "test_every_state_has_an_icon_and_a_word",
+   "title": "Every state has an icon and a word",
+   "file": "tests/test_overview.py",
+   "line": 43,
+   "critical": false,
+   "doc": "Colour is never the only signal: good, fair and poor each have their own icon and word.",
+   "inputs": [
+    {
+     "name": "states",
+     "value": "{'good': ['check', 'gut', '3 gut'],\n 'warn': ['mid', 'mittel', '3 mittel'],\n 'crit': ['alert', 'schlecht', '3 schlecht']}"
+    }
+   ],
+   "checks": [
+    {
+     "line": 47,
+     "expr": "states == {\"good\": [\"check\", \"gut\", \"3 gut\"], \"warn\": [\"mid\", \"mittel\", \"3 mittel\"], \"crit\": [\"alert\", \"schlecht\", \"3 schlecht\"]}",
+     "ok": true,
+     "op": "==",
+     "left": "{'good': ['check', 'gut', '3 gut'],\n 'warn': ['mid', 'mittel', '3 mittel'],\n 'crit': ['alert', 'schlecht', '3 schlecht']}",
+     "right": "{'good': ['check', 'gut', '3 gut'],\n 'warn': ['mid', 'mittel', '3 mittel'],\n 'crit': ['alert', 'schlecht', '3 schlecht']}",
+     "detail": null
+    },
+    {
+     "line": 49,
+     "expr": "{\"check\", \"mid\", \"alert\"} <= icons",
+     "ok": true,
+     "op": "<=",
+     "left": "{'mid', 'alert', 'check'}",
+     "right": "{'aktivitaeten', 'alert', 'balance', 'bars', 'bolt', 'calendar', 'check', 'chevron', 'clock',\n 'cloud', 'daten', 'down', 'drop', 'egg', 'erholung', 'ernaehrung', 'fitness', 'flame', 'flat',\n 'gear', 'hand', 'heart', 'hold', 'info', 'install', 'koerper', 'kraft', 'layers', 'list',\n 'mid', 'pie', 'pulse', 'pyramid', 'refresh', 'schlaf', 'slider', 'sport', 'steps', 'table',\n 'target', 'trend', 'ueberblick', 'up', 'wall', 'zusammenhaenge'}",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 47,
+     "expr": "states == {\"good\": [\"check\", \"gut\", \"3 gut\"], \"warn\": [\"mid\", \"mittel\", \"3 mittel\"], \"crit\": [\"alert\", \"schlecht\", \"3 schlecht\"]}"
+    },
+    {
+     "line": 49,
+     "expr": "{\"check\", \"mid\", \"alert\"} <= icons"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000281,
+    "call": 0.032409,
+    "teardown": 0.000133
+   },
+   "duration_s": 0.032823
+  },
+  {
+   "id": "tests/test_overview.py::test_one_week_is_the_first_range",
+   "name": "test_one_week_is_the_first_range",
+   "title": "One week is the first range",
+   "file": "tests/test_overview.py",
+   "line": 52,
+   "critical": false,
+   "doc": "The range control starts with 1 week, before 4 and 12 weeks, 1 year and everything.",
+   "inputs": [
+    {
+     "name": "ranges",
+     "value": "[{'days': 7, 'label': '1 Woche'}, {'days': 28, 'label': '4 Wochen'},\n {'days': 84, 'label': '12 Wochen'}, {'days': 365, 'label': '1 Jahr'},\n {'days': 0, 'label': 'Alles'}]"
+    }
+   ],
+   "checks": [
+    {
+     "line": 56,
+     "expr": "[r[\"days\"] for r in ranges] == [7, 28, 84, 365, 0]",
+     "ok": true,
+     "op": "==",
+     "left": "[7, 28, 84, 365, 0]",
+     "right": "[7, 28, 84, 365, 0]",
+     "detail": null
+    },
+    {
+     "line": 57,
+     "expr": "ranges[0][\"label\"] == \"1 Woche\"",
+     "ok": true,
+     "op": "==",
+     "left": "'1 Woche'",
+     "right": "'1 Woche'",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 56,
+     "expr": "[r[\"days\"] for r in ranges] == [7, 28, 84, 365, 0]"
+    },
+    {
+     "line": 57,
+     "expr": "ranges[0][\"label\"] == \"1 Woche\""
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000274,
+    "call": 0.030245,
+    "teardown": 0.000142
+   },
+   "duration_s": 0.030661
+  },
+  {
+   "id": "tests/test_overview.py::test_week_axis_has_a_tick_per_day",
+   "name": "test_week_axis_has_a_tick_per_day",
+   "title": "Week axis has a tick per day",
+   "file": "tests/test_overview.py",
+   "line": 60,
+   "critical": false,
+   "doc": "In the one-week view every day gets its own date tick; four weeks keep one tick per week.",
+   "inputs": [
+    {
+     "name": "start",
+     "value": "'2025-11-03'"
+    },
+    {
+     "name": "days",
+     "value": "7"
+    }
+   ],
+   "checks": [
+    {
+     "line": 66,
+     "expr": "week == [\"03.11.\", \"04.11.\", \"05.11.\", \"06.11.\", \"07.11.\", \"08.11.\", \"09.11.\"]",
+     "ok": true,
+     "op": "==",
+     "left": "['03.11.', '04.11.', '05.11.', '06.11.', '07.11.', '08.11.', '09.11.']",
+     "right": "['03.11.', '04.11.', '05.11.', '06.11.', '07.11.', '08.11.', '09.11.']",
+     "detail": null
+    },
+    {
+     "line": 68,
+     "expr": "month == 4",
+     "ok": true,
+     "op": "==",
+     "left": "4",
+     "right": "4",
+     "detail": null
+    }
+   ],
+   "planned": [
+    {
+     "line": 66,
+     "expr": "week == [\"03.11.\", \"04.11.\", \"05.11.\", \"06.11.\", \"07.11.\", \"08.11.\", \"09.11.\"]"
+    },
+    {
+     "line": 68,
+     "expr": "month == 4"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000362,
+    "call": 0.578348,
+    "teardown": 0.000137
+   },
+   "duration_s": 0.578847
+  },
+  {
+   "id": "tests/test_overview.py::test_state_colours_are_readable_in_light_and_dark",
+   "name": "test_state_colours_are_readable_in_light_and_dark",
+   "title": "State colours are readable in light and dark",
+   "file": "tests/test_overview.py",
+   "line": 84,
+   "critical": false,
+   "doc": "Text on a filled tile has at least 4.5:1 contrast (WCAG AA), in light mode and both dark-mode blocks.",
+   "inputs": [
+    {
+     "name": "contrast",
+     "value": "{'light good': 8.28,\n 'light warn': 7.06,\n 'light crit': 7.93,\n 'dark good': 10.87,\n 'dark warn': 12.41,\n 'dark crit': 9.08}"
+    }
+   ],
+   "checks": [
+    {
+     "line": 93,
+     "expr": "dark_auto == dark",
+     "ok": true,
+     "op": "==",
+     "left": "{'st-good-bg': '#132a1c',\n 'st-good-ink': '#86efac',\n 'st-good-line': '#4ade80',\n 'st-warn-bg': '#2a2410',\n 'st-warn-ink': '#fde68a',\n 'st-warn-line': '#eab308',\n 'st-crit-bg': '#2a1517',\n 'st-crit-ink': '#fca5a5',\n 'st-crit-line': '#f87171'}",
+     "right": "{'st-good-bg': '#132a1c',\n 'st-good-ink': '#86efac',\n 'st-good-line': '#4ade80',\n 'st-warn-bg': '#2a2410',\n 'st-warn-ink': '#fde68a',\n 'st-warn-line': '#eab308',\n 'st-crit-bg': '#2a1517',\n 'st-crit-ink': '#fca5a5',\n 'st-crit-line': '#f87171'}",
+     "detail": null
+    },
+    {
+     "line": 94,
+     "expr": "min(ratios.values()) >= 4.5",
+     "ok": true,
+     "op": ">=",
+     "left": "7.06",
+     "right": "4.5",
+     "detail": "where 7.06 = min(dict_values([8.28, 7.06, 7.93, 10.87, 12.41, 9.08]))\nwhere dict_values([8.28, 7.06, 7.93, 10.87, 12.41, 9.08]) = <built-in method values of dict object>()\nwhere <built-in method values of dict object> = {'light good': 8.28, 'light warn': 7.06, 'light crit': 7.93, 'dark good': 10.87, ...}.values"
+    }
+   ],
+   "planned": [
+    {
+     "line": 93,
+     "expr": "dark_auto == dark"
+    },
+    {
+     "line": 94,
+     "expr": "min(ratios.values()) >= 4.5"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.000292,
+    "call": 0.001241,
+    "teardown": 0.000111
+   },
+   "duration_s": 0.001644
+  },
+  {
+   "id": "tests/test_overview.py::test_fonts_of_design_d_are_loaded",
+   "name": "test_fonts_of_design_d_are_loaded",
+   "title": "Fonts of design d are loaded",
+   "file": "tests/test_overview.py",
+   "line": 97,
+   "critical": false,
+   "doc": "Inter for text, Space Grotesk for headings and tile values, IBM Plex Mono for chart labels.",
+   "inputs": [
+    {
+     "name": "stylesheet",
+     "value": "'https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap'"
+    }
+   ],
+   "checks": [
+    {
+     "line": 101,
+     "expr": "all(f\"family={f}\" in link for f in (\"Inter\", \"Space+Grotesk\", \"IBM+Plex+Mono\"))",
+     "ok": true,
+     "op": "truthy",
+     "left": "True",
+     "right": null,
+     "detail": "where True = all(<generator object test_fonts_of_design_d_are_loaded.<locals>.<genexpr>>)"
+    }
+   ],
+   "planned": [
+    {
+     "line": 101,
+     "expr": "all(f\"family={f}\" in link for f in (\"Inter\", \"Space+Grotesk\", \"IBM+Plex+Mono\"))"
+    }
+   ],
+   "outcome": "passed",
+   "phase": "call",
+   "message": null,
+   "trace": null,
+   "durations": {
+    "setup": 0.00023,
+    "call": 0.000419,
+    "teardown": 0.000153
+   },
+   "duration_s": 0.000802
   },
   {
    "id": "tests/test_parsers.py::test_body_composition_keeps_first_weigh_in_and_converts_grams",
@@ -2389,11 +3414,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000247,
-    "call": 0.001565,
-    "teardown": 0.000105
+    "setup": 0.000255,
+    "call": 0.001646,
+    "teardown": 0.000104
    },
-   "duration_s": 0.001917
+   "duration_s": 0.002005
   },
   {
    "id": "tests/test_parsers.py::test_sleep_times_are_local_across_daylight_saving",
@@ -2465,11 +3490,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000228,
-    "call": 0.000674,
-    "teardown": 0.000103
+    "setup": 0.000224,
+    "call": 0.000699,
+    "teardown": 0.0001
    },
-   "duration_s": 0.001005
+   "duration_s": 0.001023
   },
   {
    "id": "tests/test_parsers.py::test_missing_payloads_give_empty_values",
@@ -2533,11 +3558,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000268,
-    "call": 0.000491,
-    "teardown": 0.000103
+    "setup": 0.00022,
+    "call": 0.000493,
+    "teardown": 0.000123
    },
-   "duration_s": 0.000862
+   "duration_s": 0.000836
   },
   {
    "id": "tests/test_parsers.py::test_negative_stress_means_not_enough_data",
@@ -2575,11 +3600,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000217,
-    "call": 0.000252,
-    "teardown": 0.000101
+    "setup": 0.000215,
+    "call": 0.000249,
+    "teardown": 9.9e-05
    },
-   "duration_s": 0.00057
+   "duration_s": 0.000563
   },
   {
    "id": "tests/test_parsers.py::test_readiness_prefers_the_morning_value",
@@ -2617,11 +3642,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000253,
-    "call": 0.000491,
-    "teardown": 0.000102
+    "setup": 0.000217,
+    "call": 0.000503,
+    "teardown": 0.000121
    },
-   "duration_s": 0.000846
+   "duration_s": 0.000841
   },
   {
    "id": "tests/test_parsers.py::test_activity_units",
@@ -2698,11 +3723,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000216,
-    "call": 0.001192,
-    "teardown": 0.000104
+    "setup": 0.000211,
+    "call": 0.001241,
+    "teardown": 9.9e-05
    },
-   "duration_s": 0.001512
+   "duration_s": 0.001551
   },
   {
    "id": "tests/test_parsers.py::test_activity_without_distance_has_empty_distance",
@@ -2740,11 +3765,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000247,
-    "call": 0.000306,
-    "teardown": 0.000102
+    "setup": 0.000252,
+    "call": 0.000304,
+    "teardown": 9.8e-05
    },
-   "duration_s": 0.000655
+   "duration_s": 0.000654
   },
   {
    "id": "tests/test_parsers.py::test_hevy_dates_use_local_time",
@@ -2786,11 +3811,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000249,
-    "call": 0.000445,
-    "teardown": 0.000103
+    "setup": 0.000244,
+    "call": 0.000437,
+    "teardown": 9.8e-05
    },
-   "duration_s": 0.000797
+   "duration_s": 0.000779
   },
   {
    "id": "tests/test_parsers.py::test_ci_password_login_stores_tokens",
@@ -2849,11 +3874,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000554,
-    "call": 0.001024,
-    "teardown": 0.00013
+    "setup": 0.000582,
+    "call": 0.001047,
+    "teardown": 0.000119
    },
-   "duration_s": 0.001708
+   "duration_s": 0.001748
   },
   {
    "id": "tests/test_parsers.py::test_ci_password_login_with_mfa_explains_the_local_way",
@@ -2907,11 +3932,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000548,
+    "setup": 0.000527,
     "call": 0.000664,
-    "teardown": 0.00012
+    "teardown": 0.000118
    },
-   "duration_s": 0.001332
+   "duration_s": 0.001309
   },
   {
    "id": "tests/test_parsers.py::test_ci_password_login_refused",
@@ -2952,11 +3977,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000551,
-    "call": 0.000297,
-    "teardown": 0.000119
+    "setup": 0.000548,
+    "call": 0.00028,
+    "teardown": 0.000116
    },
-   "duration_s": 0.000967
+   "duration_s": 0.000944
   },
   {
    "id": "tests/test_parsers.py::test_ci_without_tokens_or_password_names_both_ways",
@@ -3010,11 +4035,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000555,
-    "call": 0.000694,
-    "teardown": 0.00012
+    "setup": 0.000565,
+    "call": 0.000705,
+    "teardown": 0.000116
    },
-   "duration_s": 0.001369
+   "duration_s": 0.001386
   },
   {
    "id": "tests/test_yazio.py::test_meals_are_summed_to_daily_totals",
@@ -3052,11 +4077,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000244,
-    "call": 0.001766,
-    "teardown": 0.000132
+    "setup": 0.000268,
+    "call": 0.001894,
+    "teardown": 0.000102
    },
-   "duration_s": 0.002142
+   "duration_s": 0.002264
   },
   {
    "id": "tests/test_yazio.py::test_missing_nutrients_count_as_zero_and_nulls_are_ignored",
@@ -3107,11 +4132,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.00022,
-    "call": 0.00042,
-    "teardown": 0.000123
+    "setup": 0.000224,
+    "call": 0.000469,
+    "teardown": 9.8e-05
    },
-   "duration_s": 0.000763
+   "duration_s": 0.000791
   },
   {
    "id": "tests/test_yazio.py::test_day_without_entries_gives_no_row",
@@ -3162,11 +4187,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000214,
-    "call": 0.000857,
-    "teardown": 0.000102
+    "setup": 0.000212,
+    "call": 0.000546,
+    "teardown": 9.9e-05
    },
-   "duration_s": 0.001173
+   "duration_s": 0.000857
   },
   {
    "id": "tests/test_yazio.py::test_water_only_day_keeps_nutrients_empty",
@@ -3204,11 +4229,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.00022,
-    "call": 0.000436,
-    "teardown": 0.000103
+    "setup": 0.000212,
+    "call": 0.000437,
+    "teardown": 9.9e-05
    },
-   "duration_s": 0.000759
+   "duration_s": 0.000748
   },
   {
    "id": "tests/test_yazio.py::test_normalize_adds_absolute_expiry_and_drops_unknown_fields",
@@ -3230,8 +4255,8 @@
      "expr": "set(tokens) == {\"access_token\", \"refresh_token\", \"expires_at\"}",
      "ok": true,
      "op": "==",
-     "left": "{'expires_at', 'access_token', 'refresh_token'}",
-     "right": "{'expires_at', 'access_token', 'refresh_token'}",
+     "left": "{'expires_at', 'refresh_token', 'access_token'}",
+     "right": "{'expires_at', 'refresh_token', 'access_token'}",
      "detail": null
     },
     {
@@ -3239,9 +4264,9 @@
      "expr": "3500 < tokens[\"expires_at\"] - time.time() <= 3600",
      "ok": true,
      "op": "<=",
-     "left": "3599.999666929245",
+     "left": "3599.9996728897095",
      "right": "3600",
-     "detail": "where 1794311753.218584 = <built-in function time>()\nwhere <built-in function time> = time.time"
+     "detail": "where 1794312770.0624967 = <built-in function time>()\nwhere <built-in function time> = time.time"
     },
     {
      "line": 70,
@@ -3284,11 +4309,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000212,
-    "call": 0.000836,
-    "teardown": 0.000124
+    "setup": 0.000207,
+    "call": 0.00086,
+    "teardown": 0.00013
    },
-   "duration_s": 0.001172
+   "duration_s": 0.001197
   },
   {
    "id": "tests/test_yazio.py::test_expiry_uses_a_safety_margin",
@@ -3316,7 +4341,7 @@
      "op": "truthy",
      "left": "True",
      "right": null,
-     "detail": "where True = <function _expired>({'expires_at': 1794311783.219706})\nwhere <function _expired> = yazio._expired"
+     "detail": "where True = <function _expired>({'expires_at': 1794312800.0636365})\nwhere <function _expired> = yazio._expired"
     },
     {
      "line": 79,
@@ -3325,7 +4350,7 @@
      "op": "falsy",
      "left": "False",
      "right": null,
-     "detail": "where False = <function _expired>({'expires_at': 1794315353.2198572})\nwhere <function _expired> = yazio._expired"
+     "detail": "where False = <function _expired>({'expires_at': 1794316370.0637858})\nwhere <function _expired> = yazio._expired"
     },
     {
      "line": 80,
@@ -3357,10 +4382,10 @@
    "trace": null,
    "durations": {
     "setup": 0.000215,
-    "call": 0.000545,
-    "teardown": 0.000102
+    "call": 0.000563,
+    "teardown": 9.9e-05
    },
-   "duration_s": 0.000862
+   "duration_s": 0.000877
   },
   {
    "id": "tests/test_yazio.py::test_is_configured_checks_file_and_secret",
@@ -3441,11 +4466,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000531,
-    "call": 0.00112,
-    "teardown": 0.000116
+    "setup": 0.00052,
+    "call": 0.001141,
+    "teardown": 0.000113
    },
-   "duration_s": 0.001767
+   "duration_s": 0.001774
   },
   {
    "id": "tests/test_yazio.py::test_expired_token_is_refreshed_and_the_new_refresh_token_is_kept",
@@ -3513,11 +4538,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000524,
-    "call": 0.00146,
-    "teardown": 0.000129
+    "setup": 0.000536,
+    "call": 0.00147,
+    "teardown": 0.000113
    },
-   "duration_s": 0.002113
+   "duration_s": 0.002119
   },
   {
    "id": "tests/test_yazio.py::test_missing_tokens_in_ci_fail_with_instructions",
@@ -3562,11 +4587,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000572,
-    "call": 0.000261,
-    "teardown": 0.000141
+    "setup": 0.000566,
+    "call": 0.000254,
+    "teardown": 0.000114
    },
-   "duration_s": 0.000974
+   "duration_s": 0.000934
   },
   {
    "id": "tests/test_yazio.py::test_ci_logs_in_with_credentials_from_secrets_and_stores_tokens",
@@ -3660,11 +4685,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.00052,
-    "call": 0.001985,
-    "teardown": 0.000143
+    "setup": 0.000518,
+    "call": 0.002018,
+    "teardown": 0.000119
    },
-   "duration_s": 0.002648
+   "duration_s": 0.002655
   },
   {
    "id": "tests/test_yazio.py::test_failed_refresh_falls_back_to_credentials_only_if_set",
@@ -3718,11 +4743,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000535,
-    "call": 0.000744,
-    "teardown": 0.000118
+    "setup": 0.00053,
+    "call": 0.000745,
+    "teardown": 0.000116
    },
-   "duration_s": 0.001397
+   "duration_s": 0.001391
   },
   {
    "id": "tests/test_yazio.py::test_sync_replaces_the_window_and_keeps_older_rows",
@@ -3785,11 +4810,11 @@
    "message": null,
    "trace": null,
    "durations": {
-    "setup": 0.000586,
-    "call": 0.001897,
-    "teardown": 0.000153
+    "setup": 0.000575,
+    "call": 0.001871,
+    "teardown": 0.000158
    },
-   "duration_s": 0.002636
+   "duration_s": 0.002604
   }
  ]
 }
