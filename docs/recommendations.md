@@ -87,7 +87,9 @@ data, C), then by effort, then by number.
 
 **Safety limits in the code:** from 140/90 mmHg no experiments; never a pace faster than 1 % of
 body weight per week; no weight-loss card below BMI 20 or towards a goal below it; never an intake
-below Garmin's resting energy (total minus active calories); experiments only change habits.
+below Garmin's resting energy (total minus active calories), with intake from completely logged
+YAZIO days or, without them, estimated from Garmin's expenditure and the observed pace; without a
+BMI or Garmin's calories there is no weight-loss card at all; experiments only change habits.
 
 ## Experiments, later, does not fit
 
