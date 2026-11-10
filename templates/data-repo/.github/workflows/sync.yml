@@ -43,9 +43,9 @@ concurrency:
 env:
   # Public repository with the selftopo code; set the repository variable to use a fork
   CODE_REPO: ${{ vars.SELFTOPO_CODE_REPO || vars.HEALTHSYNC_CODE_REPO || 'sh4rkfx/selftopo' }}
-  # Version of the code: v1 follows every 1.x release; set SELFTOPO_CODE_REF to main for the
-  # development state or to an exact tag such as v1.0.0 to stay on it
-  CODE_REF: ${{ vars.SELFTOPO_CODE_REF || 'v1' }}
+  # Version of the code: v2 follows every 2.x release; set SELFTOPO_CODE_REF to main for the
+  # development state or to an exact tag such as v2.0.0 to stay on it
+  CODE_REF: ${{ vars.SELFTOPO_CODE_REF || 'v2' }}
 
 jobs:
   sync:

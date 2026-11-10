@@ -116,11 +116,11 @@ body that explains why.
 ## Releases (maintainers)
 
 1. Update `CHANGELOG.md` and push it to `main`; wait for the tests.
-2. Publish a GitHub release with a new tag such as `v1.2.0` on `main` and the changelog entry as
-   notes. The workflow *Move major tag* then points `v1` at it, and every data repository uses the
+2. Publish a GitHub release with a new tag such as `v2.1.0` on `main` and the changelog entry as
+   notes. The workflow *Move major tag* then points `v2` at it, and every data repository uses the
    new version with its next run.
 3. If the data repository template changed, copy `templates/data-repo/` to
    `sh4rkfx/selftopo-data-template`.
 
-Breaking changes to the data format or settings need a new major version (`v2`), which users opt
+Breaking changes to the data format or settings need a new major version (`v3`), which users opt
 into with the repository variable `SELFTOPO_CODE_REF`.

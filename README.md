@@ -49,7 +49,7 @@ flowchart LR
         S["Daily workflow<br/>sync + analyze"] --> C[("CSV files<br/>insights.json<br/>settings.json")]
     end
     subgraph O["sh4rkfx/selftopo (public)"]
-        K["Code, tag v1"] -. checked out by .-> S
+        K["Code, tag v2"] -. checked out by .-> S
         D["Dashboard on<br/>GitHub Pages"]
     end
     C -- "GitHub API,<br/>read-only token" --> D
@@ -329,7 +329,7 @@ python -m http.server 8000      # in the repository root, then open http://local
 | `SELFTOPO_TZ` | `timezone` from `settings.json`, else UTC | Overrides the time zone (old name `HEALTHSYNC_TZ`) |
 
 Repository variables in the data repository: `SELFTOPO_CODE_REPO` (default `sh4rkfx/selftopo`)
-for a fork, `SELFTOPO_CODE_REF` (default `v1`) for another version, see below.
+for a fork, `SELFTOPO_CODE_REF` (default `v2`) for another version, see below.
 
 ## Troubleshooting
 
@@ -368,14 +368,16 @@ for a fork, `SELFTOPO_CODE_REF` (default `v1`) for another version, see below.
 
 ## Versions and updates
 
-The workflow in your data repository checks out the tag **`v1`** of this repository. `v1` always
-points to the newest 1.x release, so you get fixes and features without changes that break your
+The workflow in your data repository checks out the tag **`v2`** of this repository. `v2` always
+points to the newest 2.x release, so you get fixes and features without changes that break your
 data or settings. Set the repository variable `SELFTOPO_CODE_REF` to `main` for the newest
-development state, or to an exact version such as `v1.0.0` to stay on it. Changes are listed in
+development state, or to an exact version such as `v2.0.0` to stay on it. Changes are listed in
 [CHANGELOG.md](CHANGELOG.md).
 
-The dashboard on GitHub Pages is built from `main` and stays compatible with the data of every
-1.x version. A future `v2` would only be used after you change `SELFTOPO_CODE_REF`.
+Data repositories made before 2.0.0 still follow `v1` (1.0.0). To move up, copy the workflow
+template as described in the [changelog](CHANGELOG.md#upgrade-from-1x); your data and settings
+stay as they are. The dashboard on GitHub Pages is built from `main` and reads the data of 1.x
+and 2.x alike.
 
 ## Tests
 
