@@ -12,6 +12,18 @@ the tag of its major version (`v2`, before that `v1`).
   *Contents: Read and write*: settings, goals, recommendation choices, push notifications and main
   lifts. It reads the current file first, so changes from other devices stay. With a read-only
   token, saving by hand on GitHub works as before. New tokens are prefilled with write access.
+- The header shows when the data was last fetched (*GitHub · synced yesterday 15:32*) instead of
+  only when the page loaded, which moves to the tooltip. It turns yellow when the last sync is
+  older than 30 hours and names sources that failed. GitHub often starts the scheduled run hours
+  late; *Sync now* under gear icon → *Connection* starts it right away and reloads the page when
+  it is done. That needs *Actions: Read and write* on the dashboard token; new tokens are
+  prefilled with it.
+
+### Sync
+
+- Every `sync` writes `data/sync_status.json`: start, end, trigger, a link to the GitHub run and
+  each source's result with the time of its last success. The existing workflow commits it like
+  the other data files; nothing in the data repository needs changing.
 
 ## 2.0.0 – 2026-11-10
 

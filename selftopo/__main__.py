@@ -8,7 +8,7 @@ import sys
 from collections.abc import Callable
 from datetime import date
 
-from . import activities, bloodpressure, climbs, config, fitness, garmin, hevy, lifestyle, yazio
+from . import activities, bloodpressure, climbs, config, fitness, garmin, hevy, lifestyle, syncstatus, yazio
 
 log = logging.getLogger("selftopo")
 
@@ -34,19 +34,26 @@ def _positive_int(value: str) -> int:
 def cmd_sync(args: argparse.Namespace) -> int:
     """Run each selected source; one failing source does not stop the others."""
     selected = list(SOURCES) if args.source == "all" else [args.source]
+    started = syncstatus.now()
+    results: dict[str, str] = {}
     failed = []
     for name in selected:
         if name == "yazio" and args.source == "all" and not yazio.is_configured():
             log.info("yazio: not set up, skipped (run `yazio-login` to enable it)")
+            results[name] = "skipped"
             continue
         try:
             SOURCES[name](args.days, refresh=args.refresh)
+            results[name] = "ok"
         except config.SetupError as exc:
             log.error("%s: %s", name, exc)
             failed.append(name)
+            results[name] = "failed"
         except Exception:
             log.exception("%s: sync failed", name)
             failed.append(name)
+            results[name] = "failed"
+    syncstatus.write(started, results)
     if failed:
         log.error("Failed sources: %s", ", ".join(failed))
         return 1
