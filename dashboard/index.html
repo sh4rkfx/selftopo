@@ -1722,7 +1722,9 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       <div class="prefs-group">
         <h3>Daten-Repository</h3>
         <p class="sub" id="prefs-conn-status"></p>
+        <p class="sub" id="prefs-sync" hidden></p>
         <div class="picker-actions" id="prefs-conn-actions"></div>
+        <p class="sub" id="prefs-sync-run" role="status" hidden></p>
       </div>
       <div class="prefs-group">
         <h3>Dateien</h3>
@@ -1732,7 +1734,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
           <summary>Was bedeuten die Angaben?</summary>
             <p>Oben steht, woher die Seite liest: aus deinem Daten-Repository auf GitHub, aus dem Ordner data/ neben dem Dashboard oder aus im Browser erzeugten Beispieldaten. Darunter eine Zeile pro Datei mit Zahl der Einträge und dem ersten und letzten Datum.</p>
             <p><b>geladen</b>: gelesen und aktuell. <b>Tage alt</b>: Der neueste Garmin-Tag liegt 2 oder mehr Tage zurück. <b>leer</b>, <b>fehlt</b> und <b>unlesbar</b> nennen darunter die Abhilfe. <b>nicht eingerichtet</b> gilt nur für das optionale YAZIO.</p>
-            <p>Der Workflow im Daten-Repository holt die Daten täglich um 07:30 Uhr, während der Sommerzeit um 08:30 Uhr. GitHub startet geplante Läufe oft einige Minuten bis über eine Stunde später.</p>
+            <p>Der Workflow im Daten-Repository soll die Daten täglich um 07:30 Uhr holen, während der Sommerzeit um 08:30 Uhr. GitHub startet geplante Läufe aber oft Stunden später. Wann der letzte Abruf wirklich lief, steht oben unter Daten-Repository; dort lässt er sich auch sofort starten.</p>
             <p class="source">Quelle: garmin_daily.csv · garmin_activities.csv · hevy_sets.csv · nutrition_daily.csv · insights.json · Workflow: .github/workflows/sync.yml</p>
         </details>
       </div>
@@ -1753,13 +1755,13 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
         <details class="token-help">
           <summary>So erstellst du den Token</summary>
           <ol>
-            <li>Auf GitHub <a href="https://github.com/settings/personal-access-tokens/new?name=selftopo+dashboard&amp;description=selftopo+dashboard:+read+data,+save+settings&amp;expires_in=366&amp;contents=write" target="_blank" rel="noopener">einen neuen Fine-grained Token anlegen</a>. Der Weg dorthin: Profilbild → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token.</li>
+            <li>Auf GitHub <a href="https://github.com/settings/personal-access-tokens/new?name=selftopo+dashboard&amp;description=selftopo+dashboard:+read+data,+save+settings,+start+sync&amp;expires_in=366&amp;contents=write&amp;actions=write" target="_blank" rel="noopener">einen neuen Fine-grained Token anlegen</a>. Der Weg dorthin: Profilbild → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token.</li>
             <li>Token name zum Beispiel „selftopo dashboard“, Expiration nach Wunsch, etwa ein Jahr.</li>
             <li>Repository access: <b>Only select repositories</b> und nur dein Daten-Repository auswählen.</li>
             <li>Permissions → Repository permissions → <b>Contents: Read and write</b>, damit die Seite Einstellungen und Ziele selbst speichert. Mit „Read-only“ zeigt sie alles an, gespeichert wird dann von Hand auf GitHub. „Metadata: Read-only“ setzt GitHub automatisch dazu.</li>
             <li>Auf Generate token klicken, den Token kopieren und hier einfügen.</li>
           </ol>
-          <p class="sub">Der Token geht nur an api.github.com und bleibt in diesem Browser. Er gilt nur für dieses eine Repository. Mit Schreibrecht kann er dort Dateien ändern, aber keine Workflows und keine Secrets.</p>
+          <p class="sub">Der Token geht nur an api.github.com und bleibt in diesem Browser. Er gilt nur für dieses eine Repository. Mit Schreibrecht kann er dort Dateien ändern und mit „Actions: Read and write“ den Abruf starten, aber keine Workflows ändern und keine Secrets lesen.</p>
         </details>
       </form>
     </section>
@@ -2932,7 +2934,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Kalendertage, für die insgesamt Daten vorliegen.": "Calendar days for which there is any data.",
 "Oben steht, woher die Seite liest: aus deinem Daten-Repository auf GitHub, aus dem Ordner data/ neben dem Dashboard oder aus im Browser erzeugten Beispieldaten. Darunter eine Zeile pro Datei mit Zahl der Einträge und dem ersten und letzten Datum.": "At the top: where the page reads from, your data repository on GitHub, the folder data/ next to the dashboard or sample data generated in the browser. Below, one row per file with the number of entries and the first and last date.",
 "<b>geladen</b>: gelesen und aktuell. <b>Tage alt</b>: Der neueste Garmin-Tag liegt 2 oder mehr Tage zurück. <b>leer</b>, <b>fehlt</b> und <b>unlesbar</b> nennen darunter die Abhilfe. <b>nicht eingerichtet</b> gilt nur für das optionale YAZIO.": "<b>loaded</b>: read and current. <b>days old</b>: the newest Garmin day is 2 or more days ago. <b>empty</b>, <b>missing</b> and <b>cannot be read</b> name the fix below. <b>not set up</b> only applies to optional files such as YAZIO.",
-"Der Workflow im Daten-Repository holt die Daten täglich um 07:30 Uhr, während der Sommerzeit um 08:30 Uhr. GitHub startet geplante Läufe oft einige Minuten bis über eine Stunde später.": "The workflow in the data repository fetches the data every day at 07:30, during summer time at 08:30 (Central European time). GitHub often starts scheduled runs a few minutes to over an hour later.",
+"Der Workflow im Daten-Repository soll die Daten täglich um 07:30 Uhr holen, während der Sommerzeit um 08:30 Uhr. GitHub startet geplante Läufe aber oft Stunden später. Wann der letzte Abruf wirklich lief, steht oben unter Daten-Repository; dort lässt er sich auch sofort starten.": "The workflow in the data repository is meant to fetch the data daily at 07:30, 08:30 during summer time. GitHub often starts scheduled runs hours late, though. When the last sync really ran is shown above under Data repository; you can also start it right away there.",
 "Quelle: garmin_daily.csv · garmin_activities.csv · hevy_sets.csv · nutrition_daily.csv · insights.json · Workflow: .github/workflows/sync.yml": "Source: garmin_daily.csv · garmin_activities.csv · hevy_sets.csv · nutrition_daily.csv · insights.json · workflow: .github/workflows/sync.yml",
 "Wochenübersicht": "Weekly overview",
 "Neueste oben": "Newest first",
@@ -3016,12 +3018,12 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Auf diesem Gerät merken": "Remember on this device",
 "Ohne Haken gilt die Verbindung nur, bis du den Tab schließt.": "Without the tick, the connection only lasts until you close the tab.",
 "So erstellst du den Token": "How to create the token",
-"Auf GitHub <a href=\"https://github.com/settings/personal-access-tokens/new?name=selftopo+dashboard&amp;description=selftopo+dashboard:+read+data,+save+settings&amp;expires_in=366&amp;contents=write\" target=\"_blank\" rel=\"noopener\">einen neuen Fine-grained Token anlegen</a>. Der Weg dorthin: Profilbild → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token.": "On GitHub, <a href=\"https://github.com/settings/personal-access-tokens/new?name=selftopo+dashboard&amp;description=selftopo+dashboard:+read+data,+save+settings&amp;expires_in=366&amp;contents=write\" target=\"_blank\" rel=\"noopener\">create a new fine-grained token</a>. The way there: profile picture → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token.",
+"Auf GitHub <a href=\"https://github.com/settings/personal-access-tokens/new?name=selftopo+dashboard&amp;description=selftopo+dashboard:+read+data,+save+settings,+start+sync&amp;expires_in=366&amp;contents=write&amp;actions=write\" target=\"_blank\" rel=\"noopener\">einen neuen Fine-grained Token anlegen</a>. Der Weg dorthin: Profilbild → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token.": "On GitHub, <a href=\"https://github.com/settings/personal-access-tokens/new?name=selftopo+dashboard&amp;description=selftopo+dashboard:+read+data,+save+settings,+start+sync&amp;expires_in=366&amp;contents=write&amp;actions=write\" target=\"_blank\" rel=\"noopener\">create a new fine-grained token</a>. The way there: profile picture → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token.",
 "Token name zum Beispiel „selftopo dashboard“, Expiration nach Wunsch, etwa ein Jahr.": "Token name, for example “selftopo dashboard”, expiration as you like, for example one year.",
 "Repository access: <b>Only select repositories</b> und nur dein Daten-Repository auswählen.": "Repository access: <b>Only select repositories</b> and select only your data repository.",
 "Permissions → Repository permissions → <b>Contents: Read and write</b>, damit die Seite Einstellungen und Ziele selbst speichert. Mit „Read-only“ zeigt sie alles an, gespeichert wird dann von Hand auf GitHub. „Metadata: Read-only“ setzt GitHub automatisch dazu.": "Permissions → Repository permissions → <b>Contents: Read and write</b>, so the page saves settings and goals itself. With “Read-only” it shows everything, and you save by hand on GitHub. GitHub adds “Metadata: Read-only” automatically.",
 "Auf Generate token klicken, den Token kopieren und hier einfügen.": "Click Generate token, copy the token and paste it here.",
-"Der Token geht nur an api.github.com und bleibt in diesem Browser. Er gilt nur für dieses eine Repository. Mit Schreibrecht kann er dort Dateien ändern, aber keine Workflows und keine Secrets.": "The token only goes to api.github.com and stays in this browser. It only applies to this one repository. With write access it can change files there, but no workflows and no secrets.",
+"Der Token geht nur an api.github.com und bleibt in diesem Browser. Er gilt nur für dieses eine Repository. Mit Schreibrecht kann er dort Dateien ändern und mit „Actions: Read and write“ den Abruf starten, aber keine Workflows ändern und keine Secrets lesen.": "The token only goes to api.github.com and stays in this browser. It only applies to this one repository. With write access it can change files there, and with “Actions: Read and write” start the sync, but it can neither change workflows nor read secrets.",
 "Rund 15 Minuten, alles im Browser. Deine Daten landen in einem privaten GitHub-Repository, das nur du lesen kannst. Ein Ablauf dort holt sie jeden Morgen von Garmin und Hevy, und diese Seite liest sie direkt von GitHub. Einen Server von selftopo gibt es nicht. Du brauchst Garmin Connect und für das Krafttraining Hevy Pro.": "About 15 minutes, all in the browser. Your data ends up in a private GitHub repository that only you can read. A workflow there fetches it from Garmin and Hevy every morning, and this page reads it directly from GitHub. There is no selftopo server. You need Garmin Connect and, for strength training, Hevy Pro.",
 "Dein GitHub-Benutzername": "Your GitHub user name",
 "Name des Daten-Repositorys": "Name of the data repository",
@@ -3203,7 +3205,34 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Dein Token darf nur lesen. Gib ihm auf GitHub die Berechtigung „Contents: Read and write“ (Settings → Developer settings → Fine-grained tokens → Token → Edit), dann speichert die Seite direkt. Bis dahin: „Auf GitHub bearbeiten“.": "Your token may only read. On GitHub, give it the permission “Contents: Read and write” (Settings → Developer settings → Fine-grained tokens → token → Edit), then the page saves directly. Until then: “Edit on GitHub”.",
 "settings.json wurde gerade woanders geändert. Aktualisiere die Seite und speichere noch einmal.": "settings.json was just changed elsewhere. Refresh the page and save again.",
 "Gespeichert. Der nächste Lauf des Workflows rechnet mit den neuen Einstellungen.": "Saved. The next workflow run uses the new settings.",
-"Nichts geändert, settings.json ist schon aktuell.": "Nothing changed, settings.json is already up to date."
+"Nichts geändert, settings.json ist schon aktuell.": "Nothing changed, settings.json is already up to date.",
+"Abruf fehlgeschlagen: {0}": "Sync failed: {0}",
+"Abruf fertig, Daten neu geladen.": "Sync finished, data reloaded.",
+"Abruf fertig, aber fehlgeschlagen: {0}. Details im Lauf auf GitHub.": "Sync finished, but failed: {0}. Details in the run on GitHub.",
+"Abruf läuft auf GitHub, meist ein bis zwei Minuten. Die Seite lädt danach von selbst neu.": "Sync running on GitHub, usually one to two minutes. The page reloads by itself afterwards.",
+"Abruf läuft …": "Sync running …",
+"Abruf wird gestartet …": "Starting the sync …",
+"Abruf {0}": "synced {0}",
+"Der Abruf ist nach 10 Minuten noch nicht fertig. Sieh im Daten-Repository unter Actions nach.": "The sync has not finished after 10 minutes. Check Actions in the data repository.",
+"Der Token darf den Abruf nicht starten. Gib ihm zusätzlich die Berechtigung „Actions: Read and write“: Profilbild → Settings → Developer settings → Fine-grained tokens → den Token → Edit. Oder starte den Workflow „Sync Garmin and Hevy“ im Daten-Repository unter Actions → Run workflow.": "The token may not start the sync. Also give it the permission “Actions: Read and write”: profile picture → Settings → Developer settings → Fine-grained tokens → the token → Edit. Or start the workflow “Sync Garmin and Hevy” in the data repository under Actions → Run workflow.",
+"Der letzte Abruf war {0}. ": "The last sync was {0}. ",
+"heute {0}": "today {0}",
+"gestern {0}": "yesterday {0}",
+"Jetzt abrufen": "Sync now",
+"Letzter Abruf: {0}, {1}. ": "Last sync: {0}, {1}. ",
+"von Hand gestartet": "started by hand",
+"geplant": "scheduled",
+"lokal": "local",
+"ok": "ok",
+"fehlgeschlagen": "failed",
+"übersprungen": "skipped",
+"Lauf auf GitHub": "Run on GitHub",
+"{0} · Abruf {1}": "{0} · synced {1}",
+"Seite geladen um {0}": "Page loaded at {0}",
+"Fitnesswerte": "Fitness values",
+"Lifestyle-Log": "Lifestyle log",
+"Geplant ist er jeden Morgen, aber GitHub startet geplante Läufe oft Stunden später oder lässt einen aus.": "It is scheduled every morning, but GitHub often starts scheduled runs hours late or skips one.",
+"GitHub ist nicht erreichbar. Besteht eine Internetverbindung?": "GitHub cannot be reached. Is there an internet connection?"
 }
 </script>
 <script>
@@ -3326,19 +3355,21 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     fitnessStatus: "../data/garmin_fitness_status.json",
     settings: "../data/settings.json",
     recommendations: "../data/recommendations.json",
+    syncStatus: "../data/sync_status.json",
   };
   const GITHUB_FILES = {
     garmin: "garmin_daily.csv", activities: "garmin_activities.csv", hevy: "hevy_sets.csv", insights: "insights.json",
     nutrition: "nutrition_daily.csv", climbs: "garmin_climbs.csv", climbSessions: "garmin_climb_sessions.csv",
     exercises: "hevy_exercises.csv", fitness: "garmin_fitness.csv", fitnessStatus: "garmin_fitness_status.json",
     bp: "garmin_blood_pressure.csv", settings: "settings.json", recommendations: "recommendations.json",
+    syncStatus: "sync_status.json",
   };
   // Template for new data repositories ("Use this template"), and the code repository with the README
   const TEMPLATE_REPO = "sh4rkfx/selftopo-data-template";
   const CODE_REPO_URL = "https://github.com/sh4rkfx/selftopo";
   // Every data file the page reads, in the order they are fetched; JSON_KEYS are JSON, the rest CSV
-  const FILE_KEYS = ["garmin", "activities", "hevy", "insights", "nutrition", "climbs", "climbSessions", "exercises", "fitness", "fitnessStatus", "bp", "settings", "recommendations"];
-  const JSON_KEYS = ["insights", "fitnessStatus", "settings", "recommendations"];
+  const FILE_KEYS = ["garmin", "activities", "hevy", "insights", "nutrition", "climbs", "climbSessions", "exercises", "fitness", "fitnessStatus", "bp", "settings", "recommendations", "syncStatus"];
+  const JSON_KEYS = ["insights", "fitnessStatus", "settings", "recommendations", "syncStatus"];
   // YAZIO days below this count as not fully logged and stay out of every mean (same value as
   // MIN_COMPLETE_KCAL in selftopo/analyze.py).
   const MIN_COMPLETE_KCAL = 1200;
@@ -3648,7 +3679,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       return {
         ...Object.fromEntries(csvKeys.map((k) => [k, parseCsv(embedded[k] || "")])),
         insights: embedded.insights || null, fitnessStatus: embedded.fitnessStatus || null, settings: embedded.settings || null,
-        recommendations: embedded.recommendations || null, source: "embedded",
+        recommendations: embedded.recommendations || null, syncStatus: embedded.syncStatus || null, source: "embedded",
         found: Object.fromEntries(FILE_KEYS.map((k) => [k, embedded[k] != null])),
       };
     }
@@ -3683,17 +3714,17 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   function fromTexts(texts, source) {
     const json = (text) => { try { return text ? JSON.parse(text) : null; } catch { return null; } };
     const insights = json(texts.insights), fitnessStatus = json(texts.fitnessStatus), settings = json(texts.settings);
-    const recommendations = json(texts.recommendations);
+    const recommendations = json(texts.recommendations), syncStatus = json(texts.syncStatus);
     const csvKeys = FILE_KEYS.filter((k) => !JSON_KEYS.includes(k));
     return {
       ...Object.fromEntries(csvKeys.map((k) => [k, texts[k] ? parseCsv(texts[k]) : []])),
-      insights, fitnessStatus, settings, recommendations, source, insightsBroken: texts.insights != null && insights == null,
+      insights, fitnessStatus, settings, recommendations, syncStatus, source, insightsBroken: texts.insights != null && insights == null,
       recommendationsBroken: texts.recommendations != null && recommendations == null,
       settingsBroken: texts.settings != null && settings == null,
       found: {
         ...Object.fromEntries(csvKeys.map((k) => [k, texts[k] != null])),
         insights: insights != null, fitnessStatus: fitnessStatus != null, settings: texts.settings != null,
-        recommendations: texts.recommendations != null,
+        recommendations: texts.recommendations != null, syncStatus: syncStatus != null,
       },
     };
   }
@@ -3789,6 +3820,85 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   }
   async function deleteSnapshot() {
     try { await caches.delete(SNAPSHOT_CACHE); } catch { /* Cache Storage unavailable */ }
+  }
+
+  // ---- last sync: data/sync_status.json, written by `python -m selftopo sync` after every run
+
+  // A day plus the hours GitHub often delays a scheduled run
+  const SYNC_LATE_AFTER_H = 30;
+  const SYNC_SOURCE_LABELS = {
+    garmin: "Garmin", activities: T("Aktivitäten"), climbs: T("Bouldern"), fitness: T("Fitnesswerte"), bp: T("Blutdruck"),
+    lifestyle: T("Lifestyle-Log"), hevy: "Hevy", yazio: "YAZIO",
+  };
+  // Null without a readable file, e.g. before the first sync with this version
+  function syncInfo(status = state.syncStatus, now = Date.now()) {
+    const at = Date.parse(status?.finished_at ?? "");
+    if (!Number.isFinite(at)) return null;
+    const failed = Object.entries(status.sources || {})
+      .filter(([, e]) => e?.result === "failed").map(([key]) => SYNC_SOURCE_LABELS[key] || key);
+    const ageH = (now - at) / 3600000;
+    const url = typeof status.run_url === "string" && status.run_url.startsWith("https://github.com/") ? status.run_url : null;
+    return { at, ageH, failed, late: ageH > SYNC_LATE_AFTER_H, manual: status.trigger === "workflow_dispatch", runUrl: url };
+  }
+  // "heute 07:41", "gestern 15:32", otherwise "Mi., 11.11. 15:32"
+  function whenText(ms, now = Date.now()) {
+    const day = (t) => new Date(t).toDateString();
+    const clock = clockOf(ms);
+    if (day(ms) === day(now)) return T("heute {0}", [clock]);
+    if (day(ms) === day(now - DAY)) return T("gestern {0}", [clock]);
+    return `${new Date(ms).toLocaleDateString(DATE_LOCALE, { weekday: "short", day: "2-digit", month: "2-digit" })} ${clock}`;
+  }
+  // Starts the sync workflow in the data repository and reloads the page once its run has written
+  // a newer sync_status.json. Needs a token with "Actions: Read and write".
+  const SYNC_WORKFLOW = "sync.yml";
+  const SYNC_POLL_MS = 15000, SYNC_WAIT_MS = 10 * 60 * 1000;
+  let syncRunning = false;
+  async function triggerSync() {
+    const cred = loadCredentials();
+    const out = $("prefs-sync-run");
+    const say = (text) => { out.hidden = false; out.textContent = text; renderPrefsConnection(); };
+    if (!cred || syncRunning) return;
+    syncRunning = true;
+    const started = Date.now();
+    say(T("Abruf wird gestartet …"));
+    let res;
+    try {
+      res = await fetch(`https://api.github.com/repos/${cred.repo}/actions/workflows/${SYNC_WORKFLOW}/dispatches`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${cred.token}`, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
+        body: JSON.stringify({ ref: state.dataBranch || "main" }),
+      });
+    } catch {
+      res = null;
+    }
+    if (!res || !res.ok) {
+      syncRunning = false;
+      say(!res ? T("GitHub ist nicht erreichbar. Besteht eine Internetverbindung?")
+        : res.status === 403 || res.status === 404
+          ? T("Der Token darf den Abruf nicht starten. Gib ihm zusätzlich die Berechtigung „Actions: Read and write“: Profilbild → Settings → Developer settings → Fine-grained tokens → den Token → Edit. Oder starte den Workflow „Sync Garmin and Hevy“ im Daten-Repository unter Actions → Run workflow.")
+          : T("GitHub antwortet mit Fehler {0}. Versuche es in ein paar Minuten erneut.", [res.status]));
+      return;
+    }
+    say(T("Abruf läuft auf GitHub, meist ein bis zwei Minuten. Die Seite lädt danach von selbst neu."));
+    while (Date.now() - started < SYNC_WAIT_MS) {
+      await new Promise((resolve) => setTimeout(resolve, SYNC_POLL_MS));
+      let status = null;
+      try {
+        const r = await githubRequest(cred, `/contents/${GITHUB_FILES.syncStatus}`, true);
+        status = r.ok ? JSON.parse(await r.text()) : null;
+      } catch { /* try again */ }
+      const info = syncInfo(status);
+      // A run that started after the click; the clocks of browser and GitHub may differ a little
+      if (info && Date.parse(status.started_at ?? status.finished_at) >= started - 60000) {
+        syncRunning = false;
+        await loadAndRender();
+        say(info.failed.length ? T("Abruf fertig, aber fehlgeschlagen: {0}. Details im Lauf auf GitHub.", [info.failed.join(", ")])
+          : T("Abruf fertig, Daten neu geladen."));
+        return;
+      }
+    }
+    syncRunning = false;
+    say(T("Der Abruf ist nach 10 Minuten noch nicht fertig. Sieh im Daten-Repository unter Actions nach."));
   }
 
   // One entry per data file for the "Datenquellen" table
@@ -5257,12 +5367,31 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     const h = lastWith("hrv7"), r = lastWith("rhr7");
     const st = recoveryStatus(h?.hrv7, h?.hrvLow, r?.rhr7, r?.rhr60);
     const fr = freshness(M);
+    const sync = state.source === "demo" ? null : syncInfo();
+    // When the data was fetched, not only when this page read it; the load time stays in the tooltip
+    function syncChip() {
+      const where = state.source === "github" ? "GitHub" : T("Lokal");
+      const kind = state.source === "github" ? "cloud" : "daten";
+      const node = sync ? chip(kind, T("{0} · Abruf {1}", [where, whenText(sync.at)]), sync.late ? "warn" : "neutral")
+        : chip(kind, T("{0} · geladen {1}", [where, clockOf(state.loadedAt)]));
+      node.title = T("Seite geladen um {0}", [clockOf(state.loadedAt)]);
+      if (sync) {
+        node.setAttribute("role", "button");
+        node.tabIndex = 0;
+        node.style.cursor = "pointer";
+        const open = () => openPrefs("connection");
+        node.addEventListener("click", open);
+        node.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
+      }
+      return node;
+    }
     $("title").textContent = fmtDate(todayT(), { weekday: "short", day: "2-digit", month: "2-digit" });
     $("status-line").replaceChildren(...[
       st ? chip(st.level === "good" ? "check" : "alert", T("Erholung {0}", [st.short.toLowerCase()]), st.level) : null,
       state.source === "demo" ? chip("alert", T("Beispieldaten"), "warn")
         : state.offlineSince ? chip("cloud", T("Offline · Stand {0} {1}", [dayOf(state.offlineSince).slice(0, 6), clockOf(state.offlineSince)]), "warn")
-          : chip(state.source === "github" ? "cloud" : "daten", T("{0} · geladen {1}", [state.source === "github" ? "GitHub" : T("Lokal"), clockOf(state.loadedAt)])),
+          : syncChip(),
+      sync?.failed.length ? chip("alert", T("Abruf fehlgeschlagen: {0}", [sync.failed.join(", ")]), "warn") : null,
       fr.stale ? chip("alert", T("Garmin-Daten {0} Tage alt", [fr.age]), "warn") : null,
     ].filter(Boolean));
 
@@ -5284,6 +5413,17 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
           T("Alle Werte sind erfunden. Richte deine eigenen Daten ein oder verbinde die Seite mit deinem Daten-Repository, lokal reicht "),
           html("code", { text: "python -m http.server" }), T(" im Repo.")]));
       parts.push(html("div", { class: "notice-actions" }, state.githubError ? [connect, setup] : [setup, connect]));
+    }
+    if (sync?.late && !fr.stale) {
+      parts.push(html("p", {}, [
+        html("strong", { text: T("Der letzte Abruf war {0}. ", [whenText(sync.at)]) }),
+        T("Geplant ist er jeden Morgen, aber GitHub startet geplante Läufe oft Stunden später oder lässt einen aus."),
+      ]));
+      if (state.source === "github") {
+        const now = html("button", { type: "button", class: "ghost-btn", text: T("Jetzt abrufen") });
+        now.addEventListener("click", () => { openPrefs("connection"); triggerSync(); });
+        parts.push(html("div", { class: "notice-actions" }, [now]));
+      }
     }
     if (fr.stale) {
       parts.push(html("p", {}, [
@@ -5674,7 +5814,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       ? [C(() => openPrefs("setup"), T("Eigene Daten einrichten"), "alert", T("Beispieldaten"), "warn"), C("weeks", T("Wochenübersicht"), "calendar", T("{0} Tage", [fmt(M.days.length)]))]
       : [bad || fr.stale ? C(() => openPrefs("connection"), T("Dateien in den Einstellungen"), "alert", bad ? `${bad} ${bad === 1 ? T("Quelle fehlt") : T("Quellen fehlen")}` : T("Abruf prüfen"), "warn")
           : C(() => openPrefs("connection"), T("Dateien in den Einstellungen"), "check", T("{0} Quellen geladen", [info.length]), "good"),
-        C(() => openPrefs("connection"), T("Verbindung"), state.source === "github" ? "cloud" : "daten", state.source === "github" ? `GitHub · ${clockOf(state.loadedAt)}` : T("Lokal")),
+        C(() => openPrefs("connection"), T("Verbindung"), state.source === "github" ? "cloud" : "daten", state.source === "github" ? `GitHub · ${syncInfo() ? T("Abruf {0}", [whenText(syncInfo().at)]) : clockOf(state.loadedAt)}` : T("Lokal")),
         C("weeks", T("Wochenübersicht"), "calendar", T("{0} Tage", [fmt(M.days.length)]))],
     info.map((s) => `${s.label} ${!s.found ? T("fehlen") : s.last != null ? T("bis {0}", [ddmm(s.last)]) : T("geladen")}`).join(", ") + T(", zusammen {0} Tage.", [fmt(M.days.length)]));
   }
@@ -8008,10 +8148,24 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       : state.source === "csv" ? T("Die Seite liest den Ordner data/ neben dem Dashboard.")
       : cred ? T("Gespeichert ist {0}, aber die Verbindung funktioniert gerade nicht{1}", [cred.repo, state.githubError ? `: ${state.githubError}` : "."])
       : T("Nicht verbunden. Die Seite zeigt Beispieldaten.");
+    const sync = state.source === "demo" ? null : syncInfo();
+    const syncLine = $("prefs-sync");
+    syncLine.hidden = !sync;
+    if (sync) {
+      const how = sync.manual ? T("von Hand gestartet") : state.syncStatus.trigger === "schedule" ? T("geplant") : T("lokal");
+      const sources = Object.entries(state.syncStatus.sources || {}).map(([k, e]) =>
+        `${SYNC_SOURCE_LABELS[k] || k} ${e?.result === "ok" ? T("ok") : e?.result === "failed" ? T("fehlgeschlagen") : T("übersprungen")}`);
+      syncLine.replaceChildren(
+        T("Letzter Abruf: {0}, {1}. ", [whenText(sync.at), how]),
+        sources.length ? `${sources.join(" · ")}. ` : "",
+        sync.runUrl ? html("a", { href: sync.runUrl, target: "_blank", rel: "noopener", text: T("Lauf auf GitHub") }) : "");
+    }
     $("connect-title").textContent = cred ? T("Neu verbinden") : T("Verbinden");
     if (!$("gh-repo").value && cred) $("gh-repo").value = cred.repo;
+    const syncNow = button(syncRunning ? T("Abruf läuft …") : T("Jetzt abrufen"), () => triggerSync());
+    syncNow.disabled = syncRunning;
     $("prefs-conn-actions").replaceChildren(...(cred
-      ? [button(T("Verbindung trennen"), async () => { clearCredentials(); await deleteSnapshot(); location.reload(); })]
+      ? [...(state.source === "github" ? [syncNow] : []), button(T("Verbindung trennen"), async () => { clearCredentials(); await deleteSnapshot(); location.reload(); })]
       : [button(T("Eigene Daten einrichten"), () => showPane("setup", true))]));
   }
   function setupLanguage() {
@@ -8081,7 +8235,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
         actions: [[T("Ablauf öffnen"), repoUrl("/actions/workflows/sync.yml"), true]] },
       { id: "token", title: T("Token für diese Seite"),
         text: T("Name, Ablaufdatum und „Contents: Read and write“ sind vorausgefüllt; damit speichert die Seite deine Einstellungen selbst. Unter Repository access „Only select repositories“ und {0} wählen, das lässt sich nicht vorausfüllen. Dann Generate token und den Token kopieren.", [repo]),
-        actions: [[T("Token erstellen"), `https://github.com/settings/personal-access-tokens/new?${query({ name: "selftopo dashboard", description: "selftopo dashboard: read data, save settings", target_name: owner, expires_in: 366, contents: "write" })}`]] },
+        actions: [[T("Token erstellen"), `https://github.com/settings/personal-access-tokens/new?${query({ name: "selftopo dashboard", description: "selftopo dashboard: read data, save settings, start sync", target_name: owner, expires_in: 366, contents: "write", actions: "write" })}`]] },
       { id: "connect", title: T("Seite verbinden"), text: T("Repository und Token eintragen. Danach zeigt die Seite deine Daten, auf jedem Gerät, das du so verbindest."),
         actions: [[T("Verbinden"), () => openConnect(full || undefined), true]] },
       { id: "settings", title: T("Zeitzone speichern"),
@@ -8174,7 +8328,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
           Object.assign(state, {
             source: data.source, insightsBroken: Boolean(data.insightsBroken), githubError: data.githubError || null,
             dataRepo: data.repo || null, remembered: Boolean(data.remembered), offlineSince: data.offlineSince || null,
-            insights: data.insights, fitnessStatus: data.fitnessStatus || null, loadedAt: Date.now(),
+            insights: data.insights, fitnessStatus: data.fitnessStatus || null, syncStatus: data.syncStatus || null, loadedAt: Date.now(),
           });
           if (data.source === "demo") window.selftopoDemoData = data; // lets tests export the sample data as CSV
           // Before the model: time zone and grip exercise names are needed to read the Hevy sets

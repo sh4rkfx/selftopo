@@ -89,10 +89,11 @@ and remembers which steps you have done.
 6. **First run.** *Actions → Sync Garmin and Hevy → Run workflow* with `365` days. It takes 10 to
    15 minutes. Afterwards **delete `GARMIN_PASSWORD` and `YAZIO_PASSWORD`**: the workflow keeps the
    login tokens in its cache.
-7. **Token for the dashboard.** The link prefills name, expiry and *Contents: Read and write*, so
-   the dashboard saves your settings itself. Under *Repository access* choose *Only select
-   repositories* and your data repository. *Read-only* also works; then you save settings by hand
-   on GitHub.
+7. **Token for the dashboard.** The link prefills name, expiry, *Contents: Read and write*, so
+   the dashboard saves your settings itself, and *Actions: Read and write*, so *Sync now* can start
+   the workflow. Under *Repository access* choose *Only select repositories* and your data
+   repository. *Read-only* also works; then you save settings by hand on GitHub and start the
+   workflow there.
 8. **Connect.** Paste repository and token under gear icon → *Connection*. Do this once on every
    device.
 9. **Time zone.** Gear icon → *General* → *Create on GitHub*, then *Commit changes*. Without
@@ -275,6 +276,7 @@ values are reported in the settings and in the sync log, and the default applies
 | `insights.json` | Result of the analysis |
 | `recommendations.json` | Recommendations toward your goals: Today card, goals with forecast, cards and experiments ([docs/recommendations.md](docs/recommendations.md)) |
 | `settings.json` | Your settings, see above |
+| `sync_status.json` | When the last sync ran, how it was started and how each source did; the dashboard header shows it |
 
 Every column is described in [docs/data-reference.md](docs/data-reference.md).
 
@@ -363,8 +365,9 @@ for a fork, `SELFTOPO_CODE_REF` (default `v2`) for another version, see below.
 - Passwords: locally never stored, only tokens. On GitHub only if you add them as secrets for the
   browser setup; delete them after the first successful run.
 - The dashboard token only applies to the data repository. With *Contents: Read and write* it can
-  change files there (that is how settings are saved), but not workflows or secrets; with
-  *Read-only* it cannot change anything. It is kept in the browser (in
+  change files there (that is how settings are saved), and with *Actions: Read and write* start
+  and cancel workflow runs, but it cannot change workflows or read secrets; with *Read-only* it
+  cannot change anything. It is kept in the browser (in
   `localStorage` when *Remember on this device* is ticked) and sent only to `api.github.com`.
   All GitHub Pages sites of one account share the origin `<you>.github.io`, so scripts on your
   other Pages sites could read it. Revoke it on GitHub if a device is lost.

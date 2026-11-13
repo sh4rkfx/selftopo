@@ -199,6 +199,22 @@ your data with `python -m selftopo dump-yazio --date <day>` after the first logi
 Written by `python -m selftopo analyze` (and `recommend`) from the goals in `settings.json`, the
 CSV files and `insights.json`. Format, rules and thresholds: [recommendations.md](recommendations.md).
 
+## sync_status.json
+
+Written by every `python -m selftopo sync`, also when a source fails. Times are UTC in ISO 8601.
+
+| Field | Meaning |
+|---|---|
+| `schema` | Format version, currently 1 |
+| `started_at`, `finished_at` | Start and end of the last run |
+| `trigger` | `schedule` or `workflow_dispatch` on GitHub, another GitHub event name, or `local` |
+| `run_url` | Link to the run on GitHub; `null` for local runs |
+| `sources.<name>.result` | `ok`, `failed` or `skipped` (YAZIO without setup) in the last run that included the source |
+| `sources.<name>.at` | End of that run |
+| `sources.<name>.last_ok` | End of the last run in which the source succeeded |
+
+A run of a single source (`--source hevy`) updates only that source; the others keep their entry.
+
 ## insights.json
 
 Written by `python -m selftopo analyze`. Method: [analysis.md](analysis.md).
