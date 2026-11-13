@@ -37,7 +37,8 @@ def test_status_names_trigger_run_and_result_of_each_source(monkeypatch, given):
 
 def test_failed_source_keeps_its_last_success(monkeypatch, given):
     """A source that fails keeps the time of its last good run, so the dashboard can say how old its data is."""
-    monkeypatch.delenv("GITHUB_EVENT_NAME", raising=False)
+    for name in ("GITHUB_EVENT_NAME", "GITHUB_SERVER_URL", "GITHUB_REPOSITORY", "GITHUB_RUN_ID"):
+        monkeypatch.delenv(name, raising=False)  # as outside GitHub Actions
     previous = {"sources": GARMIN_OK}
     given(previous=previous, results={"garmin": "failed"})
     status = syncstatus.build(previous, STARTED, FINISHED, {"garmin": "failed"})
