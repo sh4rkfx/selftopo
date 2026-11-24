@@ -105,7 +105,7 @@ def test_change_replaces_by_id_and_csv_is_sorted_and_quoted(given):
     assert csv == 'id,date,kind,name,value,unit,ref_low,ref_high,source,note,file,status\na,2026-11-23,rmr_kcal,,2400,,,,,"nüchtern, 7:30",,\n'
 
 
-READ = ENTRY + ["REPORT_RULES", "LAB_LINE", "LAB_SKIP", "reportDate", "extractMeasures"]
+READ = ENTRY + ["REPORT_RULES", "ESTIMATE_LINE", "LAB_LINE", "LAB_SKIP", "reportDate", "extractMeasures"]
 
 LAB = """Labor Dr. Muster · Salzburg
 Abnahmedatum: 30.10.2026   Befunddatum: 31.10.2026
@@ -149,6 +149,15 @@ def test_metabolic_test_finds_measured_rmr_and_rer_not_the_formula(given):
     given(found=out)
     assert out["date"] == "2026-11-23"
     assert [(i["kind"], i["value"]) for i in out["items"]] == [("rmr_kcal", 2455), ("rer", 0.77)]
+
+
+def test_formula_and_predicted_lines_are_never_measurements(given):
+    """An estimate above the measured value is skipped; a report with only estimates gives nothing."""
+    first = extract("Resting metabolic rate (Harris-Benedict estimate): 1.890 kcal/day\nRMR measured 2.455 kcal/day\nVO2max predicted 41,0 ml/kg/min\nVO2max 44,2 ml/kg/min")
+    only = extract("Ruheumsatz nach Mifflin-St Jeor: 1.850 kcal/Tag\nVO2max Sollwert 41 ml/kg/min")
+    given(first=first, only=only)
+    assert [(i["kind"], i["value"]) for i in first["items"]] == [("rmr_kcal", 2455), ("vo2max_lab", 44.2)]
+    assert only["items"] == []
 
 
 def test_cpet_takes_relative_vo2max_only(given):
