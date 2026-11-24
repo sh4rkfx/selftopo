@@ -2165,7 +2165,6 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Ø {0} · Ziel an {1} von {2} Tagen": "avg {0} · goal on {1} of {2} days",
 "Keine Schritte im Zeitraum": "No steps in the period",
 "Schritte pro Tag": "Steps per day",
-"Ziel {0}": "Goal {0}",
 "Beispieldaten": "Sample data",
 "Ordner data/": "Folder data/",
 "eingebettete Daten": "embedded data",
@@ -3140,7 +3139,6 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Diese Woche liegt alles in deinem üblichen Bereich.": "Everything is within your usual range this week.",
 "Verglichen werden diese Woche: {0}.": "Compared this week: {0}.",
 "Sobald genug Tage da sind, steht hier, was diese Woche von deinem Üblichen abweicht.": "As soon as there are enough days, this shows what differs from your usual this week.",
-"Diese Woche im üblichen Bereich: {0}.": "Within your usual range this week: {0}.",
 "geht einher mit {0}, {1}": "coincides with {0}, {1}",
 "Belastbar in deinen Daten: {0} {1} ging mit {2} {3} einher ({4}).": "Robust in your data: {0} {1} coincided with {2} {3} ({4}).",
 "Gewicht, neuestes 7-Tage-Mittel": "Weight, newest 7-day average",
@@ -3239,7 +3237,17 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Ohne Verbindung zeigt die Seite keine Werte, auch keine Beispieldaten.": "Without a connection the page shows no values, not even sample data.",
 "Nicht verbunden": "Not connected",
 "Fehler steht in den Einstellungen unter Verbindung": "The error is shown in settings under Connection",
-"Nicht verbunden.": "Not connected."
+"Nicht verbunden.": "Not connected.",
+"Ziel {0}: {1}": "Goal {0}: {1}",
+"Gegenüber deinen letzten 4 Monaten unauffällig: {0}.": "Nothing unusual compared with your last 4 months: {0}.",
+"Blutdruck {0} mmHg {1}": "Blood pressure {0} mmHg {1}",
+"Abnahme schneller als 1 % pro Woche": "Losing faster than 1 % per week",
+"Eiweiß unter {0} g/kg": "Protein below {0} g/kg",
+"Erholung: {0}": "Recovery: {0}",
+"HRV unter dem Normalbereich": "HRV below the normal range",
+"Ruhepuls über dem 60-Tage-Mittel": "Resting heart rate above the 60-day mean",
+"Schlafmitte am Wochenende {0} verschoben": "Sleep midpoint shifted {0} at the weekend",
+"Ziel {0}": "Goal {0}"
 }
 </script>
 <script>
@@ -5494,19 +5502,31 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     const tile = (area, iconName, label, value, unit, delta, sparkData) => html("a", { class: `tile tint-${AREA_TINT[area]} ${TILE_STATE[delta?.level] ? delta.level : ""}`, href: `#${area === "sport" ? "kraft" : area}`, title: T("Zum Bereich {0}", [AREA_LABELS[area]]) }, [
       html("span", { class: "tile-top" }, [
         html("span", { class: "label" }, [icon(iconName), label]),
-        TILE_STATE[delta?.level] ? html("span", { class: "st-pill" }, [icon(TILE_STATE[delta.level].icon), TILE_STATE[delta.level].word()]) : null,
+        TILE_STATE[delta?.level] ? html("span", { class: "st-pill" }, [icon(TILE_STATE[delta.level].icon), delta.word ?? TILE_STATE[delta.level].word()]) : null,
       ]),
       html("span", { class: "value" }, [value, unit ? html("small", { text: unit }) : null]),
       html("span", { class: `delta ${delta?.level || ""}` }, delta ? [delta.icon ? icon(delta.icon) : null, html("span", { text: delta.text })] : []),
       sparkData ? sparkline(sparkData) : null,
     ]);
 
+    // With a goal for the metric, the tile shows the goal's verdict (the same as on the goal card);
+    // otherwise the threshold verdict. Without this a weight could be "gut" (BMI) on the tile and
+    // "zu langsam" (goal) a few centimetres below.
+    const withGoal = (metric, delta) => {
+      const g = goalFor(metric);
+      if (!g) return delta;
+      const [cls, badge] = goalBadge(g);
+      const level = cls === "good" ? "good" : cls === "warn" ? "warn" : "";
+      return { icon: delta?.icon ?? "target", text: delta?.text ?? "", level, word: T("Ziel: {0}", [badge]) };
+    };
     const tiles = [
       tile("koerper", "koerper", T("Gewicht"), fmt(w?.weight7, 1), "kg",
-        asOf(w) ?? (weightDelta != null || bmi ? {
-          icon: weightDelta != null ? direction(weightDelta, 0.05) : null, level: weightLevel,
-          text: [bmi ? T("BMI {0}", [fmt(bmi.bmi7, 1)]) : null, weightDelta != null ? `${fmtSigned(weightDelta, 1)} kg` : null].filter(Boolean).join(" · "),
-        } : null), spark("weight7")),
+        asOf(w) ?? (goalFor("weight")
+          ? withGoal("weight", { icon: direction(weightDelta, 0.05), text: weightDelta != null ? `${fmtSigned(weightDelta, 1)} kg` : "" })
+          : weightDelta != null || bmi ? {
+            icon: weightDelta != null ? direction(weightDelta, 0.05) : null, level: weightLevel,
+            text: [bmi ? T("BMI {0}", [fmt(bmi.bmi7, 1)]) : null, weightDelta != null ? `${fmtSigned(weightDelta, 1)} kg` : null].filter(Boolean).join(" · "),
+          } : null), spark("weight7")),
     ];
     if (M.hasNutrition) {
       tiles.push(
@@ -5522,21 +5542,25 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     }
     tiles.push(
       tile("erholung", "pulse", "HRV", fmt(h?.hrv7), "ms",
-        h?.hrvLow != null ? (hrvRatio < 1
+        h?.hrvLow != null && goalFor("hrv") ? withGoal("hrv", { icon: hrvRatio < 1 ? "alert" : "check", text: `${fmt(h.hrvLow)}–${fmt(h.hrvHigh)}` })
+        : h?.hrvLow != null ? (hrvRatio < 1
           ? { icon: "alert", text: T("unter {0}–{1}", [fmt(h.hrvLow), fmt(h.hrvHigh)]), level: hrvRatio < 0.92 ? "crit" : "warn" }
           : { icon: "check", text: T("Bereich {0}–{1}", [fmt(h.hrvLow), fmt(h.hrvHigh)]), level: "good" }) : null, spark("hrv7")),
       tile("erholung", "heart", T("Ruhepuls"), fmt(r?.rhr7, 1), "bpm",
-        rhrGap != null ? { icon: direction(rhrGap, 0.3), text: T("{0} ggü. 60 Tagen", [fmtSigned(rhrGap, 1)]), level: rhrGap > 5 ? "crit" : rhrGap > 2.5 ? "warn" : "" } : null, spark("rhr7")),
+        rhrGap != null ? (goalFor("resting_hr") ? withGoal("resting_hr", { icon: direction(rhrGap, 0.3), text: T("{0} ggü. 60 Tagen", [fmtSigned(rhrGap, 1)]) })
+          : { icon: direction(rhrGap, 0.3), text: T("{0} ggü. 60 Tagen", [fmtSigned(rhrGap, 1)]), level: rhrGap > 5 ? "crit" : rhrGap > 2.5 ? "warn" : "" }) : null, spark("rhr7")),
       tile("erholung", "bolt", rd && rd.t === M.t1 ? "Readiness" : T("Readiness, zuletzt"), fmt(rd?.ready), "",
         rd ? { icon: null, text: `${readinessLevelText(rd.readyLevel)}${rd.t === M.t1 ? "" : `, ${ddmm(rd.t)}`}`, level: rd.readyLevel === "LOW" || rd.readyLevel === "POOR" ? "warn" : "" } : null, spark("ready")),
       tile("schlaf", "schlaf", T("Schlaf"), sl ? fmtDuration(sl.sleepH7 * 60).replace(" h", "") : "–", "h",
-        bed || ss ? { icon: "clock", text: [bed ? fmtClock(bed.bed7) : null, ss ? `Score ${fmt(ss.sleep7)}` : null].filter(Boolean).join(" · ") } : null, spark("sleepH7")),
+        bed || ss ? (goalFor("bedtime") || goalFor("sleep_hours"))
+          ? withGoal(goalFor("bedtime") ? "bedtime" : "sleep_hours", { icon: "clock", text: bed ? fmtClock(bed.bed7) : `Score ${fmt(ss.sleep7)}` })
+          : { icon: "clock", text: [bed ? fmtClock(bed.bed7) : null, ss ? `Score ${fmt(ss.sleep7)}` : null].filter(Boolean).join(" · ") } : null, spark("sleepH7")),
       tile("sport", "kraft", T("Sätze, 7 Tage"), fmt(setsLast7), "",
         { icon: direction(setsLast7 - setsPrev7, 0), text: `${fmtSigned(setsLast7 - setsPrev7)} · ${sessions7} ${sessions7 === 1 ? T("Einheit") : T("Einheiten")}` }, spark("sets7Sum")),
       tile("aktivitaeten", "aktivitaeten", T("Aktiv, 7 Tage"), M.hasActivities ? fmt(activeH7, 1) : "–", "h",
         M.hasActivities ? { icon: direction(activeH7 - activeHPrev7, 0.05), text: T("{0} h · {1} Akt.", [fmtSigned(activeH7 - activeHPrev7, 1), activities7]) } : { icon: null, text: T("keine Daten der Uhr") }, spark("active7Sum")),
       tile("aktivitaeten", "steps", T("Schritte"), fmt(st7?.steps7), "",
-        { icon: "target", text: T("Ziel an {0} von 7", [goalDays7]) }, spark("steps7")),
+        withGoal("steps", { icon: "target", text: T("Ziel an {0} von 7", [goalDays7]) }), spark("steps7")),
     );
     $("tiles").replaceChildren(...tiles);
     $("tiles").classList.toggle("ten", M.hasNutrition);
@@ -5652,15 +5676,20 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     return robust.find((f) => FINDING_AREAS[f.driver] === area) || robust.find((f) => FINDING_AREAS[f.outcome] === area) || null;
   }
   // Conclusion under an area head: unusual this week, a note the chips cannot show, one robust finding
-  function areaFazit(area, note) {
+  function areaFazit(area, note, flagged = []) {
     const parts = [];
+    // First what is off by a threshold or a goal; the same verdicts the chips and goal cards show
+    const goals = (state.recommendations?.goals || []).filter((g) => g.area === area && g.status === "off-track" && goalMetric(g.area, g.metric));
+    const verdicts = [...flagged, ...goals.map((g) => T("Ziel {0}: {1}", [goalMetric(g.area, g.metric)[1], goalBadge(g)[1]]))];
+    if (verdicts.length) parts.push(html("span", { class: "fz-odd" }, [icon("alert"), `${verdicts.join("; ")}.`]));
+    // Then the comparison with the own past, worded so it cannot read as a contradiction
     const checks = (state.baseline || []).filter((b) => b.def.area === area && b.status);
     const odd = checks.filter((b) => b.status !== "normal");
     if (odd.length) {
-      parts.push(html("span", { class: "fz-odd" }, [icon("alert"),
+      parts.push(`${parts.length ? " " : ""}`, html("span", { class: "fz-odd" }, [icon("alert"),
         `${odd.slice(0, 2).map((b) => `${oddTitle(b)} (${oddDetail(b)})`).join("; ")}.`]));
     } else if (checks.length) {
-      parts.push(T("Diese Woche im üblichen Bereich: {0}.", [checks.map((b) => b.def.label()).join(", ")]));
+      parts.push(`${parts.length ? " " : ""}${T("Gegenüber deinen letzten 4 Monaten unauffällig: {0}.", [checks.map((b) => b.def.label()).join(", ")])}`);
     }
     if (note) parts.push(`${parts.length ? " " : ""}${note}`);
     const f = areaFinding(area);
@@ -5676,6 +5705,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   function linkChip(el, target, tip) {
     if (!el) return null;
     const b = html("button", { type: "button", class: el.getAttribute("class"), title: tip }, [...el.childNodes]);
+    if (el.dataset.verdict) b.dataset.verdict = el.dataset.verdict;
     b.addEventListener("click", (e) => { e.stopPropagation(); if (typeof target === "function") target(); else goToCard(target); });
     return b;
   }
@@ -5704,9 +5734,18 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     const put = (area, chips, note = "") => {
       $(`sum-${area}`).replaceChildren(...chips.filter(Boolean), ...(area === "daten" ? [html("span", { class: "vh", text: note })] : []));
       const fz = $(`fazit-${area}`);
-      if (fz) fz.replaceChildren(...areaFazit(area, note));
+      // Chips marked yellow or red by a threshold: "Blutdruck, Mittel im Zeitraum 122/79 mmHg" → "Blutdruck 122/79 mmHg erhöht"
+      const flagged = chips.filter((c) => c?.classList && (c.classList.contains("warn") || c.classList.contains("crit")) && c.dataset.verdict)
+        .map((c) => c.dataset.verdict);
+      if (fz) fz.replaceChildren(...areaFazit(area, note, flagged));
     };
     const C = (target, tip, ...args) => linkChip(chip(...args), target, tip);
+    // A chip coloured by a threshold, with the sentence the area conclusion repeats
+    const CV = (target, tip, verdict, ...args) => {
+      const c = chip(...args);
+      c.dataset.verdict = verdict;
+      return linkChip(c, target, tip);
+    };
     const weeks = Math.max(1, days.length / 7);
     const change = (list, key) => (list.length > 1 ? list[list.length - 1][key] - list[0][key] : null);
 
@@ -5717,7 +5756,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     put("koerper", wIn.length
       ? [C("weight-sub", T("Gewicht, neuestes 7-Tage-Mittel"), "koerper", `${fmt(wIn[wIn.length - 1].weight7, 1)} kg`),
         C("weight-sub", T("Änderung des 7-Tage-Mittels im Zeitraum"), direction(dW, 0.05), `${fmtSigned(dW, 1)} kg`),
-        rate && rate.t >= x0 ? C("rate-sub", T("Abnahmetempo: Änderung pro Woche über 28 Tage"), "trend", T("{0} %/Woche", [fmtSigned(rate.wRate, 1)]), rate.wRate < -1 ? "warn" : "neutral") : null,
+        rate && rate.t >= x0 ? CV("rate-sub", T("Abnahmetempo: Änderung pro Woche über 28 Tage"), T("Abnahme schneller als 1 % pro Woche"), "trend", T("{0} %/Woche", [fmtSigned(rate.wRate, 1)]), rate.wRate < -1 ? "warn" : "neutral") : null,
         dF != null ? C("comp-sub", T("Änderung der Fettmasse im Zeitraum"), "layers", T("Fett {0} kg", [fmtSigned(dF, 1)])) : null,
         dM != null ? C("comp-sub", T("Änderung der Muskelmasse im Zeitraum"), "kraft", T("Muskel {0} kg", [fmtSigned(dM, 1)])) : null,
         linkChip(bpChip(M, x0, x1), "bp-sub", T("Blutdruck, Mittel im Zeitraum"))]
@@ -5730,7 +5769,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       ? [C(() => openPrefs("setup"), T("YAZIO einrichten"), "ernaehrung", T("nicht eingerichtet"))]
       : food.length
         ? [C("kcal-sub", T("Kalorien pro Tag, Mittel der vollständig geloggten Tage"), "flame", `${fmt(kcal)} kcal`),
-          perKg != null ? C("protein-sub", T("Eiweiß pro kg Körpergewicht"), "egg", `${fmt(perKg, 1)} g/kg`, perKg < PROTEIN_REFS[0] ? "warn" : "good") : null,
+          perKg != null ? CV("protein-sub", T("Eiweiß pro kg Körpergewicht"), T("Eiweiß unter {0} g/kg", [fmt(PROTEIN_REFS[0], 1)]), "egg", `${fmt(perKg, 1)} g/kg`, perKg < PROTEIN_REFS[0] ? "warn" : "good") : null,
           bal != null ? C("balance-sub", T("Energiebilanz: YAZIO minus Verbrauch laut Garmin"), "balance", T("{0} kcal/Tag", [fmtSigned(bal)])) : null,
           C("kcal-sub", T("Vollständig geloggte Tage im Zeitraum"), "calendar", T("{0}/{1} Tage", [food.length, days.length]))]
         : [C("kcal-sub", T("Kalorien pro Tag"), "ernaehrung", T("kein geloggter Tag"))],
@@ -5743,9 +5782,9 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     const below = banded.filter((d) => d.hrv7 < d.hrvLow).length;
     const gap = r?.rhr60 != null ? r.rhr7 - r.rhr60 : null;
     put("erholung", h || r
-      ? [st ? C("hrv-sub", T("Erholung aus HRV und Ruhepuls"), st.level === "good" ? "check" : "alert", st.short, st.level) : null,
-        h ? C("hrv-sub", T("HRV, 7-Tage-Mittel"), "pulse", `HRV ${fmt(h.hrv7)} ms`, h.hrvLow != null && h.hrv7 < h.hrvLow ? "warn" : "neutral") : null,
-        r ? C("rhr-sub", T("Ruhepuls, 7-Tage-Mittel; in Klammern der Abstand zum 60-Tage-Mittel"), "heart", T("Puls {0}{1}", [fmt(r.rhr7, 1), gap != null ? ` (${fmtSigned(gap, 1)})` : ""]), gap != null && gap > 2.5 ? "warn" : "neutral") : null]
+      ? [st ? CV("hrv-sub", T("Erholung aus HRV und Ruhepuls"), T("Erholung: {0}", [st.short]), st.level === "good" ? "check" : "alert", st.short, st.level) : null,
+        h ? CV("hrv-sub", T("HRV, 7-Tage-Mittel"), T("HRV unter dem Normalbereich"), "pulse", `HRV ${fmt(h.hrv7)} ms`, h.hrvLow != null && h.hrv7 < h.hrvLow ? "warn" : "neutral") : null,
+        r ? CV("rhr-sub", T("Ruhepuls, 7-Tage-Mittel; in Klammern der Abstand zum 60-Tage-Mittel"), T("Ruhepuls über dem 60-Tage-Mittel"), "heart", T("Puls {0}{1}", [fmt(r.rhr7, 1), gap != null ? ` (${fmtSigned(gap, 1)})` : ""]), gap != null && gap > 2.5 ? "warn" : "neutral") : null]
       : [C("hrv-sub", "HRV", "erholung", T("Keine Werte im Zeitraum"))],
     banded.length ? T("Das HRV-Mittel lag an {0} von {1} Tagen unter dem Normalbereich.", [below, banded.length]) : "");
 
@@ -5757,7 +5796,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     put("schlaf", slept.length
       ? [C("sleep-times-sub", T("Mittlere Schlafdauer pro Nacht"), "schlaf", fmtDuration(mean(slept.map((d) => d.sleepH)) * 60)),
         nights.length ? C("sleep-times-sub", T("Mittlere Einschlaf- und Aufwachzeit"), "clock", `${fmtClock(bedAvg)}–${fmtClock(wakeAvg)}`) : null,
-        jetlag != null ? C("sleep-week-sub", T("Verschiebung der Schlafmitte am Wochenende"), "calendar", T("Wochenende {0}", [fmtSignedDuration(jetlag)]), Math.abs(jetlag) >= 60 ? "warn" : "neutral") : null]
+        jetlag != null ? CV("sleep-week-sub", T("Verschiebung der Schlafmitte am Wochenende"), T("Schlafmitte am Wochenende {0} verschoben", [fmtSignedDuration(jetlag)]), "calendar", T("Wochenende {0}", [fmtSignedDuration(jetlag)]), Math.abs(jetlag) >= 60 ? "warn" : "neutral") : null]
       : [C("sleep-times-sub", T("Schlafenszeiten"), "schlaf", T("Keine Schlafdaten"))]);
 
     // Sport: Kraft and Bouldern
@@ -6279,7 +6318,10 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   }
   function bpChip(M, x0, x1) {
     const m = bpMean(M.bp.filter((r) => r.t >= x0 && r.t <= x1));
-    return m ? chip("drop", `${bpText(m.sys, m.dia)} mmHg`, bpCategory(m.sys, m.dia).level) : null;
+    if (!m) return null;
+    const c = chip("drop", `${bpText(m.sys, m.dia)} mmHg`, bpCategory(m.sys, m.dia).level);
+    c.dataset.verdict = T("Blutdruck {0} mmHg {1}", [bpText(m.sys, m.dia), bpCategory(m.sys, m.dia).label]);
+    return c;
   }
 
   function renderBloodPressure(M, days, x0, x1) {
@@ -7225,28 +7267,36 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   };
   const monthYear = (iso) => fmtDate(isoToT(iso), { month: "long", year: "numeric" });
 
+  // Level and word of a goal's state; the goal card, the tile and the area conclusion all use it,
+  // so one metric never gets two different verdicts
+  function goalBadge(g) {
+    let [cls, badge] = GOAL_STATE[g.status] || GOAL_STATE["no-data"];
+    if (g.metric === "hrv" && g.status === "off-track") badge = T("außerhalb");
+    if (g.metric === "hrv" && g.status === "reached") badge = T("im Bereich");
+    if ((g.metric === "bedtime" || g.metric === "weekly_sets") && g.status === "off-track") badge = T("noch nicht");
+    return [cls, badge];
+  }
+  // The goal for a metric, if one is set and evaluated
+  const goalFor = (metric) => (state.recommendations?.goals || []).find((g) => g.metric === metric && GOAL_STATE[g.status] && g.status !== "no-data") || null;
+
   function goalView(g) {
     const m = goalMetric(g.area, g.metric);
     if (!m) return null;
     const [, label, unit] = m;
     const digits = { weight: 1, resting_hr: 1, sleep_hours: 1, vo2max: 0, steps: 0, active_minutes: 0, weekly_sets: 1, hrv: 0 }[g.metric] ?? 0;
     const withUnit = (v, d = digits) => (v == null ? "–" : `${fmt(v, d)}${unit ? ` ${unit}` : ""}`);
-    let [cls, badge] = GOAL_STATE[g.status] || GOAL_STATE["no-data"];
+    const [cls, badge] = goalBadge(g);
     let now = withUnit(g.current), to = "", note = "";
     if (g.metric === "hrv") {
       to = g.range ? T("Bereich {0}–{1} ms", [fmt(g.range[0]), fmt(g.range[1])]) : "";
       now = g.current == null ? "–" : `${fmt(g.current)} ms`;
-      if (g.status === "off-track") badge = T("außerhalb");
-      if (g.status === "reached") badge = T("im Bereich");
       note = T("7-Tage-Mittel gegenüber Garmins Normalbereich.");
     } else if (g.metric === "bedtime") {
       now = g.current || "–";
       to = T("vor {0}", [g.target]);
       note = g.nights ? T("{0} von {1} Nächten rechtzeitig; Ziel: 5 von 7.", [g.on_time, g.nights]) : "";
-      if (g.status === "off-track") badge = T("noch nicht");
     } else if (g.metric === "weekly_sets") {
       to = T("ab {0} pro Muskelgruppe", [fmt(g.target)]);
-      if (g.status === "off-track") badge = T("noch nicht");
       note = g.below?.length ? T("Darunter: {0}", [g.below.map((x) => MUSCLE_LABELS[x] || x).join(", ")]) : T("Alle Muskelgruppen erreichen das Ziel.");
     } else {
       to = `${withUnit(g.target)}${g.by ? T(" bis {0}", [ddmm(isoToT(g.by))]) : ""}`;
