@@ -3288,6 +3288,9 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   const LANG = pickLanguage();
   const LOCALE = LANG === "de" ? "de-DE" : "en-GB";
   const DATE_LOCALE = LANG === "de" ? "de-AT" : "en-GB";
+  // Day and month: "24.11." in German; in English "24 Nov", because "24/11" reads as a fraction
+  // or, to US readers, as month/day
+  const DM = LANG === "de" ? { day: "2-digit", month: "2-digit" } : { day: "numeric", month: "short" };
   const I18N = (() => {
     if (LANG === "de") return {};
     try { return JSON.parse(document.getElementById(`i18n-${LANG}`).textContent); } catch { return {}; }
@@ -3612,8 +3615,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     return (rounded > 0 ? "+" : rounded < 0 ? "−" : "±") + fmt(Math.abs(rounded), digits);
   }
   const fmtDate = (t, opts) => new Date(t).toLocaleDateString(DATE_LOCALE, { timeZone: "UTC", ...opts });
-  const ddmm = (t) => fmtDate(t, { day: "2-digit", month: "2-digit" });
-  const longDate = (t) => fmtDate(t, { weekday: "short", day: "2-digit", month: "2-digit", year: "numeric" });
+  const ddmm = (t) => fmtDate(t, DM);
+  const longDate = (t) => fmtDate(t, { weekday: "short", ...DM, year: "numeric" });
 
   function html(tag, props = {}, children = []) {
     const node = document.createElement(tag);
@@ -3884,7 +3887,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     const clock = clockOf(ms);
     if (day(ms) === day(now)) return T("heute {0}", [clock]);
     if (day(ms) === day(now - DAY)) return T("gestern {0}", [clock]);
-    return `${new Date(ms).toLocaleDateString(DATE_LOCALE, { weekday: "short", day: "2-digit", month: "2-digit" })} ${clock}`;
+    return `${new Date(ms).toLocaleDateString(DATE_LOCALE, { weekday: "short", ...DM })} ${clock}`;
   }
   // Starts the sync workflow in the data repository and reloads the page once its run has written
   // a newer sync_status.json. Needs a token with "Actions: Read and write".
@@ -5213,10 +5216,10 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     if (w > 0) draw(host);
   }
 
-  const dmy = (t) => fmtDate(t, { day: "2-digit", month: "2-digit", year: "numeric" });
+  const dmy = (t) => fmtDate(t, { ...DM, year: "numeric" });
   // Time of day on this device, e.g. when the data was loaded
   const clockOf = (ms) => new Date(ms).toLocaleTimeString(DATE_LOCALE, { hour: "2-digit", minute: "2-digit" });
-  const dayOf = (ms) => new Date(ms).toLocaleDateString(DATE_LOCALE, { day: "2-digit", month: "2-digit", year: "numeric" });
+  const dayOf = (ms) => new Date(ms).toLocaleDateString(DATE_LOCALE, { ...DM, year: "numeric" });
   const AREA_LABELS = {
     empfehlungen: T("Empfehlungen"), koerper: T("Körper"), ernaehrung: T("Ernährung"), erholung: T("Erholung"), schlaf: T("Schlaf"), sport: "Sport", fitness: "Fitness",
     aktivitaeten: T("Aktivitäten"), zusammenhaenge: T("Zusammenhänge"), daten: T("Rohdaten"),
@@ -5426,11 +5429,11 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       }
       return node;
     }
-    $("title").textContent = fmtDate(todayT(), { weekday: "short", day: "2-digit", month: "2-digit" });
+    $("title").textContent = fmtDate(todayT(), { weekday: "short", ...DM });
     $("status-line").replaceChildren(...[
       st ? chip(st.level === "good" ? "check" : "alert", T("Erholung {0}", [st.short.toLowerCase()]), st.level) : null,
       state.source === "demo" ? chip("alert", T("Beispieldaten"), "warn")
-        : state.offlineSince ? chip("cloud", T("Offline · Stand {0} {1}", [dayOf(state.offlineSince).slice(0, 6), clockOf(state.offlineSince)]), "warn")
+        : state.offlineSince ? chip("cloud", T("Offline · Stand {0} {1}", [new Date(state.offlineSince).toLocaleDateString(DATE_LOCALE, DM), clockOf(state.offlineSince)]), "warn")
           : syncChip(),
       sync?.failed.length ? chip("alert", T("Abruf fehlgeschlagen: {0}", [sync.failed.join(", ")]), "warn") : null,
       fr.stale ? chip("alert", T("Garmin-Daten {0} Tage alt", [fr.age]), "warn") : null,
