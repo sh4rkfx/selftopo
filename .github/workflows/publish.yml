@@ -24,9 +24,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
+      # The commit whose tests passed, not a newer tip of main whose tests may still run
       - uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ github.event.workflow_run.head_sha || 'main' }}
           fetch-depth: 0
 
       - uses: actions/setup-python@v5

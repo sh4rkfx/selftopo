@@ -56,11 +56,14 @@ def commit_of(pr: int, log: str) -> str | None:
     return hits[-1] if hits else None  # the oldest, if a later commit quotes the number
 
 
-def plan(changelog: str, log: str, tags: set[str], since: tuple[int, ...] = (2, 1, 0)) -> list[tuple[Version, str]]:
-    """(version, commit) for each version from `since` on that has no tag yet, oldest first."""
+def plan(changelog: str, log: str, tags: set[str], released: set[str] | None = None,
+         since: tuple[int, ...] = (2, 1, 0)) -> list[tuple[Version, str]]:
+    """(version, commit) for each version from `since` on without a tag or without a release, oldest
+    first. A tag whose release failed is picked up again, so a rerun completes it."""
+    released = tags if released is None else released
     todo = []
     for v in reversed(versions(changelog)):
-        if v.key < since or v.tag in tags:
+        if v.key < since or (v.tag in tags and v.tag in released):
             continue
         sha = commit_of(v.pr, log) if v.pr else None
         if not sha:
@@ -77,15 +80,20 @@ def main(argv: list[str]) -> int:
     changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
     log = run("git", "log", "--format=%H %s")
     tags = set(run("git", "tag", "--list").split())
-    todo = plan(changelog, log, tags)
+    released = tags
+    if argv[:1] == ["publish"]:
+        listed = run("gh", "release", "list", "--limit", "1000", "--json", "tagName", "--jq", ".[].tagName")
+        released = set(listed.split())
+    todo = plan(changelog, log, tags, released)
     newest = versions(changelog)[0]
     for v, sha in todo:
         print(f"{v.tag} → {sha[:7]} (#{v.pr})")
     if argv[:1] != ["publish"]:
         return 0
     for v, sha in todo:
-        run("git", "tag", "-a", v.tag, sha, "-m", v.version)
-        run("git", "push", "origin", f"refs/tags/{v.tag}")
+        if v.tag not in tags:
+            run("git", "tag", "-a", v.tag, sha, "-m", v.version)
+            run("git", "push", "origin", f"refs/tags/{v.tag}")
         latest = "true" if v.version == newest.version else "false"
         run("gh", "release", "create", v.tag, "--verify-tag", "--title", v.version, f"--latest={latest}",
             "--notes-file", "-", input=v.notes + "\n")

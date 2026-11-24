@@ -62,6 +62,13 @@ def test_only_untagged_versions_are_published_oldest_first(given):
     assert some == [("2.2.0", "c2")] and none == [("2.1.0", "c1"), ("2.2.0", "c2")]
 
 
+def test_a_tag_without_its_release_is_completed(given):
+    """A run that pushed v2.2.0 but failed to create its release: the next run creates the release."""
+    todo = [(v.version, sha) for v, sha in release.plan(CHANGELOG, LOG, {"v2.1.0", "v2.2.0"}, {"v2.1.0"})]
+    given(todo=todo)
+    assert todo == [("2.2.0", "c2")]
+
+
 def test_a_version_without_its_commit_stops(given):
     """A pull request number with no merged commit is an error, not a tag on the wrong commit."""
     given(log="c0 Something else (#5)")
@@ -74,5 +81,6 @@ def test_workflow_runs_after_green_tests_on_main_and_by_hand(given):
     text = (ROOT / ".github" / "workflows" / "publish.yml").read_text(encoding="utf-8")
     given(workflow="publish.yml")
     assert "workflows: [Tests]" in text and "branches: [main]" in text and "workflow_dispatch:" in text
+    assert "ref: ${{ github.event.workflow_run.head_sha || 'main' }}" in text  # the commit that passed
     assert "github.event.workflow_run.conclusion == 'success'" in text and "contents: write" in text
     assert "python tools/release.py publish" in text
