@@ -103,3 +103,70 @@ def test_change_replaces_by_id_and_csv_is_sorted_and_quoted(given):
     csv = run(ENTRY, f"measureCsv(applyMeasureChange({json.dumps(rows)}, {{ put: {json.dumps(put)}, remove: ['b'] }}))")
     given(csv=csv)
     assert csv == 'id,date,kind,name,value,unit,ref_low,ref_high,source,note,file,status\na,2026-11-23,rmr_kcal,,2400,,,,,"nüchtern, 7:30",,\n'
+
+
+READ = ENTRY + ["REPORT_RULES", "LAB_LINE", "LAB_SKIP", "reportDate", "extractMeasures"]
+
+LAB = """Labor Dr. Muster · Salzburg
+Abnahmedatum: 30.10.2026   Befunddatum: 31.10.2026
+Parameter Ergebnis Einheit Referenzbereich
+Ferritin 86 µg/l 30 - 400
+HbA1c 5,4 % 4,0 - 5,6
+LDL-Cholesterin 142 H mg/dl < 116
+HDL-Cholesterin 52 mg/dl > 40
+Vitamin D (25-OH) 24 L ng/ml 30 - 100
+Seite 1 von 1"""
+
+METABOLIC = """Sportmedizin · Leistungsdiagnostik
+Untersuchungsdatum 23.11.2026
+Ruheumsatz (gemessen): 2.455 kcal/Tag
+RER 0,77
+Grundumsatz Harris-Benedict: 1.890 kcal/Tag"""
+
+SPIRO = """Spiroergometrie 14.10.2026
+VO2max 44,2 ml/kg/min
+VO2 max absolut 3.780 ml/min
+Körperfettanteil (Caliper) 18,5 %"""
+
+
+def extract(text):
+    return run(READ, f"extractMeasures({json.dumps(text)}, {TODAY})")
+
+
+def test_lab_report_lines_with_reference_ranges(given):
+    """Name, value with an H/L flag, unit and "30 - 400", "< 116" or "> 40"; the sampling date counts."""
+    out = extract(LAB)
+    given(found=out)
+    assert out["date"] == "2026-10-30"
+    assert [(i["name"], i["value"], i["unit"], i["lo"], i["hi"]) for i in out["items"]] == [
+        ("Ferritin", 86, "µg/l", 30, 400), ("HbA1c", 5.4, "%", 4, 5.6), ("LDL-Cholesterin", 142, "mg/dl", None, 116),
+        ("HDL-Cholesterin", 52, "mg/dl", 40, None), ("Vitamin D (25-OH)", 24, "ng/ml", 30, 100)]
+
+
+def test_metabolic_test_finds_measured_rmr_and_rer_not_the_formula(given):
+    """The measured 2,455 kcal, not the Harris-Benedict estimate below it; RER 0.77."""
+    out = extract(METABOLIC)
+    given(found=out)
+    assert out["date"] == "2026-11-23"
+    assert [(i["kind"], i["value"]) for i in out["items"]] == [("rmr_kcal", 2455), ("rer", 0.77)]
+
+
+def test_cpet_takes_relative_vo2max_only(given):
+    """ml/kg/min counts, the absolute ml/min does not; body fat outside a DEXA report is no DEXA value."""
+    out = extract(SPIRO)
+    given(found=out)
+    assert [(i["kind"], i["value"]) for i in out["items"]] == [("vo2max_lab", 44.2)]
+
+
+def test_dexa_report(given):
+    """Total body fat and lean mass from a DXA printout."""
+    out = extract("DXA Ganzkörper 20.11.2026\nTotal Body Fat 21,9 %\nLean Mass 66,4 kg")
+    given(found=out)
+    assert [(i["kind"], i["value"]) for i in out["items"]] == [("dexa_fat_pct", 21.9), ("dexa_ffm_kg", 66.4)]
+
+
+def test_nothing_found_and_no_future_date(given):
+    """Plain text without values; a date after today is not the report date."""
+    out = extract("Arztbrief vom 30.12.2026\nAlles unauffällig.")
+    given(found=out)
+    assert out == {"date": None, "items": []}
