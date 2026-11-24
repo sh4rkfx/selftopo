@@ -702,6 +702,15 @@ button.chip:active { box-shadow: inset 0 0 0 1px var(--ink-2); filter: brightnes
 .state-badge.good { background: var(--st-good-bg); color: var(--st-good-ink); }
 .state-badge.warn { background: var(--st-warn-bg); color: var(--st-warn-ink); }
 .state-badge.none { background: var(--chip); color: var(--ink-2); }
+/* Befunde: newest value per measure, grouped by Körper, Stoffwechsel, Fitness, Blut */
+.mgroup h4 { margin: 10px 0 2px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.mgroup:first-child h4 { margin-top: 0; }
+ul.rows li.mrow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; align-items: baseline; }
+.mrow .n { font-weight: 500; overflow-wrap: anywhere; }
+.mrow .d { grid-column: 1; font-size: 0.75rem; color: var(--ink-2); }
+.mrow .v { grid-column: 2; grid-row: 1; font-family: var(--font-mono); font-variant-numeric: tabular-nums; text-align: right; }
+.mrow .b { grid-column: 2; grid-row: 2; justify-self: end; display: flex; gap: 6px; align-items: center; }
+.mrow .b:empty { display: none; }
 .progress { height: 8px; border-radius: 999px; background: var(--grid); overflow: hidden; }
 .progress > span { display: block; height: 100%; border-radius: 999px; background: var(--t-fg, var(--s1)); }
 .reco h4 { margin: 0; font-family: var(--font-display); font-size: 1.125rem; font-weight: 700; letter-spacing: -0.01em; line-height: 1.25; }
@@ -1571,6 +1580,14 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       </table>
     </div>
     <div class="area-body" id="b-daten">
+      <div class="card span2" data-tab="Befunde" data-icon="list" id="befunde">
+        <div class="card-head"><h3>Befunde</h3><p class="sub" id="befunde-sub"></p></div>
+        <div class="info" hidden>
+          <p>Werte aus Labor, Arztpraxis und Leistungstests, die keine Uhr und keine Waage misst: Ruheumsatz mit RER, Taillenumfang, DEXA, VO2max aus der Spiroergometrie und Blutwerte. Je Messgröße steht der neueste Wert. Blutwerte werden nur gegen den Referenzbereich bewertet, der auf dem Befund steht.</p>
+          <p class="source">Quelle: measurements.csv · Dateien unter files/ im Daten-Repository</p>
+        </div>
+        <div id="befunde-list"></div>
+      </div>
       <div class="card span2" data-tab="Wochen" data-icon="table">
         <div class="card-head"><h3>Wochenübersicht</h3><p class="sub">Neueste oben</p></div>
         <div class="info" hidden>
@@ -3103,7 +3120,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "{0} belastbar": "{0} robust",
 "{0} Paare": "{0} pairs",
 "{0} Tage": "{0} days",
-"bis {0}": "to {0}",
+"bis {0}": "up to {0}",
 "geladen": "loaded",
 "unlesbar": "cannot be read",
 "leer": "empty",
@@ -3111,7 +3128,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "eingeschlafen": "asleep",
 "systolisch": "systolic",
 "diastolisch": "diastolic",
-"{0} Messungen": "{0} readings",
+"{0} Messungen": "{0} measurements",
 "optimal": "optimal",
 "niedrig": "low",
 "hoch": "high",
@@ -3272,7 +3289,36 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Schlafschuld der letzten 4 Nächte gegenüber {0} Stunden Bedarf; Garmin überschätzt die Schlafdauer eher, die Schuld ist also eher größer": "Sleep debt of the last 4 nights against a need of {0} hours; Garmin tends to overestimate sleep, so the debt is likely larger",
 "Schlafschuld {0} in 4 Nächten": "Sleep debt {0} over 4 nights",
 "Schlafschuld {0}": "Sleep debt {0}",
-"Die Schlafschuld oben im Bereich zählt, wie weit die letzten 4 Nächte zusammen unter deinem Bedarf blieben: dein Ziel für die Schlafdauer, sonst 8 Stunden. Eine längere Nacht gleicht aus, unter null fällt sie nicht. Ab 2 Stunden wird sie gelb. Weil Garmin die Schlafdauer eher überschätzt, ist die echte Schuld eher größer.": "The sleep debt at the top of the area counts how far the last 4 nights together fell short of your need: your sleep duration goal, otherwise 8 hours. A longer night makes up for it; it never drops below zero. From 2 hours it turns yellow. Because Garmin tends to overestimate sleep, the real debt is likely larger."
+"Die Schlafschuld oben im Bereich zählt, wie weit die letzten 4 Nächte zusammen unter deinem Bedarf blieben: dein Ziel für die Schlafdauer, sonst 8 Stunden. Eine längere Nacht gleicht aus, unter null fällt sie nicht. Ab 2 Stunden wird sie gelb. Weil Garmin die Schlafdauer eher überschätzt, ist die echte Schuld eher größer.": "The sleep debt at the top of the area counts how far the last 4 nights together fell short of your need: your sleep duration goal, otherwise 8 hours. A longer night makes up for it; it never drops below zero. From 2 hours it turns yellow. Because Garmin tends to overestimate sleep, the real debt is likely larger.",
+"Stoffwechsel": "Metabolism",
+"Blut": "Blood",
+"Taillenumfang": "Waist circumference",
+"DEXA: Fettanteil": "DEXA: body fat",
+"DEXA: fettfreie Masse": "DEXA: fat-free mass",
+"Ruheumsatz": "Resting metabolic rate",
+"VO2max (Labor)": "VO2max (lab)",
+"Blutwert": "Blood value",
+"kcal/Tag": "kcal/day",
+"Sportmedizin": "Sports medicine",
+"Maßband": "Tape measure",
+"Spiroergometrie": "CPET",
+"Hausarzt": "GP",
+"Vitamin D (25-OH)": "Vitamin D (25-OH)",
+"Befunde": "Lab and test results",
+"Optional. Entsteht, wenn du unter Rohdaten → Befunde den ersten Wert einträgst.": "Optional. Created when you enter the first value under Raw data → Lab and test results.",
+"{0} Werte · zuletzt am {1}": "{0} values · latest on {1}",
+" · {0} Zeilen unlesbar": " · {0} rows unreadable",
+"{0} Zeilen in measurements.csv unlesbar": "{0} rows in measurements.csv unreadable",
+"Noch keine Befunde": "No results yet",
+"Hier stehen Werte, die keine Uhr und keine Waage misst: Ruheumsatz, Taillenumfang, DEXA, VO2max aus dem Labor und Blutwerte. Sie erscheinen dann auch in den passenden Diagrammen.": "This is for values no watch or scale measures: resting metabolic rate, waist circumference, DEXA, lab VO2max and blood values. They then also appear in the matching charts.",
+"Datei": "File",
+"unter Referenz": "below reference",
+"über Referenz": "above reference",
+"im Referenzbereich": "within reference",
+"ab {0}": "from {0}",
+"Ref. {0}": "Ref. {0}",
+"Werte aus Labor, Arztpraxis und Leistungstests, die keine Uhr und keine Waage misst: Ruheumsatz mit RER, Taillenumfang, DEXA, VO2max aus der Spiroergometrie und Blutwerte. Je Messgröße steht der neueste Wert. Blutwerte werden nur gegen den Referenzbereich bewertet, der auf dem Befund steht.": "Values from labs, doctors and performance tests that no watch or scale measures: resting metabolic rate with RER, waist circumference, DEXA, VO2max from a CPET and blood values. Each measure shows its newest value. Blood values are rated only against the reference range printed on the report.",
+"Quelle: measurements.csv · Dateien unter files/ im Daten-Repository": "Source: measurements.csv · files under files/ in the data repository"
 }
 </script>
 <script>
@@ -3399,19 +3445,20 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     settings: "../data/settings.json",
     recommendations: "../data/recommendations.json",
     syncStatus: "../data/sync_status.json",
+    measurements: "../data/measurements.csv",
   };
   const GITHUB_FILES = {
     garmin: "garmin_daily.csv", activities: "garmin_activities.csv", hevy: "hevy_sets.csv", insights: "insights.json",
     nutrition: "nutrition_daily.csv", climbs: "garmin_climbs.csv", climbSessions: "garmin_climb_sessions.csv",
     exercises: "hevy_exercises.csv", fitness: "garmin_fitness.csv", fitnessStatus: "garmin_fitness_status.json",
     bp: "garmin_blood_pressure.csv", settings: "settings.json", recommendations: "recommendations.json",
-    syncStatus: "sync_status.json",
+    syncStatus: "sync_status.json", measurements: "measurements.csv",
   };
   // Template for new data repositories ("Use this template"), and the code repository with the README
   const TEMPLATE_REPO = "sh4rkfx/selftopo-data-template";
   const CODE_REPO_URL = "https://github.com/sh4rkfx/selftopo";
   // Every data file the page reads, in the order they are fetched; JSON_KEYS are JSON, the rest CSV
-  const FILE_KEYS = ["garmin", "activities", "hevy", "insights", "nutrition", "climbs", "climbSessions", "exercises", "fitness", "fitnessStatus", "bp", "settings", "recommendations", "syncStatus"];
+  const FILE_KEYS = ["garmin", "activities", "hevy", "insights", "nutrition", "climbs", "climbSessions", "exercises", "fitness", "fitnessStatus", "bp", "settings", "recommendations", "syncStatus", "measurements"];
   const JSON_KEYS = ["insights", "fitnessStatus", "settings", "recommendations", "syncStatus"];
   // YAZIO days below this count as not fully logged and stay out of every mean (same value as
   // MIN_COMPLETE_KCAL in selftopo/analyze.py).
@@ -3995,6 +4042,77 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   }
 
   // One entry per data file for the "Datenquellen" table
+  // ---- Befunde: measurements.csv, values from labs and tests that no watch or scale measures.
+  // One row per value; the dashboard writes it (Rohdaten → Befunde), the analysis only reads it.
+  const MEASURE_FIELDS = ["id", "date", "kind", "name", "value", "unit", "ref_low", "ref_high", "source", "note", "file", "status"];
+  const MEASURE_GROUPS = [["body", T("Körper")], ["metabolism", T("Stoffwechsel")], ["fitness", T("Fitness")], ["blood", T("Blut")]];
+  // Plausible ranges catch a wrong unit (cm typed as mm, kJ as kcal) when entering a value
+  const MEASURE_KINDS = {
+    waist_cm: { label: T("Taillenumfang"), group: "body", unit: "cm", min: 50, max: 160, digits: 1 },
+    dexa_fat_pct: { label: T("DEXA: Fettanteil"), group: "body", unit: "%", min: 3, max: 60, digits: 1 },
+    dexa_ffm_kg: { label: T("DEXA: fettfreie Masse"), group: "body", unit: "kg", min: 30, max: 120, digits: 1 },
+    rmr_kcal: { label: T("Ruheumsatz"), group: "metabolism", unit: "kcal/d", min: 800, max: 4000, digits: 0 },
+    // Recorded with the resting metabolic rate of the same day and shown next to it
+    rer: { label: "RER", group: "metabolism", unit: "", min: 0.65, max: 1.1, digits: 2, partOf: "rmr_kcal" },
+    vo2max_lab: { label: T("VO2max (Labor)"), group: "fitness", unit: "ml/kg/min", min: 15, max: 90, digits: 1 },
+    blood: { label: T("Blutwert"), group: "blood", unit: "", min: null, max: null, digits: null },
+  };
+  const MEASURE_UNIT_TEXT = { "kcal/d": T("kcal/Tag") };
+  // Rows of measurements.csv as values; rows without a date, a number or a known kind are counted,
+  // not shown. Newest first.
+  function parseMeasurements(rows) {
+    const num = (v) => { const n = Number(String(v ?? "").trim().replace(",", ".")); return String(v ?? "").trim() !== "" && Number.isFinite(n) ? n : null; };
+    const list = [];
+    let invalid = 0;
+    for (const r of rows || []) {
+      const date = String(r.date || "").slice(0, 10), value = num(r.value), kind = String(r.kind || "").trim();
+      // A date-shaped but impossible day such as 2026-02-30 would move to another day: unreadable
+      const realDay = /^\d{4}-\d{2}-\d{2}$/.test(date) && tToIso(isoToT(date)) === date;
+      if (!realDay || value == null || !MEASURE_KINDS[kind] || (kind === "blood" && !String(r.name || "").trim())) { invalid++; continue; }
+      list.push({
+        id: String(r.id || `${date}-${kind}-${r.name || ""}`), date, t: isoToT(date), kind, name: String(r.name || "").trim(), value,
+        unit: String(r.unit ?? MEASURE_KINDS[kind].unit).trim(), lo: num(r.ref_low), hi: num(r.ref_high),
+        source: String(r.source || "").trim(), note: String(r.note || "").trim(), file: String(r.file || "").trim(),
+        status: r.status === "proposed" ? "proposed" : "confirmed",
+      });
+    }
+    list.sort((a, b) => b.t - a.t || a.kind.localeCompare(b.kind));
+    return { list, invalid };
+  }
+  // Against the reference range printed on the report: "low", "high", "in" or null without one
+  function refState(m) {
+    if (m.lo == null && m.hi == null) return null;
+    if (m.lo != null && m.value < m.lo) return "low";
+    if (m.hi != null && m.value > m.hi) return "high";
+    return "in";
+  }
+  // The card: per group the newest value of each measure, with how many there are; a RER rides
+  // along with the resting metabolic rate of the same day. Proposals stay out until confirmed.
+  function measurementGroups(list) {
+    const confirmed = list.filter((m) => m.status === "confirmed");
+    return MEASURE_GROUPS.map(([group, label]) => {
+      const latest = new Map();
+      for (const m of confirmed) {
+        const k = MEASURE_KINDS[m.kind];
+        if (k.group !== group || k.partOf) continue;
+        const key = m.kind === "blood" ? `blood:${m.name.toLowerCase()}` : m.kind;
+        const e = latest.get(key) || { m, n: 0 };
+        e.n++;
+        latest.set(key, e);
+      }
+      const items = [...latest.values()].map(({ m, n }) => ({
+        m, n, rer: m.kind === "rmr_kcal" ? confirmed.find((x) => x.kind === "rer" && x.date === m.date) || null : null,
+      }));
+      return { group, label, items };
+    }).filter((g) => g.items.length);
+  }
+  function fmtMeasure(m) {
+    const k = MEASURE_KINDS[m.kind];
+    const digits = k.digits ?? Math.min(2, (String(m.value).split(".")[1] || "").length);
+    const unit = MEASURE_UNIT_TEXT[m.unit] ?? m.unit;
+    return `${fmt(m.value, digits)}${unit ? ` ${unit}` : ""}`;
+  }
+
   function describeSources(data) {
     const dates = (rows) => rows.map((r) => String(r.date || "").slice(0, 10)).filter(Boolean).sort();
     const entry = (key, label, file, rows, fix, optional = false) => {
@@ -4023,6 +4141,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       entry("exercises", T("Hevy Übungen"), file("exercises"), data.exercises || [], remote
         ? T("Entsteht beim nächsten Lauf des Workflows zusammen mit den Hevy-Sätzen.")
         : T("Abrufen mit `python -m selftopo sync --source hevy`."), true),
+      entry("measurements", T("Befunde"), file("measurements"), data.measurements || [], T("Optional. Entsteht, wenn du unter Rohdaten → Befunde den ersten Wert einträgst."), true),
       entry("climbs", T("Garmin Bouldern"), file("climbs"), data.climbs || [], remote
         ? T("Entsteht beim nächsten Lauf des Workflows. Ältere Sessions holt Run workflow mit source `climbs` und days `2000`.")
         : T("Abrufen mit `python -m selftopo sync --source climbs --days 2000`."), true),
@@ -4264,7 +4383,23 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     const exercises = DEMO_EXERCISES.map(([title, primary, secondary]) => ({ exercise_template_id: "", title, primary_muscle_group: primary, secondary_muscle_groups: secondary }));
     const { fitness, fitnessStatus } = demoFitness(end, climbRnd);
     const bp = demoBloodPressure(end, mulberry32(71));
-    return { garmin, hevy, activities, nutrition, climbs, climbSessions, exercises, fitness, fitnessStatus, bp };
+    return { garmin, hevy, activities, nutrition, climbs, climbSessions, exercises, fitness, fitnessStatus, bp, measurements: demoMeasurements(end) };
+  }
+
+  // A metabolic test, two DEXA scans, waist every two weeks, a lab VO2max and one blood test
+  function demoMeasurements(end) {
+    const iso = (daysBack) => tToIso(end - daysBack * DAY);
+    const row = (daysBack, kind, value, more = {}) => ({ id: `demo-${kind}-${daysBack}${more.name ? `-${more.name}` : ""}`, date: iso(daysBack), kind, value: String(value),
+      name: "", unit: MEASURE_KINDS[kind].unit, ref_low: "", ref_high: "", source: "", note: "", file: "", status: "confirmed", ...more });
+    return [
+      row(3, "rmr_kcal", 2310, { source: T("Sportmedizin") }), row(3, "rer", 0.82, { source: T("Sportmedizin") }),
+      row(70, "dexa_fat_pct", 24.1, { source: "DEXA" }), row(70, "dexa_ffm_kg", 63.2, { source: "DEXA" }),
+      row(6, "dexa_fat_pct", 22.8, { source: "DEXA", file: "files/demo-dexa.pdf" }), row(6, "dexa_ffm_kg", 63.9, { source: "DEXA", file: "files/demo-dexa.pdf" }),
+      ...[0, 14, 28, 42, 56, 70, 84].map((d, i) => row(d + 1, "waist_cm", (91.0 + i * 0.3).toFixed(1), { source: T("Maßband") })),
+      row(40, "vo2max_lab", 46.5, { source: T("Spiroergometrie") }),
+      row(30, "blood", 92, { name: "Ferritin", unit: "µg/l", ref_low: "30", ref_high: "400", source: T("Hausarzt") }),
+      row(30, "blood", 22, { name: T("Vitamin D (25-OH)"), unit: "ng/ml", ref_low: "30", ref_high: "100", source: T("Hausarzt") }),
+    ];
   }
 
   // A one-week series morning and evening every two months, two readings each, plus a few single ones
@@ -5444,6 +5579,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     renderWeeks(M, days);
     renderDaily(days);
     renderSources();
+    renderMeasurements();
     renderSummaries(M, days, x0, x1, lastWith);
     renderNotable();
 
@@ -5958,6 +6094,46 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   }
 
   // Where the data comes from, with connect and disconnect for the GitHub data repository
+  // Rohdaten → Befunde: newest value per measure, grouped; files link to the data repository
+  function renderMeasurements() {
+    const { list = [], invalid = 0 } = state.measurements || {};
+    const groups = measurementGroups(list);
+    const host = $("befunde-list");
+    const confirmed = list.filter((m) => m.status === "confirmed");
+    $("befunde-sub").textContent = confirmed.length
+      ? T("{0} Werte · zuletzt am {1}", [confirmed.length, longDate(confirmed[0].t)]) + (invalid ? T(" · {0} Zeilen unlesbar", [invalid]) : "")
+      : invalid ? T("{0} Zeilen in measurements.csv unlesbar", [invalid]) : T("Noch keine Befunde");
+    if (!groups.length) {
+      host.replaceChildren(html("p", { class: "sub", text: T("Hier stehen Werte, die keine Uhr und keine Waage misst: Ruheumsatz, Taillenumfang, DEXA, VO2max aus dem Labor und Blutwerte. Sie erscheinen dann auch in den passenden Diagrammen.") }));
+      return;
+    }
+    const fileLink = (path) => {
+      if (!path) return null;
+      const href = state.source === "github" && state.dataRepo ? `https://github.com/${state.dataRepo}/blob/${state.dataBranch || "main"}/${path}` : null;
+      return href ? html("a", { class: "badge", href, target: "_blank", rel: "noopener", text: path.toLowerCase().endsWith(".pdf") ? "PDF" : T("Datei") })
+        : html("span", { class: "badge", text: path.toLowerCase().endsWith(".pdf") ? "PDF" : T("Datei") });
+    };
+    const REF_TEXT = { low: T("unter Referenz"), high: T("über Referenz"), in: T("im Referenzbereich") };
+    host.replaceChildren(...groups.map((g) => html("div", { class: "mgroup" }, [
+      html("h4", { text: g.label }),
+      html("ul", { class: "rows" }, g.items.map(({ m, n, rer }) => {
+        const ref = refState(m);
+        const range = m.lo != null && m.hi != null ? `${fmt(m.lo, m.lo % 1 ? 1 : 0)}–${fmt(m.hi, m.hi % 1 ? 1 : 0)}`
+          : m.hi != null ? T("bis {0}", [fmt(m.hi, m.hi % 1 ? 1 : 0)]) : m.lo != null ? T("ab {0}", [fmt(m.lo, m.lo % 1 ? 1 : 0)]) : null;
+        const detail = [longDate(m.t), m.source || null, n > 1 ? T("{0} Messungen", [n]) : null, range ? T("Ref. {0}", [range]) : null].filter(Boolean).join(" · ");
+        return html("li", { class: "mrow" }, [
+          html("span", { class: "n", text: m.kind === "blood" ? m.name : MEASURE_KINDS[m.kind].label }),
+          html("span", { class: "v", text: rer ? `${fmtMeasure(m)} · RER ${fmt(rer.value, 2)}` : fmtMeasure(m) }),
+          html("span", { class: "d", text: detail }),
+          html("span", { class: "b" }, [
+            ref ? html("span", { class: `state-badge ${ref === "in" ? "good" : "warn"}`, text: REF_TEXT[ref] }) : null,
+            fileLink(m.file),
+          ]),
+        ]);
+      })),
+    ])));
+  }
+
   function renderSources() {
     const age = (t) => (t == null ? null : Math.round((todayT() - t) / DAY));
     const rows = state.sourceInfo.map((s) => {
@@ -8549,6 +8725,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
           state.model = buildModel(data.garmin, data.hevy, data.activities || [], data.nutrition || [], data.climbs || [], data.climbSessions || [],
             { exercises: data.exercises || [], fitness: data.fitness || [], bp: data.bp || [] });
           state.sourceInfo = describeSources(data);
+          state.measurements = parseMeasurements(data.measurements);
           if (!state.model) { renderNoData(); fillSettings(); return; }
           if (!rangeAvailable(state.range)) state.range = 0; // shorter data than the saved range: show everything
           const lifts = loadLiftSelection(state.model);

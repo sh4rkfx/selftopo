@@ -31,6 +31,8 @@ NUTRITION_CSV = DATA_DIR / "nutrition_daily.csv"
 INSIGHTS_JSON = DATA_DIR / "insights.json"
 SETTINGS_JSON = DATA_DIR / "settings.json"  # personal settings, shared with the dashboard
 SYNC_STATUS_JSON = DATA_DIR / "sync_status.json"  # when each source was last fetched, for the dashboard
+# Written by the dashboard (Rohdaten → Befunde), read by the analysis; files of the reports in files/
+MEASUREMENTS_CSV = DATA_DIR / "measurements.csv"
 DEBUG_DIR = Path("debug")
 
 # Problems found in settings.json or the environment, logged once by the command line

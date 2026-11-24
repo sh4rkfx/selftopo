@@ -201,6 +201,31 @@ four in the summary (fibre, for example).
 Written by `python -m selftopo analyze` (and `recommend`) from the goals in `settings.json`, the
 CSV files and `insights.json`. Format, rules and thresholds: [recommendations.md](recommendations.md).
 
+## measurements.csv
+
+Values from labs and tests that no watch or scale measures, one row per value. The dashboard
+shows it under Rohdaten → Befunde; nothing in the sync touches it. For now add rows by hand on
+GitHub (*Add file* or edit the file); an entry dialog in the dashboard follows. Report files go to `files/` in the
+data repository and stay in its Git history, even after they are deleted.
+
+| Column | Meaning |
+|---|---|
+| `id` | Stable id of the row, for editing and deleting |
+| `date` | Day of the measurement, `YYYY-MM-DD` |
+| `kind` | `waist_cm`, `dexa_fat_pct`, `dexa_ffm_kg`, `rmr_kcal`, `rer`, `vo2max_lab` or `blood` |
+| `name` | Name on the report, only for `blood` (`Ferritin`, `HbA1c`) |
+| `value` | Number, decimal point |
+| `unit` | `cm`, `%`, `kg`, `kcal/d`, empty for `rer`, `ml/kg/min`; for `blood` as on the report |
+| `ref_low`, `ref_high` | Reference range printed on the report, either may be empty |
+| `source` | Where it was measured |
+| `note` | Free text |
+| `file` | Path of the report in the repository, e.g. `files/2026-11-23-rmr.pdf` |
+| `status` | `confirmed`, or `proposed` for a value read from a report and not yet confirmed |
+
+A RER is stored as its own row with the date of its resting metabolic rate and shown next to it.
+Rows without a date, a number or a known `kind`, and `blood` rows without a name, are counted as
+unreadable and left out.
+
 ## sync_status.json
 
 Written by every `python -m selftopo sync`, also when a source fails. Times are UTC in ISO 8601.
