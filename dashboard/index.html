@@ -248,9 +248,10 @@ code { font-family: var(--font-mono); font-size: 0.75rem; overflow-wrap: anywher
    is in rem, so it grows with the text size setting) */
 .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 8.5rem), 1fr)); gap: 14px; }
 @media (max-width: 639px) { .tiles { grid-template-columns: repeat(auto-fill, minmax(max(8.5rem, calc(50% - 7px)), 1fr)); } }
-/* Eight tiles: 2 or 4 columns. Ten tiles (with YAZIO): 2 or 5 columns, so no row is left half empty */
-@media (min-width: 640px) { .tiles:not(.ten) { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-@media (min-width: 720px) { .tiles.ten { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+/* Eight tiles: 2 or 4 columns. Ten tiles (with YAZIO): 2, 4 on tablets, 5 from 1000 px; five
+   columns below 1000 px left tiles too narrow for their lines ("Bilanz −335 · 5/7 Tage") */
+@media (min-width: 640px) { .tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (min-width: 1000px) { .tiles.ten { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
 /* Each tile is its own card. Filled yellow or red only past a threshold (see ⓘ); the pill
    names the state in words and with an icon, so the colour is never the only signal. */
 .tile {
