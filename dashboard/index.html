@@ -8557,7 +8557,10 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   function setupApp() {
     for (const b of document.querySelectorAll('[data-action="refresh"]')) b.addEventListener("click", () => loadAndRender());
     document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "visible" && Date.now() - (state.loadedAt || 0) > REFRESH_AFTER_MS) loadAndRender().then(maybeAutoSync);
+      if (document.visibilityState !== "visible") return;
+      // The auto-sync check runs on every return, also within 15 minutes: opened at 07:55, back at 08:05
+      if (Date.now() - (state.loadedAt || 0) > REFRESH_AFTER_MS) loadAndRender().then(maybeAutoSync);
+      else maybeAutoSync();
     });
     window.addEventListener("online", () => { if (state.offlineSince) loadAndRender(); });
 
