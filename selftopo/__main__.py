@@ -8,7 +8,7 @@ import sys
 from collections.abc import Callable
 from datetime import date
 
-from . import activities, bloodpressure, climbs, config, fitness, garmin, hevy, lifestyle, syncstatus, yazio
+from . import activities, bloodpressure, climbs, config, fitness, garmin, hevy, lifestyle, reports, syncstatus, yazio
 
 log = logging.getLogger("selftopo")
 
@@ -154,6 +154,17 @@ def cmd_dump_raw(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_evaluate_reports(_: argparse.Namespace) -> int:
+    counts = reports.evaluate()
+    parts = [f"{counts['files']} reports evaluated", f"{counts['values']} values proposed"]
+    if counts["failed"]:
+        parts.append(f"{counts['failed']} failed")
+    if counts["waiting"]:
+        parts.append(f"{counts['waiting']} waiting for the next run")
+    print(", ".join(parts))
+    return 1 if counts["failed"] else 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="python -m selftopo", description=__doc__)
     parser.add_argument("-v", "--verbose", action="store_true", help="debug logging")
@@ -205,6 +216,9 @@ def build_parser() -> argparse.ArgumentParser:
     dump = commands.add_parser("dump-raw", help="save raw Garmin responses for one day")
     dump.add_argument("--date", type=date.fromisoformat, default=config.today(), help="YYYY-MM-DD")
     dump.set_defaults(handler=cmd_dump_raw)
+    evaluate = commands.add_parser("evaluate-reports", help="read new report files in files/ with the Claude API, "
+                                   "add their values to measurements.csv as proposals")
+    evaluate.set_defaults(handler=cmd_evaluate_reports)
     return parser
 
 

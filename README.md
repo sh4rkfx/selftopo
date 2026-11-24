@@ -377,6 +377,10 @@ for a fork, `SELFTOPO_CODE_REF` (default `v2`) for another version, see below.
   the device. Their text appears on the lock screen. See [docs/push.md](docs/push.md).
 - Raw dumps contain health data. They stay in `debug/`, which is not committed, or in artifacts
   that expire after a day.
+- Reports you upload under Befunde stay in `files/` of the data repository and in its Git history.
+  PDFs with text are read in the browser; nothing leaves it for that. Only if you add the secret
+  `ANTHROPIC_API_KEY` does the workflow *Read reports* send each new report file once to the
+  Anthropic API to read its values; they count only after you accept them in the dashboard.
 
 ## Versions and updates
 
@@ -390,6 +394,11 @@ Data repositories made before 2.0.0 still follow `v1` (1.0.0). To move up, copy 
 template as described in the [changelog](CHANGELOG.md#upgrade-from-1x); your data and settings
 stay as they are. The dashboard on GitHub Pages is built from `main` and reads the data of 1.x
 and 2.x alike.
+
+A new workflow file in the template, such as `reports.yml` for reading reports with the Claude
+API, does not reach an existing data repository by itself: copy it from
+[templates/data-repo/.github/workflows/](templates/data-repo/.github/workflows/) into
+`.github/workflows/` there. The changelog says when that is needed.
 
 ## Tests
 

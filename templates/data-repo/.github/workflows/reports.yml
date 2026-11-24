@@ -1,0 +1,103 @@
+# Reads new report files in files/ with the Claude API and adds their values to measurements.csv
+# as proposals, which count only once you confirm them in the dashboard (Rohdaten → Befunde).
+# Runs when the dashboard uploads a report, once a day for files still waiting (at most five per
+# run), and by hand. Optional: without the
+# ANTHROPIC_API_KEY secret it does nothing, and the dashboard reads PDFs with text by itself.
+# The report file is sent to the Anthropic API for this.
+name: Read reports
+
+on:
+  push:
+    branches: [main]
+    paths: ["files/**"]
+  schedule:
+    - cron: "15 7 * * *" # after the daily sync: files beyond the five of an earlier run
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Shares the group with the daily sync, so the two never commit at the same time
+concurrency:
+  group: sync
+  cancel-in-progress: false
+
+env:
+  CODE_REPO: ${{ vars.SELFTOPO_CODE_REPO || vars.HEALTHSYNC_CODE_REPO || 'sh4rkfx/selftopo' }}
+  CODE_REF: ${{ vars.SELFTOPO_CODE_REF || 'v2' }}
+
+jobs:
+  read:
+    if: ${{ !endsWith(github.repository, '/selftopo-data-template') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SELFTOPO_DATA_DIR: data
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      SELFTOPO_CLAUDE_MODEL: ${{ vars.SELFTOPO_CLAUDE_MODEL }}
+    steps:
+      - name: Without ANTHROPIC_API_KEY there is nothing to do
+        if: ${{ env.ANTHROPIC_API_KEY == '' }}
+        run: echo "::notice::No ANTHROPIC_API_KEY secret; reports are only read in the dashboard (PDFs with text)."
+
+      # The dashboard uploads a file and then, in a second commit, the values it read from it. The
+      # wait lets that second commit land, so a file it already read is not sent as well.
+      - name: Let the dashboard finish its upload
+        if: ${{ env.ANTHROPIC_API_KEY != '' && github.event_name == 'push' }}
+        run: sleep 90
+
+      - name: Choose the code version
+        if: ${{ env.ANTHROPIC_API_KEY != '' }}
+        id: code
+        run: |
+          ref="$CODE_REF"
+          if ! git ls-remote --exit-code "https://github.com/${CODE_REPO}.git" "refs/tags/${ref}" "refs/heads/${ref}" > /dev/null; then
+            echo "::warning::${CODE_REPO} has no ${ref}; using main"
+            ref=main
+          fi
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+
+      - name: Check out the selftopo code
+        if: ${{ env.ANTHROPIC_API_KEY != '' }}
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.CODE_REPO }}
+          ref: ${{ steps.code.outputs.ref }}
+          persist-credentials: false
+
+      - name: Check out this data repository
+        if: ${{ env.ANTHROPIC_API_KEY != '' }}
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: data
+
+      - uses: actions/setup-python@v5
+        if: ${{ env.ANTHROPIC_API_KEY != '' }}
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        if: ${{ env.ANTHROPIC_API_KEY != '' }}
+        run: pip install -r requirements.txt
+
+      # At most five files per run; the rest wait for the next upload or the daily run
+      - name: Read new reports
+        if: ${{ env.ANTHROPIC_API_KEY != '' }}
+        run: python -m selftopo evaluate-reports
+
+      - name: Commit the proposals
+        if: ${{ !cancelled() && env.ANTHROPIC_API_KEY != '' }}
+        working-directory: data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for f in measurements.csv report_evaluations.json; do if [ -e "$f" ]; then git add -- "$f"; fi; done
+          if git diff --cached --quiet; then
+            echo "No changes."
+            exit 0
+          fi
+          git commit -m "Values read from reports $(date -u +%F)"
+          git pull --rebase
+          git push
