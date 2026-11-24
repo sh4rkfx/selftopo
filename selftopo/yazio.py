@@ -279,9 +279,11 @@ def dump_raw(day: date) -> Path:
         # beyond the four in the summary are, before the sync reads them. Each lookup is optional,
         # so an endpoint YAZIO does not have only leaves its error in the file.
         data["consumed-items"] = _try(api, "user/consumed-items", date=day.isoformat())
-        items = data["consumed-items"] if isinstance(data["consumed-items"], dict) else {}
-        product_ids = _ids(items.get("products"), "product_id")
-        recipe_ids = _ids(items.get("recipe_portions"), "recipe_id")
+        # Either one list of entries or a dict of lists (products, recipe_portions, simple_products)
+        items = data["consumed-items"]
+        entries = items if isinstance(items, list) else [e for v in (items or {}).values() if isinstance(v, list) for e in v]
+        product_ids = _ids(entries, "product_id")
+        recipe_ids = _ids(entries, "recipe_id")
         data["products"] = {pid: _try(api, f"products/{pid}") for pid in product_ids[:DUMP_LOOKUPS] if pid}
         data["recipes"] = {rid: _try(api, f"recipes/{rid}") for rid in recipe_ids[:DUMP_LOOKUPS] if rid}
     finally:
