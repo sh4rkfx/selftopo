@@ -22,6 +22,9 @@ the tag of its major version (`v2`, before that `v1`).
   header shows *GitHub · Abruf läuft …*; at most once in 3 hours per browser. Without the Actions
   permission it pauses for a week. Off under gear icon → *Connection* → *Sync automatically in
   the morning*.
+- *Befunde* under Rohdaten: values from labs and tests in a new `measurements.csv` (resting
+  metabolic rate with RER, waist, DEXA, lab VO2max, blood values with the report's reference
+  range), newest per measure, with links to report files. Read-only for now.
 - Sleep debt: the Schlaf area shows how far the last 4 nights fell short of your sleep-duration
   goal (otherwise 8 hours), net of longer nights and never below zero; yellow from 2 hours.
 - English dates name the month (*Tue 24 Nov*, push: *31 Mar*) instead of *24/11*.
