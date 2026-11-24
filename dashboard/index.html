@@ -6375,7 +6375,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     ])), ...[allEntries()].filter(Boolean));
     // Every row, also older values and RER, each editable
     function allEntries() {
-      const rows = list.filter((m) => !MEASURE_KINDS[m.kind].partOf);
+      // Proposals only in their review box: editing one here would confirm it unseen
+      const rows = list.filter((m) => !MEASURE_KINDS[m.kind].partOf && m.status === "confirmed");
       if (rows.length <= groups.reduce((n, g) => n + g.items.length, 0)) return null;
       const table = html("table", {}, [
         html("thead", {}, html("tr", {}, [T("Datum"), T("Messgröße"), T("Wert"), T("Quelle"), ""].map((h) => html("th", { scope: "col", text: h })))),
