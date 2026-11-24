@@ -1737,6 +1737,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
         <p class="sub" id="prefs-sync" hidden></p>
         <div class="picker-actions" id="prefs-conn-actions"></div>
         <p class="sub" id="prefs-sync-run" role="status" hidden></p>
+        <label class="check" id="prefs-autosync-row" hidden><input type="checkbox" id="prefs-autosync"> Morgens automatisch abrufen
+          <span class="sub" id="prefs-autosync-sub">Öffnest du das Dashboard nach 8 Uhr und lief heute noch kein Abruf, startet es ihn selbst. Gilt für diesen Browser.</span></label>
       </div>
       <div class="prefs-group">
         <h3>Dateien</h3>
@@ -3261,7 +3263,11 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Zum Inhalt springen": "Skip to content",
 "Tabelle": "Table",
 "{0}, Tabelle": "{0}, table",
-"{0} ohne Wert": "{0} without a value"
+"{0} ohne Wert": "{0} without a value",
+"GitHub · Abruf läuft …": "GitHub · sync running …",
+"Pausiert: Der Token darf den Abruf nicht starten. Gib ihm „Actions: Read and write“, dann läuft es wieder; bis dahin pausiert es eine Woche.": "Paused: the token may not start the sync. Give it “Actions: Read and write” and it runs again; until then it pauses for a week.",
+"Öffnest du das Dashboard nach 8 Uhr und lief heute noch kein Abruf, startet es ihn selbst. Gilt für diesen Browser.": "If you open the dashboard after 8:00 and no sync has run today, it starts one itself. Applies to this browser.",
+"Morgens automatisch abrufen": "Sync automatically in the morning"
 }
 </script>
 <script>
@@ -3893,13 +3899,49 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   // a newer sync_status.json. Needs a token with "Actions: Read and write".
   const SYNC_WORKFLOW = "sync.yml";
   const SYNC_POLL_MS = 15000, SYNC_WAIT_MS = 10 * 60 * 1000;
+  // Automatic sync: GitHub often starts the scheduled run hours late. When the dashboard opens
+  // after 08:00 and the last sync is from before today, it starts the workflow itself, at most
+  // once in 3 hours per browser. A token without "Actions: Read and write" pauses it for a week
+  // instead of failing every morning. Off with the checkbox under Verbindung.
+  const AUTO_SYNC_KEY = "selftopo.autosync";
+  const AUTO_SYNC_FROM_H = 8, AUTO_SYNC_GAP_MS = 3 * 3600000, AUTO_SYNC_PAUSE_MS = 7 * DAY;
+  function autoSyncPrefs() {
+    try { return JSON.parse(localStorage.getItem(AUTO_SYNC_KEY) || "{}") || {}; } catch { return {}; }
+  }
+  function saveAutoSyncPrefs(prefs) {
+    try { localStorage.setItem(AUTO_SYNC_KEY, JSON.stringify(prefs)); } catch { /* storage unavailable */ }
+  }
+  // Whether to start a sync now; `info` from syncInfo(), times in the browser's time zone
+  function autoSyncDue(info, prefs, now = Date.now()) {
+    if (!info || prefs.off) return false;
+    const d = new Date(now);
+    if (d.getHours() < AUTO_SYNC_FROM_H) return false;
+    if (info.at >= new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()) return false;
+    if (prefs.tried && now - prefs.tried < AUTO_SYNC_GAP_MS) return false;
+    if (prefs.denied && now - prefs.denied < AUTO_SYNC_PAUSE_MS) return false;
+    return true;
+  }
+  function maybeAutoSync() {
+    if (state.source !== "github" || state.offlineSince || syncRunning || !loadCredentials()) return;
+    const prefs = autoSyncPrefs();
+    if (!autoSyncDue(syncInfo(), prefs)) return;
+    saveAutoSyncPrefs({ ...prefs, tried: Date.now() });
+    triggerSync(true);
+  }
+  // The header chip follows a running sync without drawing the page again
+  function showSyncRunning() {
+    const node = document.querySelector("[data-sync-chip]");
+    if (node) node.lastChild.textContent = syncRunning ? T("GitHub · Abruf läuft …") : node.dataset.syncChip;
+  }
+
   let syncRunning = false;
-  async function triggerSync() {
+  async function triggerSync(auto = false) {
     const cred = loadCredentials();
     const out = $("prefs-sync-run");
     const say = (text) => { out.hidden = false; out.textContent = text; renderPrefsConnection(); };
     if (!cred || syncRunning) return;
     syncRunning = true;
+    showSyncRunning();
     const started = Date.now();
     say(T("Abruf wird gestartet …"));
     let res;
@@ -3914,6 +3956,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     }
     if (!res || !res.ok) {
       syncRunning = false;
+      showSyncRunning();
+      if (auto && res && (res.status === 403 || res.status === 404)) saveAutoSyncPrefs({ ...autoSyncPrefs(), denied: Date.now() });
       say(!res ? T("GitHub ist nicht erreichbar. Besteht eine Internetverbindung?")
         : res.status === 403 || res.status === 404
           ? T("Der Token darf den Abruf nicht starten. Gib ihm zusätzlich die Berechtigung „Actions: Read and write“: Profilbild → Settings → Developer settings → Fine-grained tokens → den Token → Edit. Oder starte den Workflow „Sync Garmin and Hevy“ im Daten-Repository unter Actions → Run workflow.")
@@ -3932,6 +3976,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       // A run that started after the click; the clocks of browser and GitHub may differ a little
       if (info && Date.parse(status.started_at ?? status.finished_at) >= started - 60000) {
         syncRunning = false;
+        const { denied, ...rest } = autoSyncPrefs();
+        if (denied) saveAutoSyncPrefs(rest);
         await loadAndRender();
         say(info.failed.length ? T("Abruf fertig, aber fehlgeschlagen: {0}. Details im Lauf auf GitHub.", [info.failed.join(", ")])
           : T("Abruf fertig, Daten neu geladen."));
@@ -3939,6 +3985,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       }
     }
     syncRunning = false;
+    showSyncRunning();
     say(T("Der Abruf ist nach 10 Minuten noch nicht fertig. Sieh im Daten-Repository unter Actions nach."));
   }
 
@@ -5419,6 +5466,10 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       const node = sync ? chip(kind, T("{0} · Abruf {1}", [where, whenText(sync.at)]), sync.late ? "warn" : "neutral")
         : chip(kind, T("{0} · geladen {1}", [where, clockOf(state.loadedAt)]));
       node.title = T("Seite geladen um {0}", [clockOf(state.loadedAt)]);
+      if (state.source === "github") {
+        node.dataset.syncChip = node.lastChild.textContent;
+        if (syncRunning) node.lastChild.textContent = T("GitHub · Abruf läuft …");
+      }
       if (sync) {
         node.setAttribute("role", "button");
         node.tabIndex = 0;
@@ -8273,6 +8324,12 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     }
     $("connect-title").textContent = cred ? T("Neu verbinden") : T("Verbinden");
     if (!$("gh-repo").value && cred) $("gh-repo").value = cred.repo;
+    const autoPrefs = autoSyncPrefs();
+    $("prefs-autosync-row").hidden = state.source !== "github";
+    $("prefs-autosync").checked = !autoPrefs.off;
+    $("prefs-autosync-sub").textContent = autoPrefs.denied && Date.now() - autoPrefs.denied < AUTO_SYNC_PAUSE_MS
+      ? T("Pausiert: Der Token darf den Abruf nicht starten. Gib ihm „Actions: Read and write“, dann läuft es wieder; bis dahin pausiert es eine Woche.")
+      : T("Öffnest du das Dashboard nach 8 Uhr und lief heute noch kein Abruf, startet es ihn selbst. Gilt für diesen Browser.");
     const syncNow = button(syncRunning ? T("Abruf läuft …") : T("Jetzt abrufen"), () => triggerSync());
     syncNow.disabled = syncRunning;
     $("prefs-conn-actions").replaceChildren(...(cred
@@ -8295,6 +8352,10 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     setupLanguage();
     for (const b of document.querySelectorAll('[data-action="settings"]')) b.addEventListener("click", () => openPrefs("general"));
     $("prefs-close").addEventListener("click", closePrefs);
+    $("prefs-autosync").addEventListener("change", (e) => {
+      const { off, ...rest } = autoSyncPrefs();
+      saveAutoSyncPrefs(e.target.checked ? rest : { ...rest, off: true });
+    });
     $("prefs-help").addEventListener("click", () => { closePrefs(); openHelp(); });
     $("prefs").addEventListener("click", (e) => { if (e.target === $("prefs")) closePrefs(); });
     const tabs = PANES.map((name) => $(`tab-${name}`));
@@ -8496,7 +8557,10 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   function setupApp() {
     for (const b of document.querySelectorAll('[data-action="refresh"]')) b.addEventListener("click", () => loadAndRender());
     document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "visible" && Date.now() - (state.loadedAt || 0) > REFRESH_AFTER_MS) loadAndRender();
+      if (document.visibilityState !== "visible") return;
+      // The auto-sync check runs on every return, also within 15 minutes: opened at 07:55, back at 08:05
+      if (Date.now() - (state.loadedAt || 0) > REFRESH_AFTER_MS) loadAndRender().then(maybeAutoSync);
+      else maybeAutoSync();
     });
     window.addEventListener("online", () => { if (state.offlineSince) loadAndRender(); });
 
@@ -8554,6 +8618,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       });
     }
     await loadAndRender();
+    maybeAutoSync();
     window.addEventListener("scroll", hideTip, { passive: true });
 
     startPosition();
