@@ -727,7 +727,11 @@ pre.csv { margin: 0; font-family: var(--font-mono); font-size: 0.75rem; backgrou
 .dlg-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
 .dlg-actions .primary-btn, .dlg-actions .ghost-btn { min-height: 44px; }
 .dlg-actions #m-delete { margin-right: auto; }
-#m-status.good { color: var(--good-ink); }
+#m-status.good, #u-status.good { color: var(--good-ink); }
+#u-status.bad { color: var(--crit-ink); }
+.u-found { display: grid; gap: 8px; }
+.u-found .check { font-size: 0.875rem; min-height: 32px; }
+#befunde .ghost-btn { min-height: 44px; }
 #m-status.bad { color: var(--crit-ink); }
 .progress { height: 8px; border-radius: 999px; background: var(--grid); overflow: hidden; }
 .progress > span { display: block; height: 100%; border-radius: 999px; background: var(--t-fg, var(--s1)); }
@@ -1604,7 +1608,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
           <p>Werte aus Labor, Arztpraxis und Leistungstests, die keine Uhr und keine Waage misst: Ruheumsatz mit RER, Taillenumfang, DEXA, VO2max aus der Spiroergometrie und Blutwerte. Je Messgröße steht der neueste Wert. Blutwerte werden nur gegen den Referenzbereich bewertet, der auf dem Befund steht.</p>
           <p class="source">Quelle: measurements.csv · Dateien unter files/ im Daten-Repository</p>
         </div>
-        <div class="card-actions"><button class="primary-btn" type="button" id="m-add">Befund eintragen</button><span class="sub" id="m-add-note"></span></div>
+        <div class="card-actions"><button class="primary-btn" type="button" id="m-add">Befund eintragen</button><button class="ghost-btn" type="button" id="u-pick">Befund hochladen</button><input type="file" id="u-input" accept="application/pdf,image/jpeg,image/png" hidden><span class="sub" id="m-add-note"></span></div>
         <div id="befunde-list"></div>
       </div>
       <div class="card span2" data-tab="Wochen" data-icon="table">
@@ -1738,6 +1742,26 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       <button class="primary-btn" type="submit" id="m-save">Speichern</button>
     </div>
   </form>
+</dialog>
+<dialog class="help mdlg" id="u-dialog" aria-labelledby="u-title">
+  <div class="help-in">
+    <div class="help-head">
+      <h2 id="u-title">Befund hochladen</h2>
+      <button class="ghost-btn" type="button" id="u-close">Abbrechen</button>
+    </div>
+    <p class="sub" id="u-file"></p>
+    <div class="field">
+      <label for="u-date">Datum des Befunds</label>
+      <input id="u-date" type="date">
+    </div>
+    <p class="sub" id="u-status" role="status"></p>
+    <div class="u-found" id="u-found"></div>
+    <p class="sub">Die Datei kommt nach files/ in dein privates Daten-Repository und bleibt in dessen Git-Historie, auch wenn du sie später löschst.</p>
+    <div class="dlg-actions">
+      <button class="ghost-btn" type="button" id="u-manual" hidden>Hochladen und Werte von Hand eintragen</button>
+      <button class="primary-btn" type="button" id="u-go" disabled>Hochladen</button>
+    </div>
+  </div>
 </dialog>
 <dialog class="help" id="help" aria-labelledby="help-title">
   <div class="help-in">
@@ -3478,7 +3502,31 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Behalten": "Keep",
 "Löschen …": "Delete …",
 "Dein Token darf nur lesen. Ändere oder lösche die Zeile mit der id {0} selbst in measurements.csv, oder gib dem Token „Contents: Read and write“. ": "Your token can only read. Change or delete the row with id {0} in measurements.csv yourself, or give the token “Contents: Read and write”. ",
-"measurements.csv auf GitHub öffnen": "Open measurements.csv on GitHub"
+"measurements.csv auf GitHub öffnen": "Open measurements.csv on GitHub",
+"Dein Token darf nur lesen. Gib ihm „Contents: Read and write“, dann lädt das Dashboard Befunde hoch.": "Your token can only read. Give it “Contents: Read and write” and the dashboard uploads reports.",
+"Die Datei ist größer als 5 MB. Verkleinere sie oder speichere nur die Seiten mit den Werten.": "The file is larger than 5 MB. Make it smaller or save only the pages with the values.",
+"Die Datei liegt unter {0}, aber die Werte wurden nicht gespeichert:": "The file is at {0}, but the values were not saved:",
+"Die PDF ließ sich im Browser nicht lesen.": "The browser could not read the PDF.",
+"Du kannst die Datei trotzdem hochladen und die Werte von Hand eintragen.": "You can still upload the file and enter the values by hand.",
+"Fotos und Scans haben keinen Text, den der Browser lesen kann.": "Photos and scans have no text the browser can read.",
+"Gib das Datum des Befunds an.": "Enter the date of the report.",
+"Hochgeladen nach {0}.": "Uploaded to {0}.",
+"Hochgeladen, {0} Werte übernommen.": "Uploaded, {0} values taken over.",
+"Hochladen und Werte übernehmen": "Upload and take over the values",
+"Nur hochladen": "Upload only",
+"Hochladen": "Upload",
+"Lädt hoch …": "Uploading …",
+"Liest den Befund …": "Reading the report …",
+"Im Text der PDF wurden keine bekannten Werte gefunden.": "No known values were found in the text of the PDF.",
+"Nur PDF, JPG oder PNG.": "Only PDF, JPG or PNG.",
+"Unter diesem Namen liegen schon mehrere Dateien. Benenne die Datei um und lade sie noch einmal hoch.": "Several files with this name exist already. Rename the file and upload it again.",
+"{0} Werte erkannt. Prüfe sie, bevor sie zählen.": "{0} values recognised. Check them before they count.",
+"Befund hochladen": "Upload report",
+"Datum des Befunds": "Date of the report",
+"Die Datei kommt nach files/ in dein privates Daten-Repository und bleibt in dessen Git-Historie, auch wenn du sie später löschst.": "The file goes to files/ in your private data repository and stays in its Git history, even if you delete it later.",
+"Hochladen und Werte von Hand eintragen": "Upload and enter the values by hand",
+"schon eingetragen": "already entered",
+"Das Datum im Befund ist nicht eindeutig, etwa 11/10/2026. Trag es bitte selbst ein.": "The date in the report is ambiguous, e.g. 11/10/2026. Please enter it yourself."
 }
 </script>
 <script>
@@ -6259,7 +6307,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     const { list = [], invalid = 0 } = state.measurements || {};
     // Writing needs the data repository and a connection; the sample data and local files are read-only
     const canWrite = state.source === "github" && !state.offlineSince;
-    $("m-add").disabled = !canWrite;
+    $("m-add").disabled = $("u-pick").disabled = !canWrite;
     $("m-add-note").textContent = state.offlineSince ? T("Offline: Eintragen geht wieder mit Verbindung.")
       : state.source !== "github" ? T("Eintragen geht mit verbundenem Daten-Repository (Einstellungen → Verbindung).") : "";
     const groups = measurementGroups(list);
@@ -6426,7 +6474,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   // The dialog: one form for new and existing values; an existing one can also be deleted
   let measureEdit = null; // the row being edited: { id, rerId, file, existing }
   let measureDraftIds = { id: null, rerId: null };
-  function openMeasureDialog(m = null) {
+  function openMeasureDialog(m = null, preset = {}) {
     const dlg = $("m-dialog");
     $("m-form").reset();
     for (const e of dlg.querySelectorAll(".err")) { e.hidden = true; e.textContent = ""; }
@@ -6438,10 +6486,10 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     const rer = m?.kind === "rmr_kcal" ? all.find((x) => x.kind === "rer" && x.date === m.date) : null;
     measureEdit = m ? { id: m.id, rerId: rer?.id || null, file: m.file, existing: true } : null;
     // A new entry gets its ids once, so the preview does not change with every key
-    measureDraftIds = { id: m?.id || null, rerId: rer?.id || null };
+    measureDraftIds = { id: m?.id || null, rerId: rer?.id || null, file: preset.file || "" };
     $("m-title").textContent = m ? T("Befund bearbeiten") : T("Befund eintragen");
     $("m-kind").value = m?.kind || "rmr_kcal";
-    $("m-date").value = m?.date || tToIso(todayT());
+    $("m-date").value = m?.date || preset.date || tToIso(todayT());
     $("m-value").value = m ? String(m.value).replace(".", DECIMAL) : "";
     $("m-name").value = m?.name || "";
     $("m-unit").value = m?.kind === "blood" ? m.unit : "";
@@ -6489,7 +6537,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     return measureFieldValues(kind, date);
   };
   const measureFieldValues = (kind, date) => ({
-    id: measureDraftIds.id, rerId: measureDraftIds.rerId, file: measureEdit?.file || "",
+    id: measureDraftIds.id, rerId: measureDraftIds.rerId, file: measureEdit?.file || measureDraftIds.file || "",
     kind, date, value: $("m-value").value, name: $("m-name").value, unit: $("m-unit").value,
     lo: $("m-lo").value, hi: $("m-hi").value, rer: $("m-rer").value, source: $("m-source").value, note: $("m-note").value,
   });
@@ -6577,6 +6625,274 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       try { await navigator.clipboard.writeText(text); $("m-copy-btn").textContent = T("Kopiert"); }
       catch { const r = document.createRange(); r.selectNodeContents($("m-csv")); getSelection().removeAllRanges(); getSelection().addRange(r); }
     });
+  }
+
+
+  // ---- Befunde from a report file: the text of a PDF, read in this browser with pdf.js, and fixed
+  // rules for the values. Nothing leaves the browser for this step; photos and scans have no text
+  // layer and need the evaluation through the Claude API in the data repository's workflow.
+
+  const REPORT_RULES = [
+    { kind: "rmr_kcal", re: /(?:ruhe(?:energie)?umsatz|resting metabolic rate|\bRMR\b|\bREE\b)[^\d\n]{0,40}(\d[\d.,]{2,6})\s*kcal/i },
+    { kind: "rer", re: /(?:\bRER\b|\bRQ\b|respiratorische[rn]? quotient|respiratory exchange ratio)[^\d\n]{0,25}(0[.,]\d{1,3}|1[.,]0\d?)/i },
+    { kind: "vo2max_lab", re: /(?:V\S?O2\s*[-_ ]?(?:max|peak))[^\d\n]{0,40}(\d{2}(?:[.,]\d{1,2})?)\s*(?:ml\s*\/\s*kg\s*\/\s*min|ml\s*\/\s*min\s*\/\s*kg|ml\s*\/\s*\(?kg\s*[*·x]\s*min\)?)/i },
+    // Body composition only from a DEXA report, not a caliper or scale value printed elsewhere
+    { kind: "dexa_fat_pct", needs: /\b(?:DEXA|DXA)\b/i, re: /(?:körperfett(?:anteil)?|gesamtfett(?:anteil)?|total body fat|body fat|fettanteil)[^\d\n]{0,25}(\d{1,2}[.,]\d)\s*%/i },
+    { kind: "dexa_ffm_kg", needs: /\b(?:DEXA|DXA)\b/i, re: /(?:fettfreie masse|magermasse|lean mass|fat[- ]free mass)[^\d\n]{0,25}(\d{2,3}[.,]\d{1,2})\s*kg/i },
+    { kind: "waist_cm", re: /(?:taillenumfang|bauchumfang|waist(?: circumference)?)[^\d\n]{0,20}(\d{2,3}(?:[.,]\d)?)\s*cm/i },
+  ];
+  // A line that names a formula or a predicted value is never a measurement: "Ruheumsatz
+  // (Harris-Benedict)", "VO2max Soll", "predicted RMR"
+  const ESTIMATE_LINE = /harris|benedict|mifflin|jeor|katch|cunningham|schofield|formel|formula|estimat|predicted|geschätzt|berechnet|calculated|\bsoll(?:wert)?\b|vorhersage|% ?(?:des |of )?soll/i;
+  // A lab line: name, value (with an optional H/L flag), unit, reference "30 - 400", "< 116" or "> 40"
+  const LAB_LINE = /^([A-Za-zÄÖÜäöüß][A-Za-zÄÖÜäöüß0-9 \-()./,]{1,40}?)\s+[<>]?\s?(\d{1,5}(?:[.,]\d{1,3})?)\s*(?:[+*!]|\b[HLhl]\b)?\s+([a-zA-Zµμ%/][a-zA-Zµμ%/0-9.^*]{0,11})\s+(?:(\d{1,5}(?:[.,]\d{1,3})?)\s*[-–]\s*(\d{1,5}(?:[.,]\d{1,3})?)|[<≤]\s*(\d{1,5}(?:[.,]\d{1,3})?)|[>≥]\s*(\d{1,5}(?:[.,]\d{1,3})?))/;
+  const LAB_SKIP = /^(?:referenz|normbereich|einheit|ergebnis|parameter|analyse|test|seite|datum)/i;
+  // The day of the report: a date next to a word like "Datum" or "Abnahme" first, else the first
+  // plausible date; null when none
+  function reportDate(text, today) {
+    const ok = (d, m, y) => {
+      const year = y < 100 ? 2000 + y : y;
+      const iso = `${year}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+      const t = isoToT(iso);
+      return tToIso(t) === iso && year >= 2000 && t <= today ? iso : null;
+    };
+    // Never a date of birth: it is removed with its label, the rest of the line stays
+    text = text.replace(/(?:geburts?datum|geb\.|geboren(?: am)?|date of birth|birth ?date|\bDOB\b)\D{0,15}\d{1,4}[./-]\d{1,2}[./-]\d{2,4}/gi, " ");
+    // The day of the measurement first, then any labelled date (Befunddatum, Datum, date)
+    for (const label of [/(?:abnahme|untersuchung|messung|entnahme|collection|test(?:tag)?)/i, /(?:datum|befund|eingang|date)/i]) {
+      const near = new RegExp(`${label.source}\\D{0,25}(\\d{1,2})\\.(\\d{1,2})\\.(\\d{2,4})`, "i").exec(text);
+      if (near) { const iso = ok(+near[1], +near[2], +near[3]); if (iso) return iso; }
+    }
+    for (const m of text.matchAll(/\b(\d{1,2})\.(\d{1,2})\.(\d{4})\b/g)) { const iso = ok(+m[1], +m[2], +m[3]); if (iso) return iso; }
+    for (const m of text.matchAll(/\b(\d{4})-(\d{2})-(\d{2})\b/g)) { const iso = ok(+m[3], +m[2], +m[1]); if (iso) return iso; }
+    // 23/11/2026 or 11/23/2026: only when a part above 12 says which is the day
+    for (const m of text.matchAll(/\b(\d{1,2})\/(\d{1,2})\/(\d{4})\b/g)) {
+      const a = +m[1], b = +m[2];
+      const iso = a > 12 ? ok(a, b, +m[3]) : b > 12 ? ok(b, a, +m[3]) : a === b ? ok(a, b, +m[3]) : null;
+      if (iso) return iso;
+    }
+    return null;
+  }
+  // A date in the text that reportDate could not place (11/10/2026: 11 October or 10 November?)
+  const hasUnclearDate = (text) => /\b\d{1,2}\/\d{1,2}\/\d{2,4}\b/.test(text);
+  // The decimal mark a report uses, from numbers that can only be decimals ("5,4", "0.77"); null if
+  // it has none or both
+  function decimalMark(text) {
+    text = text.replace(/\b\d{1,4}[./-]\d{1,2}[./-]\d{2,4}\b/g, " "); // dates are no evidence
+    const comma = (text.match(/\d,\d{1,2}(?!\d)/g) || []).length, dot = (text.match(/\d\.\d{1,2}(?!\d)/g) || []).length;
+    return comma > dot ? "," : dot > comma ? "." : null;
+  }
+  // What a number in a report can mean. "1,000" or "2.455" is a thousands group or three decimals:
+  // the report's decimal mark decides; without one both readings are returned.
+  function reportNumbers(raw, mark) {
+    let t = String(raw).trim();
+    const one = /^\d{1,3}([.,])\d{3}$/.exec(t);
+    if (one) {
+      const grouped = Number(t.replace(one[1], "")), decimal = Number(t.replace(one[1], "."));
+      return mark ? [one[1] === mark ? decimal : grouped] : [grouped, decimal];
+    }
+    if (mark === ".") t = t.replace(/,(?=\d{3}(?!\d))/g, "");
+    if (mark === ",") t = t.replace(/\.(?=\d{3}(?!\d))/g, "");
+    const v = parseNumber(t);
+    return v == null || Number.isNaN(v) ? [] : [v];
+  }
+  // Values in the text of a report; each measure once, the first mention counts
+  function extractMeasures(text, today = todayT()) {
+    const items = [];
+    const lines = text.split(/\n/);
+    const mark = decimalMark(text);
+    for (const rule of REPORT_RULES) {
+      if (rule.needs && !rule.needs.test(text)) continue;
+      let m = null;
+      for (const line of lines) if (!ESTIMATE_LINE.test(line) && (m = rule.re.exec(line))) break;
+      const k = MEASURE_KINDS[rule.kind];
+      // Of two readings, the one in the plausible range
+      const value = m ? reportNumbers(m[1], mark).find((v) => v >= k.min && v <= k.max) : undefined;
+      if (value != null) items.push({ kind: rule.kind, value });
+    }
+    const seen = new Set();
+    for (const raw of text.split(/\n/)) {
+      const line = raw.replace(/\s+/g, " ").trim();
+      const m = LAB_LINE.exec(line);
+      if (!m || LAB_SKIP.test(m[1]) || REPORT_RULES.some((r) => r.re.test(line))) continue;
+      // "<0.01" or "> 90" is a bound, not a value: left out rather than saved as a number
+      if (/^\s+[<>≤≥]/.test(line.slice(m[1].length))) continue;
+      const name = m[1].trim().replace(/[,.]$/, ""), key = name.toLowerCase();
+      // A lab value has no plausible range here: with two readings it is left out, not guessed
+      const values = reportNumbers(m[2], mark);
+      if (seen.has(key) || values.length !== 1) continue;
+      const value = values[0];
+      seen.add(key);
+      const ref = (x) => { if (!x) return null; const r = reportNumbers(x, mark); return r.length === 1 ? r[0] : null; };
+      const lo = ref(m[4] || m[7]), hi = ref(m[5] || m[6]);
+      items.push({ kind: "blood", name, value, unit: m[3], lo, hi });
+    }
+    const date = reportDate(text, today);
+    // The dialog then leaves the date empty instead of proposing today
+    return date || !hasUnclearDate(text) ? { date, items } : { date, items, dateUnclear: true };
+  }
+
+  // pdf.js only when a report is read. A copy next to this page (vendor/, unchanged from the npm
+  // package pdfjs-dist), not a CDN: a script in this origin could read the GitHub token.
+  const PDFJS = "vendor/pdfjs-3.11.174";
+  let pdfjsLoading = null;
+  function loadPdfjs() {
+    pdfjsLoading ||= new Promise((resolve, reject) => {
+      const s = document.createElement("script");
+      s.src = `${PDFJS}/pdf.min.js`;
+      s.onload = () => { window.pdfjsLib.GlobalWorkerOptions.workerSrc = `${PDFJS}/pdf.worker.min.js`; resolve(window.pdfjsLib); };
+      s.onerror = () => { pdfjsLoading = null; reject(new Error("pdf.js")); };
+      document.head.append(s);
+    });
+    return pdfjsLoading;
+  }
+  // Lines of text: items of a page grouped by their baseline, left to right
+  async function pdfText(bytes) {
+    const lib = await loadPdfjs();
+    const doc = await lib.getDocument({ data: bytes }).promise;
+    const lines = [];
+    for (let n = 1; n <= Math.min(doc.numPages, 10); n++) {
+      const content = await (await doc.getPage(n)).getTextContent();
+      const rows = new Map();
+      for (const it of content.items) {
+        if (!it.str?.trim()) continue;
+        const y = Math.round(it.transform[5] / 2) * 2;
+        if (!rows.has(y)) rows.set(y, []);
+        rows.get(y).push(it);
+      }
+      for (const y of [...rows.keys()].sort((a, b) => b - a)) lines.push(rows.get(y).sort((a, b) => a.transform[4] - b.transform[4]).map((it) => it.str).join(" "));
+    }
+    return lines.join("\n");
+  }
+
+  const REPORT_MAX_BYTES = 5 * 1024 * 1024;
+  const REPORT_TYPES = { "application/pdf": "pdf", "image/jpeg": "jpg", "image/png": "png" };
+  const slugify = (name) => name.toLowerCase().replace(/\.[a-z0-9]+$/, "").normalize("NFKD").replace(/[^\w]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "befund";
+  // Uploads to files/ in the data repository; a name that exists gets -2, -3. Returns { path } or { error, readOnly }
+  async function uploadReport(bytes, name, date, cred = loadCredentials()) {
+    if (state.source !== "github" || !cred || cred.repo !== state.dataRepo) return { error: T("Speichern geht nur mit verbundenem Daten-Repository.") };
+    const ext = name.toLowerCase().split(".").pop();
+    const base = `files/${date}-${slugify(name)}`;
+    const content = b64EncodeBytes(bytes);
+    for (let n = 1; n <= 5; n++) {
+      const path = `${base}${n > 1 ? `-${n}` : ""}.${ext}`;
+      let res;
+      try {
+        res = await fetch(`https://api.github.com/repos/${cred.repo}/contents/${path}`, {
+          method: "PUT",
+          headers: { Authorization: `Bearer ${cred.token}`, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
+          body: JSON.stringify({ message: `Dashboard: add report ${path}`, content, ...(state.dataBranch ? { branch: state.dataBranch } : {}) }),
+        });
+      } catch {
+        return { error: T("GitHub ist nicht erreichbar. Besteht eine Internetverbindung? In einer eingebetteten Vorschau blockiert der Browser solche Anfragen.") };
+      }
+      if (res.ok) return { path };
+      if (res.status === 422) continue; // a file with this name exists
+      if (res.status === 403 || res.status === 404) return { error: T("Dein Token darf nur lesen. Gib ihm „Contents: Read and write“, dann lädt das Dashboard Befunde hoch."), readOnly: true };
+      return { error: writeProblem(res.status) };
+    }
+    return { error: T("Unter diesem Namen liegen schon mehrere Dateien. Benenne die Datei um und lade sie noch einmal hoch.") };
+  }
+  function b64EncodeBytes(bytes) {
+    let bin = "";
+    for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+    return btoa(bin);
+  }
+
+  // The upload dialog: read the file, show what was found, upload and take over the ticked values
+  let report = null; // { file, bytes, found: { date, items } }
+  async function openReport(file) {
+    const dlg = $("u-dialog");
+    report = null;
+    $("u-file").textContent = `${file.name} · ${fmt(file.size / 1024)} KB`;
+    $("u-found").replaceChildren();
+    $("u-status").className = "sub";
+    $("u-status").hidden = false;
+    $("u-go").disabled = true;
+    $("u-manual").hidden = true;
+    if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", "");
+    const type = REPORT_TYPES[file.type];
+    if (!type) return reportProblem(T("Nur PDF, JPG oder PNG."));
+    if (file.size > REPORT_MAX_BYTES) return reportProblem(T("Die Datei ist größer als 5 MB. Verkleinere sie oder speichere nur die Seiten mit den Werten."));
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    let found = { date: null, items: [] }, note = "";
+    if (type === "pdf") {
+      $("u-status").textContent = T("Liest den Befund …");
+      try {
+        found = extractMeasures(await pdfText(bytes.slice()));
+        if (!found.items.length) note = T("Im Text der PDF wurden keine bekannten Werte gefunden.");
+      } catch {
+        note = T("Die PDF ließ sich im Browser nicht lesen.");
+      }
+    } else {
+      note = T("Fotos und Scans haben keinen Text, den der Browser lesen kann.");
+    }
+    report = { file, bytes, found };
+    $("u-date").value = found.date || (found.dateUnclear ? "" : tToIso(todayT()));
+    if (found.dateUnclear) note = `${note} ${T("Das Datum im Befund ist nicht eindeutig, etwa 11/10/2026. Trag es bitte selbst ein.")}`.trim();
+    renderReportFound(note);
+  }
+  function reportProblem(text) {
+    $("u-status").className = "sub bad";
+    $("u-status").textContent = text;
+  }
+  function renderReportFound(note) {
+    const items = report.found.items;
+    const unclear = report.found.dateUnclear && !$("u-date").value ? ` ${T("Das Datum im Befund ist nicht eindeutig, etwa 11/10/2026. Trag es bitte selbst ein.")}` : "";
+    $("u-status").textContent = items.length ? T("{0} Werte erkannt. Prüfe sie, bevor sie zählen.", [items.length]) + unclear : `${note} ${T("Du kannst die Datei trotzdem hochladen und die Werte von Hand eintragen.")}`;
+    // A value that is already there with the same day and number starts unticked
+    const date = $("u-date").value;
+    const known = (it) => (state.measurements?.list || []).some((m) => m.date === date && m.kind === it.kind && m.value === it.value
+      && (it.kind !== "blood" || m.name.toLowerCase() === it.name.toLowerCase()));
+    $("u-found").replaceChildren(...items.map((it, i) => {
+      const box = html("input", { type: "checkbox", id: `u-it-${i}` });
+      const dup = known(it);
+      box.checked = !dup;
+      const m = { ...it, unit: it.kind === "blood" ? it.unit : MEASURE_KINDS[it.kind].unit };
+      const ref = it.lo != null || it.hi != null ? ` · ${T("Ref. {0}", [it.lo != null && it.hi != null ? `${fmt(it.lo, it.lo % 1 ? 1 : 0)}–${fmt(it.hi, it.hi % 1 ? 1 : 0)}` : it.hi != null ? T("bis {0}", [fmt(it.hi)]) : T("ab {0}", [fmt(it.lo)])])}` : "";
+      return html("label", { class: "check", for: `u-it-${i}` }, [box, `${it.kind === "blood" ? it.name : MEASURE_KINDS[it.kind].label}: ${fmtMeasure(m)}${ref}${dup ? ` · ${T("schon eingetragen")}` : ""}`]);
+    }));
+    $("u-go").textContent = items.length ? T("Hochladen und Werte übernehmen") : T("Nur hochladen");
+    $("u-go").disabled = false;
+    $("u-manual").hidden = Boolean(items.length);
+  }
+  async function submitReport(thenManual = false) {
+    if (!report) return;
+    const date = $("u-date").value;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || tToIso(isoToT(date)) !== date || isoToT(date) > todayT()) return reportProblem(T("Gib das Datum des Befunds an."));
+    $("u-go").disabled = $("u-manual").disabled = true;
+    $("u-status").className = "sub";
+    $("u-status").textContent = T("Lädt hoch …");
+    const up = await uploadReport(report.bytes, report.file.name, date);
+    if (up.error) { $("u-go").disabled = $("u-manual").disabled = false; return reportProblem(up.error); }
+    const picked = report.found.items.filter((_, i) => $(`u-it-${i}`)?.checked);
+    if (picked.length) {
+      const suffix = Math.random().toString(36).slice(2, 6);
+      const rows = picked.map((it, i) => ({
+        id: `${date}-${it.kind}-${suffix}${i}`, date, kind: it.kind, name: it.name || "", value: String(it.value),
+        unit: it.kind === "blood" ? it.unit : MEASURE_KINDS[it.kind].unit, ref_low: it.lo == null ? "" : String(it.lo), ref_high: it.hi == null ? "" : String(it.hi),
+        source: "", note: "", file: up.path, status: "confirmed",
+      }));
+      const result = await writeMeasurements({ put: rows }, `Dashboard: add ${rows.length} values from ${up.path}`);
+      if (!result.ok) { $("u-go").disabled = false; return reportProblem(`${T("Die Datei liegt unter {0}, aber die Werte wurden nicht gespeichert:", [up.path])} ${result.error}`); }
+      state.measurements = parseMeasurements(result.rows);
+      render();
+    }
+    $("u-status").className = "sub good";
+    $("u-status").textContent = picked.length ? T("Hochgeladen, {0} Werte übernommen.", [picked.length]) : T("Hochgeladen nach {0}.", [up.path]);
+    const dlg = $("u-dialog");
+    setTimeout(() => {
+      if (typeof dlg.close === "function") dlg.close(); else dlg.removeAttribute("open");
+      if (thenManual) openMeasureDialog(null, { file: up.path, date });
+    }, 700);
+  }
+  function setupReports() {
+    $("u-pick").addEventListener("click", () => $("u-input").click());
+    $("u-input").addEventListener("change", () => { const f = $("u-input").files[0]; $("u-input").value = ""; if (f) openReport(f); });
+    $("u-close").addEventListener("click", () => { const d = $("u-dialog"); if (typeof d.close === "function") d.close(); else d.removeAttribute("open"); });
+    $("u-go").addEventListener("click", () => submitReport(false));
+    $("u-manual").addEventListener("click", () => submitReport(true));
+    $("u-date").addEventListener("change", () => { if (report) renderReportFound(""); });
   }
 
   function renderSources() {
@@ -9247,6 +9563,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     setupLiftPicker();
     setupSettings();
     setupMeasurements();
+    setupReports();
     setupApp();
     renderRangeButtons();
     for (const [key, id] of [["sessions", "sessions-more"], ["recent", "recent-more"], ["insights", "insights-more"], ["bsessions", "bsessions-more"]]) {

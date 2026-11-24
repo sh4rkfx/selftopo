@@ -28,6 +28,10 @@ the tag of its major version (`v2`, before that `v1`).
   checks for date, unit and plausible range (the RER goes with the resting metabolic rate);
   every entry can be edited or deleted. With a read-only token the dialog gives the CSV lines
   to paste on GitHub.
+- *Befund hochladen*: a PDF, JPG or PNG goes to `files/` in the data repository. For a PDF with
+  text the dashboard reads the values in the browser (resting metabolic rate and RER, lab VO2max,
+  DEXA, waist, lab lines with reference ranges) and the report date, and lists them for review
+  before they count.
 - Sleep debt: the Schlaf area shows how far the last 4 nights fell short of your sleep-duration
   goal (otherwise 8 hours), net of longer nights and never below zero; yellow from 2 hours.
 - English dates name the month (*Tue 24 Nov*, push: *31 Mar*) instead of *24/11*.

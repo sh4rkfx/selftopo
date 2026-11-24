@@ -11,6 +11,7 @@ Node these tests are skipped.
 
 import json
 
+import pytest
 from jsdashboard import run
 
 HELPERS = ["isoToT", "tToIso", "MEASURE_KINDS", "MEASURE_GROUPS", "parseMeasurements", "refState", "measurementGroups"]
@@ -103,3 +104,121 @@ def test_change_replaces_by_id_and_csv_is_sorted_and_quoted(given):
     csv = run(ENTRY, f"measureCsv(applyMeasureChange({json.dumps(rows)}, {{ put: {json.dumps(put)}, remove: ['b'] }}))")
     given(csv=csv)
     assert csv == 'id,date,kind,name,value,unit,ref_low,ref_high,source,note,file,status\na,2026-11-23,rmr_kcal,,2400,,,,,"nüchtern, 7:30",,\n'
+
+
+READ = ENTRY + ["REPORT_RULES", "ESTIMATE_LINE", "LAB_LINE", "LAB_SKIP", "reportDate", "hasUnclearDate", "decimalMark", "reportNumbers", "extractMeasures"]
+
+LAB = """Labor Dr. Muster · Salzburg
+Abnahmedatum: 30.10.2026   Befunddatum: 31.10.2026
+Parameter Ergebnis Einheit Referenzbereich
+Ferritin 86 µg/l 30 - 400
+HbA1c 5,4 % 4,0 - 5,6
+LDL-Cholesterin 142 H mg/dl < 116
+HDL-Cholesterin 52 mg/dl > 40
+Vitamin D (25-OH) 24 L ng/ml 30 - 100
+Seite 1 von 1"""
+
+METABOLIC = """Sportmedizin · Leistungsdiagnostik
+Untersuchungsdatum 23.11.2026
+Ruheumsatz (gemessen): 2.455 kcal/Tag
+RER 0,77
+Grundumsatz Harris-Benedict: 1.890 kcal/Tag"""
+
+SPIRO = """Spiroergometrie 14.10.2026
+VO2max 44,2 ml/kg/min
+VO2 max absolut 3.780 ml/min
+Körperfettanteil (Caliper) 18,5 %"""
+
+
+def extract(text):
+    return run(READ, f"extractMeasures({json.dumps(text)}, {TODAY})")
+
+
+def test_lab_report_lines_with_reference_ranges(given):
+    """Name, value with an H/L flag, unit and "30 - 400", "< 116" or "> 40"; the sampling date counts."""
+    out = extract(LAB)
+    given(found=out)
+    assert out["date"] == "2026-10-30"
+    assert [(i["name"], i["value"], i["unit"], i["lo"], i["hi"]) for i in out["items"]] == [
+        ("Ferritin", 86, "µg/l", 30, 400), ("HbA1c", 5.4, "%", 4, 5.6), ("LDL-Cholesterin", 142, "mg/dl", None, 116),
+        ("HDL-Cholesterin", 52, "mg/dl", 40, None), ("Vitamin D (25-OH)", 24, "ng/ml", 30, 100)]
+
+
+def test_metabolic_test_finds_measured_rmr_and_rer_not_the_formula(given):
+    """The measured 2,455 kcal, not the Harris-Benedict estimate below it; RER 0.77."""
+    out = extract(METABOLIC)
+    given(found=out)
+    assert out["date"] == "2026-11-23"
+    assert [(i["kind"], i["value"]) for i in out["items"]] == [("rmr_kcal", 2455), ("rer", 0.77)]
+
+
+def test_formula_and_predicted_lines_are_never_measurements(given):
+    """An estimate above the measured value is skipped; a report with only estimates gives nothing."""
+    first = extract("Resting metabolic rate (Harris-Benedict estimate): 1.890 kcal/day\nRMR measured 2.455 kcal/day\nVO2max predicted 41,0 ml/kg/min\nVO2max 44,2 ml/kg/min")
+    only = extract("Ruheumsatz nach Mifflin-St Jeor: 1.850 kcal/Tag\nVO2max Sollwert 41 ml/kg/min")
+    given(first=first, only=only)
+    assert [(i["kind"], i["value"]) for i in first["items"]] == [("rmr_kcal", 2455), ("vo2max_lab", 44.2)]
+    assert only["items"] == []
+
+
+def test_cpet_takes_relative_vo2max_only(given):
+    """ml/kg/min counts, the absolute ml/min does not; body fat outside a DEXA report is no DEXA value."""
+    out = extract(SPIRO)
+    given(found=out)
+    assert [(i["kind"], i["value"]) for i in out["items"]] == [("vo2max_lab", 44.2)]
+
+
+def test_dexa_report(given):
+    """Total body fat and lean mass from a DXA printout."""
+    out = extract("DXA Ganzkörper 20.11.2026\nTotal Body Fat 21,9 %\nLean Mass 66,4 kg")
+    given(found=out)
+    assert [(i["kind"], i["value"]) for i in out["items"]] == [("dexa_fat_pct", 21.9), ("dexa_ffm_kg", 66.4)]
+
+
+@pytest.mark.parametrize(("text", "date", "unclear"), [
+    ("Collection date: 11/23/2026\nRMR 2.455 kcal/day", "2026-11-23", False),  # US: 23 must be the day
+    ("Date of test: 23/11/2026\nRMR 2.455 kcal/day", "2026-11-23", False),     # UK
+    ("Date: 11/10/2026\nRMR 2.455 kcal/day", None, True),                      # 11 Oct or 10 Nov: ask
+])
+def test_slash_dates_only_when_unambiguous(given, text, date, unclear):
+    """A day above 12 decides between US and UK order; otherwise the dialog leaves the date empty."""
+    out = extract(text)
+    given(found=out)
+    assert out["date"] == date
+    assert out.get("dateUnclear", False) is unclear
+
+
+def test_thousands_separators_follow_the_report(given):
+    """US "1,000" with decimal points elsewhere is a thousand; German "1,000" with decimal commas is one."""
+    us = extract("Ferritin 1,000 ng/mL 30 - 400\nHbA1c 5.4 % 4.0 - 5.6\nRMR 2,455 kcal/day")
+    de = extract("TSH 1,000 mU/l 0,27 - 4,2\nHbA1c 5,4 % 4,0 - 5,6")
+    unclear = extract("Ferritin 1,000 ng/mL 30 - 400")
+    given(us=us, de=de, unclear=unclear)
+    assert [(i.get("name", i["kind"]), i["value"]) for i in us["items"]] == [("rmr_kcal", 2455), ("Ferritin", 1000), ("HbA1c", 5.4)]
+    assert [(i["name"], i["value"], i["lo"], i["hi"]) for i in de["items"]] == [("TSH", 1.0, 0.27, 4.2), ("HbA1c", 5.4, 4.0, 5.6)]
+    assert unclear["items"] == []
+
+
+def test_birth_date_is_never_the_report_date(given):
+    """Geburtsdatum before Abnahmedatum: the sampling day counts; a lone birth date gives no date."""
+    first = extract("Patient: M. Muster  Geburtsdatum: 01.02.1988  Abnahmedatum: 30.10.2026\nBefunddatum: 31.10.2026\nFerritin 86 µg/l 30 - 400")
+    only = extract("DOB 01.02.1988\nFerritin 86 µg/l 30 - 400")
+    given(first=first, only=only)
+    assert first["date"] == "2026-10-30"
+    assert only["date"] is None
+
+
+def test_bounds_and_dates_are_no_values(given):
+    """"<0.01" is a detection limit, not a value; dates do not decide the decimal mark."""
+    censored = extract("CRP <0.01 mg/L < 0.5\nFerritin 86 ng/mL 30 - 400")
+    dated = extract("Abnahmedatum: 30.10.2026\nFerritin 1,000 ng/mL 30 - 400")
+    given(censored=censored, dated=dated)
+    assert [i["name"] for i in censored["items"]] == ["Ferritin"]
+    assert dated["items"] == []
+
+
+def test_nothing_found_and_no_future_date(given):
+    """Plain text without values; a date after today is not the report date."""
+    out = extract("Arztbrief vom 30.12.2026\nAlles unauffällig.")
+    given(found=out)
+    assert out == {"date": None, "items": []}
