@@ -199,6 +199,15 @@ def test_thousands_separators_follow_the_report(given):
     assert unclear["items"] == []
 
 
+def test_birth_date_is_never_the_report_date(given):
+    """Geburtsdatum before Abnahmedatum: the sampling day counts; a lone birth date gives no date."""
+    first = extract("Patient: M. Muster  Geburtsdatum: 01.02.1988  Abnahmedatum: 30.10.2026\nBefunddatum: 31.10.2026\nFerritin 86 µg/l 30 - 400")
+    only = extract("DOB 01.02.1988\nFerritin 86 µg/l 30 - 400")
+    given(first=first, only=only)
+    assert first["date"] == "2026-10-30"
+    assert only["date"] is None
+
+
 def test_nothing_found_and_no_future_date(given):
     """Plain text without values; a date after today is not the report date."""
     out = extract("Arztbrief vom 30.12.2026\nAlles unauffällig.")

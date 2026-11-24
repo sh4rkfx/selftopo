@@ -6656,8 +6656,13 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       const t = isoToT(iso);
       return tToIso(t) === iso && year >= 2000 && t <= today ? iso : null;
     };
-    const near = /(?:datum|untersuchung|befund|abnahme|eingang|messung|test(?:tag)?|date)\D{0,25}(\d{1,2})\.(\d{1,2})\.(\d{2,4})/i.exec(text);
-    if (near) { const iso = ok(+near[1], +near[2], +near[3]); if (iso) return iso; }
+    // Never a date of birth: it is removed with its label, the rest of the line stays
+    text = text.replace(/(?:geburts?datum|geb\.|geboren(?: am)?|date of birth|birth ?date|\bDOB\b)\D{0,15}\d{1,4}[./-]\d{1,2}[./-]\d{2,4}/gi, " ");
+    // The day of the measurement first, then any labelled date (Befunddatum, Datum, date)
+    for (const label of [/(?:abnahme|untersuchung|messung|entnahme|collection|test(?:tag)?)/i, /(?:datum|befund|eingang|date)/i]) {
+      const near = new RegExp(`${label.source}\\D{0,25}(\\d{1,2})\\.(\\d{1,2})\\.(\\d{2,4})`, "i").exec(text);
+      if (near) { const iso = ok(+near[1], +near[2], +near[3]); if (iso) return iso; }
+    }
     for (const m of text.matchAll(/\b(\d{1,2})\.(\d{1,2})\.(\d{4})\b/g)) { const iso = ok(+m[1], +m[2], +m[3]); if (iso) return iso; }
     for (const m of text.matchAll(/\b(\d{4})-(\d{2})-(\d{2})\b/g)) { const iso = ok(+m[3], +m[2], +m[1]); if (iso) return iso; }
     // 23/11/2026 or 11/23/2026: only when a part above 12 says which is the day
