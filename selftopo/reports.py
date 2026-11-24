@@ -260,7 +260,11 @@ def evaluate(api_key: str | None = None, model: str | None = None, today: date |
             counts["files"] += 1
             log.warning("reports: %s answered without values", rel)
             continue
-        found = to_rows(answer, rel, today)
+        # A value already in the file (same day, measure and number) is not proposed again, e.g.
+        # one the dashboard read from the same PDF while this run started
+        same = {(r.get("date"), r.get("kind"), (r.get("name") or "").lower(), _number(r.get("value"))) for r in rows}
+        found = [r for r in to_rows(answer, rel, today)
+                 if (r["date"], r["kind"], r["name"].lower(), _number(r["value"])) not in same]
         # Ids must be unique: the dashboard edits and deletes by id
         taken = {r.get("id") for r in rows}
         for row in found:

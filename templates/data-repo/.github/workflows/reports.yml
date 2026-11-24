@@ -40,6 +40,12 @@ jobs:
         if: ${{ env.ANTHROPIC_API_KEY == '' }}
         run: echo "::notice::No ANTHROPIC_API_KEY secret; reports are only read in the dashboard (PDFs with text)."
 
+      # The dashboard uploads a file and then, in a second commit, the values it read from it. The
+      # wait lets that second commit land, so a file it already read is not sent as well.
+      - name: Let the dashboard finish its upload
+        if: ${{ env.ANTHROPIC_API_KEY != '' && github.event_name == 'push' }}
+        run: sleep 90
+
       - name: Choose the code version
         if: ${{ env.ANTHROPIC_API_KEY != '' }}
         id: code

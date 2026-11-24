@@ -199,3 +199,15 @@ def test_request_sends_pdf_as_document_with_a_strict_tool(data, monkeypatch, giv
     assert out == {"date": "2026-11-23", "values": []}
     assert body["messages"][0]["content"][0]["type"] == "document" and body["tool_choice"] == {"type": "auto"} and body["tools"][0]["strict"] is True
     assert sent["headers"]["x-api-key"] == "key" and body["model"] == "model-x"
+
+
+def test_values_already_entered_are_not_proposed_again(data, monkeypatch, given):
+    """The dashboard saved Ferritin 86 from the same PDF: only the new HbA1c becomes a proposal."""
+    (data / "files" / "lab.pdf").write_bytes(b"x")
+    write_rows(data / "measurements.csv", reports.FIELDS, [{"id": "a", "date": "2026-10-30", "kind": "blood", "name": "Ferritin", "value": "86", "status": "confirmed"}])
+    monkeypatch.setattr(reports, "ask_claude", lambda *a: {"date": "2026-10-30", "values": [
+        {"kind": "blood", "name": "ferritin", "value": 86.0, "unit": "µg/l"}, {"kind": "blood", "name": "HbA1c", "value": 5.4, "unit": "%"}]})
+    reports.evaluate(api_key="k", today=TODAY)
+    proposed = [r["name"] for r in read_rows(data / "measurements.csv") if r["status"] == "proposed"]
+    given(proposed=proposed)
+    assert proposed == ["HbA1c"]
