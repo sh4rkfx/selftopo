@@ -351,6 +351,9 @@ a.tile:hover .area-tag { color: var(--ink); }
 .area-toggle svg.ic { width: 17px; height: 17px; transition: transform 0.15s ease; }
 .area-toggle[aria-expanded="false"] svg.ic { transform: rotate(-90deg); }
 .area-body { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); }
+.area-body > .more-cards { grid-column: 1 / -1; justify-self: start; }
+@media (min-width: 760px) { .area-body:not(.show-all) > .card.extra { display: none; } }
+@media (max-width: 759px) { .area-body > .more-cards { display: none; } }
 @media (min-width: 900px) { .area-body { grid-template-columns: repeat(2, minmax(0, 1fr)); } .span2 { grid-column: 1 / -1; } }
 @media (max-width: 759px) {
   .area { padding: 12px 10px; border-radius: 14px; gap: 12px; }
@@ -1005,7 +1008,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       </table>
     </div>
     <div class="area-body" id="b-koerper">
-      <div class="card" data-tab="Gewicht" data-icon="koerper">
+      <div class="card span2" data-tab="Gewicht" data-icon="koerper">
         <div class="card-head"><h3>Körpergewicht</h3><p class="sub" id="weight-sub"></p></div>
         <div class="info" hidden>
           <p>Punkte sind einzelne Messungen, die Linie ist das 7-Tage-Mittel. Schwankungen um ein Kilogramm von Tag zu Tag kommen von Wasser und Mageninhalt; beurteile deshalb die Linie.</p>
@@ -1013,18 +1016,6 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
         </div>
         <div class="legend"><span><i class="key-line" style="background:var(--s1)"></i>Ø 7 Tage</span><span><i class="key-dot" style="background:var(--s1)"></i>Einzelmessung</span></div>
         <div class="chart-host" id="c-weight"></div>
-      </div>
-      <div class="card" data-tab="Fett, Muskel" data-icon="layers">
-        <div class="card-head"><h3>Fett und Muskeln laut Waage</h3><p class="sub" id="comp-sub"></p></div>
-        <div class="info" hidden>
-          <p>Die Waage schätzt Fett und Muskeln über den elektrischen Widerstand des Körpers und feste Annahmen über Wasser in fettfreiem Gewebe. Von einem Tag zum nächsten springt die Schätzung oft um ±0,4 kg, mehr als sich Fett oder Muskeln ändern können; deshalb zeigt die Karte nur das 28-Tage-Mittel. Belastbar trennen lassen sich Fett und Muskeln damit nicht, besser eignen sich der Taillenumfang und der Kraftverlauf.</p>
-          <p class="source">Quelle: garmin_daily.csv · fat_mass_kg, muscle_mass_kg</p>
-        </div>
-        <details class="daily comp-more">
-          <summary>Verlauf der Schätzung zeigen</summary>
-          <div class="legend"><span><i class="key-line" style="background:var(--s1)"></i>Muskelmasse</span><span><i class="key-line" style="background:var(--s2)"></i>Fettmasse</span></div>
-          <div class="chart-host" id="c-comp"></div>
-        </details>
       </div>
       <div class="card span2" data-tab="Tempo" data-icon="trend">
         <div class="card-head"><h3>Abnahmetempo</h3><p class="sub" id="rate-sub"></p></div>
@@ -1045,6 +1036,18 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
         <div class="legend"><span><i class="key-line" style="background:var(--s1)"></i>systolisch</span><span><i class="key-line" style="background:var(--s2)"></i>diastolisch</span><span><i class="key-dot" style="background:var(--ink-2)"></i>Einzelmessung</span><span><i class="key-dash"></i>135 und 85</span></div>
         <div class="chart-host" id="c-bp"></div>
         <ul class="stat3" id="bp-stats"></ul>
+      </div>
+      <div class="card span2" data-tab="Fett, Muskel" data-icon="layers">
+        <div class="card-head"><h3>Fett und Muskeln laut Waage</h3><p class="sub" id="comp-sub"></p></div>
+        <div class="info" hidden>
+          <p>Die Waage schätzt Fett und Muskeln über den elektrischen Widerstand des Körpers und feste Annahmen über Wasser in fettfreiem Gewebe. Von einem Tag zum nächsten springt die Schätzung oft um ±0,4 kg, mehr als sich Fett oder Muskeln ändern können; deshalb zeigt die Karte nur das 28-Tage-Mittel. Belastbar trennen lassen sich Fett und Muskeln damit nicht, besser eignen sich der Taillenumfang und der Kraftverlauf.</p>
+          <p class="source">Quelle: garmin_daily.csv · fat_mass_kg, muscle_mass_kg</p>
+        </div>
+        <details class="daily comp-more">
+          <summary>Verlauf der Schätzung zeigen</summary>
+          <div class="legend"><span><i class="key-line" style="background:var(--s1)"></i>Muskelmasse</span><span><i class="key-line" style="background:var(--s2)"></i>Fettmasse</span></div>
+          <div class="chart-host" id="c-comp"></div>
+        </details>
       </div>
     </div>
   </section>
@@ -3236,7 +3239,10 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Sobald genug Tage da sind, steht hier, was von deinem Üblichen abweicht": "Once there are enough days, this shows what differs from your usual",
 "Fett und Muskeln laut Waage": "Fat and muscle according to the scale",
 "Verlauf der Schätzung zeigen": "Show the estimate over time",
-"Schätzung, 28-Tage-Mittel: Fett {0} kg · Muskel {1} kg seit {2}": "Estimate, 28-day mean: fat {0} kg · muscle {1} kg since {2}"
+"Schätzung, 28-Tage-Mittel: Fett {0} kg · Muskel {1} kg seit {2}": "Estimate, 28-day mean: fat {0} kg · muscle {1} kg since {2}",
+"Weniger Karten": "Fewer cards",
+"Weitere {0} Karten zeigen": "Show {0} more cards",
+"1 weitere Karte zeigen": "Show 1 more card"
 }
 </script>
 <script>
@@ -5709,6 +5715,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     if (!card || !area) return;
     if (card.dataset.group) setGroup(area.id, card.dataset.group);
     if (collapsed.has(area.id)) setCollapsed(area.id, false);
+    if (card.classList.contains("extra")) { $(`b-${area.id}`)?.classList.add("show-all"); markExtras(area.id); }
     const body = $(`b-${area.id}`);
     if (body?.classList.contains("tabbed")) {
       const index = [...body.querySelectorAll(":scope > .card")].indexOf(card);
@@ -7864,8 +7871,10 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const collapsed = new Set();
   const onPhone = () => window.matchMedia(PHONE).matches;
-  // Phones and wide screens remember collapsed areas separately; on a phone everything starts collapsed.
-  const collapsedKey = () => (onPhone() ? "healthsync.collapsed.phone" : "healthsync.collapsed");
+  // Phones and wide screens remember collapsed areas separately. Both start with every area
+  // collapsed, so the page opens as a list of one-sentence conclusions. (The wide-screen key is new:
+  // the old one stored the former default, everything open.)
+  const collapsedKey = () => (onPhone() ? "healthsync.collapsed.phone" : "healthsync.collapsed.wide");
   function saveCollapsed() {
     try { localStorage.setItem(collapsedKey(), JSON.stringify([...collapsed])); } catch { /* storage unavailable */ }
   }
@@ -7903,6 +7912,29 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     const buttons = [...bar.children];
     cards.forEach((c, i) => c.classList.toggle("on", i === index));
     buttons.forEach((b, i) => { b.setAttribute("aria-selected", String(i === index)); b.tabIndex = i === index ? 0 : -1; });
+    markExtras(area);
+  }
+  // Wide screens: an open area shows its first two cards; the rest waits behind "Weitere n Karten".
+  // Phones show one card at a time in tabs and are not affected.
+  const CORE_CARDS = 2;
+  const EXTRA_AREAS = ["koerper", "ernaehrung", "erholung", "schlaf", "sport", "fitness", "aktivitaeten", "zusammenhaenge"];
+  function markExtras(area) {
+    const body = $(`b-${area}`);
+    if (!body || !EXTRA_AREAS.includes(area)) return;
+    const cards = [...body.querySelectorAll(":scope > .card")];
+    const shown = cards.filter((c) => !cardOff(c));
+    for (const c of cards) c.classList.toggle("extra", shown.indexOf(c) >= CORE_CARDS);
+    const n = shown.length - CORE_CARDS;
+    let btn = body.querySelector(":scope > .more-cards");
+    if (n <= 0) { btn?.remove(); return; }
+    if (!btn) {
+      btn = html("button", { type: "button", class: "ghost-btn more-cards" });
+      btn.addEventListener("click", () => { body.classList.toggle("show-all"); markExtras(area); });
+      body.append(btn);
+    }
+    const all = body.classList.contains("show-all");
+    btn.textContent = all ? T("Weniger Karten") : n === 1 ? T("1 weitere Karte zeigen") : T("Weitere {0} Karten zeigen", [n]);
+    btn.setAttribute("aria-expanded", String(all));
   }
   function buildTabs(area) {
     const body = $(`b-${area}`);
@@ -8006,7 +8038,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     let saved = null;
     try { saved = JSON.parse(localStorage.getItem(collapsedKey()) || "null"); } catch { saved = null; }
     // "kraft" is the former name of the Sport area
-    for (const area of (saved ?? (onPhone() ? AREAS : [])).map((x) => (x === "kraft" ? "sport" : x))) if (AREAS.includes(area)) setCollapsed(area, true);
+    for (const area of (saved ?? AREAS).map((x) => (x === "kraft" ? "sport" : x))) if (AREAS.includes(area)) setCollapsed(area, true);
     if (!collapsed.has("daten")) setCollapsed("daten", true);
 
     // Info button for every explanation: cards, area heads and the overview tiles.
