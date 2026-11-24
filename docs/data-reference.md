@@ -207,7 +207,7 @@ Values from labs and tests that no watch or scale measures, one row per value. T
 shows and writes it under Rohdaten → Befunde (*Befund eintragen*, *Bearbeiten*), with a token that
 has *Contents: Read and write*; with a read-only token it gives you the lines to paste on GitHub.
 *Befund hochladen* stores a PDF, JPG or PNG (up to 5 MB) under `files/` and, for a PDF with a text
-layer, reads the values in the browser with pdf.js and fixed rules (resting metabolic rate and
+layer, reads the values in the browser with pdf.js (a copy in `dashboard/vendor/`, no CDN) and fixed rules (resting metabolic rate and
 RER, lab VO2max in ml/kg/min, DEXA values only from a DEXA report, waist, and lab lines with a
 reference range). They are shown ticked for review; values already entered are unticked. Nothing
 in the sync touches the file. Report files go to `files/` in the

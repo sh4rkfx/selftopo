@@ -6684,8 +6684,9 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     return { date: reportDate(text, today), items };
   }
 
-  // pdf.js only when a report is read; pinned, from the same CDN as nothing else on the page
-  const PDFJS = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174";
+  // pdf.js only when a report is read. A copy next to this page (vendor/, unchanged from the npm
+  // package pdfjs-dist), not a CDN: a script in this origin could read the GitHub token.
+  const PDFJS = "vendor/pdfjs-3.11.174";
   let pdfjsLoading = null;
   function loadPdfjs() {
     pdfjsLoading ||= new Promise((resolve, reject) => {

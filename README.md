@@ -434,7 +434,7 @@ privately as described in [SECURITY.md](SECURITY.md).
 
 ```
 selftopo/       Python package: sync per source, analysis, settings
-dashboard/      index.html (the whole dashboard with the English dictionary), tests.html (test results), sw.js, manifest, icons
+dashboard/      index.html (the whole dashboard with the English dictionary), tests.html (test results), sw.js, manifest, icons, vendor/ (pdf.js for reading reports)
 docs/           analysis method, data reference, score design notes, images
 templates/      contents of the data repository template
 tests/          pytest suite and report_plugin.py, which records the runs for dashboard/tests.html
