@@ -739,7 +739,8 @@ button.chip:active { box-shadow: inset 0 0 0 1px var(--ink-2); filter: brightnes
 /* Phones and touch screens: controls reach 44 px. Chips grow a little and keep 8 px apart; info
    and toggle buttons get an invisible hit area around them, so the layout does not move. */
 @media (max-width: 759px), (pointer: coarse) {
-  .area-sum { gap: 8px; }
+  /* 4 px more above the chips, so their hit areas do not overlap the info and toggle buttons */
+  .area-sum { gap: 8px; margin-top: 4px; }
   .primary-btn, .ghost-btn { min-height: 44px; }
   .top-tools .icon-btn { width: 44px; height: 44px; }
   .top-tools .range-select { height: 44px; }
@@ -748,8 +749,14 @@ button.chip:active { box-shadow: inset 0 0 0 1px var(--ink-2); filter: brightnes
   .info-btn, .area-toggle { position: relative; }
   /* 50% - 22px grows any button to a 44 px hit area, whatever its own size (34, 38 px, ...) */
   .info-btn::after, .area-toggle::after { content: ""; position: absolute; inset: calc(50% - 22px); }
-  footer .link-btn, footer a { display: inline-flex; align-items: center; min-height: 44px; }
+  footer .link-btn, footer a { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; justify-content: center; }
   footer { row-gap: 0; }
+  /* Segmented filters (Belastbar / Mit Tendenzen, range, settings tabs) and summaries that open more */
+  .seg button { min-height: 44px; }
+  .reco-more > summary, details.daily > summary, .token-help > summary { min-height: 44px; display: flex; align-items: center; padding-block: 0; }
+  /* Source links sit inline in a short line; padding gives them a 24 px hit area (WCAG 2.5.8) */
+  .reco-sources a { display: inline-block; padding-block: 4px; }
+  dialog input:not([type="checkbox"]):not([type="radio"]), dialog select { min-height: 44px; }
 }
 @keyframes card-flash { from { box-shadow: 0 0 0 3px var(--s1); } to { box-shadow: 0 0 0 3px transparent; } }
 .card.flash { animation: card-flash 1.6s ease-out; }
