@@ -8,6 +8,7 @@ import time
 from datetime import date
 
 import pytest
+import requests
 
 from selftopo import config, yazio
 from selftopo.csvstore import read_rows, write_rows
@@ -194,3 +195,50 @@ def test_sync_replaces_the_window_and_keeps_older_rows(tmp_path, monkeypatch, gi
     rows = read_rows(config.NUTRITION_CSV)
     assert [(r["date"], r["calories_kcal"]) for r in rows] == [("2026-10-01", "2000"), ("2026-10-29", "800")]
     assert rows[1]["water_ml"] == "1500"
+
+
+def test_dump_adds_single_entries_and_a_few_products(tmp_path, monkeypatch, given):
+    """The dump also saves the day's entries and up to five products and recipes; a failing lookup is a note."""
+    calls = []
+
+    class FakeApi:
+        def get(self, path, **params):
+            calls.append(path)
+            if path == "user/consumed-items":
+                return {"products": [{"product_id": f"p{i}"} for i in range(7)] + [{"product_id": "p0"}],
+                        "recipe_portions": [{"recipe_id": "r1"}], "simple_products": []}
+            if path == "recipes/r1":
+                raise requests.HTTPError("404 Not Found")
+            return {"path": path}
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr(yazio, "_Api", FakeApi)
+    monkeypatch.setattr(config, "DEBUG_DIR", tmp_path)
+    monkeypatch.setattr(config, "YAZIO_REQUEST_DELAY_S", 0)
+    data = json.loads(yazio.dump_raw(date(2026, 11, 23)).read_text(encoding="utf-8"))
+    given(calls=calls)
+    assert list(data["products"]) == ["p0", "p1", "p2", "p3", "p4"]
+    assert data["recipes"]["r1"] == {"error": "404 Not Found"}
+    assert data["daily-summary"] == {"path": "user/widgets/daily-summary"}
+
+
+def test_dump_reads_products_from_a_plain_list_of_entries(tmp_path, monkeypatch, given):
+    """Some API versions answer consumed-items with one list instead of a dict of lists."""
+
+    class FakeApi:
+        def get(self, path, **params):
+            if path == "user/consumed-items":
+                return [{"product_id": "a"}, {"recipe_id": "r"}, {"product_id": "a"}]
+            return {"path": path}
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr(yazio, "_Api", FakeApi)
+    monkeypatch.setattr(config, "DEBUG_DIR", tmp_path)
+    monkeypatch.setattr(config, "YAZIO_REQUEST_DELAY_S", 0)
+    data = json.loads(yazio.dump_raw(date(2026, 11, 23)).read_text(encoding="utf-8"))
+    given(products=list(data["products"]), recipes=list(data["recipes"]))
+    assert list(data["products"]) == ["a"] and list(data["recipes"]) == ["r"]

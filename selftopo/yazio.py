@@ -250,6 +250,23 @@ def sync(days: int, refresh: bool = False) -> None:  # noqa: ARG001 - the window
     log.info("YAZIO: %d days in %s (%d logged in the last %d days)", count, config.NUTRITION_CSV, len(fetched), days)
 
 
+DUMP_LOOKUPS = 5  # products and recipes looked up per dump
+
+
+def _try(api: _Api, path: str, **params: str) -> Any:
+    """One GET for the dump; an error becomes a short note in the file instead of stopping it."""
+    try:
+        time.sleep(config.YAZIO_REQUEST_DELAY_S)
+        return api.get(path, **params)
+    except requests.RequestException as exc:
+        return {"error": str(exc)[:200]}
+
+
+def _ids(entries: Any, key: str) -> list[Any]:
+    """Distinct ids under `key`, in order of first appearance."""
+    return list(dict.fromkeys(e.get(key) for e in entries or [] if isinstance(e, dict)))
+
+
 def dump_raw(day: date) -> Path:
     """Save the raw responses of one day, to check the field mapping against the real app data."""
     api = _Api()
@@ -258,6 +275,18 @@ def dump_raw(day: date) -> Path:
             "daily-summary": api.get("user/widgets/daily-summary", date=day.isoformat()),
             "water-intake": api.get("user/water-intake", date=day.isoformat()),
         }
+        # The single entries and a few of their products: to see where fibre and other nutrients
+        # beyond the four in the summary are, before the sync reads them. Each lookup is optional,
+        # so an endpoint YAZIO does not have only leaves its error in the file.
+        data["consumed-items"] = _try(api, "user/consumed-items", date=day.isoformat())
+        # Either one list of entries or a dict of lists (products, recipe_portions, simple_products)
+        items = data["consumed-items"]
+        lists = [items] if isinstance(items, list) else [v for v in (items or {}).values() if isinstance(v, list)]
+        entries = [e for entries in lists for e in entries]
+        product_ids = _ids(entries, "product_id")
+        recipe_ids = _ids(entries, "recipe_id")
+        data["products"] = {pid: _try(api, f"products/{pid}") for pid in product_ids[:DUMP_LOOKUPS] if pid}
+        data["recipes"] = {rid: _try(api, f"recipes/{rid}") for rid in recipe_ids[:DUMP_LOOKUPS] if rid}
     finally:
         api.close()
     config.DEBUG_DIR.mkdir(parents=True, exist_ok=True)
