@@ -29,8 +29,8 @@ the tag of its major version (`v2`, before that `v1`).
   *Weitere n Karten zeigen*. Körper starts with weight and loss pace.
 - The scale's fat and muscle estimate is a 28-day trend in a folded card, *Fett und Muskeln laut
   Waage*; the chips next to the weight are gone.
-- Navigation names every area in words; range, refresh, settings and help sit in the header row
-  on every width.
+- Navigation names every area in words; range, refresh and settings sit in the header row on
+  every width, help too except on phones, where it is in the footer and the settings.
 - Data series 3–5 are violet, magenta and slate, so no series looks like a green, amber or red
   verdict.
 - *Tatsächlicher Verbrauch* is now *Verbrauch laut deinem Log*, since it inherits whatever the
