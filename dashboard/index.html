@@ -6678,6 +6678,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   // The decimal mark a report uses, from numbers that can only be decimals ("5,4", "0.77"); null if
   // it has none or both
   function decimalMark(text) {
+    text = text.replace(/\b\d{1,4}[./-]\d{1,2}[./-]\d{2,4}\b/g, " "); // dates are no evidence
     const comma = (text.match(/\d,\d{1,2}(?!\d)/g) || []).length, dot = (text.match(/\d\.\d{1,2}(?!\d)/g) || []).length;
     return comma > dot ? "," : dot > comma ? "." : null;
   }
@@ -6714,6 +6715,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       const line = raw.replace(/\s+/g, " ").trim();
       const m = LAB_LINE.exec(line);
       if (!m || LAB_SKIP.test(m[1]) || REPORT_RULES.some((r) => r.re.test(line))) continue;
+      // "<0.01" or "> 90" is a bound, not a value: left out rather than saved as a number
+      if (/^\s+[<>≤≥]/.test(line.slice(m[1].length))) continue;
       const name = m[1].trim().replace(/[,.]$/, ""), key = name.toLowerCase();
       // A lab value has no plausible range here: with two readings it is left out, not guessed
       const values = reportNumbers(m[2], mark);

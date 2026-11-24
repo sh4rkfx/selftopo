@@ -208,6 +208,15 @@ def test_birth_date_is_never_the_report_date(given):
     assert only["date"] is None
 
 
+def test_bounds_and_dates_are_no_values(given):
+    """"<0.01" is a detection limit, not a value; dates do not decide the decimal mark."""
+    censored = extract("CRP <0.01 mg/L < 0.5\nFerritin 86 ng/mL 30 - 400")
+    dated = extract("Abnahmedatum: 30.10.2026\nFerritin 1,000 ng/mL 30 - 400")
+    given(censored=censored, dated=dated)
+    assert [i["name"] for i in censored["items"]] == ["Ferritin"]
+    assert dated["items"] == []
+
+
 def test_nothing_found_and_no_future_date(given):
     """Plain text without values; a date after today is not the report date."""
     out = extract("Arztbrief vom 30.12.2026\nAlles unauffällig.")
