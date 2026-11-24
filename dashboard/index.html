@@ -316,6 +316,7 @@ a.tile:hover .area-tag { color: var(--ink); }
 .tile .delta { font-size: 0.78125rem; color: var(--st-ink); min-height: 18px; display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: center; }
 .tile svg.spark { display: block; width: 100%; height: 28px; margin-top: 4px; align-self: end; }
 .tiles .loading { grid-column: 1 / -1; padding: 28px 16px; color: var(--muted); text-align: center; }
+.tiles .loading .notice-actions { justify-content: center; margin-top: 12px; }
 
 /* Chips: icon plus short value. Neutral by default; status colors only past a threshold. */
 .chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px 3px 7px; border-radius: 999px; font-size: 0.75rem; font-weight: 500; white-space: nowrap; background: var(--chip); color: var(--ink-2); line-height: 1.4; }
@@ -2180,7 +2181,6 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Mit GitHub verbinden": "Connect to GitHub",
 "Eigene Daten einrichten": "Set up your own data",
 "Beispieldaten. ": "Sample data. ",
-"Die Verbindung zu deinem Daten-Repository hat nicht geklappt: {0}": "The connection to your data repository did not work: {0}",
 "Alle Werte sind erfunden. Richte deine eigenen Daten ein oder verbinde die Seite mit deinem Daten-Repository, lokal reicht ": "All values are made up. Set up your own data or connect the page to your data repository; locally, ",
 " im Repo.": " in the repository is enough.",
 "Die neuesten Garmin-Daten sind vom {0}. ": "The newest Garmin data is from {0}. ",
@@ -3232,7 +3232,14 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Fitnesswerte": "Fitness values",
 "Lifestyle-Log": "Lifestyle log",
 "Geplant ist er jeden Morgen, aber GitHub startet geplante Läufe oft Stunden später oder lässt einen aus.": "It is scheduled every morning, but GitHub often starts scheduled runs hours late or skips one.",
-"GitHub ist nicht erreichbar. Besteht eine Internetverbindung?": "GitHub cannot be reached. Is there an internet connection?"
+"GitHub ist nicht erreichbar. Besteht eine Internetverbindung?": "GitHub cannot be reached. Is there an internet connection?",
+"Erneut versuchen": "Try again",
+"Verbindung prüfen": "Check connection",
+"Keine Verbindung zu {0}. ": "No connection to {0}. ",
+"Ohne Verbindung zeigt die Seite keine Werte, auch keine Beispieldaten.": "Without a connection the page shows no values, not even sample data.",
+"Nicht verbunden": "Not connected",
+"Fehler steht in den Einstellungen unter Verbindung": "The error is shown in settings under Connection",
+"Nicht verbunden.": "Not connected."
 }
 </script>
 <script>
@@ -3691,7 +3698,6 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     }
     // 3. The private data repository through the GitHub API, once this browser is connected
     const cred = loadCredentials();
-    let githubError = null;
     if (cred) {
       const data = await loadFromGithub(cred);
       if (!data.error) {
@@ -3701,11 +3707,13 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       // Offline: the last loaded data, if this device keeps it
       const snap = data.network && cred.remembered ? await readSnapshot(cred.repo) : null;
       if (snap) return { ...fromTexts(snap.texts, "github"), repo: cred.repo, remembered: true, offlineSince: snap.savedAt };
-      githubError = data.error;
+      // Connected, but neither GitHub nor a saved copy: an error page, never the sample data,
+      // whose invented values would read as the person's own
+      return { ...fromTexts({}, "github"), repo: cred.repo, remembered: cred.remembered, githubError: data.error };
     }
     // 4. Generated example data, with the analysis result the Python script produced for it
     return {
-      ...makeDemoData(tToIso(Date.now())), insights: DEMO_INSIGHTS, source: "demo", githubError,
+      ...makeDemoData(tToIso(Date.now())), insights: DEMO_INSIGHTS, source: "demo",
       found: Object.fromEntries(FILE_KEYS.map((k) => [k, true])),
     };
   }
@@ -5403,16 +5411,14 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       ]));
     }
     if (state.source === "demo") {
-      const connect = html("button", { type: "button", class: "ghost-btn", text: state.githubError ? T("Erneut verbinden") : T("Mit GitHub verbinden") });
+      const connect = html("button", { type: "button", class: "ghost-btn", text: T("Mit GitHub verbinden") });
       connect.addEventListener("click", () => openConnect());
       const setup = html("button", { type: "button", class: "primary-btn", text: T("Eigene Daten einrichten") });
       setup.addEventListener("click", openSetup);
-      parts.push(html("p", {}, state.githubError
-        ? [html("strong", { text: T("Beispieldaten. ") }), T("Die Verbindung zu deinem Daten-Repository hat nicht geklappt: {0}", [state.githubError])]
-        : [html("strong", { text: T("Beispieldaten. ") }),
+      parts.push(html("p", {}, [html("strong", { text: T("Beispieldaten. ") }),
           T("Alle Werte sind erfunden. Richte deine eigenen Daten ein oder verbinde die Seite mit deinem Daten-Repository, lokal reicht "),
           html("code", { text: "python -m http.server" }), T(" im Repo.")]));
-      parts.push(html("div", { class: "notice-actions" }, state.githubError ? [connect, setup] : [setup, connect]));
+      parts.push(html("div", { class: "notice-actions" }, [setup, connect]));
     }
     if (sync?.late && !fr.stale) {
       parts.push(html("p", {}, [
@@ -8307,12 +8313,30 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   // ------------------------------------------------------------------ start
 
   function renderNoData() {
+    if (state.githubError) return renderConnectionError();
     $("tiles").replaceChildren(html("div", { class: "loading" }, withCode(state.source === "github"
       ? T("Das Repository {0} enthält noch keine Daten. Starte dort den Workflow „Sync Garmin and Hevy“ oder lade deine lokalen CSV-Dateien hoch.", [state.dataRepo])
       : T("Die CSV-Dateien enthalten noch keine Daten. Zuerst `python -m selftopo sync` ausführen; die Seite zeigt dann alles automatisch."))));
     $("status-line").replaceChildren(pill("crit", T("Keine Daten")));
     for (const area of AREAS) $(`sum-${area}`).replaceChildren(chip(area === "daten" ? "alert" : null, area === "daten" ? T("Welche Datei fehlt, steht in den Einstellungen unter Verbindung") : T("Noch keine Daten"), area === "daten" ? "warn" : "neutral"));
     for (const host of document.querySelectorAll(".chart-host")) emptyNote(host, T("Noch keine Daten."));
+    renderSources();
+  }
+
+  // Connected, but GitHub refused or could not be reached and this device keeps no copy
+  function renderConnectionError() {
+    const retry = html("button", { type: "button", class: "primary-btn", text: T("Erneut versuchen") });
+    retry.addEventListener("click", () => loadAndRender());
+    const check = html("button", { type: "button", class: "ghost-btn", text: T("Verbindung prüfen") });
+    check.addEventListener("click", () => openConnect());
+    $("tiles").replaceChildren(html("div", { class: "loading" }, [
+      html("p", {}, [html("strong", { text: T("Keine Verbindung zu {0}. ", [state.dataRepo]) }), state.githubError]),
+      html("p", { text: T("Ohne Verbindung zeigt die Seite keine Werte, auch keine Beispieldaten.") }),
+      html("div", { class: "notice-actions" }, [retry, check]),
+    ]));
+    $("status-line").replaceChildren(pill("crit", T("Nicht verbunden")));
+    for (const area of AREAS) $(`sum-${area}`).replaceChildren(chip(area === "daten" ? "alert" : null, area === "daten" ? T("Fehler steht in den Einstellungen unter Verbindung") : T("Nicht verbunden"), area === "daten" ? "warn" : "neutral"));
+    for (const host of document.querySelectorAll(".chart-host")) emptyNote(host, T("Nicht verbunden."));
     renderSources();
   }
 
