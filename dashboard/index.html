@@ -1221,6 +1221,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
         <div class="card-head"><h3>Schlafenszeiten</h3><p class="sub" id="sleep-times-sub"></p></div>
         <div class="info" hidden>
           <p>Jeder Balken ist eine Nacht vom Einschlafen bis zum Aufwachen, der Abend oben, der Morgen unten. Garmin überschätzt die Schlafdauer im Mittel um etwa eine halbe bis drei viertel Stunde; die Zeiten selbst sind brauchbar.</p>
+          <p>Die Schlafschuld oben im Bereich zählt, wie weit die letzten 4 Nächte zusammen unter deinem Bedarf blieben: dein Ziel für die Schlafdauer, sonst 8 Stunden. Eine längere Nacht gleicht aus, unter null fällt sie nicht. Ab 2 Stunden wird sie gelb. Weil Garmin die Schlafdauer eher überschätzt, ist die echte Schuld eher größer.</p>
           <p class="source">Quelle: garmin_daily.csv · sleep_start_local, sleep_end_local</p>
         </div>
         <div class="legend"><span><i class="key-rect" style="background:var(--s1)"></i>vor Werktag</span><span><i class="key-rect" style="background:var(--s2)"></i>Fr- und Sa-Nacht</span></div>
@@ -3267,7 +3268,11 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "GitHub · Abruf läuft …": "GitHub · sync running …",
 "Pausiert: Der Token darf den Abruf nicht starten. Gib ihm „Actions: Read and write“, dann läuft es wieder; bis dahin pausiert es eine Woche.": "Paused: the token may not start the sync. Give it “Actions: Read and write” and it runs again; until then it pauses for a week.",
 "Öffnest du das Dashboard nach 8 Uhr und lief heute noch kein Abruf, startet es ihn selbst. Gilt für diesen Browser.": "If you open the dashboard after 8:00 and no sync has run today, it starts one itself. Applies to this browser.",
-"Morgens automatisch abrufen": "Sync automatically in the morning"
+"Morgens automatisch abrufen": "Sync automatically in the morning",
+"Schlafschuld der letzten 4 Nächte gegenüber {0} Stunden Bedarf; Garmin überschätzt die Schlafdauer eher, die Schuld ist also eher größer": "Sleep debt of the last 4 nights against a need of {0} hours; Garmin tends to overestimate sleep, so the debt is likely larger",
+"Schlafschuld {0} in 4 Nächten": "Sleep debt {0} over 4 nights",
+"Schlafschuld {0}": "Sleep debt {0}",
+"Die Schlafschuld oben im Bereich zählt, wie weit die letzten 4 Nächte zusammen unter deinem Bedarf blieben: dein Ziel für die Schlafdauer, sonst 8 Stunden. Eine längere Nacht gleicht aus, unter null fällt sie nicht. Ab 2 Stunden wird sie gelb. Weil Garmin die Schlafdauer eher überschätzt, ist die echte Schuld eher größer.": "The sleep debt at the top of the area counts how far the last 4 nights together fell short of your need: your sleep duration goal, otherwise 8 hours. A longer night makes up for it; it never drops below zero. From 2 hours it turns yellow. Because Garmin tends to overestimate sleep, the real debt is likely larger."
 }
 </script>
 <script>
@@ -5878,8 +5883,11 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     const weekday = nights.filter((d) => !isWeekendNight(d.t)), weekend = nights.filter((d) => isWeekendNight(d.t));
     const jetlag = weekday.length && weekend.length ? mean(weekend.map((d) => d.mid)) - mean(weekday.map((d) => d.mid)) : null;
     const bedAvg = mean(nights.map((d) => d.bed)), wakeAvg = mean(nights.map((d) => d.wake));
+    const debt = sleepDebt(M.days, todayT(), Number(goalFor("sleep_hours")?.target) || SLEEP_NEED_H);
+    const debtChip = debt ? CV("sleep-times-sub", T("Schlafschuld der letzten 4 Nächte gegenüber {0} Stunden Bedarf; Garmin überschätzt die Schlafdauer eher, die Schuld ist also eher größer", [fmt(debt.needH, 1)]),
+      T("Schlafschuld {0} in 4 Nächten", [fmtDuration(debt.debtH * 60)]), "clock", T("Schlafschuld {0}", [fmtDuration(debt.debtH * 60)]), debt.debtH >= DEBT_WARN_H ? "warn" : "neutral") : null;
     put("schlaf", slept.length
-      ? [C("sleep-times-sub", T("Mittlere Schlafdauer pro Nacht"), "schlaf", fmtDuration(mean(slept.map((d) => d.sleepH)) * 60)),
+      ? [debtChip, C("sleep-times-sub", T("Mittlere Schlafdauer pro Nacht"), "schlaf", fmtDuration(mean(slept.map((d) => d.sleepH)) * 60)),
         nights.length ? C("sleep-times-sub", T("Mittlere Einschlaf- und Aufwachzeit"), "clock", `${fmtClock(bedAvg)}–${fmtClock(wakeAvg)}`) : null,
         jetlag != null ? CV("sleep-week-sub", T("Verschiebung der Schlafmitte am Wochenende"), T("Schlafmitte am Wochenende {0} verschoben", [fmtSignedDuration(jetlag)]), "calendar", T("Wochenende {0}", [fmtSignedDuration(jetlag)]), Math.abs(jetlag) >= 60 ? "warn" : "neutral") : null]
       : [C("sleep-times-sub", T("Schlafenszeiten"), "schlaf", T("Keine Schlafdaten"))]);
@@ -6057,6 +6065,16 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     }));
   }
 
+  // Sleep debt of the last four nights: how far they fell short of the need, in sum; a longer night
+  // pays back, but the debt never goes below zero. Need: the sleep-hours goal, otherwise 8 hours.
+  // Only nights of the last six days count, so an old gap in the data does not look like debt.
+  const SLEEP_NEED_H = 8, DEBT_NIGHTS = 4, DEBT_WARN_H = 2;
+  function sleepDebt(days, today, needH = SLEEP_NEED_H) {
+    const nights = days.filter((d) => d.sleepH != null && d.t <= today && d.t > today - 6 * DAY).slice(-DEBT_NIGHTS);
+    if (nights.length < DEBT_NIGHTS) return null;
+    const debtH = Math.max(0, nights.reduce((sum, d) => sum + needH - d.sleepH, 0));
+    return { debtH, needH, nights: nights.length };
+  }
   const fmtDuration = (min) => {
     if (min == null) return "–";
     const total = Math.round(min);
