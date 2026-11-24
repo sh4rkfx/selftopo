@@ -611,6 +611,9 @@ kbd { font-family: var(--font-mono); font-size: 0.71875rem; border: 1px solid va
 .keys-legend { display: grid; gap: 6px; font-size: 0.8125rem; color: var(--ink-2); }
 .keys-legend span { display: inline-flex; align-items: center; gap: 8px; }
 
+/* First stop for the keyboard: jumps past the ten area links to the date and the overview */
+.skip-link { position: absolute; left: 12px; top: -60px; z-index: 20; padding: 10px 14px; border-radius: 10px; background: var(--ink); color: var(--surface); font-weight: 600; text-decoration: none; }
+.skip-link:focus { top: calc(env(safe-area-inset-top, 0px) + 8px); }
 .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* Connect dialog */
@@ -826,6 +829,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 </style>
 </head>
 <body>
+<a class="skip-link" href="#top">Zum Inhalt springen</a>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
   <defs>
     <symbol id="i-ueberblick" viewBox="0 0 20 20"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="3" y="3" width="6" height="6" rx="1.5"/><rect x="11" y="3" width="6" height="6" rx="1.5"/><rect x="3" y="11" width="6" height="6" rx="1.5"/><rect x="11" y="11" width="6" height="6" rx="1.5"/></g></symbol>
@@ -3249,7 +3253,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Weniger Karten": "Fewer cards",
 "Weitere {0} Karten zeigen": "Show {0} more cards",
 "1 weitere Karte zeigen": "Show 1 more card",
-"Alle Werte sind erfunden. So sieht das Dashboard mit deinen Garmin-, Hevy- und YAZIO-Daten aus; die Einrichtung dauert etwa 15 Minuten.": "All values are made up. This is how the dashboard looks with your Garmin, Hevy and YAZIO data; setting it up takes about 15 minutes."
+"Alle Werte sind erfunden. So sieht das Dashboard mit deinen Garmin-, Hevy- und YAZIO-Daten aus; die Einrichtung dauert etwa 15 Minuten.": "All values are made up. This is how the dashboard looks with your Garmin, Hevy and YAZIO data; setting it up takes about 15 minutes.",
+"Zum Inhalt springen": "Skip to content"
 }
 </script>
 <script>
