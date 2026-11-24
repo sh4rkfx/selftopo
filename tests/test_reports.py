@@ -124,23 +124,48 @@ def test_evaluate_writes_proposals_and_remembers_files(data, monkeypatch, given)
     assert reports.pending_files(data, rows, ledger) == ["files/broken.png"]
 
 
-@pytest.mark.parametrize(("status", "remembered"), [(400, True), (413, True), (429, False), (529, False)])
-def test_a_refused_file_is_remembered_a_busy_api_is_not(data, monkeypatch, given, status, remembered):
-    """A 4xx refusal would otherwise come first in every run and block newer files; 429 and 5xx are retried."""
-    (data / "files" / "a.png").write_bytes(b"x")
+@pytest.mark.parametrize(("status", "remembered"), [(400, True), (413, True), (429, False), (529, False), (401, False), (404, False)])
+def test_a_refused_file_is_remembered_a_busy_api_or_wrong_setup_is_not(data, monkeypatch, given, status, remembered):
+    """400/413 refuse this file and are recorded; 429 and 5xx are retried; a wrong key or model (401, 404) stops the run unrecorded."""
+    for name in ("a.png", "b.png"):
+        (data / "files" / name).write_bytes(b"x")
     response = requests.Response()
     response.status_code = status
+    calls = []
 
     def fake(path, api_key, model):
+        calls.append(path.name)
         raise requests.HTTPError(f"{status}", response=response)
 
     monkeypatch.setattr(reports, "ask_claude", fake)
-    counts = reports.evaluate(api_key="k", today=TODAY)
+    reports.evaluate(api_key="k", model="m1", today=TODAY)
     path = data / "report_evaluations.json"
     ledger = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
-    given(status=status, ledger=ledger)
-    assert counts["failed"] == 1
+    given(status=status, ledger=ledger, calls=calls)
     assert (ledger.get("files/a.png", {}).get("result") == f"error_{status}") is remembered
+    assert calls == (["a.png"] if status in (401, 404) else ["a.png", "b.png"])
+
+
+def test_a_refused_file_is_tried_again_with_another_model(data, given):
+    """The refusal may have come from the model: a new model gets the file once more, the same one does not."""
+    (data / "files" / "a.png").write_bytes(b"x")
+    ledger = {"files/a.png": {"result": "error_400", "model": "m1"}}
+    same, other = reports.pending_files(data, [], ledger, "m1"), reports.pending_files(data, [], ledger, "m2")
+    given(same=same, other=other)
+    assert same == [] and other == ["files/a.png"]
+
+
+def test_ids_are_unique_among_existing_rows(data, monkeypatch, given):
+    """A colliding id gets a new suffix, so editing one value never touches another."""
+    (data / "files" / "lab.png").write_bytes(b"x")
+    write_rows(data / "measurements.csv", reports.FIELDS, [{"id": "2026-10-30-blood-aaaaaaaaaaaa", "date": "2026-10-30", "kind": "blood", "name": "X", "value": "1", "status": "confirmed"}])
+    tokens = iter(["aaaaaaaaaaaa", "aaaaaaaaaaaa", "bbbbbbbbbbbb"])
+    monkeypatch.setattr(reports.secrets, "token_hex", lambda n: next(tokens))
+    monkeypatch.setattr(reports, "ask_claude", lambda *a: {"date": "2026-10-30", "values": [{"kind": "blood", "name": "Ferritin", "value": 86, "unit": "µg/l"}]})
+    reports.evaluate(api_key="k", today=TODAY)
+    ids = [r["id"] for r in read_rows(data / "measurements.csv")]
+    given(ids=ids)
+    assert len(ids) == len(set(ids)) == 2
 
 
 def test_without_api_key_it_explains(data, monkeypatch, given):

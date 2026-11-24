@@ -100,7 +100,16 @@ def evaluations_path() -> Path:
     return config.DATA_DIR / "report_evaluations.json"
 
 
-def pending_files(data_dir: Path, rows: list[dict[str, str]], evaluated: dict[str, Any]) -> list[str]:
+def _done(entry: Any, model: str | None) -> bool:
+    """Whether a ledger entry keeps its file from being sent again. A file the API refused is tried
+    once more with another model, since the refusal may have come from the model."""
+    if not isinstance(entry, dict):
+        return False
+    return not (str(entry.get("result", "")).startswith("error_") and model and entry.get("model") != model)
+
+
+def pending_files(data_dir: Path, rows: list[dict[str, str]], evaluated: dict[str, Any],
+                  model: str | None = None) -> list[str]:
     """Report files under files/ that no row points to and that were not evaluated yet, oldest name first."""
     folder = data_dir / "files"
     # files/ itself must be a real folder inside the data repository, not a link elsewhere
@@ -113,7 +122,8 @@ def pending_files(data_dir: Path, rows: list[dict[str, str]], evaluated: dict[st
         # Never a symlink: it could point at a file that is not a report
         if path.is_symlink() or not path.resolve().is_relative_to(folder.resolve()):
             continue
-        if path.is_file() and path.suffix.lower() in MEDIA_TYPES and rel not in referenced and rel not in evaluated:
+        if path.is_file() and path.suffix.lower() in MEDIA_TYPES and rel not in referenced \
+                and not _done(evaluated.get(rel), model):
             found.append(rel)
     return found
 
@@ -166,7 +176,7 @@ def to_rows(result: dict[str, Any], file: str, today: date) -> list[dict[str, st
         seen.add(key)
         ref_low, ref_high = _number(item.get("ref_low")), _number(item.get("ref_high"))
         rows.append({
-            "id": f"{when.isoformat()}-{kind}-{secrets.token_hex(2)}",
+            "id": f"{when.isoformat()}-{kind}-{secrets.token_hex(6)}",
             "date": when.isoformat(),
             "kind": kind,
             "name": name,
@@ -220,7 +230,7 @@ def evaluate(api_key: str | None = None, model: str | None = None, today: date |
     rows = read_rows(config.MEASUREMENTS_CSV)
     ledger_path = evaluations_path()
     ledger: dict[str, Any] = json.loads(ledger_path.read_text(encoding="utf-8")) if ledger_path.exists() else {}
-    pending = pending_files(config.DATA_DIR, rows, ledger)
+    pending = pending_files(config.DATA_DIR, rows, ledger, model)
     counts = {"files": 0, "values": 0, "failed": 0, "waiting": max(0, len(pending) - MAX_FILES_PER_RUN)}
     now = datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
     for rel in pending[:MAX_FILES_PER_RUN]:
@@ -236,7 +246,12 @@ def evaluate(api_key: str | None = None, model: str | None = None, today: date |
             counts["failed"] += 1
             # The API refuses this file for good (400, 413 …): recorded, so it does not block newer
             # files. A network error, a timeout, 429 or 5xx is not recorded and is tried again.
-            if status is not None and 400 <= status < 500 and status not in (408, 429):
+            # Key, permission or model wrong (401, 403, 404): the same for every file, so the run
+            # stops and nothing is recorded; once the secret or variable is fixed, all are read.
+            if status in (401, 403, 404):
+                counts["waiting"] += len(pending[pending.index(rel) + 1:MAX_FILES_PER_RUN])
+                break
+            if status in (400, 413, 422):
                 ledger[rel] = {"at": now, "result": f"error_{status}", "model": model}
             continue
         if answer is None:
@@ -246,6 +261,12 @@ def evaluate(api_key: str | None = None, model: str | None = None, today: date |
             log.warning("reports: %s answered without values", rel)
             continue
         found = to_rows(answer, rel, today)
+        # Ids must be unique: the dashboard edits and deletes by id
+        taken = {r.get("id") for r in rows}
+        for row in found:
+            while row["id"] in taken:
+                row["id"] = f"{row['date']}-{row['kind']}-{secrets.token_hex(6)}"
+            taken.add(row["id"])
         rows.extend(found)
         ledger[rel] = {"at": now, "result": "proposed" if found else "nothing", "values": len(found), "model": model}
         counts["files"] += 1
