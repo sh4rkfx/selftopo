@@ -37,6 +37,17 @@ def test_only_new_unreferenced_reports_are_pending(data, given):
     assert pending == ["files/c.png"]
 
 
+def test_symlinks_are_never_sent(data, given):
+    """A link named like a report, to a file elsewhere, is not a report."""
+    secret = data / "settings.json"
+    secret.write_text("{}", encoding="utf-8")
+    (data / "files" / "link.pdf").symlink_to(secret)
+    (data / "files" / "real.pdf").write_bytes(b"x")
+    pending = reports.pending_files(data, [], {})
+    given(pending=pending)
+    assert pending == ["files/real.pdf"]
+
+
 def test_tool_result_becomes_checked_proposals(given):
     """Plausible values become proposed rows; a VO2max of 4.4 (l/min read as ml/kg/min), a blood value
     without name and a second Ferritin are dropped; units come from the kind, not from the answer."""

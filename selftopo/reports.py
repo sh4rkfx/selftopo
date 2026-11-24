@@ -109,6 +109,9 @@ def pending_files(data_dir: Path, rows: list[dict[str, str]], evaluated: dict[st
     found = []
     for path in sorted(folder.rglob("*")):
         rel = path.relative_to(data_dir).as_posix()
+        # Never a symlink: it could point at a file that is not a report
+        if path.is_symlink() or not path.resolve().is_relative_to(folder.resolve()):
+            continue
         if path.is_file() and path.suffix.lower() in MEDIA_TYPES and rel not in referenced and rel not in evaluated:
             found.append(rel)
     return found
