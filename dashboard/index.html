@@ -166,15 +166,10 @@ button { font: inherit; }
 .nav a svg.ic { width: 15px; height: 15px; }
 .nav a[data-tint] svg.ic { color: var(--t-fg); }
 .nav a[aria-current="true"] svg.ic { color: inherit; }
-.nav a.nav-top { display: none; }
-/* The bar shows icons only (nine areas and the range do not fit as words next to each other in
-   1240 px); a caption under the current icon names the area, and each icon has a tooltip */
-.bar-where {
-  display: block; position: relative; height: 16px; max-width: 1240px; margin: -2px auto 0;
-  font-size: 0.6875rem; font-weight: 500; line-height: 14px; color: var(--ink-2); pointer-events: none;
-}
-.bar-where span { position: absolute; top: 0; left: 0; white-space: nowrap; }
-@media (max-width: 1099px) {
+/* Every area is named in words, not only by an icon. Where the names do not all fit, the row
+   scrolls; the fade at the right edge shows there is more, and the current area scrolls into view. */
+.nav a .lbl { font-weight: 500; }
+@media (max-width: 1239px) {
   .nav { padding-right: 28px; -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); }
 }
 .icon-btn {
@@ -190,28 +185,13 @@ button { font: inherit; }
 @media (prefers-reduced-motion: reduce) { .icon-btn.busy svg.ic { animation: none; } .icon-btn.busy { opacity: 0.55; } }
 /* Phone: the bar holds only the area icons, all nine fit without scrolling. Range, refresh and
    help move into the header row. */
+/* The bar holds only the areas, so their names fit; range, refresh, settings and help sit in the
+   header row on every width */
+.bar .seg-host, .brand, .bar .icon-btn { display: none !important; }
+.nav a { min-height: 44px; padding: 0 11px; }
 @media (max-width: 759px) {
-  .bar .seg-host, .brand, .bar .icon-btn { display: none !important; }
-  .bar-in { padding-block: 3px; padding-left: max(8px, env(safe-area-inset-left, 0px)); padding-right: max(8px, env(safe-area-inset-right, 0px)); }
-  .nav { justify-content: space-between; gap: 0; padding-right: 0; overflow: visible; -webkit-mask-image: none; mask-image: none; }
-  .nav a, .nav a.nav-top { display: inline-grid; place-items: center; flex: 1 1 0; min-width: 0; max-width: 44px; height: 44px; padding: 0; border-radius: 10px; }
-  .nav a svg.ic { width: 20px; height: 20px; }
-  .nav a .lbl { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-}
-@media (min-width: 760px) {
-  .top-tools { display: none !important; }
-}
-/* The overview icon replaces the brand; the areas show icons only, so nothing scrolls */
-@media (min-width: 760px) {
-  .brand { display: none; }
-  .nav a.nav-top { display: inline-flex; padding-inline: 8px; }
-  .nav a.nav-top .lbl { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-}
-@media (min-width: 760px) {
-  .nav { -webkit-mask-image: none; mask-image: none; padding-right: 0; }
-  .nav a { padding: 8px 9px; }
+  .bar-in { padding-block: 3px; padding-left: max(8px, env(safe-area-inset-left, 0px)); padding-right: 0; }
   .nav a svg.ic { width: 18px; height: 18px; }
-  .nav a .lbl { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
 .top-tools { display: flex; align-items: center; gap: 8px; }
 @media (max-width: 759px) {
@@ -903,7 +883,6 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     <button class="icon-btn" id="prefs-open" data-action="settings" type="button" aria-haspopup="dialog" aria-label="Einstellungen" title="Einstellungen"><svg class="ic" aria-hidden="true"><use href="#i-gear"/></svg></button>
     <button class="icon-btn" id="help-open" data-action="help" type="button" aria-haspopup="dialog" aria-label="Hilfe und Tastenkürzel" title="Hilfe und Tastenkürzel (Taste ?)">?</button>
   </div>
-  <div class="bar-where" aria-hidden="true"><span id="bar-where"></span></div>
 </div>
 
 <div class="wrap" id="top">
@@ -1648,7 +1627,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       <table>
         <tbody>
           <tr><td>iPhone, iPad</td><td>In Safari Teilen → „Zum Home-Bildschirm“. Die App hat dort eigenen Speicher: verbinde sie nach dem Installieren einmal mit GitHub.</td></tr>
-          <tr><td>Android</td><td>In Chrome Menü ⋮ → „App installieren“ oder das Symbol <svg class="ic" aria-hidden="true" style="vertical-align:-3px"><use href="#i-install"/></svg> oben in der Leiste.</td></tr>
+          <tr><td>Android</td><td>In Chrome Menü ⋮ → „App installieren“ oder das Symbol <svg class="ic" aria-hidden="true" style="vertical-align:-3px"><use href="#i-install"/></svg> oben neben dem Zeitraum.</td></tr>
           <tr><td>Mac, PC</td><td>In Chrome oder Edge das Installieren-Symbol in der Adressleiste oder das Symbol oben; in Safari auf dem Mac Ablage → „Zum Dock hinzufügen“.</td></tr>
         </tbody>
       </table>
@@ -2995,7 +2974,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "iPhone, iPad": "iPhone, iPad",
 "In Safari Teilen → „Zum Home-Bildschirm“. Die App hat dort eigenen Speicher: verbinde sie nach dem Installieren einmal mit GitHub.": "In Safari, Share → “Add to Home Screen”. The app has its own storage there: connect it to GitHub once after installing.",
 "Android": "Android",
-"In Chrome Menü ⋮ → „App installieren“ oder das Symbol ⟨i⟩ oben in der Leiste.": "In Chrome, menu ⋮ → “Install app”, or the icon ⟨i⟩ at the top of the bar.",
+"In Chrome Menü ⋮ → „App installieren“ oder das Symbol ⟨i⟩ oben neben dem Zeitraum.": "In Chrome, menu ⋮ → “Install app”, or the icon ⟨i⟩ at the top next to the range.",
 "Mac, PC": "Mac, PC",
 "In Chrome oder Edge das Installieren-Symbol in der Adressleiste oder das Symbol oben; in Safari auf dem Mac Ablage → „Zum Dock hinzufügen“.": "In Chrome or Edge, the install icon in the address bar or the icon at the top; in Safari on the Mac, File → “Add to Dock”.",
 "Installieren geht nur über die GitHub Page oder einen lokalen Server, nicht in einer eingebetteten Vorschau. Die App lädt beim Öffnen und beim Zurückkehren nach mehr als 15 Minuten neu; dazwischen über ⟨i⟩ oder die Taste R. Ohne Verbindung zeigt sie den zuletzt geladenen Stand, wenn der Token auf dem Gerät gespeichert ist.": "Installing only works from the GitHub page or a local server, not in an embedded preview. The app reloads when it opens and when you return after more than 15 minutes; in between with ⟨i⟩ or the key R. Without a connection it shows the last loaded data if the token is saved on the device.",
@@ -8071,17 +8050,6 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     // Highlight the area currently in view
     const links = new Map([...document.querySelectorAll("#nav a")].map((a) => [a.getAttribute("href").slice(1), a]));
     let ticking = false;
-    // Caption under the current icon while the bar shows icons only; clamped to the bar's edges
-    const where = $("bar-where");
-    const placeWhere = (a) => {
-      if (!where.offsetParent) return;
-      const text = a?.querySelector(".lbl")?.textContent ?? ""; // no icon for raw data: no caption
-      if (!a) { where.textContent = ""; return; }
-      if (where.textContent !== text) where.textContent = text;
-      const row = where.parentElement.getBoundingClientRect(), icon = a.getBoundingClientRect();
-      const left = icon.left + icon.width / 2 - row.left - where.offsetWidth / 2;
-      where.style.left = `${Math.round(Math.max(4, Math.min(row.width - where.offsetWidth - 4, left)))}px`;
-    };
     const spy = () => {
       ticking = false;
       const line = bar.getBoundingClientRect().bottom + 90;
@@ -8093,7 +8061,6 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       // At the very bottom the last area counts as current, even if it is short
       if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) current = AREAS[AREAS.length - 1];
       if (!current) current = "top";
-      placeWhere(links.get(current));
       for (const [area, a] of links) {
         const on = area === current;
         if (on !== (a.getAttribute("aria-current") === "true")) {
@@ -8110,7 +8077,6 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     window.addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(spy); } }, { passive: true });
     window.addEventListener("resize", spy);
     spy();
-    document.fonts?.ready.then(spy); // the caption is placed by measured widths
 
     // Help dialog
     for (const b of document.querySelectorAll('[data-action="help"]')) b.addEventListener("click", openHelp);
