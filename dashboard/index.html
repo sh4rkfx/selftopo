@@ -3476,7 +3476,9 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Die Zeile verschwindet aus measurements.csv; in der Git-Historie des Daten-Repositorys bleibt sie erhalten.": "The line disappears from measurements.csv; it stays in the data repository’s Git history.",
 "Löschen": "Delete",
 "Behalten": "Keep",
-"Löschen …": "Delete …"
+"Löschen …": "Delete …",
+"Dein Token darf nur lesen. Ändere oder lösche die Zeile mit der id {0} selbst in measurements.csv, oder gib dem Token „Contents: Read and write“. ": "Your token can only read. Change or delete the row with id {0} in measurements.csv yourself, or give the token “Contents: Read and write”. ",
+"measurements.csv auf GitHub öffnen": "Open measurements.csv on GitHub"
 }
 </script>
 <script>
@@ -6522,8 +6524,14 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     if (!result.ok) {
       status.className = "sub bad";
       status.textContent = result.error;
-      // The notice with the copy button says it already
-      if (result.readOnly) { $("m-copy").hidden = false; status.hidden = true; }
+      // Adding: the notice with lines to paste. Editing or deleting cannot be done by appending, so
+      // it names the row and links to the file on GitHub.
+      if (result.readOnly && !measureEdit?.existing) { $("m-copy").hidden = false; status.hidden = true; }
+      else if (result.readOnly) {
+        const href = `https://github.com/${state.dataRepo}/edit/${state.dataBranch || "main"}/${GITHUB_FILES.measurements}`;
+        status.replaceChildren(T("Dein Token darf nur lesen. Ändere oder lösche die Zeile mit der id {0} selbst in measurements.csv, oder gib dem Token „Contents: Read and write“. ", [measureEdit.id]),
+          html("a", { href, target: "_blank", rel: "noopener", text: T("measurements.csv auf GitHub öffnen") }));
+      }
       return;
     }
     state.measurements = parseMeasurements(result.rows);
