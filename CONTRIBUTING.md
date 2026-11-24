@@ -104,6 +104,19 @@ from; claims rest on cited studies or on the user's own baseline, not on guesses
 
 ## Pull requests
 
+Every pull request is one change, and every change comes with:
+
+- **A user story** in the issues, labelled `user-story`, as a sub-issue of its feature or epic
+  (labels `feature`, `epic`). It starts with *As a … (user), I want that … so that …* and lists
+  fine-grained acceptance criteria, each with the test that proves it
+  (`tests/test_x.py::test_name`). A criterion without a test gets one in the same pull request.
+  The pull request names the story (*Closes #123*).
+- **A new version**: `selftopo/__init__.py` (`__version__`), `APP_VERSION` in
+  `dashboard/index.html` and a new top entry `## x.y.z – YYYY-MM-DD` in `CHANGELOG.md`.
+  `tests/test_versions.py` fails when the three differ. Minor for a feature, patch for a fix or
+  wording, major for a break in data or settings.
+- **README and docs** updated where users or contributors need to know about it.
+
 - One topic per pull request, with a description of what changes for the user and why.
 - Tests and lint pass. New parsing or calculation logic has a test.
 - User-facing text exists in German and English.
@@ -115,10 +128,12 @@ body that explains why.
 
 ## Releases (maintainers)
 
-1. Update `CHANGELOG.md` and push it to `main`; wait for the tests.
-2. Publish a GitHub release with a new tag such as `v2.1.0` on `main` and the changelog entry as
-   notes. The workflow *Move major tag* then points `v2` at it, and every data repository uses the
-   new version with its next run.
+After each merge:
+
+1. Wait for the tests on `main`.
+2. Publish a GitHub release with the tag of the new version (`v2.16.0`) on the merge commit and
+   its changelog entry as notes. The workflow *Move major tag* then points `v2` at it, and every
+   data repository uses the new version with its next run.
 3. If the data repository template changed, copy `templates/data-repo/` to
    `sh4rkfx/selftopo-data-template`.
 
