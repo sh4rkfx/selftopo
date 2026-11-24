@@ -22,6 +22,8 @@ the tag of its major version (`v2`, before that `v1`).
   header shows *GitHub · Abruf läuft …*; at most once in 3 hours per browser. Without the Actions
   permission it pauses for a week. Off under gear icon → *Connection* → *Sync automatically in
   the morning*.
+- Sleep debt: the Schlaf area shows how far the last 4 nights fell short of your sleep-duration
+  goal (otherwise 8 hours), net of longer nights and never below zero; yellow from 2 hours.
 - English dates name the month (*Tue 24 Nov*, push: *31 Mar*) instead of *24/11*.
 - Overview: *Auffällig diese Woche* comes before the tiles and is one line when nothing stands
   out. Good tiles keep the neutral card and say *gut* only in their pill; yellow and red still
