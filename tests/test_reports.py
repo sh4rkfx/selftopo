@@ -48,6 +48,18 @@ def test_symlinks_are_never_sent(data, given):
     assert pending == ["files/real.pdf"]
 
 
+def test_a_linked_files_folder_is_not_read(data, tmp_path, given):
+    """files/ pointing at a folder outside the repository gives nothing to send."""
+    outside = tmp_path / "elsewhere"
+    outside.mkdir()
+    (outside / "private.pdf").write_bytes(b"x")
+    (data / "files").rmdir()
+    (data / "files").symlink_to(outside, target_is_directory=True)
+    pending = reports.pending_files(data, [], {})
+    given(pending=pending)
+    assert pending == []
+
+
 def test_tool_result_becomes_checked_proposals(given):
     """Plausible values become proposed rows; a VO2max of 4.4 (l/min read as ml/kg/min), a blood value
     without name and a second Ferritin are dropped; units come from the kind, not from the answer."""

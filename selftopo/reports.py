@@ -103,7 +103,8 @@ def evaluations_path() -> Path:
 def pending_files(data_dir: Path, rows: list[dict[str, str]], evaluated: dict[str, Any]) -> list[str]:
     """Report files under files/ that no row points to and that were not evaluated yet, oldest name first."""
     folder = data_dir / "files"
-    if not folder.is_dir():
+    # files/ itself must be a real folder inside the data repository, not a link elsewhere
+    if not folder.is_dir() or folder.is_symlink() or not folder.resolve().is_relative_to(data_dir.resolve()):
         return []
     referenced = {r.get("file", "") for r in rows}
     found = []
