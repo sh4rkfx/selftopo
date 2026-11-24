@@ -18,6 +18,29 @@ the tag of its major version (`v2`, before that `v1`).
   late; *Sync now* under gear icon → *Connection* starts it right away and reloads the page when
   it is done. That needs *Actions: Read and write* on the dashboard token; new tokens are
   prefilled with it.
+- Overview: *Auffällig diese Woche* comes before the tiles and is one line when nothing stands
+  out. Good tiles keep the neutral card and say *gut* only in their pill; yellow and red still
+  fill the card. Tiles without a value count as *ohne Wert*, not as neutral.
+- One verdict per metric: with a goal (weight, HRV, resting HR, bedtime, sleep hours, steps) the
+  tile shows the goal's state (*Ziel: zu langsam*), the same word as the goal card. Area
+  conclusions start with what is off and then say what is unremarkable compared with your last
+  four months.
+- Wide screens start with all areas collapsed, like phones; an opened area shows two cards and
+  *Weitere n Karten zeigen*. Körper starts with weight and loss pace.
+- The scale's fat and muscle estimate is a 28-day trend in a folded card, *Fett und Muskeln laut
+  Waage*; the chips next to the weight are gone.
+- Navigation names every area in words; range, refresh and settings sit in the header row on
+  every width, help too except on phones, where it is in the footer and the settings.
+- Data series 3–5 are violet, magenta and slate, so no series looks like a green, amber or red
+  verdict.
+- *Tatsächlicher Verbrauch* is now *Verbrauch laut deinem Log*, since it inherits whatever the
+  food log misses.
+- A connection error shows an error page, never the sample data. After a good load the page keeps
+  that data, marked offline.
+- The sample-data notice explains what the page is and that setting it up takes about 15 minutes.
+- Accessibility: a skip link *Zum Inhalt springen*, a `main` landmark, keyboard-scrollable wide
+  tables, no text below 12 px, 44 px touch targets on phones, and header, tiles and headings that
+  reflow at 200 % text size. Tablets show four tiles per row, five from 1000 px.
 
 ### Sync
 
