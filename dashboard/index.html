@@ -215,8 +215,10 @@ button { font: inherit; }
 }
 .top-tools { display: flex; align-items: center; gap: 8px; }
 @media (max-width: 759px) {
-  .top-row { flex-wrap: nowrap; align-items: center; gap: 10px; }
-  .top .title { flex: 1; min-width: 0; }
+  /* Title and tools share a row while they fit; with larger text the basis in rem grows with it
+     and the tools move below the date instead of covering it */
+  .top-row { flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+  .top .title { flex: 1 1 8rem; min-width: 0; }
   .top h1 { font-size: 1.375rem; }
   .top-tools { gap: 6px; }
   .top-tools .icon-btn { width: 40px; height: 40px; }
@@ -260,7 +262,10 @@ button { font: inherit; }
 code { font-family: var(--font-mono); font-size: 0.75rem; overflow-wrap: anywhere; }
 
 /* Overview tiles: each one links to its area */
-.tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+/* Phones: two columns, one when large text makes a tile wider than half the screen (the minimum
+   is in rem, so it grows with the text size setting) */
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 8.5rem), 1fr)); gap: 14px; }
+@media (max-width: 639px) { .tiles { grid-template-columns: repeat(auto-fill, minmax(max(8.5rem, calc(50% - 7px)), 1fr)); } }
 /* Eight tiles: 2 or 4 columns. Ten tiles (with YAZIO): 2 or 5 columns, so no row is left half empty */
 @media (min-width: 640px) { .tiles:not(.ten) { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 @media (min-width: 720px) { .tiles.ten { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
@@ -311,7 +316,7 @@ a.tile:focus-visible { outline-offset: 2px; border-radius: 22px; }
 .tile .area-tag { display: inline-flex; align-items: center; gap: 4px; font-size: 0.6875rem; color: var(--muted); white-space: nowrap; }
 .tile .area-tag svg.ic { width: 13px; height: 13px; }
 a.tile:hover .area-tag { color: var(--ink); }
-.tile .value { font-family: var(--font-display); font-size: 2.125rem; font-weight: 700; letter-spacing: -0.03em; line-height: 1.05; margin-top: 4px; font-variant-numeric: tabular-nums; }
+.tile .value { overflow-wrap: anywhere; font-family: var(--font-display); font-size: 2.125rem; font-weight: 700; letter-spacing: -0.03em; line-height: 1.05; margin-top: 4px; font-variant-numeric: tabular-nums; }
 .tile .value small { font-family: var(--font-sans); font-size: 0.8125rem; font-weight: 500; letter-spacing: 0; color: var(--st-ink); margin-left: 4px; }
 .tile .delta { font-size: 0.78125rem; color: var(--st-ink); min-height: 18px; display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: center; }
 .tile svg.spark { display: block; width: 100%; height: 28px; margin-top: 4px; align-self: end; }
@@ -346,6 +351,7 @@ a.tile:hover .area-tag { color: var(--ink); }
   padding: 18px 18px 20px; display: grid; gap: 16px; min-width: 0;
 }
 .area-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: 4px 8px; align-items: center; }
+.area-head h2 { overflow-wrap: anywhere; hyphens: auto; }
 .area-head .info-btn { grid-column: 3; grid-row: 1; margin: 0; }
 .area-head { cursor: pointer; }
 .area-icon {
