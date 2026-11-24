@@ -3260,7 +3260,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Alle Werte sind erfunden. So sieht das Dashboard mit deinen Garmin-, Hevy- und YAZIO-Daten aus; die Einrichtung dauert etwa 15 Minuten.": "All values are made up. This is how the dashboard looks with your Garmin, Hevy and YAZIO data; setting it up takes about 15 minutes.",
 "Zum Inhalt springen": "Skip to content",
 "Tabelle": "Table",
-"{0}, Tabelle": "{0}, table"
+"{0}, Tabelle": "{0}, table",
+"{0} ohne Wert": "{0} without a value"
 }
 </script>
 <script>
@@ -3698,6 +3699,10 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     }
   }
 
+  // The last texts loaded from GitHub in this tab. A connection that drops later falls back to
+  // them (marked offline) when the device keeps no snapshot, instead of mixing the error page with
+  // values left over from the previous render.
+  let lastGithubLoad = null;
   async function loadData() {
     // 1. Data embedded by a build step: window.HEALTHSYNC_DATA = { garmin, activities, hevy, nutrition } as
     //    CSV text, plus insights as the parsed content of insights.json
@@ -3723,11 +3728,15 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       const data = await loadFromGithub(cred);
       if (!data.error) {
         if (cred.remembered) await writeSnapshot(cred.repo, data.texts); else await deleteSnapshot();
+        lastGithubLoad = { repo: cred.repo, texts: data.texts, at: Date.now() };
         return { ...data, repo: cred.repo, remembered: cred.remembered, branch: cred.branch || null };
       }
       // Offline: the last loaded data, if this device keeps it
       const snap = data.network && cred.remembered ? await readSnapshot(cred.repo) : null;
       if (snap) return { ...fromTexts(snap.texts, "github"), repo: cred.repo, remembered: true, offlineSince: snap.savedAt };
+      if (data.network && lastGithubLoad?.repo === cred.repo) {
+        return { ...fromTexts(lastGithubLoad.texts, "github"), repo: cred.repo, remembered: cred.remembered, offlineSince: lastGithubLoad.at };
+      }
       // Connected, but neither GitHub nor a saved copy: an error page, never the sample data,
       // whose invented values would read as the person's own
       return { ...fromTexts({}, "github"), repo: cred.repo, remembered: cred.remembered, githubError: data.error };
@@ -5481,8 +5490,9 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   // Counts for the summary above the tiles: poor, fair, good, then not rated; only counts above zero
   function tileSummary(levels) {
     const rated = ["crit", "warn", "good"].map((level) => ({ level, n: levels.filter((l) => l === level).length }));
-    const none = levels.length - rated.reduce((a, r) => a + r.n, 0);
-    return [...rated, { level: "none", n: none }].filter((r) => r.n > 0);
+    const missing = levels.filter((l) => l === "missing").length;
+    const none = levels.length - missing - rated.reduce((a, r) => a + r.n, 0);
+    return [...rated, { level: "none", n: none }, { level: "missing", n: missing }].filter((r) => r.n > 0);
   }
   // Tile states: icon and word shown with the colour
   const TILE_STATE = {
@@ -5508,14 +5518,16 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     const sessions7 = new Set(last7.flatMap((d) => [...d.sessions])).size;
     const activeH7 = last7.reduce((a, d) => a + d.activeMin, 0) / 60, activeHPrev7 = prev7.reduce((a, d) => a + d.activeMin, 0) / 60;
     const activities7 = last7.reduce((a, d) => a + d.activities.length, 0);
-    const goalDays7 = last7.filter((d) => d.steps != null && d.steps >= STEP_GOAL).length;
+    // With a steps goal in the recommendations, the count uses its target, like the tile's verdict
+    const stepTarget = Number(goalFor("steps")?.target) || STEP_GOAL;
+    const goalDays7 = last7.filter((d) => d.steps != null && d.steps >= stepTarget).length;
     const foodDays7 = M.days.filter((d) => d.t < today && d.t >= today - 7 * DAY && d.foodComplete).length;
     const weightDelta = w && weekAgo(w, "weight7") != null ? w.weight7 - weekAgo(w, "weight7") : null;
     const rhrGap = r?.rhr60 != null ? r.rhr7 - r.rhr60 : null;
     const hrvRatio = h?.hrvLow ? h.hrv7 / h.hrvLow : null;
 
     // delta: { icon, text, level }; level only past a threshold, otherwise the line stays gray
-    const tile = (area, iconName, label, value, unit, delta, sparkData) => html("a", { class: `tile tint-${AREA_TINT[area]} ${TILE_STATE[delta?.level] ? delta.level : ""}`, href: `#${area === "sport" ? "kraft" : area}`, title: T("Zum Bereich {0}", [AREA_LABELS[area]]) }, [
+    const tile = (area, iconName, label, value, unit, delta, sparkData) => html("a", { class: `tile tint-${AREA_TINT[area]} ${TILE_STATE[delta?.level] ? delta.level : ""}${value == null || value === "–" ? " no-value" : ""}`, href: `#${area === "sport" ? "kraft" : area}`, title: T("Zum Bereich {0}", [AREA_LABELS[area]]) }, [
       html("span", { class: "tile-top" }, [
         html("span", { class: "label" }, [icon(iconName), label]),
         TILE_STATE[delta?.level] ? html("span", { class: "st-pill" }, [icon(TILE_STATE[delta.level].icon), delta.word ?? TILE_STATE[delta.level].word()]) : null,
@@ -5563,8 +5575,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
           ? { icon: "alert", text: T("unter {0}–{1}", [fmt(h.hrvLow), fmt(h.hrvHigh)]), level: hrvRatio < 0.92 ? "crit" : "warn" }
           : { icon: "check", text: T("Bereich {0}–{1}", [fmt(h.hrvLow), fmt(h.hrvHigh)]), level: "good" }) : null, spark("hrv7")),
       tile("erholung", "heart", T("Ruhepuls"), fmt(r?.rhr7, 1), "bpm",
-        rhrGap != null ? (goalFor("resting_hr") ? withGoal("resting_hr", { icon: direction(rhrGap, 0.3), text: T("{0} ggü. 60 Tagen", [fmtSigned(rhrGap, 1)]) })
-          : { icon: direction(rhrGap, 0.3), text: T("{0} ggü. 60 Tagen", [fmtSigned(rhrGap, 1)]), level: rhrGap > 5 ? "crit" : rhrGap > 2.5 ? "warn" : "" }) : null, spark("rhr7")),
+        goalFor("resting_hr") ? withGoal("resting_hr", rhrGap != null ? { icon: direction(rhrGap, 0.3), text: T("{0} ggü. 60 Tagen", [fmtSigned(rhrGap, 1)]) } : null)
+          : rhrGap != null ? { icon: direction(rhrGap, 0.3), text: T("{0} ggü. 60 Tagen", [fmtSigned(rhrGap, 1)]), level: rhrGap > 5 ? "crit" : rhrGap > 2.5 ? "warn" : "" } : null, spark("rhr7")),
       tile("erholung", "bolt", rd && rd.t === M.t1 ? "Readiness" : T("Readiness, zuletzt"), fmt(rd?.ready), "",
         rd ? { icon: null, text: `${readinessLevelText(rd.readyLevel)}${rd.t === M.t1 ? "" : `, ${ddmm(rd.t)}`}`, level: rd.readyLevel === "LOW" || rd.readyLevel === "POOR" ? "warn" : "" } : null, spark("ready")),
       tile("schlaf", "schlaf", T("Schlaf"), sl ? fmtDuration(sl.sleepH7 * 60).replace(" h", "") : "–", "h",
@@ -5581,11 +5593,12 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     $("tiles").replaceChildren(...tiles);
     $("tiles").classList.toggle("ten", M.hasNutrition);
     // Summary above the tiles: how many are poor, fair, good and not rated
-    const levels = tiles.map((el) => Object.keys(TILE_STATE).find((l) => el.classList.contains(l)) || "");
+    // A tile without a value counts as missing, not as neutral
+    const levels = tiles.map((el) => (el.classList.contains("no-value") ? "missing" : Object.keys(TILE_STATE).find((l) => el.classList.contains(l)) || ""));
     $("tile-sum").replaceChildren(
       ...tileSummary(levels).map(({ level, n }) => (TILE_STATE[level]
         ? html("li", { class: level }, [icon(TILE_STATE[level].icon), TILE_STATE[level].sum(n)])
-        : html("li", { class: "none", text: T("{0} neutral", [n]) }))),
+        : html("li", { class: "none", text: level === "missing" ? T("{0} ohne Wert", [n]) : T("{0} neutral", [n]) }))),
     );
     $("tile-sum").hidden = false;
   }

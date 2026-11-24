@@ -40,6 +40,14 @@ def test_summary_counts_states_in_order_and_skips_zero(given):
     assert run(["tileSummary"], "tileSummary([])") == []
 
 
+def test_tiles_without_a_value_are_not_counted_as_neutral(given):
+    """A tile showing "–" (no data) gets its own count "ohne Wert" after the neutral ones."""
+    levels = ["good", "", "missing", "", "missing"]
+    given(tile_levels=levels)
+    assert run(["tileSummary"], f"tileSummary({levels!r})".replace("'", '"')) == [
+        {"level": "good", "n": 1}, {"level": "none", "n": 2}, {"level": "missing", "n": 2}]
+
+
 def test_every_state_has_an_icon_and_a_word(given):
     """Colour is never the only signal: good, fair and poor each have their own icon and word."""
     states = run(["TILE_STATE"], "Object.fromEntries(Object.entries(TILE_STATE).map(([k, v]) => [k, [v.icon, v.word(), v.sum(3)]]))")
