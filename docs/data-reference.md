@@ -219,7 +219,7 @@ with the secret `ANTHROPIC_API_KEY`). Every file in `files/` that no row points 
 not read before is sent once; up to five per run. Its values are added with `status` `proposed` and
 `source` `Claude`; the dashboard shows them in a box to accept or discard and leaves them out of
 everything else until then. `report_evaluations.json` records each file read, when, the result
-(`proposed`, `nothing`, `too_large`) and the model, so no file is sent twice. The model is set
+(`proposed`, `nothing`, `too_large`, `no_answer` when the model replied without the tool; delete an entry to have the file read again) and the model, so no file is sent twice. The model is set
 with the repository variable `SELFTOPO_CLAUDE_MODEL` (default `claude-sonnet-5-5`). The daily
 sync does not touch either file.
 

@@ -395,6 +395,11 @@ template as described in the [changelog](CHANGELOG.md#upgrade-from-1x); your dat
 stay as they are. The dashboard on GitHub Pages is built from `main` and reads the data of 1.x
 and 2.x alike.
 
+A new workflow file in the template, such as `reports.yml` for reading reports with the Claude
+API, does not reach an existing data repository by itself: copy it from
+[templates/data-repo/.github/workflows/](templates/data-repo/.github/workflows/) into
+`.github/workflows/` there. The changelog says when that is needed.
+
 ## Tests
 
 The [test page](https://sh4rkfx.github.io/selftopo/dashboard/tests.html) shows the latest test run

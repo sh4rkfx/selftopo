@@ -11,7 +11,11 @@ the tag of its major version (`v2`, before that `v1`).
 - Befunde: reports without readable text (photos, scans) can be read by the Claude API. With the
   secret `ANTHROPIC_API_KEY`, the new data-repository workflow *Read reports* sends each new file
   in `files/` once and adds its values as proposals; the card shows them per file to accept or
-  discard (`python -m selftopo evaluate-reports`, ledger `report_evaluations.json`).
+  discard (`python -m selftopo evaluate-reports`, ledger `report_evaluations.json`). Existing data
+  repositories do not get the workflow by themselves: copy
+  [templates/data-repo/.github/workflows/reports.yml](templates/data-repo/.github/workflows/reports.yml)
+  to `.github/workflows/reports.yml` in your data repository and add the secret. It needs the code
+  of the next 2.x release; until then set the repository variable `SELFTOPO_CODE_REF` to `main`.
 - *Save* writes `settings.json` to the data repository directly when the dashboard token has
   *Contents: Read and write*: settings, goals, recommendation choices, push notifications and main
   lifts. It reads the current file first, so changes from other devices stay. With a read-only

@@ -58,11 +58,17 @@ PROMPT = """This is a medical or performance-test report of one person. Record e
 - waist_cm: waist circumference in cm
 - blood: any blood or lab value, with its name, unit and the reference range exactly as printed
 Use the date the sample was taken or the test was done. Copy numbers exactly; leave out what you cannot read with
-certainty. If the file is not such a report, record no values."""
+certainty. If the file is not such a report, record no values.
+Always answer by calling the tool record_values exactly once, also when there are no values."""
 
+# Strict tool use: the input always matches the schema, so every object closes with
+# additionalProperties false and lists all its fields as required (null where there is none).
+# Forced tool use (tool_choice "tool" or "any") is rejected by newer models such as Claude Sonnet
+# 5.5, so the call uses "auto" and the prompt asks for the tool.
 TOOL = {
     "name": "record_values",
     "description": "Record the values found in the report.",
+    "strict": True,
     "input_schema": {
         "type": "object",
         "properties": {
@@ -73,17 +79,19 @@ TOOL = {
                     "type": "object",
                     "properties": {
                         "kind": {"type": "string", "enum": list(KINDS)},
-                        "name": {"type": "string", "description": "Name as printed; for blood values only"},
+                        "name": {"type": ["string", "null"], "description": "Name as printed; for blood values only"},
                         "value": {"type": "number"},
-                        "unit": {"type": "string"},
+                        "unit": {"type": ["string", "null"]},
                         "ref_low": {"type": ["number", "null"]},
                         "ref_high": {"type": ["number", "null"]},
                     },
-                    "required": ["kind", "value"],
+                    "required": ["kind", "name", "value", "unit", "ref_low", "ref_high"],
+                    "additionalProperties": False,
                 },
             },
         },
         "required": ["date", "values"],
+        "additionalProperties": False,
     },
 }
 
@@ -162,8 +170,8 @@ def to_rows(result: dict[str, Any], file: str, today: date) -> list[dict[str, st
     return rows
 
 
-def ask_claude(path: Path, api_key: str, model: str) -> dict[str, Any]:
-    """The tool input Claude returns for one report file."""
+def ask_claude(path: Path, api_key: str, model: str) -> dict[str, Any] | None:
+    """The tool input Claude returns for one report file; None when it answered without the tool."""
     media_type = MEDIA_TYPES[path.suffix.lower()]
     data = base64.standard_b64encode(path.read_bytes()).decode()
     block_type = "document" if media_type == "application/pdf" else "image"
@@ -174,7 +182,7 @@ def ask_claude(path: Path, api_key: str, model: str) -> dict[str, Any]:
             "model": model,
             "max_tokens": 2000,
             "tools": [TOOL],
-            "tool_choice": {"type": "tool", "name": TOOL["name"]},
+            "tool_choice": {"type": "auto"},
             "messages": [{"role": "user", "content": [
                 {"type": block_type, "source": {"type": "base64", "media_type": media_type, "data": data}},
                 {"type": "text", "text": PROMPT},
@@ -186,7 +194,7 @@ def ask_claude(path: Path, api_key: str, model: str) -> dict[str, Any]:
     for block in response.json().get("content") or []:
         if block.get("type") == "tool_use" and block.get("name") == TOOL["name"]:
             return block.get("input") or {}
-    return {}
+    return None
 
 
 def evaluate(api_key: str | None = None, model: str | None = None, today: date | None = None) -> dict[str, int]:
@@ -209,12 +217,19 @@ def evaluate(api_key: str | None = None, model: str | None = None, today: date |
             ledger[rel] = {"at": now, "result": "too_large"}
             continue
         try:
-            found = to_rows(ask_claude(path, api_key, model), rel, today)
+            answer = ask_claude(path, api_key, model)
         except requests.RequestException as exc:
             # Not recorded, so the next run tries again
             log.warning("reports: %s failed: %s", rel, str(exc)[:200])
             counts["failed"] += 1
             continue
+        if answer is None:
+            # Recorded, so the file is not sent again each run; delete its entry to try once more
+            ledger[rel] = {"at": now, "result": "no_answer", "model": model}
+            counts["files"] += 1
+            log.warning("reports: %s answered without values", rel)
+            continue
+        found = to_rows(answer, rel, today)
         rows.extend(found)
         ledger[rel] = {"at": now, "result": "proposed" if found else "nothing", "values": len(found), "model": model}
         counts["files"] += 1

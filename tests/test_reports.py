@@ -66,13 +66,15 @@ def test_no_rows_without_a_valid_past_date(given):
 
 def test_evaluate_writes_proposals_and_remembers_files(data, monkeypatch, given):
     """One file with values, one without; a failing request is not remembered, so it is tried again."""
-    for name in ("lab.pdf", "photo.jpg", "broken.png"):
+    for name in ("lab.pdf", "photo.jpg", "broken.png", "chatty.png"):
         (data / "files" / name).write_bytes(b"x")
     write_rows(data / "measurements.csv", reports.FIELDS, [{"id": "a", "date": "2026-11-01", "kind": "waist_cm", "value": "91", "status": "confirmed"}])
 
     def fake(path, api_key, model):
         if path.name == "broken.png":
             raise requests.ConnectionError("down")
+        if path.name == "chatty.png":
+            return None  # answered in text instead of calling the tool
         if path.name == "lab.pdf":
             return {"date": "2026-10-30", "values": [{"kind": "blood", "name": "HbA1c", "value": 5.4, "unit": "%"}]}
         return {"date": None, "values": []}
@@ -82,10 +84,11 @@ def test_evaluate_writes_proposals_and_remembers_files(data, monkeypatch, given)
     rows = read_rows(data / "measurements.csv")
     ledger = json.loads((data / "report_evaluations.json").read_text(encoding="utf-8"))
     given(counts=counts, ledger=ledger)
-    assert counts == {"files": 2, "values": 1, "failed": 1, "waiting": 0}
+    assert counts == {"files": 3, "values": 1, "failed": 1, "waiting": 0}
     assert [(r["kind"], r["name"], r["status"], r["file"]) for r in rows] == [
         ("blood", "HbA1c", "proposed", "files/lab.pdf"), ("waist_cm", "", "confirmed", "")]
-    assert set(ledger) == {"files/lab.pdf", "files/photo.jpg"} and ledger["files/photo.jpg"]["result"] == "nothing"
+    assert set(ledger) == {"files/lab.pdf", "files/photo.jpg", "files/chatty.png"} and ledger["files/photo.jpg"]["result"] == "nothing"
+    assert ledger["files/chatty.png"]["result"] == "no_answer"
     assert reports.pending_files(data, rows, ledger) == ["files/broken.png"]
 
 
@@ -97,8 +100,8 @@ def test_without_api_key_it_explains(data, monkeypatch, given):
         reports.evaluate()
 
 
-def test_request_sends_pdf_as_document_and_forces_the_tool(data, monkeypatch, given):
-    """PDF as a document block, the tool forced, the tool input returned."""
+def test_request_sends_pdf_as_document_with_a_strict_tool(data, monkeypatch, given):
+    """PDF as a document block; tool_choice auto with a strict tool, since newer models reject forced tool use."""
     (data / "files" / "r.pdf").write_bytes(b"%PDF")
     sent = {}
 
@@ -118,5 +121,5 @@ def test_request_sends_pdf_as_document_and_forces_the_tool(data, monkeypatch, gi
     body = sent["body"]
     given(block=body["messages"][0]["content"][0]["type"], tool_choice=body["tool_choice"])
     assert out == {"date": "2026-11-23", "values": []}
-    assert body["messages"][0]["content"][0]["type"] == "document" and body["tool_choice"]["name"] == "record_values"
+    assert body["messages"][0]["content"][0]["type"] == "document" and body["tool_choice"] == {"type": "auto"} and body["tools"][0]["strict"] is True
     assert sent["headers"]["x-api-key"] == "key" and body["model"] == "model-x"
