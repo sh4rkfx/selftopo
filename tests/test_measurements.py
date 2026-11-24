@@ -106,7 +106,7 @@ def test_change_replaces_by_id_and_csv_is_sorted_and_quoted(given):
     assert csv == 'id,date,kind,name,value,unit,ref_low,ref_high,source,note,file,status\na,2026-11-23,rmr_kcal,,2400,,,,,"nüchtern, 7:30",,\n'
 
 
-READ = ENTRY + ["REPORT_RULES", "ESTIMATE_LINE", "LAB_LINE", "LAB_SKIP", "reportDate", "hasUnclearDate", "extractMeasures"]
+READ = ENTRY + ["REPORT_RULES", "ESTIMATE_LINE", "LAB_LINE", "LAB_SKIP", "reportDate", "hasUnclearDate", "decimalMark", "reportNumbers", "extractMeasures"]
 
 LAB = """Labor Dr. Muster · Salzburg
 Abnahmedatum: 30.10.2026   Befunddatum: 31.10.2026
@@ -186,6 +186,17 @@ def test_slash_dates_only_when_unambiguous(given, text, date, unclear):
     given(found=out)
     assert out["date"] == date
     assert out.get("dateUnclear", False) is unclear
+
+
+def test_thousands_separators_follow_the_report(given):
+    """US "1,000" with decimal points elsewhere is a thousand; German "1,000" with decimal commas is one."""
+    us = extract("Ferritin 1,000 ng/mL 30 - 400\nHbA1c 5.4 % 4.0 - 5.6\nRMR 2,455 kcal/day")
+    de = extract("TSH 1,000 mU/l 0,27 - 4,2\nHbA1c 5,4 % 4,0 - 5,6")
+    unclear = extract("Ferritin 1,000 ng/mL 30 - 400")
+    given(us=us, de=de, unclear=unclear)
+    assert [(i.get("name", i["kind"]), i["value"]) for i in us["items"]] == [("rmr_kcal", 2455), ("Ferritin", 1000), ("HbA1c", 5.4)]
+    assert [(i["name"], i["value"], i["lo"], i["hi"]) for i in de["items"]] == [("TSH", 1.0, 0.27, 4.2), ("HbA1c", 5.4, 4.0, 5.6)]
+    assert unclear["items"] == []
 
 
 def test_nothing_found_and_no_future_date(given):

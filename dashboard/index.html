@@ -6670,17 +6670,39 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   }
   // A date in the text that reportDate could not place (11/10/2026: 11 October or 10 November?)
   const hasUnclearDate = (text) => /\b\d{1,2}\/\d{1,2}\/\d{2,4}\b/.test(text);
+  // The decimal mark a report uses, from numbers that can only be decimals ("5,4", "0.77"); null if
+  // it has none or both
+  function decimalMark(text) {
+    const comma = (text.match(/\d,\d{1,2}(?!\d)/g) || []).length, dot = (text.match(/\d\.\d{1,2}(?!\d)/g) || []).length;
+    return comma > dot ? "," : dot > comma ? "." : null;
+  }
+  // What a number in a report can mean. "1,000" or "2.455" is a thousands group or three decimals:
+  // the report's decimal mark decides; without one both readings are returned.
+  function reportNumbers(raw, mark) {
+    let t = String(raw).trim();
+    const one = /^\d{1,3}([.,])\d{3}$/.exec(t);
+    if (one) {
+      const grouped = Number(t.replace(one[1], "")), decimal = Number(t.replace(one[1], "."));
+      return mark ? [one[1] === mark ? decimal : grouped] : [grouped, decimal];
+    }
+    if (mark === ".") t = t.replace(/,(?=\d{3}(?!\d))/g, "");
+    if (mark === ",") t = t.replace(/\.(?=\d{3}(?!\d))/g, "");
+    const v = parseNumber(t);
+    return v == null || Number.isNaN(v) ? [] : [v];
+  }
   // Values in the text of a report; each measure once, the first mention counts
   function extractMeasures(text, today = todayT()) {
     const items = [];
     const lines = text.split(/\n/);
+    const mark = decimalMark(text);
     for (const rule of REPORT_RULES) {
       if (rule.needs && !rule.needs.test(text)) continue;
       let m = null;
       for (const line of lines) if (!ESTIMATE_LINE.test(line) && (m = rule.re.exec(line))) break;
-      const value = m ? parseNumber(m[1]) : null;
       const k = MEASURE_KINDS[rule.kind];
-      if (value != null && !Number.isNaN(value) && value >= k.min && value <= k.max) items.push({ kind: rule.kind, value });
+      // Of two readings, the one in the plausible range
+      const value = m ? reportNumbers(m[1], mark).find((v) => v >= k.min && v <= k.max) : undefined;
+      if (value != null) items.push({ kind: rule.kind, value });
     }
     const seen = new Set();
     for (const raw of text.split(/\n/)) {
@@ -6688,11 +6710,13 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       const m = LAB_LINE.exec(line);
       if (!m || LAB_SKIP.test(m[1]) || REPORT_RULES.some((r) => r.re.test(line))) continue;
       const name = m[1].trim().replace(/[,.]$/, ""), key = name.toLowerCase();
-      const value = parseNumber(m[2]);
-      if (seen.has(key) || value == null || Number.isNaN(value)) continue;
+      // A lab value has no plausible range here: with two readings it is left out, not guessed
+      const values = reportNumbers(m[2], mark);
+      if (seen.has(key) || values.length !== 1) continue;
+      const value = values[0];
       seen.add(key);
-      const lo = m[4] ? parseNumber(m[4]) : m[7] ? parseNumber(m[7]) : null;
-      const hi = m[5] ? parseNumber(m[5]) : m[6] ? parseNumber(m[6]) : null;
+      const ref = (x) => { if (!x) return null; const r = reportNumbers(x, mark); return r.length === 1 ? r[0] : null; };
+      const lo = ref(m[4] || m[7]), hi = ref(m[5] || m[6]);
       items.push({ kind: "blood", name, value, unit: m[3], lo, hi });
     }
     const date = reportDate(text, today);
