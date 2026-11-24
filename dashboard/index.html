@@ -2182,8 +2182,6 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Mit GitHub verbinden": "Connect to GitHub",
 "Eigene Daten einrichten": "Set up your own data",
 "Beispieldaten. ": "Sample data. ",
-"Alle Werte sind erfunden. Richte deine eigenen Daten ein oder verbinde die Seite mit deinem Daten-Repository, lokal reicht ": "All values are made up. Set up your own data or connect the page to your data repository; locally, ",
-" im Repo.": " in the repository is enough.",
 "Die neuesten Garmin-Daten sind vom {0}. ": "The newest Garmin data is from {0}. ",
 "Prüfe auf GitHub unter Actions den Workflow „Sync Garmin and Hevy“. Steht dort ": "Check the workflow “Sync Garmin and Hevy” on GitHub under Actions. If it says ",
 ", melde dich lokal mit ": ", log in again locally with ",
@@ -3250,7 +3248,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Schätzung, 28-Tage-Mittel: Fett {0} kg · Muskel {1} kg seit {2}": "Estimate, 28-day mean: fat {0} kg · muscle {1} kg since {2}",
 "Weniger Karten": "Fewer cards",
 "Weitere {0} Karten zeigen": "Show {0} more cards",
-"1 weitere Karte zeigen": "Show 1 more card"
+"1 weitere Karte zeigen": "Show 1 more card",
+"Alle Werte sind erfunden. So sieht das Dashboard mit deinen Garmin-, Hevy- und YAZIO-Daten aus; die Einrichtung dauert etwa 15 Minuten.": "All values are made up. This is how the dashboard looks with your Garmin, Hevy and YAZIO data; setting it up takes about 15 minutes."
 }
 </script>
 <script>
@@ -5430,8 +5429,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       const setup = html("button", { type: "button", class: "primary-btn", text: T("Eigene Daten einrichten") });
       setup.addEventListener("click", openSetup);
       parts.push(html("p", {}, [html("strong", { text: T("Beispieldaten. ") }),
-          T("Alle Werte sind erfunden. Richte deine eigenen Daten ein oder verbinde die Seite mit deinem Daten-Repository, lokal reicht "),
-          html("code", { text: "python -m http.server" }), T(" im Repo.")]));
+          // Written for a first visit (from the README or a post): what this is, not how to serve it locally
+          T("Alle Werte sind erfunden. So sieht das Dashboard mit deinen Garmin-, Hevy- und YAZIO-Daten aus; die Einrichtung dauert etwa 15 Minuten.")]));
       parts.push(html("div", { class: "notice-actions" }, [setup, connect]));
     }
     if (sync?.late && !fr.stale) {
