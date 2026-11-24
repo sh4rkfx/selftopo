@@ -1015,13 +1015,16 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
         <div class="chart-host" id="c-weight"></div>
       </div>
       <div class="card" data-tab="Fett, Muskel" data-icon="layers">
-        <div class="card-head"><h3>Fett- und Muskelmasse</h3><p class="sub" id="comp-sub"></p></div>
+        <div class="card-head"><h3>Fett und Muskeln laut Waage</h3><p class="sub" id="comp-sub"></p></div>
         <div class="info" hidden>
-          <p>Die Waage schätzt Fett und Muskeln über den elektrischen Widerstand des Körpers. Einzelwerte sind ungenau und hängen vom Wasserhaushalt ab; brauchbar ist der Trend über mehrere Wochen.</p>
+          <p>Die Waage schätzt Fett und Muskeln über den elektrischen Widerstand des Körpers und feste Annahmen über Wasser in fettfreiem Gewebe. Von einem Tag zum nächsten springt die Schätzung oft um ±0,4 kg, mehr als sich Fett oder Muskeln ändern können; deshalb zeigt die Karte nur das 28-Tage-Mittel. Belastbar trennen lassen sich Fett und Muskeln damit nicht, besser eignen sich der Taillenumfang und der Kraftverlauf.</p>
           <p class="source">Quelle: garmin_daily.csv · fat_mass_kg, muscle_mass_kg</p>
         </div>
-        <div class="legend"><span><i class="key-line" style="background:var(--s1)"></i>Muskelmasse</span><span><i class="key-line" style="background:var(--s2)"></i>Fettmasse</span></div>
-        <div class="chart-host" id="c-comp"></div>
+        <details class="daily comp-more">
+          <summary>Verlauf der Schätzung zeigen</summary>
+          <div class="legend"><span><i class="key-line" style="background:var(--s1)"></i>Muskelmasse</span><span><i class="key-line" style="background:var(--s2)"></i>Fettmasse</span></div>
+          <div class="chart-host" id="c-comp"></div>
+        </details>
       </div>
       <div class="card span2" data-tab="Tempo" data-icon="trend">
         <div class="card-head"><h3>Abnahmetempo</h3><p class="sub" id="rate-sub"></p></div>
@@ -2133,7 +2136,6 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Körpergewicht in Kilogramm": "Body weight in kilograms",
 "Keine Gewichtsmessungen im Zeitraum. Die Werte kommen von der Garmin-Waage über `python -m selftopo sync`.": "No weigh-ins in the period. The values come from the Garmin scale via `python -m selftopo sync`.",
 "Messung": "Measurement",
-"Fett {0} kg · Muskel {1} kg seit {2}": "Fat {0} kg · muscle {1} kg since {2}",
 "Keine Körperzusammensetzung im Zeitraum": "No body composition in the period",
 "Veränderung von Fett- und Muskelmasse in Kilogramm": "Change in fat and muscle mass in kilograms",
 "Keine Körperzusammensetzung im Zeitraum (Spalten fat_mass_kg und muscle_mass_kg leer).": "No body composition in the period (columns fat_mass_kg and muscle_mass_kg empty).",
@@ -2198,8 +2200,6 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "{0} h · {1} Akt.": "{0} h · {1} act.",
 "keine Daten der Uhr": "no watch data",
 "Ziel an {0} von 7": "goal on {0} of 7",
-"Fett {0} kg": "Fat {0} kg",
-"Muskel {0} kg": "Muscle {0} kg",
 "Keine Messung im Zeitraum": "No weigh-in in the period",
 "Keine Gewichtsmessungen im Zeitraum.": "No weigh-ins in the period.",
 "nicht eingerichtet": "not set up",
@@ -2690,8 +2690,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Quelle: garmin_daily.csv · weight_kg · Garmin Index-Waage, erste Messung des Tages": "Source: garmin_daily.csv · weight_kg · Garmin Index scale, first weigh-in of the day",
 "<i class=\"key-line\" style=\"background:var(--s1)\"></i>Ø 7 Tage": "<i class=\"key-line\" style=\"background:var(--s1)\"></i>7-day avg",
 "<i class=\"key-dot\" style=\"background:var(--s1)\"></i>Einzelmessung": "<i class=\"key-dot\" style=\"background:var(--s1)\"></i>Single weigh-in",
-"Fett- und Muskelmasse": "Fat and muscle mass",
-"Die Waage schätzt Fett und Muskeln über den elektrischen Widerstand des Körpers. Einzelwerte sind ungenau und hängen vom Wasserhaushalt ab; brauchbar ist der Trend über mehrere Wochen.": "The scale estimates fat and muscle from the body’s electrical resistance. Single values are imprecise and depend on hydration; the trend over several weeks is what counts.",
+"Die Waage schätzt Fett und Muskeln über den elektrischen Widerstand des Körpers und feste Annahmen über Wasser in fettfreiem Gewebe. Von einem Tag zum nächsten springt die Schätzung oft um ±0,4 kg, mehr als sich Fett oder Muskeln ändern können; deshalb zeigt die Karte nur das 28-Tage-Mittel. Belastbar trennen lassen sich Fett und Muskeln damit nicht, besser eignen sich der Taillenumfang und der Kraftverlauf.": "The scale estimates fat and muscle from the body's electrical resistance and fixed assumptions about water in fat-free tissue. From one day to the next the estimate often jumps by ±0.4 kg, more than fat or muscle can change; so the card shows only the 28-day mean. It cannot reliably tell fat from muscle; waist circumference and the strength trend are better for that.",
 "Quelle: garmin_daily.csv · fat_mass_kg, muscle_mass_kg": "Source: garmin_daily.csv · fat_mass_kg, muscle_mass_kg",
 "<i class=\"key-line\" style=\"background:var(--s1)\"></i>Muskelmasse": "<i class=\"key-line\" style=\"background:var(--s1)\"></i>Muscle mass",
 "<i class=\"key-line\" style=\"background:var(--s2)\"></i>Fettmasse": "<i class=\"key-line\" style=\"background:var(--s2)\"></i>Fat mass",
@@ -3131,8 +3130,6 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Gewicht, neuestes 7-Tage-Mittel": "Weight, newest 7-day average",
 "Änderung des 7-Tage-Mittels im Zeitraum": "Change of the 7-day average in the period",
 "Abnahmetempo: Änderung pro Woche über 28 Tage": "Rate of loss: change per week over 28 days",
-"Änderung der Fettmasse im Zeitraum": "Change of fat mass in the period",
-"Änderung der Muskelmasse im Zeitraum": "Change of muscle mass in the period",
 "Blutdruck, Mittel im Zeitraum": "Blood pressure, mean in the period",
 "YAZIO einrichten": "Set up YAZIO",
 "Kalorien pro Tag, Mittel der vollständig geloggten Tage": "Calories per day, mean of the fully logged days",
@@ -3236,7 +3233,10 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Schlafmitte am Wochenende {0} verschoben": "Sleep midpoint shifted {0} at the weekend",
 "Ziel {0}": "Goal {0}",
 "Nichts: alle {0} Werte in deinem üblichen Bereich": "Nothing: all {0} values within your usual range",
-"Sobald genug Tage da sind, steht hier, was von deinem Üblichen abweicht": "Once there are enough days, this shows what differs from your usual"
+"Sobald genug Tage da sind, steht hier, was von deinem Üblichen abweicht": "Once there are enough days, this shows what differs from your usual",
+"Fett und Muskeln laut Waage": "Fat and muscle according to the scale",
+"Verlauf der Schätzung zeigen": "Show the estimate over time",
+"Schätzung, 28-Tage-Mittel: Fett {0} kg · Muskel {1} kg seit {2}": "Estimate, 28-day mean: fat {0} kg · muscle {1} kg since {2}"
 }
 </script>
 <script>
@@ -4400,6 +4400,9 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     rollingMean(days, "bmi", "bmi7", 7);
     rollingMean(days, "fatKg", "fat7", 7, 2);
     rollingMean(days, "muscle", "muscle7", 7, 2);
+    // The scale's estimate jumps ±0.4 kg from day to day; only a four-week mean is worth showing
+    rollingMean(days, "fatKg", "fat28", 28, 8);
+    rollingMean(days, "muscle", "muscle28", 28, 8);
     rollingMean(days, "hrv", "hrv7", 7, 3);
     rollingMean(days, "rhr", "rhr7", 7, 3);
     rollingMean(days, "rhr", "rhr60", 60, 14);
@@ -5269,17 +5272,17 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       ],
     }));
 
-    const fatBase = days.find((d) => d.fat7 != null)?.fat7, muscleBase = days.find((d) => d.muscle7 != null)?.muscle7;
-    const fatLast = lastWith("fat7"), muscleLast = lastWith("muscle7"), compFrom = days.find((d) => d.fat7 != null);
+    const fatBase = days.find((d) => d.fat28 != null)?.fat28, muscleBase = days.find((d) => d.muscle28 != null)?.muscle28;
+    const fatLast = lastWith("fat28"), muscleLast = lastWith("muscle28"), compFrom = days.find((d) => d.fat28 != null);
     $("comp-sub").textContent = compFrom && fatLast && muscleLast
-      ? T("Fett {0} kg · Muskel {1} kg seit {2}", [fmtSigned(fatLast.fat7 - fatBase, 1), fmtSigned(muscleLast.muscle7 - muscleBase, 1), ddmm(compFrom.t)])
+      ? T("Schätzung, 28-Tage-Mittel: Fett {0} kg · Muskel {1} kg seit {2}", [fmtSigned(fatLast.fat28 - fatBase, 1), fmtSigned(muscleLast.muscle28 - muscleBase, 1), ddmm(compFrom.t)])
       : T("Keine Körperzusammensetzung im Zeitraum");
     mount("c-comp", (host) => timeChart(host, {
       x0, x1, label: T("Veränderung von Fett- und Muskelmasse in Kilogramm"), zero: true,
       empty: T("Keine Körperzusammensetzung im Zeitraum (Spalten fat_mass_kg und muscle_mass_kg leer)."),
       series: [
-        { label: T("Muskelmasse"), color: "var(--s1)", data: days.map((d) => ({ t: d.t, v: d.muscle7 != null && muscleBase != null ? d.muscle7 - muscleBase : null })), fmt: (v) => `${fmtSigned(v, 1)} kg`, endLabel: true },
-        { label: T("Fettmasse"), color: "var(--s2)", data: days.map((d) => ({ t: d.t, v: d.fat7 != null && fatBase != null ? d.fat7 - fatBase : null })), fmt: (v) => `${fmtSigned(v, 1)} kg`, endLabel: true },
+        { label: T("Muskelmasse"), color: "var(--s1)", data: days.map((d) => ({ t: d.t, v: d.muscle28 != null && muscleBase != null ? d.muscle28 - muscleBase : null })), fmt: (v) => `${fmtSigned(v, 1)} kg`, endLabel: true },
+        { label: T("Fettmasse"), color: "var(--s2)", data: days.map((d) => ({ t: d.t, v: d.fat28 != null && fatBase != null ? d.fat28 - fatBase : null })), fmt: (v) => `${fmtSigned(v, 1)} kg`, endLabel: true },
       ],
     }));
 
@@ -5742,15 +5745,13 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     const change = (list, key) => (list.length > 1 ? list[list.length - 1][key] - list[0][key] : null);
 
     // Körper
-    const wIn = days.filter((d) => d.weight7 != null), fIn = days.filter((d) => d.fat7 != null), mIn = days.filter((d) => d.muscle7 != null);
-    const dW = change(wIn, "weight7"), dF = change(fIn, "fat7"), dM = change(mIn, "muscle7");
+    const wIn = days.filter((d) => d.weight7 != null);
+    const dW = change(wIn, "weight7");
     const rate = lastWith("wRate");
     put("koerper", wIn.length
       ? [C("weight-sub", T("Gewicht, neuestes 7-Tage-Mittel"), "koerper", `${fmt(wIn[wIn.length - 1].weight7, 1)} kg`),
         C("weight-sub", T("Änderung des 7-Tage-Mittels im Zeitraum"), direction(dW, 0.05), `${fmtSigned(dW, 1)} kg`),
         rate && rate.t >= x0 ? CV("rate-sub", T("Abnahmetempo: Änderung pro Woche über 28 Tage"), T("Abnahme schneller als 1 % pro Woche"), "trend", T("{0} %/Woche", [fmtSigned(rate.wRate, 1)]), rate.wRate < -1 ? "warn" : "neutral") : null,
-        dF != null ? C("comp-sub", T("Änderung der Fettmasse im Zeitraum"), "layers", T("Fett {0} kg", [fmtSigned(dF, 1)])) : null,
-        dM != null ? C("comp-sub", T("Änderung der Muskelmasse im Zeitraum"), "kraft", T("Muskel {0} kg", [fmtSigned(dM, 1)])) : null,
         linkChip(bpChip(M, x0, x1), "bp-sub", T("Blutdruck, Mittel im Zeitraum"))]
       : [C("weight-sub", T("Gewicht"), "koerper", T("Keine Messung im Zeitraum")), linkChip(bpChip(M, x0, x1), "bp-sub", T("Blutdruck, Mittel im Zeitraum"))]);
 
