@@ -126,14 +126,22 @@ def _fmt(number: float) -> str:
     return str(int(number)) if number == int(number) else repr(round(number, 4))
 
 
-def to_rows(result: dict[str, Any], file: str, today: date) -> list[dict[str, str]]:
-    """Proposed rows from the tool input; values outside the plausible range or without a valid date are dropped."""
-    day = result.get("date")
+def _day(text: Any, today: date) -> date | None:
     try:
-        when = date.fromisoformat(str(day))
+        when = date.fromisoformat(str(text)[:10])
     except ValueError:
-        return []
-    if when > today:
+        return None
+    return when if when <= today else None
+
+
+def to_rows(result: dict[str, Any], file: str, today: date) -> list[dict[str, str]]:
+    """Proposed rows from the tool input; values outside the plausible range are dropped.
+
+    The date is the one Claude read; without a readable one, the date the dashboard put at the
+    start of the file name on upload (files/2026-11-23-befund.jpg). Without either, nothing.
+    """
+    when = _day(result.get("date"), today) or _day(Path(file).name, today)
+    if when is None:
         return []
     rows: list[dict[str, str]] = []
     seen: set[tuple[str, str]] = set()

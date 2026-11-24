@@ -64,6 +64,15 @@ def test_no_rows_without_a_valid_past_date(given):
     assert got == [[], [], []]
 
 
+def test_upload_date_in_the_file_name_when_the_report_has_none(given):
+    """A scan without a legible date takes the date the dashboard put in the file name; Claude's date wins."""
+    values = [{"kind": "waist_cm", "value": 90}]
+    none = reports.to_rows({"date": None, "values": values}, "files/2026-11-20-scan.jpg", TODAY)
+    read = reports.to_rows({"date": "2026-11-18", "values": values}, "files/2026-11-20-scan.jpg", TODAY)
+    given(none=none, read=read)
+    assert [r["date"] for r in none] == ["2026-11-20"] and [r["date"] for r in read] == ["2026-11-18"]
+
+
 def test_evaluate_writes_proposals_and_remembers_files(data, monkeypatch, given):
     """One file with values, one without; a failing request is not remembered, so it is tried again."""
     for name in ("lab.pdf", "photo.jpg", "broken.png", "chatty.png"):

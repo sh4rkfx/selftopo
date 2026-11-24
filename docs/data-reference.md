@@ -216,7 +216,8 @@ deleted.
 Photos, scans and PDFs without readable values can be read by the Claude API instead
 (`python -m selftopo evaluate-reports`, run by the workflow *Read reports* after each upload, only
 with the secret `ANTHROPIC_API_KEY`). Every file in `files/` that no row points to and that was
-not read before is sent once; up to five per run. Its values are added with `status` `proposed` and
+not read before is sent once; up to five per run. Without a legible date on the report, the upload
+date at the start of the file name counts. Its values are added with `status` `proposed` and
 `source` `Claude`; the dashboard shows them in a box to accept or discard and leaves them out of
 everything else until then. `report_evaluations.json` records each file read, when, the result
 (`proposed`, `nothing`, `too_large`, `no_answer` when the model replied without the tool; delete an entry to have the file read again) and the model, so no file is sent twice. The model is set
