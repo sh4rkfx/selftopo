@@ -711,6 +711,24 @@ ul.rows li.mrow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap
 .mrow .v { grid-column: 2; grid-row: 1; font-family: var(--font-mono); font-variant-numeric: tabular-nums; text-align: right; }
 .mrow .b { grid-column: 2; grid-row: 2; justify-self: end; display: flex; gap: 6px; align-items: center; }
 .mrow .b:empty { display: none; }
+#befunde .card-actions { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+#befunde .primary-btn { min-height: 44px; }
+#befunde .link-btn { font-size: 0.75rem; }
+dialog.mdlg { width: min(600px, calc(100vw - 32px)); }
+dialog.mdlg .field.wide { grid-column: 1 / -1; }
+dialog.mdlg select, dialog.mdlg .field input { min-height: 44px; }
+dialog.mdlg .field input[type="date"] { height: 44px; padding-block: 0; }
+.field select { width: 100%; min-width: 0; font-size: 0.875rem; padding: 8px 10px; color: var(--ink); background: var(--surface); border: 1px solid var(--ring-strong); border-radius: 7px; font-family: var(--font-sans); }
+.field input[aria-invalid="true"], .field select[aria-invalid="true"] { border-color: var(--crit); box-shadow: 0 0 0 1px var(--crit); }
+.field .err { margin: 0; font-size: 0.75rem; color: var(--crit-ink); }
+.unit-in { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+.unit-in span { font-family: var(--font-mono); font-size: 0.8125rem; color: var(--ink-2); }
+pre.csv { margin: 0; font-family: var(--font-mono); font-size: 0.75rem; background: var(--area); border-radius: 8px; padding: 8px 10px; overflow-x: auto; white-space: pre; min-height: 1.2em; }
+.dlg-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+.dlg-actions .primary-btn, .dlg-actions .ghost-btn { min-height: 44px; }
+.dlg-actions #m-delete { margin-right: auto; }
+#m-status.good { color: var(--good-ink); }
+#m-status.bad { color: var(--crit-ink); }
 .progress { height: 8px; border-radius: 999px; background: var(--grid); overflow: hidden; }
 .progress > span { display: block; height: 100%; border-radius: 999px; background: var(--t-fg, var(--s1)); }
 .reco h4 { margin: 0; font-family: var(--font-display); font-size: 1.125rem; font-weight: 700; letter-spacing: -0.01em; line-height: 1.25; }
@@ -1586,6 +1604,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
           <p>Werte aus Labor, Arztpraxis und Leistungstests, die keine Uhr und keine Waage misst: Ruheumsatz mit RER, Taillenumfang, DEXA, VO2max aus der Spiroergometrie und Blutwerte. Je Messgröße steht der neueste Wert. Blutwerte werden nur gegen den Referenzbereich bewertet, der auf dem Befund steht.</p>
           <p class="source">Quelle: measurements.csv · Dateien unter files/ im Daten-Repository</p>
         </div>
+        <div class="card-actions"><button class="primary-btn" type="button" id="m-add">Befund eintragen</button><span class="sub" id="m-add-note"></span></div>
         <div id="befunde-list"></div>
       </div>
       <div class="card span2" data-tab="Wochen" data-icon="table">
@@ -1636,6 +1655,90 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 
 <div class="tip" id="tip" hidden aria-hidden="true"></div>
 
+<dialog class="help mdlg" id="m-dialog" aria-labelledby="m-title">
+  <form id="m-form" class="help-in" novalidate>
+    <div class="help-head">
+      <h2 id="m-title">Befund eintragen</h2>
+      <button class="ghost-btn" type="button" id="m-close">Abbrechen</button>
+    </div>
+    <div class="settings-grid">
+      <div class="field wide">
+        <label for="m-kind">Messgröße</label>
+        <select id="m-kind">
+          <optgroup label="Körper"><option value="waist_cm">Taillenumfang</option><option value="dexa_fat_pct">DEXA: Fettanteil</option><option value="dexa_ffm_kg">DEXA: fettfreie Masse</option></optgroup>
+          <optgroup label="Stoffwechsel"><option value="rmr_kcal">Ruheumsatz</option></optgroup>
+          <optgroup label="Fitness"><option value="vo2max_lab">VO2max (Labor)</option></optgroup>
+          <optgroup label="Blut"><option value="blood">Blutwert</option></optgroup>
+        </select>
+        <p class="sub" id="m-kind-hint"></p>
+        <p class="err" id="m-err-kind" hidden></p>
+      </div>
+      <div class="field">
+        <label for="m-date">Datum</label>
+        <input id="m-date" type="date">
+        <p class="err" id="m-err-date" hidden></p>
+      </div>
+      <div class="field blood-only" hidden>
+        <label for="m-name">Name auf dem Befund</label>
+        <input id="m-name" type="text" list="m-names" autocomplete="off" placeholder="z. B. Ferritin">
+        <datalist id="m-names"><option>Ferritin</option><option>HbA1c</option><option>LDL-Cholesterin</option><option>HDL-Cholesterin</option><option>Triglyceride</option><option>Vitamin D (25-OH)</option><option>TSH</option><option>Hämoglobin</option><option>CRP</option><option>Testosteron</option></datalist>
+        <p class="err" id="m-err-name" hidden></p>
+      </div>
+      <div class="field">
+        <label for="m-value">Wert</label>
+        <div class="unit-in"><input id="m-value" type="text" inputmode="decimal" autocomplete="off"><span id="m-unit-fixed"></span></div>
+        <p class="err" id="m-err-value" hidden></p>
+      </div>
+      <div class="field blood-only" hidden>
+        <label for="m-unit">Einheit</label>
+        <input id="m-unit" type="text" autocomplete="off" placeholder="z. B. µg/l">
+        <p class="err" id="m-err-unit" hidden></p>
+      </div>
+      <div class="field blood-only" hidden>
+        <label for="m-lo">Referenz von</label>
+        <input id="m-lo" type="text" inputmode="decimal" autocomplete="off" placeholder="laut Befund">
+      </div>
+      <div class="field blood-only" hidden>
+        <label for="m-hi">Referenz bis</label>
+        <input id="m-hi" type="text" inputmode="decimal" autocomplete="off" placeholder="laut Befund">
+        <p class="err" id="m-err-ref" hidden></p>
+      </div>
+      <div class="field" id="m-rer-field">
+        <label for="m-rer">RER (optional)</label>
+        <input id="m-rer" type="text" inputmode="decimal" autocomplete="off" placeholder="z. B. 0,82">
+        <p class="sub">Unter 0,8 heißt: in Ruhe vor allem Fett verbrannt.</p>
+        <p class="err" id="m-err-rer" hidden></p>
+      </div>
+      <div class="field">
+        <label for="m-source">Wo gemessen</label>
+        <input id="m-source" type="text" autocomplete="off" placeholder="z. B. Sportmedizin">
+      </div>
+      <div class="field wide">
+        <label for="m-note">Notiz</label>
+        <input id="m-note" type="text" autocomplete="off" placeholder="z. B. nüchtern, 7:30 Uhr">
+      </div>
+    </div>
+    <div class="field">
+      <span class="sub">So steht es in measurements.csv</span>
+      <pre class="csv" id="m-csv"></pre>
+    </div>
+    <div class="notice" id="m-copy" hidden>
+      <strong>Dein Token darf nur lesen.</strong>
+      <span>Kopiere die Zeilen und füge sie auf GitHub am Ende von measurements.csv ein, oder gib dem Token „Contents: Read and write“.</span>
+      <div class="notice-actions"><button class="ghost-btn" type="button" id="m-copy-btn">Zeilen kopieren</button></div>
+    </div>
+    <div class="notice" id="m-delete-confirm" hidden>
+      <strong>Diesen Befund löschen?</strong>
+      <span>Die Zeile verschwindet aus measurements.csv; in der Git-Historie des Daten-Repositorys bleibt sie erhalten.</span>
+      <div class="notice-actions"><button class="ghost-btn" type="button" id="m-delete-yes">Löschen</button><button class="ghost-btn" type="button" id="m-delete-no">Behalten</button></div>
+    </div>
+    <p class="sub" id="m-status" role="status" hidden></p>
+    <div class="dlg-actions">
+      <button class="ghost-btn" type="button" id="m-delete" hidden>Löschen …</button>
+      <button class="primary-btn" type="submit" id="m-save">Speichern</button>
+    </div>
+  </form>
+</dialog>
 <dialog class="help" id="help" aria-labelledby="help-title">
   <div class="help-in">
     <div class="help-head">
@@ -2231,7 +2334,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Readiness, zuletzt": "Readiness, latest",
 "Stufe {0}": "Level {0}",
 "Sätze, 7 Tage": "Sets, 7 days",
-"Einheit": "session",
+"Einheit": "Unit",
 "Einheiten": "sessions",
 "Aktiv, 7 Tage": "Active, 7 days",
 "{0} h · {1} Akt.": "{0} h · {1} act.",
@@ -3318,7 +3421,64 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "ab {0}": "from {0}",
 "Ref. {0}": "Ref. {0}",
 "Werte aus Labor, Arztpraxis und Leistungstests, die keine Uhr und keine Waage misst: Ruheumsatz mit RER, Taillenumfang, DEXA, VO2max aus der Spiroergometrie und Blutwerte. Je Messgröße steht der neueste Wert. Blutwerte werden nur gegen den Referenzbereich bewertet, der auf dem Befund steht.": "Values from labs, doctors and performance tests that no watch or scale measures: resting metabolic rate with RER, waist circumference, DEXA, VO2max from a CPET and blood values. Each measure shows its newest value. Blood values are rated only against the reference range printed on the report.",
-"Quelle: measurements.csv · Dateien unter files/ im Daten-Repository": "Source: measurements.csv · files under files/ in the data repository"
+"Quelle: measurements.csv · Dateien unter files/ im Daten-Repository": "Source: measurements.csv · files under files/ in the data repository",
+"Alle Einträge ({0})": "All entries ({0})",
+"Aus der Spiroergometrie, der höchste gemessene Wert.": "From the CPET, the highest value measured.",
+"Bearbeiten": "Edit",
+"{0} vom {1} bearbeiten": "Edit {0} of {1}",
+"Befund bearbeiten": "Edit result",
+"Befund eintragen": "Add result",
+"Das Datum liegt in der Zukunft.": "The date is in the future.",
+"Die Einheit vom Befund, z. B. mg/dl.": "The unit on the report, e.g. mg/dl.",
+"Eingetragen: {0}": "Added: {0}",
+"Gespeichert: {0}": "Saved: {0}",
+"Gelöscht.": "Deleted.",
+"Kopiert": "Copied",
+"Eintragen geht mit verbundenem Daten-Repository (Einstellungen → Verbindung).": "Adding works with a connected data repository (Settings → Connection).",
+"Offline: Eintragen geht wieder mit Verbindung.": "Offline: adding works again once connected.",
+"Fettfreie Masse („Lean“ plus Knochen), wie im Befund angegeben.": "Fat-free mass (lean plus bone) as stated on the report.",
+"Gesamter Körperfettanteil aus dem DEXA-Befund.": "Total body fat percentage from the DEXA report.",
+"Gemessen mit Atemgasanalyse (indirekte Kalorimetrie), nicht berechnet. Der RER steht meist daneben.": "Measured by gas analysis (indirect calorimetry), not calculated. The RER is usually printed next to it.",
+"Morgens nüchtern, auf Nabelhöhe, nach normalem Ausatmen. Alle zwei Wochen reicht.": "In the morning before eating, at navel height, after a normal breath out. Every two weeks is enough.",
+"Name, Einheit und Referenzbereich so, wie sie auf dem Laborbefund stehen.": "Name, unit and reference range as printed on the lab report.",
+"Gib das Datum der Messung an.": "Enter the date of the measurement.",
+"Gib einen Wert ein.": "Enter a value.",
+"Nur eine Zahl, mit Komma oder Punkt, z. B. 91,5.": "A number only, with a point or comma, e.g. 91.5.",
+"{0} liegt zwischen {1} und {2} {3}. Stimmt die Einheit?": "{0} lies between {1} and {2} {3}. Is the unit right?",
+"Wie heißt der Wert auf dem Befund?": "What is the value called on the report?",
+"Referenz nur als Zahl.": "Reference as a number only.",
+"„Von“ muss kleiner sein als „bis“.": "“From” must be smaller than “to”.",
+"RER liegt zwischen 0,65 und 1,10.": "RER lies between 0.65 and 1.10.",
+"Wähle, was gemessen wurde.": "Choose what was measured.",
+"measurements.csv wurde gerade woanders geändert. Aktualisiere die Seite und versuche es noch einmal.": "measurements.csv was just changed elsewhere. Reload the page and try again.",
+"Messgröße": "Measure",
+"Wert": "Value",
+"Quelle": "Source",
+"Abbrechen": "Cancel",
+"Name auf dem Befund": "Name on the report",
+"Referenz von": "Reference from",
+"Referenz bis": "Reference to",
+"laut Befund": "as on the report",
+"z. B. Ferritin": "e.g. Ferritin",
+"z. B. µg/l": "e.g. µg/l",
+"RER (optional)": "RER (optional)",
+"z. B. 0,82": "e.g. 0.82",
+"Unter 0,8 heißt: in Ruhe vor allem Fett verbrannt.": "Below 0.8 means mostly fat burned at rest.",
+"Wo gemessen": "Where measured",
+"z. B. Sportmedizin": "e.g. sports medicine",
+"Notiz": "Note",
+"z. B. nüchtern, 7:30 Uhr": "e.g. fasted, 7:30",
+"So steht es in measurements.csv": "As it will stand in measurements.csv",
+"Dein Token darf nur lesen.": "Your token can only read.",
+"Kopiere die Zeilen und füge sie auf GitHub am Ende von measurements.csv ein, oder gib dem Token „Contents: Read and write“.": "Copy the lines and paste them at the end of measurements.csv on GitHub, or give the token “Contents: Read and write”.",
+"Zeilen kopieren": "Copy lines",
+"Diesen Befund löschen?": "Delete this result?",
+"Die Zeile verschwindet aus measurements.csv; in der Git-Historie des Daten-Repositorys bleibt sie erhalten.": "The line disappears from measurements.csv; it stays in the data repository’s Git history.",
+"Löschen": "Delete",
+"Behalten": "Keep",
+"Löschen …": "Delete …",
+"Dein Token darf nur lesen. Ändere oder lösche die Zeile mit der id {0} selbst in measurements.csv, oder gib dem Token „Contents: Read and write“. ": "Your token can only read. Change or delete the row with id {0} in measurements.csv yourself, or give the token “Contents: Read and write”. ",
+"measurements.csv auf GitHub öffnen": "Open measurements.csv on GitHub"
 }
 </script>
 <script>
@@ -6097,6 +6257,11 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   // Rohdaten → Befunde: newest value per measure, grouped; files link to the data repository
   function renderMeasurements() {
     const { list = [], invalid = 0 } = state.measurements || {};
+    // Writing needs the data repository and a connection; the sample data and local files are read-only
+    const canWrite = state.source === "github" && !state.offlineSince;
+    $("m-add").disabled = !canWrite;
+    $("m-add-note").textContent = state.offlineSince ? T("Offline: Eintragen geht wieder mit Verbindung.")
+      : state.source !== "github" ? T("Eintragen geht mit verbundenem Daten-Repository (Einstellungen → Verbindung).") : "";
     const groups = measurementGroups(list);
     const host = $("befunde-list");
     const confirmed = list.filter((m) => m.status === "confirmed");
@@ -6114,6 +6279,13 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
         : html("span", { class: "badge", text: path.toLowerCase().endsWith(".pdf") ? "PDF" : T("Datei") });
     };
     const REF_TEXT = { low: T("unter Referenz"), high: T("über Referenz"), in: T("im Referenzbereich") };
+    const label = (m) => (m.kind === "blood" ? m.name : MEASURE_KINDS[m.kind].label);
+    const editBtn = (m) => {
+      const b = html("button", { type: "button", class: "link-btn", text: T("Bearbeiten"), "aria-label": T("{0} vom {1} bearbeiten", [label(m), longDate(m.t)]) });
+      b.disabled = !canWrite;
+      b.addEventListener("click", () => openMeasureDialog(m));
+      return b;
+    };
     host.replaceChildren(...groups.map((g) => html("div", { class: "mgroup" }, [
       html("h4", { text: g.label }),
       html("ul", { class: "rows" }, g.items.map(({ m, n, rer }) => {
@@ -6128,10 +6300,283 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
           html("span", { class: "b" }, [
             ref ? html("span", { class: `state-badge ${ref === "in" ? "good" : "warn"}`, text: REF_TEXT[ref] }) : null,
             fileLink(m.file),
+            editBtn(m),
           ]),
         ]);
       })),
-    ])));
+    ])), ...[allEntries()].filter(Boolean));
+    // Every row, also older values and RER, each editable
+    function allEntries() {
+      const rows = list.filter((m) => !MEASURE_KINDS[m.kind].partOf);
+      if (rows.length <= groups.reduce((n, g) => n + g.items.length, 0)) return null;
+      const table = html("table", {}, [
+        html("thead", {}, html("tr", {}, [T("Datum"), T("Messgröße"), T("Wert"), T("Quelle"), ""].map((h) => html("th", { scope: "col", text: h })))),
+        html("tbody", {}, rows.map((m) => html("tr", {}, [
+          html("td", { text: ddmm(m.t) + new Date(m.t).getUTCFullYear() }), html("td", { text: label(m) }),
+          html("td", { class: "num", text: fmtMeasure(m) }), html("td", { text: m.source || "–" }), html("td", {}, editBtn(m)),
+        ]))),
+      ]);
+      return html("details", { class: "daily" }, [html("summary", { text: T("Alle Einträge ({0})", [rows.length]) }), html("div", { class: "table-wrap" }, table)]);
+    }
+  }
+
+
+  // ---- Befunde: entering, editing and deleting values in measurements.csv
+
+  const measureUnitText = (kind) => { const u = MEASURE_KINDS[kind].unit; return MEASURE_UNIT_TEXT[u] ?? u; };
+  // German or English decimal: "91,5", "91.5"; "2.455" with a thousands dot only for whole values
+  function parseNumber(text) {
+    const t = String(text ?? "").trim().replace(/\s/g, "");
+    if (!t) return null;
+    const v = /^\d{1,3}(\.\d{3})+$/.test(t) ? Number(t.replace(/\./g, "")) : Number(t.replace(",", "."));
+    return Number.isFinite(v) ? v : NaN;
+  }
+  // Checks the dialog's fields; returns { rows } (the RER becomes its own row) or { errors: {field: text} }
+  function validateMeasurement(f, today = todayT()) {
+    const errors = {};
+    const k = MEASURE_KINDS[f.kind];
+    if (!k || k.partOf) errors.kind = T("Wähle, was gemessen wurde.");
+    const day = /^\d{4}-\d{2}-\d{2}$/.test(f.date || "") && tToIso(isoToT(f.date)) === f.date ? isoToT(f.date) : null;
+    if (day == null) errors.date = T("Gib das Datum der Messung an.");
+    else if (day > today) errors.date = T("Das Datum liegt in der Zukunft.");
+    const value = parseNumber(f.value);
+    if (value == null) errors.value = T("Gib einen Wert ein.");
+    else if (Number.isNaN(value)) errors.value = T("Nur eine Zahl, mit Komma oder Punkt, z. B. 91,5.");
+    else if (k && k.min != null && (value < k.min || value > k.max)) {
+      const bound = (v) => fmt(v, Number.isInteger(v) ? 0 : k.digits);
+      errors.value = T("{0} liegt zwischen {1} und {2} {3}. Stimmt die Einheit?", [k.label, bound(k.min), bound(k.max), measureUnitText(f.kind)]);
+    }
+    let lo = null, hi = null;
+    if (f.kind === "blood") {
+      if (!String(f.name || "").trim()) errors.name = T("Wie heißt der Wert auf dem Befund?");
+      if (!String(f.unit || "").trim()) errors.unit = T("Die Einheit vom Befund, z. B. mg/dl.");
+      lo = parseNumber(f.lo); hi = parseNumber(f.hi);
+      if (Number.isNaN(lo) || Number.isNaN(hi)) errors.ref = T("Referenz nur als Zahl.");
+      else if (lo != null && hi != null && lo >= hi) errors.ref = T("„Von“ muss kleiner sein als „bis“.");
+    }
+    const rer = f.kind === "rmr_kcal" ? parseNumber(f.rer) : null;
+    if (rer != null && (Number.isNaN(rer) || rer < MEASURE_KINDS.rer.min || rer > MEASURE_KINDS.rer.max)) errors.rer = T("RER liegt zwischen 0,65 und 1,10.");
+    if (Object.keys(errors).length) return { errors };
+    const base = { date: f.date, source: String(f.source || "").trim(), file: String(f.file || "").trim(), status: "confirmed" };
+    const rows = [{
+      ...base, id: f.id || newMeasureId(f.date, f.kind), kind: f.kind, name: f.kind === "blood" ? f.name.trim() : "", value: String(value),
+      unit: f.kind === "blood" ? f.unit.trim() : MEASURE_KINDS[f.kind].unit, ref_low: lo == null ? "" : String(lo), ref_high: hi == null ? "" : String(hi),
+      note: String(f.note || "").trim(),
+    }];
+    if (rer != null) rows.push({ ...base, id: f.rerId || newMeasureId(f.date, "rer"), kind: "rer", name: "", value: String(rer), unit: "", ref_low: "", ref_high: "", note: "" });
+    return { rows };
+  }
+  function newMeasureId(date, kind) {
+    return `${date}-${kind}-${Math.random().toString(36).slice(2, 6)}`;
+  }
+  const csvCell = (v) => {
+    const s = String(v ?? "");
+    return [",", "\n", "\r", '"'].some((c) => s.includes(c)) ? `"${s.split('"').join('""')}"` : s;
+  };
+  const measureCsvLine = (r) => MEASURE_FIELDS.map((f) => csvCell(r[f])).join(",");
+  function measureCsv(rows) {
+    const sorted = [...rows].sort((a, b) => String(a.date).localeCompare(String(b.date)) || String(a.kind).localeCompare(String(b.kind)));
+    return `${[MEASURE_FIELDS.join(","), ...sorted.map(measureCsvLine)].join("\n")}\n`;
+  }
+  // Changes on top of the current file: rows with the same id are replaced, `remove` ids dropped
+  function applyMeasureChange(rows, { put = [], remove = [] }) {
+    const ids = new Set([...put.map((r) => r.id), ...remove]);
+    return [...rows.filter((r) => !ids.has(r.id)), ...put];
+  }
+
+  // Reads measurements.csv from the data repository, applies the change and commits; one retry when
+  // another device wrote in between. Returns { ok, rows } or { error, readOnly, conflict }.
+  async function writeMeasurements(change, message, cred = loadCredentials()) {
+    if (state.source !== "github" || !cred || cred.repo !== state.dataRepo) return { error: T("Speichern geht nur mit verbundenem Daten-Repository.") };
+    const branch = state.dataBranch, file = GITHUB_FILES.measurements;
+    const offline = T("GitHub ist nicht erreichbar. Besteht eine Internetverbindung? In einer eingebetteten Vorschau blockiert der Browser solche Anfragen.");
+    for (let attempt = 0; attempt < 2; attempt++) {
+      let sha = null, rows = [];
+      try {
+        const res = await githubRequest(cred, `/contents/${file}${branch ? `?ref=${encodeURIComponent(branch)}` : ""}`);
+        if (res.ok) {
+          const meta = await res.json();
+          sha = meta.sha;
+          rows = parseCsv(b64Decode(meta.content));
+        } else if (res.status !== 404) {
+          return res.status === 403 ? { error: T("Dein Token darf nur lesen."), readOnly: true } : { error: writeProblem(res.status) };
+        }
+      } catch {
+        return { error: offline };
+      }
+      const out = applyMeasureChange(rows, change);
+      let res;
+      try {
+        res = await fetch(`https://api.github.com/repos/${cred.repo}/contents/${file}`, {
+          method: "PUT",
+          headers: { Authorization: `Bearer ${cred.token}`, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
+          body: JSON.stringify({ message, content: b64Encode(measureCsv(out)), ...(sha ? { sha } : {}), ...(branch ? { branch } : {}) }),
+        });
+      } catch {
+        return { error: offline };
+      }
+      if (res.ok) return { ok: true, rows: out };
+      if (res.status === 409 || res.status === 422) continue;
+      if (res.status === 403 || res.status === 404) return { error: T("Dein Token darf nur lesen."), readOnly: true };
+      return { error: writeProblem(res.status) };
+    }
+    return { error: T("measurements.csv wurde gerade woanders geändert. Aktualisiere die Seite und versuche es noch einmal."), conflict: true };
+  }
+
+  // The dialog: one form for new and existing values; an existing one can also be deleted
+  let measureEdit = null; // the row being edited: { id, rerId, file, existing }
+  let measureDraftIds = { id: null, rerId: null };
+  function openMeasureDialog(m = null) {
+    const dlg = $("m-dialog");
+    $("m-form").reset();
+    for (const e of dlg.querySelectorAll(".err")) { e.hidden = true; e.textContent = ""; }
+    for (const i of dlg.querySelectorAll("[aria-invalid]")) i.removeAttribute("aria-invalid");
+    $("m-status").hidden = true;
+    $("m-copy").hidden = true;
+    $("m-delete-confirm").hidden = true;
+    const all = state.measurements?.list || [];
+    const rer = m?.kind === "rmr_kcal" ? all.find((x) => x.kind === "rer" && x.date === m.date) : null;
+    measureEdit = m ? { id: m.id, rerId: rer?.id || null, file: m.file, existing: true } : null;
+    // A new entry gets its ids once, so the preview does not change with every key
+    measureDraftIds = { id: m?.id || null, rerId: rer?.id || null };
+    $("m-title").textContent = m ? T("Befund bearbeiten") : T("Befund eintragen");
+    $("m-kind").value = m?.kind || "rmr_kcal";
+    $("m-date").value = m?.date || tToIso(todayT());
+    $("m-value").value = m ? String(m.value).replace(".", DECIMAL) : "";
+    $("m-name").value = m?.name || "";
+    $("m-unit").value = m?.kind === "blood" ? m.unit : "";
+    $("m-lo").value = m?.lo != null ? String(m.lo).replace(".", DECIMAL) : "";
+    $("m-hi").value = m?.hi != null ? String(m.hi).replace(".", DECIMAL) : "";
+    $("m-rer").value = rer ? String(rer.value).replace(".", DECIMAL) : "";
+    $("m-source").value = m?.source || "";
+    $("m-note").value = m?.note || "";
+    $("m-delete").hidden = !m;
+    $("m-save").disabled = false;
+    syncMeasureKind();
+    if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", "");
+    $("m-kind").focus();
+  }
+  const DECIMAL = LANG === "de" ? "," : ".";
+  function closeMeasureDialog() {
+    const dlg = $("m-dialog");
+    if (typeof dlg.close === "function") dlg.close(); else dlg.removeAttribute("open");
+  }
+  function syncMeasureKind() {
+    const kind = $("m-kind").value, k = MEASURE_KINDS[kind];
+    for (const e of document.querySelectorAll("#m-form .blood-only")) e.hidden = kind !== "blood";
+    $("m-rer-field").hidden = kind !== "rmr_kcal";
+    $("m-unit-fixed").textContent = kind === "blood" ? $("m-unit").value : measureUnitText(kind);
+    const bound = (v) => fmt(v, Number.isInteger(v) ? 0 : k.digits);
+    $("m-value").placeholder = k.min != null ? `${bound(k.min)}–${bound(k.max)}` : "";
+    $("m-kind-hint").textContent = MEASURE_HINTS[kind] || "";
+    previewMeasure();
+  }
+  const MEASURE_HINTS = {
+    waist_cm: T("Morgens nüchtern, auf Nabelhöhe, nach normalem Ausatmen. Alle zwei Wochen reicht."),
+    dexa_fat_pct: T("Gesamter Körperfettanteil aus dem DEXA-Befund."),
+    dexa_ffm_kg: T("Fettfreie Masse („Lean“ plus Knochen), wie im Befund angegeben."),
+    rmr_kcal: T("Gemessen mit Atemgasanalyse (indirekte Kalorimetrie), nicht berechnet. Der RER steht meist daneben."),
+    vo2max_lab: T("Aus der Spiroergometrie, der höchste gemessene Wert."),
+    blood: T("Name, Einheit und Referenzbereich so, wie sie auf dem Laborbefund stehen."),
+  };
+  const measureFields = () => {
+    const kind = $("m-kind").value, date = $("m-date").value;
+    // New ids follow date and kind; they are fixed once the entry exists
+    if (!measureEdit) {
+      measureDraftIds.id = `${date}-${kind}-${measureDraftIds.suffix ||= Math.random().toString(36).slice(2, 6)}`;
+      measureDraftIds.rerId = `${date}-rer-${measureDraftIds.suffix}`;
+    }
+    return measureFieldValues(kind, date);
+  };
+  const measureFieldValues = (kind, date) => ({
+    id: measureDraftIds.id, rerId: measureDraftIds.rerId, file: measureEdit?.file || "",
+    kind, date, value: $("m-value").value, name: $("m-name").value, unit: $("m-unit").value,
+    lo: $("m-lo").value, hi: $("m-hi").value, rer: $("m-rer").value, source: $("m-source").value, note: $("m-note").value,
+  });
+  // The lines as they will stand in measurements.csv, also what a read-only token copies
+  function previewMeasure() {
+    const v = validateMeasurement(measureFields());
+    $("m-csv").textContent = v.rows ? v.rows.map(measureCsvLine).join("\n") : "";
+    if ($("m-kind").value === "blood") $("m-unit-fixed").textContent = $("m-unit").value;
+  }
+  function showMeasureErrors(errors) {
+    const map = { kind: "m-kind", date: "m-date", value: "m-value", name: "m-name", unit: "m-unit", ref: "m-lo", rer: "m-rer" };
+    let first = null;
+    for (const [key, input] of Object.entries(map)) {
+      const err = $(`m-err-${key}`);
+      const msg = errors[key] || "";
+      err.hidden = !msg;
+      err.textContent = msg;
+      if (msg) { $(input).setAttribute("aria-invalid", "true"); $(input).setAttribute("aria-describedby", `m-err-${key}`); first ??= input; }
+      else { $(input).removeAttribute("aria-invalid"); $(input).removeAttribute("aria-describedby"); }
+    }
+    if (first) $(first).focus();
+  }
+  async function saveMeasure(change, message, okText) {
+    const status = $("m-status");
+    const save = $("m-save"), del = $("m-delete");
+    save.disabled = del.disabled = true;
+    status.hidden = false;
+    status.className = "sub";
+    status.textContent = T("Speichert …");
+    const result = await writeMeasurements(change, message);
+    save.disabled = del.disabled = false;
+    if (!result.ok) {
+      status.className = "sub bad";
+      status.textContent = result.error;
+      // Adding: the notice with lines to paste. Editing or deleting cannot be done by appending, so
+      // it names the row and links to the file on GitHub.
+      if (result.readOnly && !measureEdit?.existing) { $("m-copy").hidden = false; status.hidden = true; }
+      else if (result.readOnly) {
+        const href = `https://github.com/${state.dataRepo}/edit/${state.dataBranch || "main"}/${GITHUB_FILES.measurements}`;
+        status.replaceChildren(T("Dein Token darf nur lesen. Ändere oder lösche die Zeile mit der id {0} selbst in measurements.csv, oder gib dem Token „Contents: Read and write“. ", [measureEdit.id]),
+          html("a", { href, target: "_blank", rel: "noopener", text: T("measurements.csv auf GitHub öffnen") }));
+      }
+      return;
+    }
+    state.measurements = parseMeasurements(result.rows);
+    status.className = "sub good";
+    status.textContent = okText;
+    render();
+    setTimeout(closeMeasureDialog, 700);
+  }
+  function setupMeasurements() {
+    $("m-add").addEventListener("click", () => openMeasureDialog());
+    $("m-close").addEventListener("click", closeMeasureDialog);
+    $("m-kind").addEventListener("change", syncMeasureKind);
+    $("m-form").addEventListener("input", (e) => {
+      // A corrected field loses its error message right away
+      const key = { "m-kind": "kind", "m-date": "date", "m-value": "value", "m-name": "name", "m-unit": "unit", "m-lo": "ref", "m-hi": "ref", "m-rer": "rer" }[e.target.id];
+      if (key && !$(`m-err-${key}`).hidden) {
+        $(`m-err-${key}`).hidden = true;
+        e.target.removeAttribute("aria-invalid");
+        if (key === "ref") { $("m-lo").removeAttribute("aria-invalid"); }
+      }
+      previewMeasure();
+    });
+    $("m-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const v = validateMeasurement(measureFields());
+      if (v.errors) return showMeasureErrors(v.errors);
+      showMeasureErrors({});
+      // An RMR edited without its RER any more drops the old RER row
+      const remove = measureEdit?.rerId && !v.rows.some((r) => r.kind === "rer") ? [measureEdit.rerId] : [];
+      const label = v.rows[0].kind === "blood" ? v.rows[0].name : MEASURE_KINDS[v.rows[0].kind].label;
+      saveMeasure({ put: v.rows, remove }, `Dashboard: ${measureEdit?.existing ? "update" : "add"} ${v.rows[0].kind} ${v.rows[0].date}`,
+        measureEdit ? T("Gespeichert: {0}", [label]) : T("Eingetragen: {0}", [label]));
+    });
+    $("m-delete").addEventListener("click", () => { $("m-delete-confirm").hidden = false; $("m-delete-yes").focus(); });
+    $("m-delete-no").addEventListener("click", () => { $("m-delete-confirm").hidden = true; $("m-delete").focus(); });
+    $("m-delete-yes").addEventListener("click", () => {
+      if (!measureEdit) return;
+      $("m-delete-confirm").hidden = true;
+      saveMeasure({ remove: [measureEdit.id, measureEdit.rerId].filter(Boolean) }, `Dashboard: delete ${measureEdit.id}`, T("Gelöscht."));
+    });
+    $("m-copy-btn").addEventListener("click", async () => {
+      const text = $("m-csv").textContent;
+      try { await navigator.clipboard.writeText(text); $("m-copy-btn").textContent = T("Kopiert"); }
+      catch { const r = document.createRange(); r.selectNodeContents($("m-csv")); getSelection().removeAllRanges(); getSelection().addRange(r); }
+    });
   }
 
   function renderSources() {
@@ -8801,6 +9246,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     setupPrefs();
     setupLiftPicker();
     setupSettings();
+    setupMeasurements();
     setupApp();
     renderRangeButtons();
     for (const [key, id] of [["sessions", "sessions-more"], ["recent", "recent-more"], ["insights", "insights-more"], ["bsessions", "bsessions-more"]]) {

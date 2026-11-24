@@ -24,7 +24,10 @@ the tag of its major version (`v2`, before that `v1`).
   the morning*.
 - *Befunde* under Rohdaten: values from labs and tests in a new `measurements.csv` (resting
   metabolic rate with RER, waist, DEXA, lab VO2max, blood values with the report's reference
-  range), newest per measure, with links to report files. Read-only for now.
+  range), newest per measure, with links to report files. *Befund eintragen* adds a value with
+  checks for date, unit and plausible range (the RER goes with the resting metabolic rate);
+  every entry can be edited or deleted. With a read-only token the dialog gives the CSV lines
+  to paste on GitHub.
 - Sleep debt: the Schlaf area shows how far the last 4 nights fell short of your sleep-duration
   goal (otherwise 8 hours), net of longer nights and never below zero; yellow from 2 hours.
 - English dates name the month (*Tue 24 Nov*, push: *31 Mar*) instead of *24/11*.

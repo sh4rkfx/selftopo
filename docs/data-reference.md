@@ -204,8 +204,9 @@ CSV files and `insights.json`. Format, rules and thresholds: [recommendations.md
 ## measurements.csv
 
 Values from labs and tests that no watch or scale measures, one row per value. The dashboard
-shows it under Rohdaten → Befunde; nothing in the sync touches it. For now add rows by hand on
-GitHub (*Add file* or edit the file); an entry dialog in the dashboard follows. Report files go to `files/` in the
+shows and writes it under Rohdaten → Befunde (*Befund eintragen*, *Bearbeiten*), with a token that
+has *Contents: Read and write*; with a read-only token it gives you the lines to paste on GitHub.
+Nothing in the sync touches the file. Report files go to `files/` in the
 data repository and stay in its Git history, even after they are deleted.
 
 | Column | Meaning |
