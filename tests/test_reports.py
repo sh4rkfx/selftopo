@@ -112,6 +112,25 @@ def test_evaluate_writes_proposals_and_remembers_files(data, monkeypatch, given)
     assert reports.pending_files(data, rows, ledger) == ["files/broken.png"]
 
 
+@pytest.mark.parametrize(("status", "remembered"), [(400, True), (413, True), (429, False), (529, False)])
+def test_a_refused_file_is_remembered_a_busy_api_is_not(data, monkeypatch, given, status, remembered):
+    """A 4xx refusal would otherwise come first in every run and block newer files; 429 and 5xx are retried."""
+    (data / "files" / "a.png").write_bytes(b"x")
+    response = requests.Response()
+    response.status_code = status
+
+    def fake(path, api_key, model):
+        raise requests.HTTPError(f"{status}", response=response)
+
+    monkeypatch.setattr(reports, "ask_claude", fake)
+    counts = reports.evaluate(api_key="k", today=TODAY)
+    path = data / "report_evaluations.json"
+    ledger = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    given(status=status, ledger=ledger)
+    assert counts["failed"] == 1
+    assert (ledger.get("files/a.png", {}).get("result") == f"error_{status}") is remembered
+
+
 def test_without_api_key_it_explains(data, monkeypatch, given):
     """No secret: a setup error with what still works."""
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)

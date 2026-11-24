@@ -230,9 +230,13 @@ def evaluate(api_key: str | None = None, model: str | None = None, today: date |
         try:
             answer = ask_claude(path, api_key, model)
         except requests.RequestException as exc:
-            # Not recorded, so the next run tries again
+            status = exc.response.status_code if exc.response is not None else None
             log.warning("reports: %s failed: %s", rel, str(exc)[:200])
             counts["failed"] += 1
+            # The API refuses this file for good (400, 413 …): recorded, so it does not block newer
+            # files. A network error, a timeout, 429 or 5xx is not recorded and is tried again.
+            if status is not None and 400 <= status < 500 and status not in (408, 429):
+                ledger[rel] = {"at": now, "result": f"error_{status}", "model": model}
             continue
         if answer is None:
             # Recorded, so the file is not sent again each run; delete its entry to try once more

@@ -220,7 +220,7 @@ not read before is sent once; up to five per run. Without a legible date on the 
 date at the start of the file name counts. Its values are added with `status` `proposed` and
 `source` `Claude`; the dashboard shows them in a box to accept or discard and leaves them out of
 everything else until then. `report_evaluations.json` records each file read, when, the result
-(`proposed`, `nothing`, `too_large`, `no_answer` when the model replied without the tool; delete an entry to have the file read again) and the model, so no file is sent twice. The model is set
+(`proposed`, `nothing`, `too_large`, `no_answer` when the model replied without the tool, `error_400` and the like when the API refused the file; delete an entry to have the file read again) and the model, so no file is sent twice. The model is set
 with the repository variable `SELFTOPO_CLAUDE_MODEL` (default `claude-sonnet-5-5`). The daily
 sync does not touch either file.
 
