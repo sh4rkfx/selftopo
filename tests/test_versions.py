@@ -5,6 +5,8 @@ APP_VERSION in the dashboard are the same number, versions only go up, and each 
 changed.
 """
 
+# ruff: noqa: E501
+
 import re
 from pathlib import Path
 
@@ -53,3 +55,12 @@ def test_cli_prints_the_version(given, capsys):
     out = capsys.readouterr().out.strip()
     given(out=out)
     assert out == f"selftopo {selftopo.__version__}"
+
+
+def test_every_version_names_its_pull_request(given):
+    """From 2.1.0 on, each version links its pull request; the release goes on that commit."""
+    sections = re.split(r"^## \d+\.\d+\.\d+ – .*$", CHANGELOG, flags=re.M)[1:]
+    missing = [".".join(h[:3]) for h, s in zip(HEADINGS, sections, strict=True)
+               if tuple(int(x) for x in h[:3]) >= (2, 1, 0) and not re.search(r"^\[#(\d+)\]\(https://github\.com/sh4rkfx/selftopo/pull/\1\)$", s, re.M)]
+    given(missing=missing)
+    assert missing == []

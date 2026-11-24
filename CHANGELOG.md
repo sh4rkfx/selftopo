@@ -6,7 +6,21 @@ wording change the patch version; within a major version, data files and setting
 compatible. The workflow in each data repository follows the tag of its major version (`v2`,
 before that `v1`).
 
+## 2.16.1 – 2026-11-24
+
+[#138](https://github.com/sh4rkfx/selftopo/pull/138)
+
+### Project
+
+- Every merged version is published by itself: after the tests pass on `main`, the new workflow
+  *Release* tags each version of this changelog on the squash commit of its pull request,
+  publishes it as a GitHub release with its entry as notes, and moves `v2` to the newest one
+  (`tools/release.py`). Each version names its pull request. Started by hand, it catches up on
+  versions without a release.
+
 ## 2.16.0 – 2026-11-24
+
+[#136](https://github.com/sh4rkfx/selftopo/pull/136)
 
 ### Project
 
@@ -22,6 +36,8 @@ before that `v1`).
 
 ## 2.15.0 – 2026-11-24
 
+[#95](https://github.com/sh4rkfx/selftopo/pull/95)
+
 ### Befunde
 
 - Reports without readable text (photos, scans) can be read by the Claude API. With the secret
@@ -34,6 +50,8 @@ before that `v1`).
 
 ## 2.14.0 – 2026-11-24
 
+[#94](https://github.com/sh4rkfx/selftopo/pull/94)
+
 ### Befunde
 
 - *Befund hochladen*: a PDF, JPG or PNG goes to `files/` in the data repository. For a PDF with
@@ -43,6 +61,8 @@ before that `v1`).
 
 ## 2.13.0 – 2026-11-24
 
+[#93](https://github.com/sh4rkfx/selftopo/pull/93)
+
 ### Befunde
 
 - *Befund eintragen* adds a value with checks for date, unit and plausible range (the RER goes
@@ -50,6 +70,8 @@ before that `v1`).
   the dialog gives the CSV lines to paste on GitHub.
 
 ## 2.12.0 – 2026-11-24
+
+[#92](https://github.com/sh4rkfx/selftopo/pull/92)
 
 ### Befunde
 
@@ -59,6 +81,8 @@ before that `v1`).
 
 ## 2.11.0 – 2026-11-24
 
+[#91](https://github.com/sh4rkfx/selftopo/pull/91)
+
 ### Dashboard
 
 - Sleep debt: the Schlaf area shows how far the last 4 nights fell short of your sleep-duration
@@ -66,12 +90,16 @@ before that `v1`).
 
 ## 2.10.0 – 2026-11-24
 
+[#90](https://github.com/sh4rkfx/selftopo/pull/90)
+
 ### Sync
 
 - `dump-yazio` also saves the day's single entries and up to five of their products and recipes,
   to find where YAZIO keeps fibre and other nutrients. The sync itself is unchanged.
 
 ## 2.9.0 – 2026-11-24
+
+[#89](https://github.com/sh4rkfx/selftopo/pull/89)
 
 ### Dashboard
 
@@ -82,17 +110,23 @@ before that `v1`).
 
 ## 2.8.6 – 2026-11-24
 
+[#88](https://github.com/sh4rkfx/selftopo/pull/88)
+
 ### Dashboard
 
 - English dates name the month (*Tue 24 Nov*, push: *31 Mar*) instead of *24/11*.
 
 ## 2.8.5 – 2026-11-24
 
+[#87](https://github.com/sh4rkfx/selftopo/pull/87)
+
 ### Project
 
 - The changelog lists the dashboard changes of 2.2.1–2.8.4.
 
 ## 2.8.4 – 2026-11-24
+
+[#86](https://github.com/sh4rkfx/selftopo/pull/86)
 
 ### Dashboard
 
@@ -102,6 +136,8 @@ before that `v1`).
 
 ## 2.8.3 – 2026-11-24
 
+[#85](https://github.com/sh4rkfx/selftopo/pull/85)
+
 ### Dashboard
 
 - *Tatsächlicher Verbrauch* is now *Verbrauch laut deinem Log*, since it inherits whatever the
@@ -109,11 +145,15 @@ before that `v1`).
 
 ## 2.8.2 – 2026-11-24
 
+[#84](https://github.com/sh4rkfx/selftopo/pull/84)
+
 ### Dashboard
 
 - No text below 12 px; chart margins grow to fit their labels.
 
 ## 2.8.1 – 2026-11-24
+
+[#83](https://github.com/sh4rkfx/selftopo/pull/83)
 
 ### Dashboard
 
@@ -122,11 +162,15 @@ before that `v1`).
 
 ## 2.8.0 – 2026-11-24
 
+[#82](https://github.com/sh4rkfx/selftopo/pull/82)
+
 ### Dashboard
 
 - A skip link *Zum Inhalt springen* past the area navigation.
 
 ## 2.7.3 – 2026-11-24
+
+[#81](https://github.com/sh4rkfx/selftopo/pull/81)
 
 ### Dashboard
 
@@ -134,17 +178,23 @@ before that `v1`).
 
 ## 2.7.2 – 2026-11-24
 
+[#80](https://github.com/sh4rkfx/selftopo/pull/80)
+
 ### Dashboard
 
 - Tablets show four tiles per row, five only from 1000 px.
 
 ## 2.7.1 – 2026-11-24
 
+[#79](https://github.com/sh4rkfx/selftopo/pull/79)
+
 ### Dashboard
 
 - Every control on phones reaches a 44 px hit area.
 
 ## 2.7.0 – 2026-11-24
+
+[#78](https://github.com/sh4rkfx/selftopo/pull/78)
 
 ### Dashboard
 
@@ -153,6 +203,8 @@ before that `v1`).
 
 ## 2.6.0 – 2026-11-24
 
+[#77](https://github.com/sh4rkfx/selftopo/pull/77)
+
 ### Dashboard
 
 - The scale's fat and muscle estimate is a 28-day trend in a folded card, *Fett und Muskeln laut
@@ -160,12 +212,16 @@ before that `v1`).
 
 ## 2.5.1 – 2026-11-24
 
+[#76](https://github.com/sh4rkfx/selftopo/pull/76)
+
 ### Dashboard
 
 - Data series 3–5 are violet, magenta and slate, so no series looks like a green, amber or red
   verdict.
 
 ## 2.5.0 – 2026-11-24
+
+[#75](https://github.com/sh4rkfx/selftopo/pull/75)
 
 ### Dashboard
 
@@ -175,6 +231,8 @@ before that `v1`).
 
 ## 2.4.0 – 2026-11-24
 
+[#74](https://github.com/sh4rkfx/selftopo/pull/74)
+
 ### Dashboard
 
 - Navigation names every area in words; range, refresh and settings sit in the header row on
@@ -182,11 +240,15 @@ before that `v1`).
 
 ## 2.3.1 – 2026-11-24
 
+[#73](https://github.com/sh4rkfx/selftopo/pull/73)
+
 ### Dashboard
 
 - Header, tiles and area headings reflow at 200 % text size instead of overflowing.
 
 ## 2.3.0 – 2026-11-24
+
+[#72](https://github.com/sh4rkfx/selftopo/pull/72)
 
 ### Dashboard
 
@@ -197,11 +259,15 @@ before that `v1`).
 
 ## 2.2.1 – 2026-11-24
 
+[#71](https://github.com/sh4rkfx/selftopo/pull/71)
+
 ### Dashboard
 
 - A connection error shows an error page, never the sample data.
 
 ## 2.2.0 – 2026-11-13
+
+[#70](https://github.com/sh4rkfx/selftopo/pull/70)
 
 ### Dashboard
 
@@ -219,6 +285,8 @@ before that `v1`).
   the other data files; nothing in the data repository needs changing.
 
 ## 2.1.0 – 2026-11-10
+
+[#69](https://github.com/sh4rkfx/selftopo/pull/69)
 
 ### Dashboard
 

@@ -2,8 +2,13 @@
 
 **What changes for the user, and why**
 
+Closes #<user story>
+
+
 **Checklist**
 
+- [ ] User story with *As a … I want that … so that …*; every acceptance criterion names its test
+- [ ] New version in `selftopo/__init__.py`, `APP_VERSION` and `CHANGELOG.md` (with the link to this pull request)
 - [ ] `pytest` and `ruff check .` pass; new parsing or calculation logic has a test
 - [ ] User-facing text in German and English (`T()` and the `i18n-en` block)
 - [ ] `VERSION` in `dashboard/sw.js` raised if dashboard files changed
