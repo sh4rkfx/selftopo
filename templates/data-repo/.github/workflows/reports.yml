@@ -1,6 +1,7 @@
 # Reads new report files in files/ with the Claude API and adds their values to measurements.csv
 # as proposals, which count only once you confirm them in the dashboard (Rohdaten → Befunde).
-# Runs when the dashboard uploads a report and can be started by hand. Optional: without the
+# Runs when the dashboard uploads a report, once a day for files still waiting (at most five per
+# run), and by hand. Optional: without the
 # ANTHROPIC_API_KEY secret it does nothing, and the dashboard reads PDFs with text by itself.
 # The report file is sent to the Anthropic API for this.
 name: Read reports
@@ -9,6 +10,8 @@ on:
   push:
     branches: [main]
     paths: ["files/**"]
+  schedule:
+    - cron: "15 7 * * *" # after the daily sync: files beyond the five of an earlier run
   workflow_dispatch:
 
 permissions:
@@ -73,7 +76,7 @@ jobs:
         if: ${{ env.ANTHROPIC_API_KEY != '' }}
         run: pip install -r requirements.txt
 
-      # At most five files per run; more wait for the next run (the daily sync does not read them)
+      # At most five files per run; the rest wait for the next upload or the daily run
       - name: Read new reports
         if: ${{ env.ANTHROPIC_API_KEY != '' }}
         run: python -m selftopo evaluate-reports
