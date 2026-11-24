@@ -249,18 +249,19 @@ code { font-family: var(--font-mono); font-size: 0.75rem; overflow-wrap: anywher
 /* Eight tiles: 2 or 4 columns. Ten tiles (with YAZIO): 2 or 5 columns, so no row is left half empty */
 @media (min-width: 640px) { .tiles:not(.ten) { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 @media (min-width: 720px) { .tiles.ten { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
-/* Each tile is its own card. Filled green, yellow or red only past a threshold (see ⓘ); the pill
+/* Each tile is its own card. Filled yellow or red only past a threshold (see ⓘ); the pill
    names the state in words and with an icon, so the colour is never the only signal. */
 .tile {
   padding: 16px 18px 14px; display: grid; gap: 4px; align-content: start; grid-template-rows: auto auto auto 1fr; min-width: 0;
   background: var(--surface); border: 1px solid var(--ring); border-radius: 22px; color: inherit; text-decoration: none;
   --st-ink: var(--ink-2);
 }
-.tile.good { background: var(--st-good-bg); border-color: transparent; --st-ink: var(--st-good-ink); --spark-line: var(--st-good-line); --spark-dot: var(--st-good-line); }
+/* Good stays calm: a neutral card, only the pill says "gut". Yellow and red fill the card. */
+.tile.good .st-pill { background: var(--st-good-bg); color: var(--st-good-ink); }
 .tile.warn { background: var(--st-warn-bg); border-color: transparent; --st-ink: var(--st-warn-ink); --spark-line: var(--st-warn-line); --spark-dot: var(--st-warn-line); }
 .tile.crit { background: var(--st-crit-bg); border-color: transparent; --st-ink: var(--st-crit-ink); --spark-line: var(--st-crit-line); --spark-dot: var(--st-crit-line); }
 a.tile:hover { border-color: var(--ring-strong); }
-a.tile.good:hover, a.tile.warn:hover, a.tile.crit:hover { border-color: var(--spark-line); }
+a.tile.warn:hover, a.tile.crit:hover { border-color: var(--spark-line); }
 a.tile:focus-visible { outline-offset: 2px; border-radius: 22px; }
 .tile-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 4px 8px; min-width: 0; }
 .st-pill {
@@ -627,7 +628,7 @@ kbd { font-family: var(--font-mono); font-size: 0.71875rem; border: 1px solid va
 .notice-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 
 /* Notable this week, and the conclusion under each area head */
-.notable { margin-top: 14px; background: var(--surface); border: 1px solid var(--ring); border-radius: 20px; padding: 14px 16px; display: grid; gap: 10px; }
+.notable { margin: 0 0 14px; background: var(--surface); border: 1px solid var(--ring); border-radius: 20px; padding: 14px 16px; display: grid; gap: 10px; }
 .notable-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; padding-right: 36px; position: relative; }
 .notable-head h2 { margin: 0; font-size: 1rem; }
 .notable-head .info-btn { position: absolute; right: -6px; top: -6px; }
@@ -642,7 +643,8 @@ kbd { font-family: var(--font-mono); font-size: 0.71875rem; border: 1px solid va
 .notable-list .warn .ic { color: var(--warn-ink); }
 .notable-list b { font-weight: 600; font-size: 0.84375rem; }
 .notable-list span { font-size: 0.78125rem; color: var(--ink-2); }
-.notable-calm { margin: 0; font-size: 0.84375rem; color: var(--ink-2); }
+.notable.calm { padding-block: 10px; gap: 0; }
+.notable.calm .notable-list { display: none; }
 .area-fazit { grid-column: 2 / 5; margin: 2px 0 0; font-size: 0.84375rem; line-height: 1.5; color: var(--ink-2); max-width: 82ch; }
 .area-fazit .fz-odd { color: var(--ink); }
 .area-fazit .fz-odd .ic { width: 14px; height: 14px; vertical-align: -2px; margin-right: 4px; color: var(--warn-ink); }
@@ -908,10 +910,23 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 
   <section id="ueberblick" aria-label="Überblick, letzte 7 Tage">
     <section class="today" id="today-card" aria-labelledby="today-title" hidden></section>
+    <div class="notable" id="notable" aria-labelledby="notable-title">
+      <div class="notable-head">
+        <h2 id="notable-title">Auffällig diese Woche</h2>
+        <p class="sub" id="notable-sub"></p>
+      </div>
+      <div class="info" id="info-notable" hidden>
+        <p>Jeder Wert der letzten 7 Tage wird mit deinem eigenen üblichen Bereich verglichen: dem 5. bis 95. Perzentil desselben Wochenwerts über die 120 Tage davor. Liegt er außerhalb, steht er hier, sonst nicht. Messwerte wie HRV oder Schlafdauer gehen als 7-Tage-Mittel ein, Trainingsmengen wie Arbeitssätze oder Trainingslast als 7-Tage-Summe; Tagessummen enden gestern, weil der laufende Tag noch nicht vollständig ist.</p>
+        <p>Gelb heißt: in die Richtung, die für Erholung oder Gesundheit eher ungünstig ist, etwa niedrigere HRV oder kürzerer Schlaf. Neutral heißt: nur ungewöhnlich, ohne Wertung, etwa mehr Trainingslast als sonst. Ein Wert außerhalb des Bereichs ist ein Hinweis, keine Diagnose; jede fünfte Woche liegt bei mindestens einem Wert knapp daneben.</p>
+        <p id="notable-checked" hidden></p>
+        <p class="source">Quelle: garmin_daily.csv · garmin_activities.csv · hevy_sets.csv · nutrition_daily.csv · mindestens 60 Vergleichswerte</p>
+      </div>
+      <ul class="notable-list" id="notable-list"></ul>
+    </div>
     <ul class="tile-sum" id="tile-sum" aria-label="Zusammenfassung der Kacheln" hidden></ul>
     <div class="tiles" id="tiles"><div class="loading">Daten werden geladen …</div></div>
     <div class="tiles-foot" id="tiles-foot">
-      <p class="tiles-note">Werte: 7-Tage-Mittel · Pfeil: ggü. Vorwoche · Farbe nur, wo eine Schwelle gilt</p>
+      <p class="tiles-note">Werte: 7-Tage-Mittel · Pfeil: ggü. Vorwoche · farbig nur, was eine Schwelle verfehlt</p>
     </div>
     <div class="info" id="info-tiles" hidden>
       <p>Die Kacheln zeigen immer die letzten 7 Tage, unabhängig vom gewählten Zeitraum. Die kleine Kurve zeigt die letzten 28 Tage; ein Tipp auf die Kachel springt zum Bereich. „Stand TT.MM.“ erscheint, wenn der neueste Wert älter als 2 Tage ist.</p>
@@ -930,19 +945,6 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
           <tr><td><svg class="ic" aria-hidden="true"><use href="#i-steps"/></svg>Schritte</td><td>7-Tage-Mittel; darunter, an wie vielen der letzten 7 Tage das Ziel von <span data-step-goal>8.000</span> Schritten erreicht wurde.</td></tr>
         </tbody>
       </table>
-    </div>
-      <div class="notable" id="notable" aria-labelledby="notable-title">
-      <div class="notable-head">
-        <h2 id="notable-title">Auffällig diese Woche</h2>
-        <p class="sub" id="notable-sub"></p>
-      </div>
-      <div class="info" id="info-notable" hidden>
-        <p>Jeder Wert der letzten 7 Tage wird mit deinem eigenen üblichen Bereich verglichen: dem 5. bis 95. Perzentil desselben Wochenwerts über die 120 Tage davor. Liegt er außerhalb, steht er hier, sonst nicht. Messwerte wie HRV oder Schlafdauer gehen als 7-Tage-Mittel ein, Trainingsmengen wie Arbeitssätze oder Trainingslast als 7-Tage-Summe; Tagessummen enden gestern, weil der laufende Tag noch nicht vollständig ist.</p>
-        <p>Gelb heißt: in die Richtung, die für Erholung oder Gesundheit eher ungünstig ist, etwa niedrigere HRV oder kürzerer Schlaf. Neutral heißt: nur ungewöhnlich, ohne Wertung, etwa mehr Trainingslast als sonst. Ein Wert außerhalb des Bereichs ist ein Hinweis, keine Diagnose; jede fünfte Woche liegt bei mindestens einem Wert knapp daneben.</p>
-        <p id="notable-checked" hidden></p>
-        <p class="source">Quelle: garmin_daily.csv · garmin_activities.csv · hevy_sets.csv · nutrition_daily.csv · mindestens 60 Vergleichswerte</p>
-      </div>
-      <ul class="notable-list" id="notable-list"></ul>
     </div>
 </section>
 
@@ -2637,7 +2639,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Training und Erholung": "Training and recovery",
 "Zeitraum": "Period",
 "Daten werden geladen …": "Loading data …",
-"Werte: 7-Tage-Mittel · Pfeil: ggü. Vorwoche · Farbe nur, wo eine Schwelle gilt": "Values: 7-day average · arrow: vs. previous week · colour only where a threshold applies",
+"Werte: 7-Tage-Mittel · Pfeil: ggü. Vorwoche · farbig nur, was eine Schwelle verfehlt": "Values: 7-day average · arrow: vs. previous week · coloured only when a threshold is missed",
 "Zusammenfassung der Kacheln": "Summary of the tiles",
 "gut": "good",
 "mittel": "fair",
@@ -3121,9 +3123,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "{0} · üblich {1} bis {2}": "{0} · usual {1} to {2}",
 "{0} von {1} Werten außerhalb deines üblichen Bereichs": "{0} of {1} values outside your usual range",
 "Für den Vergleich braucht es mindestens {0} Tage Daten": "The comparison needs at least {0} days of data",
-"Diese Woche liegt alles in deinem üblichen Bereich.": "Everything is within your usual range this week.",
 "Verglichen werden diese Woche: {0}.": "Compared this week: {0}.",
-"Sobald genug Tage da sind, steht hier, was diese Woche von deinem Üblichen abweicht.": "As soon as there are enough days, this shows what differs from your usual this week.",
 "geht einher mit {0}, {1}": "coincides with {0}, {1}",
 "Belastbar in deinen Daten: {0} {1} ging mit {2} {3} einher ({4}).": "Robust in your data: {0} {1} coincided with {2} {3} ({4}).",
 "Gewicht, neuestes 7-Tage-Mittel": "Weight, newest 7-day average",
@@ -3232,7 +3232,9 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "HRV unter dem Normalbereich": "HRV below the normal range",
 "Ruhepuls über dem 60-Tage-Mittel": "Resting heart rate above the 60-day mean",
 "Schlafmitte am Wochenende {0} verschoben": "Sleep midpoint shifted {0} at the weekend",
-"Ziel {0}": "Goal {0}"
+"Ziel {0}": "Goal {0}",
+"Nichts: alle {0} Werte in deinem üblichen Bereich": "Nothing: all {0} values within your usual range",
+"Sobald genug Tage da sind, steht hier, was von deinem Üblichen abweicht": "Once there are enough days, this shows what differs from your usual"
 }
 </script>
 <script>
@@ -5630,10 +5632,13 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     const checked = $("notable-checked");
     checked.textContent = judged.length ? T("Verglichen werden diese Woche: {0}.", [judged.map((b) => b.def.label()).join(", ")]) : "";
     checked.hidden = !judged.length;
+    $("notable").classList.toggle("calm", !odd.length);
     if (!odd.length) {
-      $("notable-list").replaceChildren(html("li", { class: "calm" }, html("p", { class: "notable-calm", text: judged.length
-        ? T("Diese Woche liegt alles in deinem üblichen Bereich.")
-        : T("Sobald genug Tage da sind, steht hier, was diese Woche von deinem Üblichen abweicht.") })));
+      // Nothing to show: the head line says so, the card stays one line high
+      $("notable-sub").textContent = judged.length
+        ? T("Nichts: alle {0} Werte in deinem üblichen Bereich", [judged.length])
+        : T("Sobald genug Tage da sind, steht hier, was von deinem Üblichen abweicht");
+      $("notable-list").replaceChildren();
       return;
     }
     $("notable-list").replaceChildren(...odd.map((b) => {
