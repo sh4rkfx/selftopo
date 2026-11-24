@@ -384,6 +384,16 @@ for a fork, `SELFTOPO_CODE_REF` (default `v2`) for another version, see below.
 
 ## Versions and updates
 
+Every change is its own version under [semantic versioning](https://semver.org): a new feature
+raises the minor version (2.15.0 → 2.16.0), a fix or a wording change the patch version (2.8.3 →
+2.8.4), a change that breaks data or settings the major version. Each version has its entry in
+[CHANGELOG.md](CHANGELOG.md) and a [release](https://github.com/sh4rkfx/selftopo/releases). The
+dashboard shows its version under gear icon → *App* → *About selftopo*;
+`python -m selftopo --version` prints the version of the code. What each change is for, and the
+acceptance criteria its tests prove, is in the
+[user stories](https://github.com/sh4rkfx/selftopo/issues?q=label%3Auser-story) under their
+[epics](https://github.com/sh4rkfx/selftopo/issues?q=label%3Aepic).
+
 The workflow in your data repository checks out the tag **`v2`** of this repository. `v2` always
 points to the newest 2.x release, so you get fixes and features without changes that break your
 data or settings. Set the repository variable `SELFTOPO_CODE_REF` to `main` for the newest

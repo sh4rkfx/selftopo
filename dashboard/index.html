@@ -1975,6 +1975,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       </div>
       <div class="prefs-group">
         <h3>Über selftopo</h3>
+        <p class="sub" id="about-version"></p>
         <p class="sub">Open Source unter MIT-Lizenz. Deine Daten liegen nur in deinem privaten Repository und in diesem Browser; einen Server von selftopo gibt es nicht.</p>
         <p class="sub">Kein Medizinprodukt: Die Werte sind Schätzungen von Verbrauchergeräten und Apps. Garmin Connect und YAZIO werden über inoffizielle Schnittstellen gelesen. selftopo steht in keiner Verbindung zu Garmin, Hevy oder YAZIO.</p>
         <div class="picker-actions">
@@ -3543,7 +3544,9 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Claude hat sie aus der Datei gelesen. Vergleiche sie mit dem Befund; erst übernommene Werte zählen.": "Claude read them from the file. Compare them with the report; only accepted values count.",
 "ohne Datei": "no file",
 " · {0} zu prüfen": " · {0} to check",
-"1 Wert · am {0}": "1 value · on {0}"
+"1 Wert · am {0}": "1 value · on {0}",
+"Version {0} · ": "Version {0} · ",
+"Was ist neu": "What’s new"
 }
 </script>
 <script>
@@ -3570,6 +3573,9 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   const LANG = pickLanguage();
   const LOCALE = LANG === "de" ? "de-DE" : "en-GB";
   const DATE_LOCALE = LANG === "de" ? "de-AT" : "en-GB";
+  // Semantic version of this dashboard, the same as selftopo.__version__ and the newest entry in
+  // CHANGELOG.md (tests/test_versions.py keeps the three equal)
+  const APP_VERSION = "2.16.0";
   // Day and month: "24.11." in German; in English "24 Nov", because "24/11" reads as a fraction
   // or, to US readers, as month/day
   const DM = LANG === "de" ? { day: "2-digit", month: "2-digit" } : { day: "numeric", month: "short" };
@@ -9377,6 +9383,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     }
   }
   function setupPrefs() {
+    $("about-version").replaceChildren(T("Version {0} · ", [APP_VERSION]), html("a", {
+      href: `https://github.com/sh4rkfx/selftopo/releases/tag/v${APP_VERSION}`, target: "_blank", rel: "noopener", text: T("Was ist neu") }));
     setupLanguage();
     for (const b of document.querySelectorAll('[data-action="settings"]')) b.addEventListener("click", () => openPrefs("general"));
     $("prefs-close").addEventListener("click", closePrefs);

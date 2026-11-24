@@ -8,7 +8,20 @@ import sys
 from collections.abc import Callable
 from datetime import date
 
-from . import activities, bloodpressure, climbs, config, fitness, garmin, hevy, lifestyle, reports, syncstatus, yazio
+from . import (
+    __version__,
+    activities,
+    bloodpressure,
+    climbs,
+    config,
+    fitness,
+    garmin,
+    hevy,
+    lifestyle,
+    reports,
+    syncstatus,
+    yazio,
+)
 
 log = logging.getLogger("selftopo")
 
@@ -168,6 +181,7 @@ def cmd_evaluate_reports(_: argparse.Namespace) -> int:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="python -m selftopo", description=__doc__)
     parser.add_argument("-v", "--verbose", action="store_true", help="debug logging")
+    parser.add_argument("--version", action="version", version=f"selftopo {__version__}")
     commands = parser.add_subparsers(dest="command", required=True)
 
     sync = commands.add_parser("sync", help="fetch data and update the CSV files")

@@ -1,77 +1,231 @@
 # Changelog
 
-All notable changes. Versions follow [semantic versioning](https://semver.org): within a major
-version, data files and settings stay compatible. The workflow in each data repository follows
-the tag of its major version (`v2`, before that `v1`).
+All notable changes, one version per change. Versions follow
+[semantic versioning](https://semver.org): a new feature raises the minor version, a fix or a
+wording change the patch version; within a major version, data files and settings stay
+compatible. The workflow in each data repository follows the tag of its major version (`v2`,
+before that `v1`).
 
-## Unreleased
+## 2.16.0 – 2026-11-24
 
-### Dashboard
+### Project
 
-- Befunde: reports without readable text (photos, scans) can be read by the Claude API. With the
-  secret `ANTHROPIC_API_KEY`, the new data-repository workflow *Read reports* sends each new file
-  in `files/` once and adds its values as proposals; the card shows them per file to accept or
+- Every change gets its own version, a GitHub release and a user story with acceptance criteria
+  that tests cover; see *Versions and updates* in the README and *Pull requests* in
+  CONTRIBUTING.md. The 27 changes since 2.0.0 got their versions after the fact (2.1.0–2.15.0).
+- The version shows under gear icon → *App* → *About selftopo*, with a link to its release notes;
+  `python -m selftopo --version` prints it. `selftopo.__version__`, the dashboard and this file
+  are kept equal by a test.
+- New tests for acceptance criteria that had none: skip link and landmarks, text and touch-target
+  sizes, tile grid, series colours, collapsed areas, one verdict per goal, connection errors,
+  wording, and the sync time in the header.
+
+## 2.15.0 – 2026-11-24
+
+### Befunde
+
+- Reports without readable text (photos, scans) can be read by the Claude API. With the secret
+  `ANTHROPIC_API_KEY`, the new data-repository workflow *Read reports* sends each new file in
+  `files/` once and adds its values as proposals; the card shows them per file to accept or
   discard (`python -m selftopo evaluate-reports`, ledger `report_evaluations.json`). Existing data
   repositories do not get the workflow by themselves: copy
   [templates/data-repo/.github/workflows/reports.yml](templates/data-repo/.github/workflows/reports.yml)
-  to `.github/workflows/reports.yml` in your data repository and add the secret. It needs the code
-  of the next 2.x release; until then set the repository variable `SELFTOPO_CODE_REF` to `main`.
-- *Save* writes `settings.json` to the data repository directly when the dashboard token has
-  *Contents: Read and write*: settings, goals, recommendation choices, push notifications and main
-  lifts. It reads the current file first, so changes from other devices stay. With a read-only
-  token, saving by hand on GitHub works as before. New tokens are prefilled with write access.
+  to `.github/workflows/reports.yml` in your data repository and add the secret.
+
+## 2.14.0 – 2026-11-24
+
+### Befunde
+
+- *Befund hochladen*: a PDF, JPG or PNG goes to `files/` in the data repository. For a PDF with
+  text the dashboard reads the values in the browser (resting metabolic rate and RER, lab VO2max,
+  DEXA, waist, lab lines with reference ranges) and the report date, and lists them for review
+  before they count. pdf.js comes from a copy next to the dashboard, not from a CDN.
+
+## 2.13.0 – 2026-11-24
+
+### Befunde
+
+- *Befund eintragen* adds a value with checks for date, unit and plausible range (the RER goes
+  with the resting metabolic rate); every entry can be edited or deleted. With a read-only token
+  the dialog gives the CSV lines to paste on GitHub.
+
+## 2.12.0 – 2026-11-24
+
+### Befunde
+
+- *Befunde* under Rohdaten: values from labs and tests in a new `measurements.csv` (resting
+  metabolic rate with RER, waist, DEXA, lab VO2max, blood values with the report's reference
+  range), newest per measure, with links to report files.
+
+## 2.11.0 – 2026-11-24
+
+### Dashboard
+
+- Sleep debt: the Schlaf area shows how far the last 4 nights fell short of your sleep-duration
+  goal (otherwise 8 hours), net of longer nights and never below zero; yellow from 2 hours.
+
+## 2.10.0 – 2026-11-24
+
+### Sync
+
+- `dump-yazio` also saves the day's single entries and up to five of their products and recipes,
+  to find where YAZIO keeps fibre and other nutrients. The sync itself is unchanged.
+
+## 2.9.0 – 2026-11-24
+
+### Dashboard
+
+- When the dashboard opens after 08:00 and no sync has run today, it starts one itself and the
+  header shows *GitHub · Abruf läuft …*; at most once in 3 hours per browser. Without the Actions
+  permission it pauses for a week. Off under gear icon → *Connection* → *Sync automatically in
+  the morning*.
+
+## 2.8.6 – 2026-11-24
+
+### Dashboard
+
+- English dates name the month (*Tue 24 Nov*, push: *31 Mar*) instead of *24/11*.
+
+## 2.8.5 – 2026-11-24
+
+### Project
+
+- The changelog lists the dashboard changes of 2.2.1–2.8.4.
+
+## 2.8.4 – 2026-11-24
+
+### Dashboard
+
+- Fixes from the review of the UI changes: after a good load a network error keeps that data,
+  marked offline; the steps tile counts days against your steps goal; a resting-HR goal is shown
+  even without a baseline; tiles without a value count as *ohne Wert*, not as neutral.
+
+## 2.8.3 – 2026-11-24
+
+### Dashboard
+
+- *Tatsächlicher Verbrauch* is now *Verbrauch laut deinem Log*, since it inherits whatever the
+  food log misses; neutral tiles are called neutral.
+
+## 2.8.2 – 2026-11-24
+
+### Dashboard
+
+- No text below 12 px; chart margins grow to fit their labels.
+
+## 2.8.1 – 2026-11-24
+
+### Dashboard
+
+- A `main` landmark, a named first column in the sleep table, and wide tables that can be
+  scrolled with the keyboard.
+
+## 2.8.0 – 2026-11-24
+
+### Dashboard
+
+- A skip link *Zum Inhalt springen* past the area navigation.
+
+## 2.7.3 – 2026-11-24
+
+### Dashboard
+
+- The sample-data notice explains what the page is and that setting it up takes about 15 minutes.
+
+## 2.7.2 – 2026-11-24
+
+### Dashboard
+
+- Tablets show four tiles per row, five only from 1000 px.
+
+## 2.7.1 – 2026-11-24
+
+### Dashboard
+
+- Every control on phones reaches a 44 px hit area.
+
+## 2.7.0 – 2026-11-24
+
+### Dashboard
+
+- Wide screens start with all areas collapsed, like phones; an opened area shows two cards and
+  *Weitere n Karten zeigen*. Körper starts with weight and loss pace.
+
+## 2.6.0 – 2026-11-24
+
+### Dashboard
+
+- The scale's fat and muscle estimate is a 28-day trend in a folded card, *Fett und Muskeln laut
+  Waage*; the chips next to the weight are gone.
+
+## 2.5.1 – 2026-11-24
+
+### Dashboard
+
+- Data series 3–5 are violet, magenta and slate, so no series looks like a green, amber or red
+  verdict.
+
+## 2.5.0 – 2026-11-24
+
+### Dashboard
+
+- Overview: *Auffällig diese Woche* comes before the tiles and is one line when nothing stands
+  out. Good tiles keep the neutral card and say *gut* only in their pill; yellow and red still
+  fill the card.
+
+## 2.4.0 – 2026-11-24
+
+### Dashboard
+
+- Navigation names every area in words; range, refresh and settings sit in the header row on
+  every width, help too except on phones, where it is in the footer and the settings.
+
+## 2.3.1 – 2026-11-24
+
+### Dashboard
+
+- Header, tiles and area headings reflow at 200 % text size instead of overflowing.
+
+## 2.3.0 – 2026-11-24
+
+### Dashboard
+
+- One verdict per metric: with a goal (weight, HRV, resting HR, bedtime, sleep hours, steps) the
+  tile shows the goal's state (*Ziel: zu langsam*), the same word as the goal card. Area
+  conclusions start with what is off and then say what is unremarkable compared with your last
+  four months.
+
+## 2.2.1 – 2026-11-24
+
+### Dashboard
+
+- A connection error shows an error page, never the sample data.
+
+## 2.2.0 – 2026-11-13
+
+### Dashboard
+
 - The header shows when the data was last fetched (*GitHub · synced yesterday 15:32*) instead of
   only when the page loaded, which moves to the tooltip. It turns yellow when the last sync is
   older than 30 hours and names sources that failed. GitHub often starts the scheduled run hours
   late; *Sync now* under gear icon → *Connection* starts it right away and reloads the page when
   it is done. That needs *Actions: Read and write* on the dashboard token; new tokens are
   prefilled with it.
-- When the dashboard opens after 08:00 and no sync has run today, it starts one itself and the
-  header shows *GitHub · Abruf läuft …*; at most once in 3 hours per browser. Without the Actions
-  permission it pauses for a week. Off under gear icon → *Connection* → *Sync automatically in
-  the morning*.
-- *Befunde* under Rohdaten: values from labs and tests in a new `measurements.csv` (resting
-  metabolic rate with RER, waist, DEXA, lab VO2max, blood values with the report's reference
-  range), newest per measure, with links to report files. *Befund eintragen* adds a value with
-  checks for date, unit and plausible range (the RER goes with the resting metabolic rate);
-  every entry can be edited or deleted. With a read-only token the dialog gives the CSV lines
-  to paste on GitHub.
-- *Befund hochladen*: a PDF, JPG or PNG goes to `files/` in the data repository. For a PDF with
-  text the dashboard reads the values in the browser (resting metabolic rate and RER, lab VO2max,
-  DEXA, waist, lab lines with reference ranges) and the report date, and lists them for review
-  before they count.
-- Sleep debt: the Schlaf area shows how far the last 4 nights fell short of your sleep-duration
-  goal (otherwise 8 hours), net of longer nights and never below zero; yellow from 2 hours.
-- English dates name the month (*Tue 24 Nov*, push: *31 Mar*) instead of *24/11*.
-- Overview: *Auffällig diese Woche* comes before the tiles and is one line when nothing stands
-  out. Good tiles keep the neutral card and say *gut* only in their pill; yellow and red still
-  fill the card. Tiles without a value count as *ohne Wert*, not as neutral.
-- One verdict per metric: with a goal (weight, HRV, resting HR, bedtime, sleep hours, steps) the
-  tile shows the goal's state (*Ziel: zu langsam*), the same word as the goal card. Area
-  conclusions start with what is off and then say what is unremarkable compared with your last
-  four months.
-- Wide screens start with all areas collapsed, like phones; an opened area shows two cards and
-  *Weitere n Karten zeigen*. Körper starts with weight and loss pace.
-- The scale's fat and muscle estimate is a 28-day trend in a folded card, *Fett und Muskeln laut
-  Waage*; the chips next to the weight are gone.
-- Navigation names every area in words; range, refresh and settings sit in the header row on
-  every width, help too except on phones, where it is in the footer and the settings.
-- Data series 3–5 are violet, magenta and slate, so no series looks like a green, amber or red
-  verdict.
-- *Tatsächlicher Verbrauch* is now *Verbrauch laut deinem Log*, since it inherits whatever the
-  food log misses.
-- A connection error shows an error page, never the sample data. After a good load the page keeps
-  that data, marked offline.
-- The sample-data notice explains what the page is and that setting it up takes about 15 minutes.
-- Accessibility: a skip link *Zum Inhalt springen*, a `main` landmark, keyboard-scrollable wide
-  tables, no text below 12 px, 44 px touch targets on phones, and header, tiles and headings that
-  reflow at 200 % text size. Tablets show four tiles per row, five from 1000 px.
 
 ### Sync
 
 - Every `sync` writes `data/sync_status.json`: start, end, trigger, a link to the GitHub run and
   each source's result with the time of its last success. The existing workflow commits it like
   the other data files; nothing in the data repository needs changing.
+
+## 2.1.0 – 2026-11-10
+
+### Dashboard
+
+- *Save* writes `settings.json` to the data repository directly when the dashboard token has
+  *Contents: Read and write*: settings, goals, recommendation choices, push notifications and main
+  lifts. It reads the current file first, so changes from other devices stay. With a read-only
+  token, saving by hand on GitHub works as before. New tokens are prefilled with write access.
 
 ## 2.0.0 – 2026-11-10
 
