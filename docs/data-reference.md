@@ -192,7 +192,9 @@ meals of the day.
 A partly logged day is indistinguishable from a day of low intake. The dashboard and the analysis
 therefore treat days under 1,200 kcal (`MIN_COMPLETE_KCAL`) and the running day as not fully
 logged and leave them out of means, the energy balance and the tests. Check the mapping against
-your data with `python -m selftopo dump-yazio --date <day>` after the first login.
+your data with `python -m selftopo dump-yazio --date <day>` after the first login. The dump also holds the
+day's single entries and up to five of their products and recipes, to check nutrients beyond the
+four in the summary (fibre, for example).
 
 ## recommendations.json
 
