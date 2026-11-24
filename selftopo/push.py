@@ -26,6 +26,7 @@ log = logging.getLogger(__name__)
 
 DASHBOARD = Path(__file__).resolve().parent.parent / "dashboard" / "index.html"
 TTL_S = 12 * 3600  # a Today card older than half a day is not worth delivering
+_MONTHS_EN = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 
 
 def _b64(data: bytes) -> str:
@@ -77,7 +78,8 @@ def render(template: dict[str, Any] | None, lang: str, words: dict[str, str]) ->
             return _number(float(v["n"]), int(v.get("d") or 0), lang)
         if "date" in v:
             d = date.fromisoformat(v["date"])
-            return f"{d.day:02d}.{d.month:02d}." if lang == "de" else f"{d.day:02d}/{d.month:02d}"
+            # "31.03." in German, "31 Mar" in English: "31/03" is ambiguous for US readers
+            return f"{d.day:02d}.{d.month:02d}." if lang == "de" else f"{d.day} {_MONTHS_EN[d.month - 1]}"
         if "clock" in v:
             return str(v["clock"])
         if "t" in v:

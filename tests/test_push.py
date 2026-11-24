@@ -59,11 +59,11 @@ def test_message_texts_in_german_and_english(given):
 
 
 def test_numbers_dates_and_lists_are_formatted_per_language(given):
-    """1234,5 / 1,234.5, 31.03. / 31/03, minus sign, list of muscles."""
+    """1234,5 / 1,234.5, 31.03. / 31 Mar, minus sign, list of muscles."""
     template = {"text": "{0} {1} {2} {3}", "vars": [{"n": 1234.5, "d": 1}, {"date": "2027-03-31"}, {"n": -0.23, "d": 2}, {"list": [{"muscle": "upper_back"}, {"muscle": "chest"}]}]}
     given(template=template["text"])
     assert push.render(template, "de", {}) == "1.234,5 31.03. −0,23 upper back, chest"
-    assert push.render(template, "en", {}) == "1,234.5 31/03 −0.23 upper back, chest"
+    assert push.render(template, "en", {}) == "1,234.5 31 Mar −0.23 upper back, chest"
 
 
 def test_no_message_without_a_today_card_for_today(given):

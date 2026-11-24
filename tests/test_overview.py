@@ -107,3 +107,15 @@ def test_fonts_of_design_d_are_loaded(given):
     link = re.search(r'href="(https://fonts.googleapis.com/css2[^"]+)"', HTML).group(1)
     given(stylesheet=link)
     assert all(f"family={f}" in link for f in ("Inter", "Space+Grotesk", "IBM+Plex+Mono"))
+
+
+def test_english_dates_name_the_month(given):
+    """English day and month read "3 Nov", not "03/11", which US readers take as month/day."""
+    x0 = 1_762_128_000_000  # Mon 03.11.2025, 00:00 UTC
+    decl = 'const DM = LANG === "de" ? { day: "2-digit", month: "2-digit" } : { day: "numeric", month: "short" };'
+    assert decl in HTML
+    got = run([], f'(() => {{ const LANG = "en"; {decl} '
+                  f'const f = (o) => new Date({x0}).toLocaleDateString("en-GB", {{ timeZone: "UTC", ...o }}); '
+                  f'return [f(DM), f({{ weekday: "short", ...DM, year: "numeric" }})]; }})()')
+    given(dates=got)
+    assert got == ["3 Nov", "Mon, 3 Nov 2025"]
