@@ -61,3 +61,45 @@ def test_card_shows_newest_per_measure_with_rer_and_without_proposals(given):
         ["metabolism", [["rmr_kcal", 2455, 1, 0.77]]],
         ["blood", [["blood", 86, 2, None]]],
     ]
+
+
+ENTRY = ["isoToT", "tToIso", "DAY", "nf", "fmt", "MEASURE_KINDS", "MEASURE_UNIT_TEXT", "MEASURE_FIELDS", "measureUnitText", "parseNumber", "newMeasureId", "validateMeasurement", "csvCell", "measureCsvLine", "measureCsv", "applyMeasureChange"]
+TODAY = "isoToT('2026-11-24')"
+
+
+def validate(fields):
+    return run(ENTRY, f"validateMeasurement({json.dumps(fields)}, {TODAY})")
+
+
+def test_numbers_in_german_or_english_notation(given):
+    """91,5 and 91.5 are the same; 2.455 is two thousand; text is not a number."""
+    got = run(ENTRY, '["91,5", "91.5", "2.455", "0,77", ""].map(parseNumber).concat([Number.isNaN(parseNumber("neun"))])')
+    given(parsed=got)
+    assert got == [91.5, 91.5, 2455, 0.77, None, True]
+
+
+def test_rmr_with_rer_becomes_two_rows(given):
+    """The RER entered with the resting metabolic rate is stored as its own row of the same day."""
+    out = validate({"kind": "rmr_kcal", "date": "2026-11-23", "value": "2.455", "rer": "0,77", "source": "Kalorimetrie"})
+    given(rows=out["rows"])
+    assert [(r["kind"], r["value"], r["unit"], r["date"]) for r in out["rows"]] == [("rmr_kcal", "2455", "kcal/d", "2026-11-23"), ("rer", "0.77", "", "2026-11-23")]
+
+
+def test_out_of_range_future_and_missing_fields_are_explained(given):
+    """Waist in mm, a date tomorrow, a blood value without name and unit, a RER of 1.3."""
+    waist = validate({"kind": "waist_cm", "date": "2026-11-25", "value": "905"})["errors"]
+    blood = validate({"kind": "blood", "date": "2026-11-20", "value": "86", "lo": "400", "hi": "30"})["errors"]
+    rer = validate({"kind": "rmr_kcal", "date": "2026-11-20", "value": "2455", "rer": "1,3"})["errors"]
+    given(waist=waist, blood=blood, rer=rer)
+    assert set(waist) == {"date", "value"} and "Stimmt die Einheit" in waist["value"]
+    assert set(blood) == {"name", "unit", "ref"}
+    assert set(rer) == {"rer"}
+
+
+def test_change_replaces_by_id_and_csv_is_sorted_and_quoted(given):
+    """Editing keeps one row per id, deleting drops it; the file is sorted by date and quotes commas."""
+    rows = [{"id": "a", "date": "2026-11-23", "kind": "rmr_kcal", "value": "2455"}, {"id": "b", "date": "2026-10-01", "kind": "waist_cm", "value": "91"}]
+    put = [{"id": "a", "date": "2026-11-23", "kind": "rmr_kcal", "value": "2400", "note": "nüchtern, 7:30"}]
+    csv = run(ENTRY, f"measureCsv(applyMeasureChange({json.dumps(rows)}, {{ put: {json.dumps(put)}, remove: ['b'] }}))")
+    given(csv=csv)
+    assert csv == 'id,date,kind,name,value,unit,ref_low,ref_high,source,note,file,status\na,2026-11-23,rmr_kcal,,2400,,,,,"nüchtern, 7:30",,\n'
