@@ -3525,7 +3525,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Datum des Befunds": "Date of the report",
 "Die Datei kommt nach files/ in dein privates Daten-Repository und bleibt in dessen Git-Historie, auch wenn du sie später löschst.": "The file goes to files/ in your private data repository and stays in its Git history, even if you delete it later.",
 "Hochladen und Werte von Hand eintragen": "Upload and enter the values by hand",
-"schon eingetragen": "already entered"
+"schon eingetragen": "already entered",
+"Das Datum im Befund ist nicht eindeutig, etwa 11/10/2026. Trag es bitte selbst ein.": "The date in the report is ambiguous, e.g. 11/10/2026. Please enter it yourself."
 }
 </script>
 <script>
@@ -6659,8 +6660,16 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     if (near) { const iso = ok(+near[1], +near[2], +near[3]); if (iso) return iso; }
     for (const m of text.matchAll(/\b(\d{1,2})\.(\d{1,2})\.(\d{4})\b/g)) { const iso = ok(+m[1], +m[2], +m[3]); if (iso) return iso; }
     for (const m of text.matchAll(/\b(\d{4})-(\d{2})-(\d{2})\b/g)) { const iso = ok(+m[3], +m[2], +m[1]); if (iso) return iso; }
+    // 23/11/2026 or 11/23/2026: only when a part above 12 says which is the day
+    for (const m of text.matchAll(/\b(\d{1,2})\/(\d{1,2})\/(\d{4})\b/g)) {
+      const a = +m[1], b = +m[2];
+      const iso = a > 12 ? ok(a, b, +m[3]) : b > 12 ? ok(b, a, +m[3]) : a === b ? ok(a, b, +m[3]) : null;
+      if (iso) return iso;
+    }
     return null;
   }
+  // A date in the text that reportDate could not place (11/10/2026: 11 October or 10 November?)
+  const hasUnclearDate = (text) => /\b\d{1,2}\/\d{1,2}\/\d{2,4}\b/.test(text);
   // Values in the text of a report; each measure once, the first mention counts
   function extractMeasures(text, today = todayT()) {
     const items = [];
@@ -6686,7 +6695,9 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       const hi = m[5] ? parseNumber(m[5]) : m[6] ? parseNumber(m[6]) : null;
       items.push({ kind: "blood", name, value, unit: m[3], lo, hi });
     }
-    return { date: reportDate(text, today), items };
+    const date = reportDate(text, today);
+    // The dialog then leaves the date empty instead of proposing today
+    return date || !hasUnclearDate(text) ? { date, items } : { date, items, dateUnclear: true };
   }
 
   // pdf.js only when a report is read. A copy next to this page (vendor/, unchanged from the npm
@@ -6785,7 +6796,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       note = T("Fotos und Scans haben keinen Text, den der Browser lesen kann.");
     }
     report = { file, bytes, found };
-    $("u-date").value = found.date || tToIso(todayT());
+    $("u-date").value = found.date || (found.dateUnclear ? "" : tToIso(todayT()));
+    if (found.dateUnclear) note = `${note} ${T("Das Datum im Befund ist nicht eindeutig, etwa 11/10/2026. Trag es bitte selbst ein.")}`.trim();
     renderReportFound(note);
   }
   function reportProblem(text) {
@@ -6794,7 +6806,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   }
   function renderReportFound(note) {
     const items = report.found.items;
-    $("u-status").textContent = items.length ? T("{0} Werte erkannt. Prüfe sie, bevor sie zählen.", [items.length]) : `${note} ${T("Du kannst die Datei trotzdem hochladen und die Werte von Hand eintragen.")}`;
+    const unclear = report.found.dateUnclear && !$("u-date").value ? ` ${T("Das Datum im Befund ist nicht eindeutig, etwa 11/10/2026. Trag es bitte selbst ein.")}` : "";
+    $("u-status").textContent = items.length ? T("{0} Werte erkannt. Prüfe sie, bevor sie zählen.", [items.length]) + unclear : `${note} ${T("Du kannst die Datei trotzdem hochladen und die Werte von Hand eintragen.")}`;
     // A value that is already there with the same day and number starts unticked
     const date = $("u-date").value;
     const known = (it) => (state.measurements?.list || []).some((m) => m.date === date && m.kind === it.kind && m.value === it.value

@@ -11,6 +11,7 @@ Node these tests are skipped.
 
 import json
 
+import pytest
 from jsdashboard import run
 
 HELPERS = ["isoToT", "tToIso", "MEASURE_KINDS", "MEASURE_GROUPS", "parseMeasurements", "refState", "measurementGroups"]
@@ -105,7 +106,7 @@ def test_change_replaces_by_id_and_csv_is_sorted_and_quoted(given):
     assert csv == 'id,date,kind,name,value,unit,ref_low,ref_high,source,note,file,status\na,2026-11-23,rmr_kcal,,2400,,,,,"nüchtern, 7:30",,\n'
 
 
-READ = ENTRY + ["REPORT_RULES", "ESTIMATE_LINE", "LAB_LINE", "LAB_SKIP", "reportDate", "extractMeasures"]
+READ = ENTRY + ["REPORT_RULES", "ESTIMATE_LINE", "LAB_LINE", "LAB_SKIP", "reportDate", "hasUnclearDate", "extractMeasures"]
 
 LAB = """Labor Dr. Muster · Salzburg
 Abnahmedatum: 30.10.2026   Befunddatum: 31.10.2026
@@ -172,6 +173,19 @@ def test_dexa_report(given):
     out = extract("DXA Ganzkörper 20.11.2026\nTotal Body Fat 21,9 %\nLean Mass 66,4 kg")
     given(found=out)
     assert [(i["kind"], i["value"]) for i in out["items"]] == [("dexa_fat_pct", 21.9), ("dexa_ffm_kg", 66.4)]
+
+
+@pytest.mark.parametrize(("text", "date", "unclear"), [
+    ("Collection date: 11/23/2026\nRMR 2.455 kcal/day", "2026-11-23", False),  # US: 23 must be the day
+    ("Date of test: 23/11/2026\nRMR 2.455 kcal/day", "2026-11-23", False),     # UK
+    ("Date: 11/10/2026\nRMR 2.455 kcal/day", None, True),                      # 11 Oct or 10 Nov: ask
+])
+def test_slash_dates_only_when_unambiguous(given, text, date, unclear):
+    """A day above 12 decides between US and UK order; otherwise the dialog leaves the date empty."""
+    out = extract(text)
+    given(found=out)
+    assert out["date"] == date
+    assert out.get("dateUnclear", False) is unclear
 
 
 def test_nothing_found_and_no_future_date(given):
