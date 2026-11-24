@@ -209,9 +209,19 @@ has *Contents: Read and write*; with a read-only token it gives you the lines to
 *Befund hochladen* stores a PDF, JPG or PNG (up to 5 MB) under `files/` and, for a PDF with a text
 layer, reads the values in the browser with pdf.js (a copy in `dashboard/vendor/`, no CDN) and fixed rules (resting metabolic rate and
 RER, lab VO2max in ml/kg/min, DEXA values only from a DEXA report, waist, and lab lines with a
-reference range). They are shown ticked for review; values already entered are unticked. Nothing
-in the sync touches the file. Report files go to `files/` in the
-data repository and stay in its Git history, even after they are deleted.
+reference range). They are shown ticked for review; values already entered are unticked. Report
+files go to `files/` in the data repository and stay in its Git history, even after they are
+deleted.
+
+Photos, scans and PDFs without readable values can be read by the Claude API instead
+(`python -m selftopo evaluate-reports`, run by the workflow *Read reports* after each upload, only
+with the secret `ANTHROPIC_API_KEY`). Every file in `files/` that no row points to and that was
+not read before is sent once; up to five per run. Its values are added with `status` `proposed` and
+`source` `Claude`; the dashboard shows them in a box to accept or discard and leaves them out of
+everything else until then. `report_evaluations.json` records each file read, when, the result
+(`proposed`, `nothing`, `too_large`) and the model, so no file is sent twice. The model is set
+with the repository variable `SELFTOPO_CLAUDE_MODEL` (default `claude-sonnet-5-5`). The daily
+sync does not touch either file.
 
 | Column | Meaning |
 |---|---|

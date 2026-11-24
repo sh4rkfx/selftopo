@@ -714,6 +714,14 @@ ul.rows li.mrow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap
 #befunde .card-actions { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
 #befunde .primary-btn { min-height: 44px; }
 #befunde .link-btn { font-size: 0.75rem; }
+/* Values Claude read from a report, waiting to be confirmed */
+#befunde-proposals { display: grid; gap: 10px; }
+#befunde-proposals:empty { display: none; }
+#befunde-proposals .notice ul { list-style: none; margin: 4px 0; padding: 0; display: grid; gap: 4px; }
+#befunde-proposals .notice label { display: flex; gap: 8px; align-items: baseline; color: var(--ink); }
+#befunde-proposals .notice label input { min-width: 18px; min-height: 18px; }
+#befunde-proposals .notice .v { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+#befunde-proposals .notice-actions .primary-btn, #befunde-proposals .notice-actions .ghost-btn { min-height: 44px; }
 dialog.mdlg { width: min(600px, calc(100vw - 32px)); }
 dialog.mdlg .field.wide { grid-column: 1 / -1; }
 dialog.mdlg select, dialog.mdlg .field input { min-height: 44px; }
@@ -1609,6 +1617,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
           <p class="source">Quelle: measurements.csv · Dateien unter files/ im Daten-Repository</p>
         </div>
         <div class="card-actions"><button class="primary-btn" type="button" id="m-add">Befund eintragen</button><button class="ghost-btn" type="button" id="u-pick">Befund hochladen</button><input type="file" id="u-input" accept="application/pdf,image/jpeg,image/png" hidden><span class="sub" id="m-add-note"></span></div>
+        <div id="befunde-proposals"></div>
         <div id="befunde-list"></div>
       </div>
       <div class="card span2" data-tab="Wochen" data-icon="table">
@@ -3526,7 +3535,15 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Die Datei kommt nach files/ in dein privates Daten-Repository und bleibt in dessen Git-Historie, auch wenn du sie später löschst.": "The file goes to files/ in your private data repository and stays in its Git history, even if you delete it later.",
 "Hochladen und Werte von Hand eintragen": "Upload and enter the values by hand",
 "schon eingetragen": "already entered",
-"Das Datum im Befund ist nicht eindeutig, etwa 11/10/2026. Trag es bitte selbst ein.": "The date in the report is ambiguous, e.g. 11/10/2026. Please enter it yourself."
+"Das Datum im Befund ist nicht eindeutig, etwa 11/10/2026. Trag es bitte selbst ein.": "The date in the report is ambiguous, e.g. 11/10/2026. Please enter it yourself.",
+"Übernehmen": "Accept",
+"Alle verwerfen": "Discard all",
+"Keinen übernehmen": "Accept none",
+"Zu prüfen: {0} Werte aus ": "To check: {0} values from ",
+"Claude hat sie aus der Datei gelesen. Vergleiche sie mit dem Befund; erst übernommene Werte zählen.": "Claude read them from the file. Compare them with the report; only accepted values count.",
+"ohne Datei": "no file",
+" · {0} zu prüfen": " · {0} to check",
+"1 Wert · am {0}": "1 value · on {0}"
 }
 </script>
 <script>
@@ -6310,12 +6327,15 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     $("m-add").disabled = $("u-pick").disabled = !canWrite;
     $("m-add-note").textContent = state.offlineSince ? T("Offline: Eintragen geht wieder mit Verbindung.")
       : state.source !== "github" ? T("Eintragen geht mit verbundenem Daten-Repository (Einstellungen → Verbindung).") : "";
+    renderProposals(list.filter((m) => m.status === "proposed"), canWrite);
     const groups = measurementGroups(list);
     const host = $("befunde-list");
     const confirmed = list.filter((m) => m.status === "confirmed");
     $("befunde-sub").textContent = confirmed.length
-      ? T("{0} Werte · zuletzt am {1}", [confirmed.length, longDate(confirmed[0].t)]) + (invalid ? T(" · {0} Zeilen unlesbar", [invalid]) : "")
+      ? (confirmed.length === 1 ? T("1 Wert · am {0}", [longDate(confirmed[0].t)]) : T("{0} Werte · zuletzt am {1}", [confirmed.length, longDate(confirmed[0].t)])) + (invalid ? T(" · {0} Zeilen unlesbar", [invalid]) : "")
       : invalid ? T("{0} Zeilen in measurements.csv unlesbar", [invalid]) : T("Noch keine Befunde");
+    const toCheck = list.filter((m) => m.status === "proposed").length;
+    if (toCheck) $("befunde-sub").textContent += T(" · {0} zu prüfen", [toCheck]);
     if (!groups.length) {
       host.replaceChildren(html("p", { class: "sub", text: T("Hier stehen Werte, die keine Uhr und keine Waage misst: Ruheumsatz, Taillenumfang, DEXA, VO2max aus dem Labor und Blutwerte. Sie erscheinen dann auch in den passenden Diagrammen.") }));
       return;
@@ -6368,6 +6388,58 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     }
   }
 
+
+  // Values the data repository's workflow read from a report with the Claude API (status
+  // "proposed"): one box per file, every value ticked; *Übernehmen* confirms the ticked ones and
+  // drops the others, *Verwerfen* drops all. Nothing counts before that.
+  const measureRaw = (m, status = m.status) => ({
+    id: m.id, date: m.date, kind: m.kind, name: m.name, value: String(m.value), unit: m.unit,
+    ref_low: m.lo == null ? "" : String(m.lo), ref_high: m.hi == null ? "" : String(m.hi),
+    source: m.source, note: m.note, file: m.file, status,
+  });
+  function proposalsByFile(proposed) {
+    const files = new Map();
+    for (const m of proposed) files.set(m.file, [...(files.get(m.file) || []), m]);
+    return [...files.entries()].map(([file, items]) => ({ file, items }));
+  }
+  function renderProposals(proposed, canWrite) {
+    const host = $("befunde-proposals");
+    host.replaceChildren(...proposalsByFile(proposed).map(({ file, items }, f) => {
+      const name = file ? file.split("/").pop() : T("ohne Datei");
+      const href = file && state.source === "github" && state.dataRepo ? `https://github.com/${state.dataRepo}/blob/${state.dataBranch || "main"}/${file}` : null;
+      const boxes = items.map((m, i) => html("input", { type: "checkbox", id: `p-${f}-${i}`, checked: "" }));
+      const out = html("p", { class: "sub", role: "status" });
+      const act = async (confirm) => {
+        const keep = confirm ? items.filter((_, i) => boxes[i].checked) : [];
+        const change = { put: keep.map((m) => measureRaw(m, "confirmed")), remove: items.filter((m) => !keep.includes(m)).map((m) => m.id) };
+        buttons.forEach((b) => (b.disabled = true));
+        out.textContent = T("Speichert …");
+        const result = await writeMeasurements(change, keep.length ? `Dashboard: confirm ${keep.length} values from ${file}` : `Dashboard: discard values read from ${file}`);
+        if (!result.ok) { buttons.forEach((b) => (b.disabled = false)); out.textContent = result.error; return; }
+        state.measurements = parseMeasurements(result.rows);
+        render();
+      };
+      const ok = html("button", { type: "button", class: "primary-btn", text: T("Übernehmen") });
+      const no = html("button", { type: "button", class: "ghost-btn", text: T("Alle verwerfen") });
+      const buttons = [ok, no];
+      ok.addEventListener("click", () => act(true));
+      no.addEventListener("click", () => act(false));
+      buttons.forEach((b) => (b.disabled = !canWrite));
+      boxes.forEach((b) => b.addEventListener("change", () => { ok.textContent = boxes.some((x) => x.checked) ? T("Übernehmen") : T("Keinen übernehmen"); }));
+      return html("div", { class: "notice" }, [
+        html("strong", {}, [T("Zu prüfen: {0} Werte aus ", [items.length]), href ? html("a", { href, target: "_blank", rel: "noopener", text: name }) : name]),
+        html("span", { text: T("Claude hat sie aus der Datei gelesen. Vergleiche sie mit dem Befund; erst übernommene Werte zählen.") }),
+        html("ul", {}, items.map((m, i) => html("li", {}, html("label", { for: boxes[i].id }, [
+          boxes[i],
+          html("span", { text: `${m.kind === "blood" ? m.name : MEASURE_KINDS[m.kind].label}, ${longDate(m.t)}` }),
+          html("span", { class: "v", text: fmtMeasure(m) }),
+          m.lo != null || m.hi != null ? html("span", { class: "sub", text: T("Ref. {0}", [m.lo != null && m.hi != null ? `${fmt(m.lo, m.lo % 1 ? 1 : 0)}–${fmt(m.hi, m.hi % 1 ? 1 : 0)}` : m.hi != null ? T("bis {0}", [fmt(m.hi, m.hi % 1 ? 1 : 0)]) : T("ab {0}", [fmt(m.lo, m.lo % 1 ? 1 : 0)])]) }) : null,
+        ])))),
+        html("div", { class: "notice-actions" }, buttons),
+        out,
+      ]);
+    }));
+  }
 
   // ---- Befunde: entering, editing and deleting values in measurements.csv
 

@@ -222,3 +222,18 @@ def test_nothing_found_and_no_future_date(given):
     out = extract("Arztbrief vom 30.12.2026\nAlles unauffällig.")
     given(found=out)
     assert out == {"date": None, "items": []}
+
+
+def test_proposals_are_grouped_by_file_and_confirmed_unchanged(given):
+    """Claude's values come per report file; accepting one keeps every field and only flips its status."""
+    rows = [row("2026-10-30", "blood", "86", id="a", name="Ferritin", unit="µg/l", ref_low="30", ref_high="400", source="Claude", file="files/lab.jpg", status="proposed"),
+            row("2026-11-23", "rmr_kcal", "2455", id="b", unit="kcal/d", source="Claude", file="files/spiro.png", status="proposed"),
+            row("2026-10-30", "blood", "24", id="c", name="Vitamin D", unit="ng/ml", ref_low="30", ref_high="100", source="Claude", file="files/lab.jpg", status="proposed"),
+            row("2026-11-02", "waist_cm", "91.1", id="d")]
+    expr = (f"(() => {{ const l = parseMeasurements({json.dumps(rows)}).list.filter((m) => m.status === 'proposed'); "
+            "return [proposalsByFile(l).map((g) => [g.file, g.items.map((m) => m.id)]), measureRaw(l.find((m) => m.id === 'a'), 'confirmed')]; })()")
+    groups, raw = run(HELPERS + ["proposalsByFile", "measureRaw"], expr)
+    given(groups=groups, raw=raw)
+    assert sorted(groups) == [["files/lab.jpg", ["a", "c"]], ["files/spiro.png", ["b"]]]
+    assert raw == {"id": "a", "date": "2026-10-30", "kind": "blood", "name": "Ferritin", "value": "86", "unit": "µg/l",
+                   "ref_low": "30", "ref_high": "400", "source": "Claude", "note": "", "file": "files/lab.jpg", "status": "confirmed"}

@@ -8,6 +8,10 @@ the tag of its major version (`v2`, before that `v1`).
 
 ### Dashboard
 
+- Befunde: reports without readable text (photos, scans) can be read by the Claude API. With the
+  secret `ANTHROPIC_API_KEY`, the new data-repository workflow *Read reports* sends each new file
+  in `files/` once and adds its values as proposals; the card shows them per file to accept or
+  discard (`python -m selftopo evaluate-reports`, ledger `report_evaluations.json`).
 - *Save* writes `settings.json` to the data repository directly when the dashboard token has
   *Contents: Read and write*: settings, goals, recommendation choices, push notifications and main
   lifts. It reads the current file first, so changes from other devices stay. With a read-only

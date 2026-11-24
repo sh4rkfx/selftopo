@@ -377,6 +377,10 @@ for a fork, `SELFTOPO_CODE_REF` (default `v2`) for another version, see below.
   the device. Their text appears on the lock screen. See [docs/push.md](docs/push.md).
 - Raw dumps contain health data. They stay in `debug/`, which is not committed, or in artifacts
   that expire after a day.
+- Reports you upload under Befunde stay in `files/` of the data repository and in its Git history.
+  PDFs with text are read in the browser; nothing leaves it for that. Only if you add the secret
+  `ANTHROPIC_API_KEY` does the workflow *Read reports* send each new report file once to the
+  Anthropic API to read its values; they count only after you accept them in the dashboard.
 
 ## Versions and updates
 
