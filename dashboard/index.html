@@ -226,6 +226,8 @@ button { font: inherit; }
 .seg.small button { font-size: 0.75rem; padding: 4px 9px; }
 
 /* Page */
+/* <main> holds everything but the footer, with the same rhythm as the page */
+.main { display: grid; gap: 18px; min-width: 0; }
 .wrap {
   max-width: 1240px; margin: 0 auto;
   padding-block: 22px 56px;
@@ -905,6 +907,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 </div>
 
 <div class="wrap" id="top">
+<main class="main" id="main">
   <header class="top">
     <span class="eyebrow" id="eyebrow">Garmin Connect · Hevy</span>
     <div class="top-row">
@@ -1608,6 +1611,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       </div>
     </div>
   </section>
+</main>
 
   <footer id="footer"></footer>
 </div>
@@ -3254,7 +3258,9 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Weitere {0} Karten zeigen": "Show {0} more cards",
 "1 weitere Karte zeigen": "Show 1 more card",
 "Alle Werte sind erfunden. So sieht das Dashboard mit deinen Garmin-, Hevy- und YAZIO-Daten aus; die Einrichtung dauert etwa 15 Minuten.": "All values are made up. This is how the dashboard looks with your Garmin, Hevy and YAZIO data; setting it up takes about 15 minutes.",
-"Zum Inhalt springen": "Skip to content"
+"Zum Inhalt springen": "Skip to content",
+"Tabelle": "Table",
+"{0}, Tabelle": "{0}, table"
 }
 </script>
 <script>
@@ -6044,7 +6050,9 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       [T("HRV Ø"), (l) => avg(l, "hrv"), (v) => (v == null ? "–" : `${fmt(v)} ms`), (v) => (v == null ? "–" : `${fmtSigned(v)} ms`)],
     ];
     $("sleep-week").replaceChildren(
-      html("thead", {}, html("tr", {}, ["", T("Werktage"), T("Wochenende"), T("Unterschied")].map((h, i) => html("th", { scope: "col", class: i === 0 ? "l" : "", text: h })))),
+      html("thead", {}, html("tr", {}, [null, T("Werktage"), T("Wochenende"), T("Unterschied")].map((h, i) => (i === 0
+        ? html("th", { scope: "col", class: "l" }, html("span", { class: "vh", text: T("Kennzahl") }))
+        : html("th", { scope: "col", text: h }))))),
       html("tbody", {}, metrics.map(([label, get, show, showDiff]) => {
         const a = weekday.length ? get(weekday) : null, b = weekend.length ? get(weekend) : null;
         return html("tr", {}, [
@@ -8052,6 +8060,13 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     // "kraft" is the former name of the Sport area
     for (const area of (saved ?? AREAS).map((x) => (x === "kraft" ? "sport" : x))) if (AREAS.includes(area)) setCollapsed(area, true);
     if (!collapsed.has("daten")) setCollapsed("daten", true);
+    // Wide tables scroll sideways on small screens; keyboard users need to reach them (WCAG 2.1.1)
+    for (const wrap of document.querySelectorAll(".table-wrap.wide")) {
+      const title = wrap.closest(".card")?.querySelector("h3")?.textContent || T("Tabelle");
+      Object.assign(wrap, { tabIndex: 0 });
+      wrap.setAttribute("role", "region");
+      wrap.setAttribute("aria-label", T("{0}, Tabelle", [title]));
+    }
 
     // Info button for every explanation: cards, area heads and the overview tiles.
     // stopPropagation keeps a click in an area head from collapsing the area.
