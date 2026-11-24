@@ -281,7 +281,8 @@ def dump_raw(day: date) -> Path:
         data["consumed-items"] = _try(api, "user/consumed-items", date=day.isoformat())
         # Either one list of entries or a dict of lists (products, recipe_portions, simple_products)
         items = data["consumed-items"]
-        entries = items if isinstance(items, list) else [e for v in (items or {}).values() if isinstance(v, list) for e in v]
+        lists = [items] if isinstance(items, list) else [v for v in (items or {}).values() if isinstance(v, list)]
+        entries = [e for entries in lists for e in entries]
         product_ids = _ids(entries, "product_id")
         recipe_ids = _ids(entries, "recipe_id")
         data["products"] = {pid: _try(api, f"products/{pid}") for pid in product_ids[:DUMP_LOOKUPS] if pid}
