@@ -112,7 +112,8 @@ Every pull request is one change, and every change comes with:
   (`tests/test_x.py::test_name`). A criterion without a test gets one in the same pull request.
   The pull request names the story (*Closes #123*).
 - **A new version**: `selftopo/__init__.py` (`__version__`), `APP_VERSION` in
-  `dashboard/index.html` and a new top entry `## x.y.z – YYYY-MM-DD` in `CHANGELOG.md`.
+  `dashboard/index.html` and a new top entry `## x.y.z – YYYY-MM-DD` in `CHANGELOG.md` whose
+  first line links the pull request (`[#123](https://github.com/sh4rkfx/selftopo/pull/123)`).
   `tests/test_versions.py` fails when the three differ. Minor for a feature, patch for a fix or
   wording, major for a break in data or settings.
 - **README and docs** updated where users or contributors need to know about it.
@@ -128,14 +129,15 @@ body that explains why.
 
 ## Releases (maintainers)
 
-After each merge:
+Releases publish themselves. After the tests pass on `main`, the workflow *Release*
+(`tools/release.py`) tags each version of `CHANGELOG.md` that has no tag yet on the squash commit
+of the pull request its entry links (`[#123](…/pull/123)`), publishes a GitHub release with the
+entry as notes, and moves the major tag (`v2`) to the newest version, so every data repository
+uses it with its next run. Start *Release* by hand (Actions → Release → Run workflow) to catch up
+if a run failed.
 
-1. Wait for the tests on `main`.
-2. Publish a GitHub release with the tag of the new version (`v2.16.0`) on the merge commit and
-   its changelog entry as notes. The workflow *Move major tag* then points `v2` at it, and every
-   data repository uses the new version with its next run.
-3. If the data repository template changed, copy `templates/data-repo/` to
-   `sh4rkfx/selftopo-data-template`.
+If the data repository template changed, copy `templates/data-repo/` to
+`sh4rkfx/selftopo-data-template`.
 
 Breaking changes to the data format or settings need a new major version (`v3`), which users opt
 into with the repository variable `SELFTOPO_CODE_REF`.

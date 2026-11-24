@@ -1,0 +1,43 @@
+# Publishes every version in CHANGELOG.md: after the tests pass on main, each version without a
+# tag gets one on the squash commit of its pull request, a GitHub release with its changelog
+# entry, and the major tag (v2) moves to the newest one, so data repositories pick it up.
+# Start it by hand to catch up on versions that have no release yet.
+name: Release
+
+on:
+  workflow_run:
+    workflows: [Tests]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # The commit whose tests passed, not a newer tip of main whose tests may still run
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || 'main' }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Tag and publish new versions
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          python tools/release.py publish
