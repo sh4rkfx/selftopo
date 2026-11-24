@@ -13,7 +13,7 @@ import json
 
 from jsdashboard import run
 
-HELPERS = ["isoToT", "MEASURE_KINDS", "MEASURE_GROUPS", "parseMeasurements", "refState", "measurementGroups"]
+HELPERS = ["isoToT", "tToIso", "MEASURE_KINDS", "MEASURE_GROUPS", "parseMeasurements", "refState", "measurementGroups"]
 
 
 def parse(rows):
@@ -25,12 +25,12 @@ def row(date, kind, value, **more):
 
 
 def test_unreadable_rows_are_counted_not_shown(given):
-    """Missing date, a text as value, an unknown kind or a blood value without a name."""
+    """Missing or impossible date, a text as value, an unknown kind or a blood value without a name."""
     rows = [row("2026-11-23", "rmr_kcal", "2455"), row("", "waist_cm", "90"), row("2026-11-01", "waist_cm", "neunzig"),
-            row("2026-11-01", "glucose", "90"), row("2026-11-01", "blood", "86")]
+            row("2026-11-01", "glucose", "90"), row("2026-11-01", "blood", "86"), row("2026-02-30", "waist_cm", "90")]
     given(rows=rows)
     out = parse(rows)
-    assert [m["kind"] for m in out["list"]] == ["rmr_kcal"] and out["invalid"] == 4
+    assert [m["kind"] for m in out["list"]] == ["rmr_kcal"] and out["invalid"] == 5
 
 
 def test_decimal_comma_and_reference_range(given):

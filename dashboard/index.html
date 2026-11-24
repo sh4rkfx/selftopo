@@ -4066,7 +4066,9 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     let invalid = 0;
     for (const r of rows || []) {
       const date = String(r.date || "").slice(0, 10), value = num(r.value), kind = String(r.kind || "").trim();
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || value == null || !MEASURE_KINDS[kind] || (kind === "blood" && !String(r.name || "").trim())) { invalid++; continue; }
+      // A date-shaped but impossible day such as 2026-02-30 would move to another day: unreadable
+      const realDay = /^\d{4}-\d{2}-\d{2}$/.test(date) && tToIso(isoToT(date)) === date;
+      if (!realDay || value == null || !MEASURE_KINDS[kind] || (kind === "blood" && !String(r.name || "").trim())) { invalid++; continue; }
       list.push({
         id: String(r.id || `${date}-${kind}-${r.name || ""}`), date, t: isoToT(date), kind, name: String(r.name || "").trim(), value,
         unit: String(r.unit ?? MEASURE_KINDS[kind].unit).trim(), lo: num(r.ref_low), hi: num(r.ref_high),
