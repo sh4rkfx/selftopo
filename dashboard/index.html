@@ -1096,10 +1096,10 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
         <div class="chart-host" id="c-kcal"></div>
       </div>
       <div class="card span2" data-tab="Verbrauch" data-icon="balance">
-        <div class="card-head"><h3>Tatsächlicher Verbrauch</h3><p class="sub" id="tdee-sub"></p></div>
+        <div class="card-head"><h3>Verbrauch laut deinem Log</h3><p class="sub" id="tdee-sub"></p></div>
         <div class="info" hidden>
           <p>Aus deinen eigenen Messungen berechnet: mittlere Aufnahme der vollständig geloggten Tage der letzten 28 Tage minus die Gewichtsänderung in dieser Zeit, umgerechnet mit 7.700 kcal pro kg. Nimmst du bei 2.000 kcal ein halbes Kilo pro Woche ab, liegt dein Verbrauch bei etwa 2.550 kcal. Das ist das Prinzip, mit dem auch Apps wie MacroFactor arbeiten.</p>
-          <p>Der Wert ist genauer als die Schätzung der Uhr, solange du vollständig loggst. Was beim Loggen fehlt, macht ihn zu niedrig. Wasser verschiebt das Gewicht kurzfristig; über 28 Tage gleicht sich das weitgehend aus. Gestrichelt zum Vergleich der Verbrauch laut Garmin im selben Zeitraum.</p>
+          <p>Er beruht auf deinem Gewichtsverlauf statt auf einer Schätzung der Uhr. Was beim Loggen fehlt oder zu niedrig geschätzt wird, etwa von einer Fotoerkennung, macht ihn um denselben Betrag zu niedrig; er ist also der Verbrauch in deinen geloggten Kalorien. Zum Steuern taugt er trotzdem: Bei dieser geloggten Menge hältst du dein Gewicht. Wasser verschiebt das Gewicht kurzfristig; über 28 Tage gleicht sich das weitgehend aus. Gestrichelt zum Vergleich der Verbrauch laut Garmin im selben Zeitraum.</p>
           <p class="source">Quelle: nutrition_daily.csv · calories_kcal · garmin_daily.csv · weight_kg, calories_total · mindestens 14 vollständige Tage und 6 Wiegungen in 28 Tagen</p>
         </div>
         <div class="legend"><span><i class="key-line" style="background:var(--s1)"></i>aus Aufnahme und Gewicht</span><span><i class="key-dash"></i>Garmin, Mittel 28 Tage</span></div>
@@ -2339,7 +2339,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "≈ {0} kcal pro Tag": "≈ {0} kcal per day",
 ", Stand {0}": ", as of {0}",
 "Noch zu wenige Daten: nötig sind 14 vollständig geloggte Tage und 6 Wiegungen in 28 Tagen": "Not enough data yet: 14 fully logged days and 6 weigh-ins within 28 days are needed",
-"Tatsächlicher Energieverbrauch aus Aufnahme und Gewichtsverlauf, verglichen mit Garmin": "Actual energy expenditure from intake and weight trend, compared with Garmin",
+"Energieverbrauch aus geloggter Aufnahme und Gewichtsverlauf, verglichen mit Garmin": "Energy expenditure from logged intake and weight trend, compared with Garmin",
 "Noch zu wenige Daten: nötig sind 14 vollständig geloggte Tage und 6 Wiegungen innerhalb von 28 Tagen.": "Not enough data yet: 14 fully logged days and 6 weigh-ins within 28 days are needed.",
 "aus Aufnahme und Gewicht": "from intake and weight",
 "Garmin, 28 Tage": "Garmin, 28 days",
@@ -2666,7 +2666,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "{0} gut": "{0} good",
 "{0} mittel": "{0} fair",
 "{0} schlecht": "{0} poor",
-"{0} ohne Bewertung": "{0} not rated",
+"{0} neutral": "{0} neutral",
 "Die Kacheln zeigen immer die letzten 7 Tage, unabhängig vom gewählten Zeitraum. Die kleine Kurve zeigt die letzten 28 Tage; ein Tipp auf die Kachel springt zum Bereich. „Stand TT.MM.“ erscheint, wenn der neueste Wert älter als 2 Tage ist.": "The tiles always show the last 7 days, whatever period is selected. The small curve shows the last 28 days; tapping a tile jumps to its area. “as of DD/MM” appears when the newest value is older than 2 days.",
 "Kachel": "Tile",
 "Wert und Zeile darunter": "Value and line below",
@@ -2738,9 +2738,9 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "<i class=\"key-dot\" style=\"background:var(--s1)\"></i>Tag": "<i class=\"key-dot\" style=\"background:var(--s1)\"></i>Day",
 "<i class=\"key-dot\" style=\"background:var(--other);opacity:1\"></i>unvollständig": "<i class=\"key-dot\" style=\"background:var(--other);opacity:1\"></i>incomplete",
 "<i class=\"key-dash\"></i>Verbrauch (Garmin)": "<i class=\"key-dash\"></i>Expenditure (Garmin)",
-"Tatsächlicher Verbrauch": "Actual expenditure",
+"Verbrauch laut deinem Log": "Expenditure from your log",
 "Aus deinen eigenen Messungen berechnet: mittlere Aufnahme der vollständig geloggten Tage der letzten 28 Tage minus die Gewichtsänderung in dieser Zeit, umgerechnet mit 7.700 kcal pro kg. Nimmst du bei 2.000 kcal ein halbes Kilo pro Woche ab, liegt dein Verbrauch bei etwa 2.550 kcal. Das ist das Prinzip, mit dem auch Apps wie MacroFactor arbeiten.": "Calculated from your own measurements: mean intake of the fully logged days of the last 28 days minus the weight change in that time, converted at 7,700 kcal per kg. If you lose half a kilo per week on 2,000 kcal, your expenditure is about 2,550 kcal. Apps such as MacroFactor work on the same principle.",
-"Der Wert ist genauer als die Schätzung der Uhr, solange du vollständig loggst. Was beim Loggen fehlt, macht ihn zu niedrig. Wasser verschiebt das Gewicht kurzfristig; über 28 Tage gleicht sich das weitgehend aus. Gestrichelt zum Vergleich der Verbrauch laut Garmin im selben Zeitraum.": "The value is more accurate than the watch’s estimate as long as you log completely. Whatever is missing from the log makes it too low. Water shifts the weight in the short term; over 28 days that largely evens out. Dashed for comparison: the expenditure according to Garmin in the same period.",
+"Er beruht auf deinem Gewichtsverlauf statt auf einer Schätzung der Uhr. Was beim Loggen fehlt oder zu niedrig geschätzt wird, etwa von einer Fotoerkennung, macht ihn um denselben Betrag zu niedrig; er ist also der Verbrauch in deinen geloggten Kalorien. Zum Steuern taugt er trotzdem: Bei dieser geloggten Menge hältst du dein Gewicht. Wasser verschiebt das Gewicht kurzfristig; über 28 Tage gleicht sich das weitgehend aus. Gestrichelt zum Vergleich der Verbrauch laut Garmin im selben Zeitraum.": "It is based on your weight trend instead of the watch's estimate. Whatever is missing from the log or estimated too low, by photo recognition for example, makes it lower by the same amount; it is the expenditure in your logged calories. It still works for steering: at this logged amount your weight stays the same. Water shifts the weight in the short term; over 28 days that largely evens out. Dashed for comparison: expenditure according to Garmin in the same period.",
 "Quelle: nutrition_daily.csv · calories_kcal · garmin_daily.csv · weight_kg, calories_total · mindestens 14 vollständige Tage und 6 Wiegungen in 28 Tagen": "Source: nutrition_daily.csv · calories_kcal · garmin_daily.csv · weight_kg, calories_total · at least 14 complete days and 6 weigh-ins in 28 days",
 "<i class=\"key-line\" style=\"background:var(--s1)\"></i>aus Aufnahme und Gewicht": "<i class=\"key-line\" style=\"background:var(--s1)\"></i>from intake and weight",
 "<i class=\"key-dash\"></i>Garmin, Mittel 28 Tage": "<i class=\"key-dash\"></i>Garmin, 28-day mean",
@@ -5585,7 +5585,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     $("tile-sum").replaceChildren(
       ...tileSummary(levels).map(({ level, n }) => (TILE_STATE[level]
         ? html("li", { class: level }, [icon(TILE_STATE[level].icon), TILE_STATE[level].sum(n)])
-        : html("li", { class: "none", text: T("{0} ohne Bewertung", [n]) }))),
+        : html("li", { class: "none", text: T("{0} neutral", [n]) }))),
     );
     $("tile-sum").hidden = false;
   }
@@ -6285,7 +6285,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
         ? T("≈ {0} kcal pro Tag", [fmt(Math.round(e.tdee / 10) * 10)]) + (garminNow ? ` · Garmin ${fmt(Math.round(garminNow / 10) * 10)} (${fmtSigned(((garminNow - e.tdee) / e.tdee) * 100)} %)` : "") + T(", Stand {0}", [ddmm(e.t)])
         : T("Noch zu wenige Daten: nötig sind 14 vollständig geloggte Tage und 6 Wiegungen in 28 Tagen");
       mount("c-tdee", (host) => timeChart(host, {
-        x0, x1, label: T("Tatsächlicher Energieverbrauch aus Aufnahme und Gewichtsverlauf, verglichen mit Garmin"),
+        x0, x1, label: T("Energieverbrauch aus geloggter Aufnahme und Gewichtsverlauf, verglichen mit Garmin"),
         empty: T("Noch zu wenige Daten: nötig sind 14 vollständig geloggte Tage und 6 Wiegungen innerhalb von 28 Tagen."),
         series: [
           { label: T("aus Aufnahme und Gewicht"), color: "var(--s1)", data: series("tdee"), fmt: kcalText, endFmt: (v) => fmt(v), endLabel: true },
