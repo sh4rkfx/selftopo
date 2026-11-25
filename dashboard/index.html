@@ -5145,9 +5145,17 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   }
   // The day from which the measurement in force applies, for the adaptive check
   const correctionSince = (energy, periods) => {
-    // The newest measurement, also one without a factor: it ends the older one's correction
-    const p = energy.rmrMode === "off" ? null : periods[periods.length - 1];
-    return p ? p.from : -Infinity;
+    // The newest measurement that changes the resting kcal in use: one with a factor (or any in
+    // absolute mode), or one without a factor that ends an older correction; a factorless one
+    // after no correction changes nothing
+    if (energy.rmrMode === "off") return -Infinity;
+    let since = -Infinity, before = false;
+    for (const p of periods) {
+      const applies = energy.rmrMode === "absolute" || p.factor != null;
+      if (applies || before) since = p.from;
+      before = applies;
+    }
+    return since;
   };
   // A line in the expenditure charts on each day from which a measured RMR applies
   const correctionMarks = (M) => (M.energy.rmrMode === "off" ? [] : M.rmr

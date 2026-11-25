@@ -498,10 +498,12 @@ def test_adaptive_hint_needs_a_28_day_weight_span(given):
 
 
 def test_newest_measurement_bounds_the_check_without_a_factor(given):
-    """In factor mode a newest measurement without a factor still bounds the window, because it ends the older correction."""
-    since = run(["correctionSince"], "[correctionSince({ rmrMode: 'factor' }, [{ from: 1, factor: 1.1 }, { from: 5, factor: null }]), correctionSince({ rmrMode: 'off' }, [{ from: 5, factor: 1 }]) === -Infinity]")
+    """A measurement without a factor bounds the window only when it ends an older correction."""
+    since = run(["correctionSince"], "[correctionSince({ rmrMode: 'factor' }, [{ from: 1, factor: 1.1 }, { from: 5, factor: null }]), correctionSince({ rmrMode: 'off' }, [{ from: 5, factor: 1 }]) === -Infinity,"
+                " correctionSince({ rmrMode: 'factor' }, [{ from: 5, factor: null }]) === -Infinity, correctionSince({ rmrMode: 'factor' }, [{ from: 1, factor: 1.1 }, { from: 3, factor: null }, { from: 7, factor: null }])]")
     given(since=since)
-    assert since == [5, True]
+    # a factorless measurement after no correction changes nothing; after another factorless one neither
+    assert since == [5, True, True, 3]
 
 
 def test_adaptive_sample_needs_garmin_days_too(given):
