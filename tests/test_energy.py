@@ -21,7 +21,7 @@ from selftopo import energy, reports
 from selftopo.csvstore import write_rows
 
 HELPERS = ["DAY", "isoToT", "tToIso", "RMR_MODES", "RMR_REF_DAYS", "RMR_REF_MIN_DAYS", "TEF_MODES", "TEF_KCAL_PER_G", "TEF_COEFFICIENTS",
-           "TEF_FLAT_PERCENT", "TEF_FALLBACK_DAYS", "ACTIVE_UNCERTAINTY", "readEnergySettings", "rmrReference", "rmrPeriods", "rmrPeriodAt", "tefFor", "applyEnergy"]
+           "TEF_FLAT_PERCENT", "TEF_FALLBACK_DAYS", "ACTIVE_UNCERTAINTY", "ADAPTIVE_DAYS", "ADAPTIVE_MIN_DAYS", "ADAPTIVE_MAX_DAYS", "ADAPTIVE_COVERAGE", "ADAPTIVE_HINT", "readEnergySettings", "rmrReference", "rmrPeriods", "rmrPeriodAt", "tefFor", "applyEnergy"]
 TODAY = date(2026, 11, 25)
 MEASURED = date(2026, 11, 23)
 
@@ -375,3 +375,66 @@ def test_balance_uses_corrected_total(tmp_path, given):
     assert frame.loc[DAY.isoformat(), "expenditure_kcal"] == pytest.approx(frame.loc[DAY.isoformat(), "resting_kcal"] + frame.loc[DAY.isoformat(), "active_kcal"] + 256.3)
     from selftopo import recommend
     assert 'data.mean("expenditure_kcal", 28, minimum=7)' in open(recommend.__file__, encoding="utf-8").read()
+
+
+# --------------------------------------------------------------------------- adaptive check
+
+ADAPT = HELPERS + ["KCAL_PER_KG", "rollingMean", "adaptiveTdee"]
+
+
+def adaptive(window=28, logged_days=None, burned=3000, noise=0.5, rest=2390, active=700, n=40):
+    """n days ending 24.11.: 2,500 kcal on logged days, weight −0.05 kg/day ± `noise` alternating, the check on the last day."""
+    logged_days = n if logged_days is None else logged_days
+    expr = f"""(() => {{ const t0 = isoToT('2026-11-24') - {n - 1} * DAY, days = [];
+      for (let i = 0; i < {n}; i++) days.push({{ t: t0 + i * DAY, kcal: i >= {n} - {logged_days} ? 2500 : null, weight: 90 - 0.05 * i + (i % 2 ? {noise} : -{noise}),
+        burnedFull: {burned}, rest: {rest}, activeGarmin: {active}, tef: null }});
+      rollingMean(days, "weight", "weight7", 7);
+      return adaptiveTdee(days, days.length - 1, {window}); }})()"""
+    return run(ADAPT, expr)
+
+
+def test_adaptive_tdee_smoothing_and_window(given):
+    """2,500 kcal a day and −0.05 kg a day give 2,500 + 0.05 × 7,700 = 2,885 kcal. With ±0.5 kg from
+    weigh-in to weigh-in, single weigh-ins at both ends would be off by about 285 kcal (1 kg over 27
+    days); the 7-day means stay within 50. 21 days work, 20 are refused."""
+    a28, a21 = adaptive(), adaptive(window=21)
+    problems = run(HELPERS, "(() => { const p = []; const s = readEnergySettings({ adaptiveTdeeDays: 20 }, p); return [s.adaptiveDays, p.length, readEnergySettings({ adaptiveTdeeDays: 21 }).adaptiveDays]; })()")
+    given(tdee_28=a28["tdee"], tdee_21=a21["tdee"], setting_20=problems)
+    raw_error = 1.0 / 27 * 7700
+    assert a28["ok"] and abs(a28["tdee"] - 2885) < 50 < raw_error and a21["ok"] and abs(a21["tdee"] - 2885) < 60
+    assert problems == [28, 1, 21]
+
+
+def test_coverage_threshold(given):
+    """22 of 28 days logged (79 %) is not enough data; 23 of 28 (82 %) is."""
+    from jsdashboard import run as js
+    short, enough = adaptive(logged_days=22), adaptive(logged_days=23)
+    text = js(ADAPT + ["nf", "fmt", "fmtSigned", "fmtDate", "ddmm", "adaptiveText"], f"adaptiveText({json.dumps(short)}).hint")
+    given(short=short, enough=enough["ok"], text=text)
+    assert short["ok"] is False and short["logged"] == 22 and enough["ok"] is True
+    assert text == "Abgleich mit Aufnahme und Gewicht: nicht genug Daten, 22 von 28 Tagen vollständig geloggt, nötig sind 80 %."
+
+
+def test_difference_kcal_and_percent(given):
+    """Corrected 3,000 against 2,885: +115 kcal, +4 %, shown in the card's subtitle."""
+    a = adaptive()
+    text = run(ADAPT + ["nf", "fmt", "fmtSigned", "fmtDate", "ddmm", "adaptiveText"], f"adaptiveText({json.dumps(a)})")
+    given(diff=a["diff"], pct=a["pct"], text=text)
+    assert a["diff"] == pytest.approx(3000 - a["tdee"]) and a["pct"] == pytest.approx(a["diff"] / a["tdee"] * 100)
+    shown = f"{round(a['tdee'] / 10) * 10:,}".replace(",", ".")
+    assert text["main"] == f"≈ {shown} kcal pro Tag aus Aufnahme und Gewicht · Verbrauch korrigiert 3.000 (+{round(a['pct'])} %), 28 Tage bis 24.11." and text["hint"] == ""
+
+
+def test_hint_over_ten_percent_never_automatic(given):
+    """Corrected 3,300 is about 15 % over the adaptive 2,844: over 28 days a hint with the active-kcal factor (2,844 − 2,390) / 700 = 0.65;
+    over 21 days no hint; a gap no factor in 0.5–1.5 closes names the log and the measurement; the factor is never set."""
+    a = adaptive(burned=3300)
+    short = adaptive(burned=3300, window=21)
+    wide = adaptive(burned=4500, rest=2900)  # resting alone above the adaptive value
+    texts = run(ADAPT + ["nf", "fmt", "fmtSigned", "fmtDate", "ddmm", "adaptiveText"], f"[adaptiveText({json.dumps(a)}).hint, adaptiveText({json.dumps(wide)}).hint]")
+    from jsdashboard import declaration
+    given(pct=a["pct"], factor=a["factor"], hint=texts[0])
+    assert a["hint"] is True and a["factor"] == round((a["tdee"] - 2390) / 700, 2) == 0.65 and short["hint"] is False
+    assert "Mit dem Faktor 0,65 auf die Aktivkalorien" in texts[0] and "selftopo setzt ihn nicht selbst" in texts[0]
+    assert wide["factor"] is None and "Mahlzeiten fehlen" in texts[1]
+    assert "activeKcalFactor" not in declaration("adaptiveTdee") and "activeKcalFactor" not in declaration("rebuildModel")

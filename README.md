@@ -255,6 +255,7 @@ the dashboard read the same file, and every key is optional.
 | `tefFlatPercent` | `10` | both | Share of intake for `flat`, and for days without a complete log |
 | `tefCoefficients`, `tefCoefficientsLow`, `tefCoefficientsHigh` | see *Energy expenditure* | both | Share of each macronutrient's energy (`protein`, `carbs`, `fat`, `alcohol`); only the values you change |
 | `activeKcalFactor` | `1` | both | Factor (0.5–1.5) on Garmin's active kcal; set it yourself, for example after the adaptive check |
+| `adaptiveTdeeDays` | `28` | dashboard | Window (21–90 days) of the adaptive check |
 
 Edit the file under gear icon → *General* and press *Save*. With a token that has *Contents: Read
 and write*, the dashboard commits `settings.json` to the data repository itself
@@ -390,6 +391,28 @@ value next to it, for example *3,110 kcal (resting 2,390 · active 460 · TEF 26
 range 2,810–3,400*, averaged over the days since the newest measurement, at most the 7 before today,
 without days whose Garmin resting kcal is below 90 % of its 28-day median (synced before the day
 ended).
+
+**Adaptive check.** With any correction on, the dashboard checks the corrected expenditure against
+what you ate and how your weight changed (the energy balance principle, Hall et al. 2011,
+*Quantification of the effect of energy imbalance on bodyweight*, Lancet 378:826–837):
+
+    adaptive = mean intake of the completely logged days − Δ weight × 7,700 kcal/kg ÷ days
+
+- Weight is the 7-day mean at the first and last day of the window, so a single weigh-in with more
+  water does not move it. The window is `adaptiveTdeeDays` (default 28, at least 21) and ends
+  yesterday; at least 80 % of its days must be logged completely and the smoothed weight must
+  cover all but 7 of them, otherwise the card says *not enough data*.
+- It is compared with the mean corrected expenditure of the same days, in kcal and %. TEF is part
+  of the intake here and is never added.
+- More than 10 % apart over at least 28 days gives a hint with the factor on Garmin's active kcal
+  that would close the gap: (adaptive − mean resting − mean TEF) ÷ mean active kcal. Only a factor
+  between 0.5 and 1.5 is offered; otherwise the card asks you to check the log for missing meals and
+  the measurement. selftopo never sets `activeKcalFactor` by itself.
+- The 7,700 kcal per kg is the usual static rule; Hall 2011 shows that the real change of body
+  weight slows as the body adapts, so over months the check reads the current balance, not a
+  forecast. Under-logged meals make the adaptive value too low by the same amount.
+- *Verbrauch laut deinem Log* then shows the adaptive value against the corrected expenditure, and
+  the calories chart draws it as its own line.
 
 ## Running locally
 
