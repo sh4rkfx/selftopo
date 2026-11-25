@@ -259,21 +259,24 @@ def load(today: date | None = None, settings: dict[str, Any] | None = None) -> D
             days[col] = _num(g, col)
         for col in ("readiness_level", "sleep_start_local", "sleep_end_local"):
             days[col] = g[col] if col in g else None
-    # Expenditure with a measured RMR in place of Garmin's resting kcal (see selftopo/energy.py)
+    food = _read(config.NUTRITION_CSV)
+    if len(food):
+        f = food.assign(date=pd.to_datetime(food["date"])).drop_duplicates("date", keep="last").set_index("date")
+        f = f.reindex(index)
+        days["intake_kcal"] = _num(f, "calories_kcal")  # every logged day, also incomplete ones
+        for name in ("protein", "carbs", "fat", "alcohol"):
+            days[f"intake_{name}_g"] = _num(f, f"{name}_g")
+    for col in ("hrv", "resting_hr", "sleep_hours", "steps", "weight_kg", "protein_g", "calories_kcal"):
+        if col not in days:
+            days[col] = np.nan
+    # Expenditure with a measured RMR in place of Garmin's resting kcal, plus the thermic effect of
+    # food (see selftopo/energy.py)
     for col in ("calories_total", "calories_active"):
         if col not in days:
             days[col] = np.nan
     now = datetime.now(config.TIMEZONE)
     energy.apply(days, energy.read_measurements(config.MEASUREMENTS_CSV), energy.read_settings(settings), today,
                  (now.hour * 60 + now.minute) / 1440 if now.date() == today else 1.0)
-    food = _read(config.NUTRITION_CSV)
-    if len(food):
-        f = food.assign(date=pd.to_datetime(food["date"])).drop_duplicates("date", keep="last").set_index("date")
-        f = f.reindex(index)
-        days["intake_kcal"] = _num(f, "calories_kcal")  # every logged day, also incomplete ones
-    for col in ("hrv", "resting_hr", "sleep_hours", "steps", "weight_kg", "protein_g", "calories_kcal"):
-        if col not in days:
-            days[col] = np.nan
 
     activities = _read(config.ACTIVITIES_CSV)
     if len(activities):
