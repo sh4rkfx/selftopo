@@ -431,12 +431,14 @@ def test_hint_over_ten_percent_never_automatic(given):
     a = adaptive(burned=3300)
     short = adaptive(burned=3300, window=21)
     wide = adaptive(burned=4500, rest=2900)  # resting alone above the adaptive value
-    texts = run(ADAPT + ["nf", "fmt", "fmtSigned", "fmtDate", "ddmm", "adaptiveText"], f"[adaptiveText({json.dumps(a)}).hint, adaptiveText({json.dumps(wide)}).hint]")
+    texts = run(ADAPT + ["nf", "fmt", "fmtSigned", "fmtDate", "ddmm", "adaptiveText"], f"[adaptiveText({json.dumps(a)}).hint, adaptiveText({json.dumps(wide)}).hint, adaptiveText({json.dumps(a)}, true).hint]")
     from jsdashboard import declaration
     given(pct=a["pct"], factor=a["factor"], hint=texts[0])
     assert a["hint"] is True and a["factor"] == round((a["tdee"] - 2390) / 700, 2) == 0.65 and short["hint"] is False
     assert "Mit dem Faktor 0,65 auf die Aktivkalorien" in texts[0] and "selftopo setzt ihn nicht selbst" in texts[0]
     assert wide["factor"] is None and "Mahlzeiten fehlen" in texts[1]
+    # with TEF off the gap may be digestion: no factor, switch TEF on first
+    assert "die Verdauung ist ausgeschaltet" in texts[2] and "Faktor 0,65" not in texts[2]
     assert "activeKcalFactor" not in declaration("adaptiveTdee") and "activeKcalFactor" not in declaration("rebuildModel")
 
 

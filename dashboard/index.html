@@ -3685,7 +3685,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Mit einer Korrektur unter Einstellungen → Energieverbrauch wird daraus der Abgleich: Gewicht als 7-Tage-Mittel an Anfang und Ende des Fensters (Standard 28 Tage), mindestens 80 % der Tage mit vollständigem Log und Garmin-Tag, verglichen mit dem korrigierten Verbrauch derselben Tage. Liegen beide über mindestens 28 Tage mehr als 10 % auseinander, nennt die Karte den Faktor auf Garmins Aktivkalorien, mit dem sie zusammenpassten. Gesetzt wird er nur von dir.": "With a correction under Settings → Energy expenditure this becomes the check: weight as a 7-day mean at the start and end of the window (28 days by default), at least 80 % of the days with a complete log and a complete Garmin day, compared with the corrected expenditure of the same days. If both are more than 10 % apart over at least 28 days, the card names the factor on Garmin's active kcal that would make them match. Only you set it.",
 "Abgleich mit Aufnahme und Gewicht: ab {0} möglich, {1} Tage nach dem Beginn der Korrektur.": "Check against intake and weight: possible from {0}, {1} days after the correction starts.",
 "Abgleich mit Aufnahme und Gewicht: nicht genug Daten, es fehlen Wiegungen am Anfang oder Ende der {0} Tage (mindestens 3 in 7 Tagen).": "Check against intake and weight: not enough data, weigh-ins are missing at the start or end of the {0} days (at least 3 in 7 days).",
-"Abgleich mit Aufnahme und Gewicht: nicht genug Daten, {0} von {1} Tagen mit vollständigem Log und Garmin-Tag, nötig sind 80 %.": "Check against intake and weight: not enough data, {0} of {1} days with a complete log and a complete Garmin day, 80 % are needed."
+"Abgleich mit Aufnahme und Gewicht: nicht genug Daten, {0} von {1} Tagen mit vollständigem Log und Garmin-Tag, nötig sind 80 %.": "Check against intake and weight: not enough data, {0} of {1} days with a complete log and a complete Garmin day, 80 % are needed.",
+"Mehr als 10 % auseinander, aber die Verdauung ist ausgeschaltet und fehlt im korrigierten Verbrauch: schalte sie unter Einstellungen → Energieverbrauch zuerst ein, bevor du einen Faktor auf die Aktivkalorien setzt.": "More than 10 % apart, but digestion is switched off and missing from the corrected expenditure: switch it on under Settings → Energy expenditure before setting a factor on active kcal."
 }
 </script>
 <script>
@@ -5127,7 +5128,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     return out;
   }
   // { main, hint }: the comparison for the card's subtitle, and the hint below it
-  function adaptiveText(a) {
+  function adaptiveText(a, tefOff = false) {
     if (!a) return { main: "", hint: "" };
     if (!a.ok && a.since != null) return { main: "", hint: T("Abgleich mit Aufnahme und Gewicht: ab {0} möglich, {1} Tage nach dem Beginn der Korrektur.", [ddmm(a.from), a.window]) };
     if (!a.ok) return { main: "", hint: a.coverage < ADAPTIVE_COVERAGE
@@ -5137,7 +5138,10 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     const main = a.corrected == null
       ? T("≈ {0} kcal pro Tag aus Aufnahme und Gewicht, {1} Tage bis {2}", [r(a.tdee), a.window, ddmm(a.to)])
       : T("≈ {0} kcal pro Tag aus Aufnahme und Gewicht · Verbrauch korrigiert {1} ({2} %), {3} Tage bis {4}", [r(a.tdee), r(a.corrected), fmtSigned(a.pct), a.window, ddmm(a.to)]);
+    // Without TEF the corrected expenditure misses digestion, which intake and weight contain
     const hint = !a.hint ? ""
+      : tefOff
+        ? T("Mehr als 10 % auseinander, aber die Verdauung ist ausgeschaltet und fehlt im korrigierten Verbrauch: schalte sie unter Einstellungen → Energieverbrauch zuerst ein, bevor du einen Faktor auf die Aktivkalorien setzt.")
       : a.factor != null
         ? T("Mehr als 10 % auseinander: am ehesten stimmen Garmins Aktivkalorien nicht. Mit dem Faktor {0} auf die Aktivkalorien (Einstellungen → Energieverbrauch) passten beide zusammen; selftopo setzt ihn nicht selbst.", [fmt(a.factor, 2)])
         : T("Mehr als 10 % auseinander, mehr als ein Faktor zwischen 0,5 und 1,5 auf die Aktivkalorien erklärt: prüfe, ob im Log Mahlzeiten fehlen und ob die Messung stimmt.");
@@ -7875,7 +7879,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       // With a correction: does the corrected expenditure match intake and weight?
       const lastFull = Math.min(M.days.length - 1, M.index(todayT() - DAY));
       const check = corrected && lastFull >= 0 ? adaptiveTdee(M.days, lastFull, M.energy.adaptiveDays, correctionSince(M.energy, M.rmr)) : null;
-      const words = adaptiveText(check);
+      const words = adaptiveText(check, M.energy.tefMode === "off");
       $("tdee-burn-key").textContent = corrected ? T("Verbrauch korrigiert, Mittel {0} Tage", [M.energy.adaptiveDays]) : T("Garmin, Mittel 28 Tage");
       $("adaptive-check").hidden = !words.hint;
       $("adaptive-check").textContent = words.hint;
