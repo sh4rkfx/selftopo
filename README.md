@@ -488,7 +488,10 @@ for a fork, `SELFTOPO_CODE_REF` (default `v2`) for another version, see below.
 - Reports you upload under Befunde stay in `files/` of the data repository and in its Git history.
   PDFs with text are read in the browser; nothing leaves it for that. Only if you add the secret
   `ANTHROPIC_API_KEY` does the workflow *Read reports* send each new report file once to the
-  Anthropic API to read its values; they count only after you accept them in the dashboard.
+  Anthropic API to read its values. Unambiguous values (the report's own date, the measure once,
+  a plausible value with a fitting unit, no other value for that day) are entered as confirmed,
+  also when the dashboard reads a PDF by itself; the rest count only after you accept them. See
+  *measurements.csv* in [docs/data-reference.md](docs/data-reference.md).
 
 ## Versions and updates
 

@@ -1,10 +1,11 @@
-"""Values from report files in files/, read by the Claude API, as proposals to confirm.
+"""Values from report files in files/, read by the Claude API and entered by themselves.
 
 The dashboard uploads reports (PDF, JPG, PNG) to files/ in the data repository and reads PDFs with a
 text layer itself. Everything else, photos and scans above all, is evaluated here: each file that no
 row of measurements.csv points to and that was not evaluated before goes to the Anthropic Messages
-API once. The values it finds are written as rows with status `proposed`; they count only after
-they are confirmed in the dashboard. report_evaluations.json records which file was evaluated when
+API once. Unambiguous values are written as confirmed rows (source "automatisch gelesen"), the
+others with status `proposed`, which count only after they are confirmed in the dashboard; see
+to_rows for the rules. report_evaluations.json records which file was evaluated when
 and with what result, so no file is sent twice.
 
 Needs the secret ANTHROPIC_API_KEY. The report leaves the repository for this: it is sent to the
@@ -51,7 +52,7 @@ KINDS: dict[str, tuple[str, float | None, float | None]] = {
 
 PROMPT = """This is a medical or performance-test report of one person. Record every value of these kinds:
 - rmr_kcal: resting metabolic rate MEASURED by indirect calorimetry, in kcal per day
-  (not a formula such as Harris-Benedict)
+  (not a formula such as Harris-Benedict); with its 95 % and 99 % range if the report prints them
 - rer: respiratory exchange ratio (RER, RQ) of that resting measurement
 - vo2max_lab: VO2max or VO2peak relative to body weight in ml/kg/min (not absolute ml/min)
 - dexa_fat_pct: total body fat percentage, only from a DEXA/DXA scan
@@ -85,8 +86,13 @@ TOOL = {
                         "unit": {"type": ["string", "null"]},
                         "ref_low": {"type": ["number", "null"]},
                         "ref_high": {"type": ["number", "null"]},
+                        "range95_low": {"type": ["number", "null"], "description": "rmr_kcal only"},
+                        "range95_high": {"type": ["number", "null"], "description": "rmr_kcal only"},
+                        "range99_low": {"type": ["number", "null"], "description": "rmr_kcal only"},
+                        "range99_high": {"type": ["number", "null"], "description": "rmr_kcal only"},
                     },
-                    "required": ["kind", "name", "value", "unit", "ref_low", "ref_high"],
+                    "required": ["kind", "name", "value", "unit", "ref_low", "ref_high",
+                                 "range95_low", "range95_high", "range99_low", "range99_high"],
                     "additionalProperties": False,
                 },
             },
@@ -149,18 +155,43 @@ def _day(text: Any, today: date) -> date | None:
     return when if when <= today else None
 
 
-def to_rows(result: dict[str, Any], file: str, today: date) -> list[dict[str, str]]:
-    """Proposed rows from the tool input; values outside the plausible range are dropped.
+# Units a report may print for each kind; another unit makes the value ambiguous
+UNIT_ALIASES = {
+    "kcal/d": {"kcal/d", "kcal/day", "kcal/tag", "kcal/24h", "kcal/24 h", "kcal"},
+    "ml/kg/min": {"ml/kg/min", "ml/min/kg", "ml·kg-1·min-1", "ml/(kg*min)", "ml/kg*min"},
+    "%": {"%"}, "kg": {"kg"}, "cm": {"cm"}, "": {""},
+}
+AUTO_SOURCE = "automatisch gelesen"  # the same text as AUTO_SOURCE in the dashboard
+
+
+def to_rows(result: dict[str, Any], file: str, today: date,
+            existing: list[dict[str, str]] | None = None) -> list[dict[str, str]]:
+    """Rows from the tool input; values outside the plausible range are dropped.
+
+    A value is entered as confirmed when it is unambiguous, otherwise as a proposal: the report's
+    own date was read, the kind (for blood values: the name) appears once, the unit fits the kind,
+    a blood value has a unit, and `existing` has no other value for that day and kind.
 
     The date is the one Claude read; without a readable one, the date the dashboard put at the
-    start of the file name on upload (files/2026-11-23-befund.jpg). Without either, nothing.
+    start of the file name on upload (files/2026-11-23-befund.jpg), and every value is a proposal.
+    Without either, nothing.
     """
-    when = _day(result.get("date"), today) or _day(Path(file).name, today)
+    read = _day(result.get("date"), today)
+    when = read or _day(Path(file).name, today)
     if when is None:
         return []
+    items = [i for i in result.get("values") or [] if isinstance(i, dict)]
+    def key_of(item: dict[str, Any]) -> tuple[str, str]:
+        name = str(item.get("name") or "").strip().lower()
+        return (str(item.get("kind")), name if item.get("kind") == "blood" else "")
+    count: dict[tuple[str, str], int] = {}
+    for item in items:
+        count[key_of(item)] = count.get(key_of(item), 0) + 1
+    known = {(r.get("date"), r.get("kind"), (r.get("name") or "").strip().lower() if r.get("kind") == "blood" else "")
+             for r in existing or [] if r.get("status") != "proposed"}
     rows: list[dict[str, str]] = []
     seen: set[tuple[str, str]] = set()
-    for item in result.get("values") or []:
+    for item in items:
         kind = item.get("kind")
         value = _number(item.get("value"))
         if kind not in KINDS or value is None:
@@ -176,6 +207,17 @@ def to_rows(result: dict[str, Any], file: str, today: date) -> list[dict[str, st
             continue
         seen.add(key)
         ref_low, ref_high = _number(item.get("ref_low")), _number(item.get("ref_high"))
+        printed = str(item.get("unit") or "").strip()
+        aliases = {u.replace(" ", "") for u in UNIT_ALIASES.get(unit, {unit})}
+        unit_fits = bool(printed) if kind == "blood" else (not printed or printed.lower().replace(" ", "") in aliases)
+        clear = (read is not None and count[key] == 1 and unit_fits
+                 and (when.isoformat(), kind, name.lower()) not in known)
+        ranges = {f"range{p}_{e}": "" for p in ("95", "99") for e in ("low", "high")}
+        if kind == "rmr_kcal":
+            for p in ("95", "99"):
+                lo, hi = _number(item.get(f"range{p}_low")), _number(item.get(f"range{p}_high"))
+                if lo is not None and hi is not None and lo <= value <= hi:
+                    ranges.update({f"range{p}_low": _fmt(lo), f"range{p}_high": _fmt(hi)})
         rows.append({
             "id": f"{when.isoformat()}-{kind}-{secrets.token_hex(6)}",
             "date": when.isoformat(),
@@ -185,10 +227,11 @@ def to_rows(result: dict[str, Any], file: str, today: date) -> list[dict[str, st
             "unit": str(item.get("unit") or "").strip() if kind == "blood" else unit,
             "ref_low": "" if ref_low is None or kind != "blood" else _fmt(ref_low),
             "ref_high": "" if ref_high is None or kind != "blood" else _fmt(ref_high),
-            "source": "Claude",
-            "note": "",
+            "source": AUTO_SOURCE,
+            "note": "Claude",
             "file": file,
-            "status": "proposed",
+            "status": "confirmed" if clear else "proposed",
+            **ranges,
         })
     return rows
 
@@ -221,7 +264,7 @@ def ask_claude(path: Path, api_key: str, model: str) -> dict[str, Any] | None:
 
 
 def evaluate(api_key: str | None = None, model: str | None = None, today: date | None = None) -> dict[str, int]:
-    """Evaluates up to MAX_FILES_PER_RUN pending reports; returns counts of files and proposed values."""
+    """Evaluates up to MAX_FILES_PER_RUN pending reports; returns counts of files and values found."""
     api_key = api_key or os.environ.get("ANTHROPIC_API_KEY")
     if not api_key:
         raise config.SetupError(
@@ -261,10 +304,10 @@ def evaluate(api_key: str | None = None, model: str | None = None, today: date |
             counts["files"] += 1
             log.warning("reports: %s answered without values", rel)
             continue
-        # A value already in the file (same day, measure and number) is not proposed again, e.g.
+        # A value already in the file (same day, measure and number) is not entered again, e.g.
         # one the dashboard read from the same PDF while this run started
         same = {(r.get("date"), r.get("kind"), (r.get("name") or "").lower(), _number(r.get("value"))) for r in rows}
-        found = [r for r in to_rows(answer, rel, today)
+        found = [r for r in to_rows(answer, rel, today, rows)
                  if (r["date"], r["kind"], r["name"].lower(), _number(r["value"])) not in same]
         # Ids must be unique: the dashboard edits and deletes by id
         taken = {r.get("id") for r in rows}
@@ -273,10 +316,12 @@ def evaluate(api_key: str | None = None, model: str | None = None, today: date |
                 row["id"] = f"{row['date']}-{row['kind']}-{secrets.token_hex(6)}"
             taken.add(row["id"])
         rows.extend(found)
-        ledger[rel] = {"at": now, "result": "proposed" if found else "nothing", "values": len(found), "model": model}
+        confirmed = sum(r["status"] == "confirmed" for r in found)
+        ledger[rel] = {"at": now, "result": "entered" if found else "nothing", "values": len(found),
+                       "confirmed": confirmed, "model": model}
         counts["files"] += 1
         counts["values"] += len(found)
-        log.info("reports: %s → %d values proposed", rel, len(found))
+        log.info("reports: %s → %d values, %d entered, %d proposed", rel, len(found), confirmed, len(found) - confirmed)
     if counts["values"]:
         write_rows(config.MEASUREMENTS_CSV, FIELDS, sorted(rows, key=lambda r: (r.get("date", ""), r.get("kind", ""))))
     if pending:

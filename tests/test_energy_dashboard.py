@@ -59,7 +59,7 @@ def test_a_changed_measurement_rebuilds_the_expenditure(given):
     setter = re.search(r"  function setMeasurements\(rows\) \{.*?\n  \}", HTML, re.S).group(0)
     calls = HTML.count("setMeasurements(result.rows);")
     given(calls=calls)
-    assert "rebuildModel()" in setter and calls == 3
+    assert "rebuildModel()" in setter and calls == 4  # dialog, edit, review box, automatic reading
     assert "state.measurements = parseMeasurements(result.rows)" not in HTML
 
 

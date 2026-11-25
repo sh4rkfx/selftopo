@@ -107,7 +107,7 @@ def test_change_replaces_by_id_and_csv_is_sorted_and_quoted(given):
                    'a,2026-11-23,rmr_kcal,,2400,,,,,"nüchtern, 7:30",,,,,,\n')
 
 
-READ = ENTRY + ["REPORT_RULES", "ESTIMATE_LINE", "LAB_LINE", "LAB_SKIP", "reportDate", "hasUnclearDate", "decimalMark", "reportNumbers", "extractMeasures"]
+READ = ENTRY + ["REPORT_RULES", "OTHER_FIGURE", "valueBelow", "ESTIMATE_LINE", "LAB_LINE", "LAB_SKIP", "reportDate", "hasUnclearDate", "decimalMark", "reportNumbers", "extractMeasures"]
 
 LAB = """Labor Dr. Muster · Salzburg
 Abnahmedatum: 30.10.2026   Befunddatum: 31.10.2026

@@ -1625,6 +1625,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
           <p class="source">Quelle: measurements.csv · Dateien unter files/ im Daten-Repository</p>
         </div>
         <div class="card-actions"><button class="primary-btn" type="button" id="m-add">Befund eintragen</button><button class="ghost-btn" type="button" id="u-pick">Befund hochladen</button><input type="file" id="u-input" accept="application/pdf,image/jpeg,image/png" hidden><span class="sub" id="m-add-note"></span></div>
+        <p class="sub" id="befunde-auto" hidden></p>
         <div id="befunde-proposals"></div>
         <div id="befunde-list"></div>
       </div>
@@ -3686,7 +3687,12 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Abgleich mit Aufnahme und Gewicht: ab {0} möglich, {1} Tage nach dem Beginn der Korrektur.": "Check against intake and weight: possible from {0}, {1} days after the correction starts.",
 "Abgleich mit Aufnahme und Gewicht: nicht genug Daten, es fehlen Wiegungen am Anfang oder Ende der {0} Tage (mindestens 3 in 7 Tagen).": "Check against intake and weight: not enough data, weigh-ins are missing at the start or end of the {0} days (at least 3 in 7 days).",
 "Abgleich mit Aufnahme und Gewicht: nicht genug Daten, {0} von {1} Tagen mit vollständigem Log und Garmin-Tag, nötig sind 80 %.": "Check against intake and weight: not enough data, {0} of {1} days with a complete log and a complete Garmin day, 80 % are needed.",
-"Mehr als 10 % auseinander, aber die Verdauung ist ausgeschaltet und fehlt im korrigierten Verbrauch: schalte sie unter Einstellungen → Energieverbrauch zuerst ein, bevor du einen Faktor auf die Aktivkalorien setzt.": "More than 10 % apart, but digestion is switched off and missing from the corrected expenditure: switch it on under Settings → Energy expenditure before setting a factor on active kcal."
+"Mehr als 10 % auseinander, aber die Verdauung ist ausgeschaltet und fehlt im korrigierten Verbrauch: schalte sie unter Einstellungen → Energieverbrauch zuerst ein, bevor du einen Faktor auf die Aktivkalorien setzt.": "More than 10 % apart, but digestion is switched off and missing from the corrected expenditure: switch it on under Settings → Energy expenditure before setting a factor on active kcal.",
+"automatisch gelesen": "read automatically",
+"1 Wert": "1 value",
+"{0} Werte": "{0} values",
+"Aus {0} automatisch eingetragen: {1}; {2} warten unten auf dich.": "Entered automatically from {0}: {1}; {2} wait for you below.",
+"Aus {0} automatisch eingetragen: {1}.": "Entered automatically from {0}: {1}."
 }
 </script>
 <script>
@@ -3715,7 +3721,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   const DATE_LOCALE = LANG === "de" ? "de-AT" : "en-GB";
   // Semantic version of this dashboard, the same as selftopo.__version__ and the newest entry in
   // CHANGELOG.md (tests/test_versions.py keeps the three equal)
-  const APP_VERSION = "2.20.0";
+  const APP_VERSION = "2.21.0";
   // Day and month: "24.11." in German; in English "24 Nov", because "24/11" reads as a fraction
   // or, to US readers, as month/day
   const DM = LANG === "de" ? { day: "2-digit", month: "2-digit" } : { day: "numeric", month: "short" };
@@ -6803,6 +6809,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     $("m-add").disabled = $("u-pick").disabled = !canWrite;
     $("m-add-note").textContent = state.offlineSince ? T("Offline: Eintragen geht wieder mit Verbindung.")
       : state.source !== "github" ? T("Eintragen geht mit verbundenem Daten-Repository (Einstellungen → Verbindung).") : "";
+    $("befunde-auto").hidden = !state.autoRead?.length;
+    $("befunde-auto").textContent = state.autoRead?.length ? autoReadText(state.autoRead) : "";
     renderProposals(list.filter((m) => m.status === "proposed"), canWrite);
     const groups = measurementGroups(list);
     const host = $("befunde-list");
@@ -6836,7 +6844,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
         const ref = refState(m);
         const range = m.lo != null && m.hi != null ? `${fmt(m.lo, m.lo % 1 ? 1 : 0)}–${fmt(m.hi, m.hi % 1 ? 1 : 0)}`
           : m.hi != null ? T("bis {0}", [fmt(m.hi, m.hi % 1 ? 1 : 0)]) : m.lo != null ? T("ab {0}", [fmt(m.lo, m.lo % 1 ? 1 : 0)]) : null;
-        const detail = [longDate(m.t), m.source || null, n > 1 ? T("{0} Messungen", [n]) : null, range ? T("Ref. {0}", [range]) : null].filter(Boolean).join(" · ");
+        const detail = [longDate(m.t), m.source === AUTO_SOURCE ? T("automatisch gelesen") : m.source || null, n > 1 ? T("{0} Messungen", [n]) : null, range ? T("Ref. {0}", [range]) : null].filter(Boolean).join(" · ");
         return html("li", { class: "mrow" }, [
           html("span", { class: "n", text: m.kind === "blood" ? m.name : MEASURE_KINDS[m.kind].label }),
           html("span", { class: "v", text: rer ? `${fmtMeasure(m)} · RER ${fmt(rer.value, 2)}` : fmtMeasure(m) }),
@@ -6858,7 +6866,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
         html("thead", {}, html("tr", {}, [T("Datum"), T("Messgröße"), T("Wert"), T("Quelle"), ""].map((h) => html("th", { scope: "col", text: h })))),
         html("tbody", {}, rows.map((m) => html("tr", {}, [
           html("td", { text: ddmm(m.t) + new Date(m.t).getUTCFullYear() }), html("td", { text: label(m) }),
-          html("td", { class: "num", text: fmtMeasure(m) }), html("td", { text: m.source || "–" }), html("td", {}, editBtn(m)),
+          html("td", { class: "num", text: fmtMeasure(m) }), html("td", { text: m.source === AUTO_SOURCE ? T("automatisch gelesen") : m.source || "–" }), html("td", {}, editBtn(m)),
         ]))),
       ]);
       return html("details", { class: "daily" }, [html("summary", { text: T("Alle Einträge ({0})", [rows.length]) }), html("div", { class: "table-wrap" }, table)]);
@@ -7205,8 +7213,12 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   // layer and need the evaluation through the Claude API in the data repository's workflow.
 
   const REPORT_RULES = [
-    { kind: "rmr_kcal", re: /(?:ruhe(?:energie)?umsatz|resting metabolic rate|\bRMR\b|\bREE\b)[^\d\n]{0,40}(\d[\d.,]{2,6})\s*kcal/i },
-    { kind: "rer", re: /(?:\bRER\b|\bRQ\b|respiratorische[rn]? quotient|respiratory exchange ratio)[^\d\n]{0,25}(0[.,]\d{1,3}|1[.,]0\d?)/i },
+    // label: a heading whose value stands at the start of one of the next lines, as in SpiroFit's
+    // tiles ("RMR" … "2.455 kcal/d"); below: that value
+    { kind: "rmr_kcal", re: /(?:ruhe(?:energie)?umsatz|resting metabolic rate|\bRMR\b|\bREE\b)[^\d\n]{0,40}(\d[\d.,]{2,6})\s*kcal/i,
+      label: /^\s*(?:RMR|REE|ruhe(?:energie)?umsatz|resting metabolic rate)\b/i, below: /^\s*(\d[\d.,]{2,6})\s*kcal/i },
+    { kind: "rer", re: /(?:\bRER\b|\bRQ\b|respiratorische[rn]? quotient|respiratory exchange ratio)[^\d\n]{0,25}(0[.,]\d{1,3}|1[.,]0\d?)/i,
+      label: /^\s*(?:RER|RQ)\b/i, below: /^\s*(0[.,]\d{1,3}|1[.,]0\d?)\s*$/ },
     { kind: "vo2max_lab", re: /(?:V\S?O2\s*[-_ ]?(?:max|peak))[^\d\n]{0,40}(\d{2}(?:[.,]\d{1,2})?)\s*(?:ml\s*\/\s*kg\s*\/\s*min|ml\s*\/\s*min\s*\/\s*kg|ml\s*\/\s*\(?kg\s*[*·x]\s*min\)?)/i },
     // Body composition only from a DEXA report, not a caliper or scale value printed elsewhere
     { kind: "dexa_fat_pct", needs: /\b(?:DEXA|DXA)\b/i, re: /(?:körperfett(?:anteil)?|gesamtfett(?:anteil)?|total body fat|body fat|fettanteil)[^\d\n]{0,25}(\d{1,2}[.,]\d)\s*%/i },
@@ -7215,6 +7227,20 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   ];
   // A line that names a formula or a predicted value is never a measurement: "Ruheumsatz
   // (Harris-Benedict)", "VO2max Soll", "predicted RMR"
+  // A heading of another figure: a comparison or the day's total, never the measurement itself
+  const OTHER_FIGURE = /vergleich|lebensstil|gesamt|TDEE|empfohlen|comparison|total|lifestyle|recommended/i;
+  // The value under a heading: the first of the next 3 lines that starts with it
+  function valueBelow(lines, rule) {
+    for (let i = 0; i < lines.length; i++) {
+      if (!rule.label.test(lines[i]) || ESTIMATE_LINE.test(lines[i]) || OTHER_FIGURE.test(lines[i])) continue;
+      for (let j = i + 1; j <= i + 3 && j < lines.length; j++) {
+        if (ESTIMATE_LINE.test(lines[j])) break;
+        const m = rule.below.exec(lines[j]);
+        if (m) return m;
+      }
+    }
+    return null;
+  }
   const ESTIMATE_LINE = /harris|benedict|mifflin|jeor|katch|cunningham|schofield|formel|formula|estimat|predicted|geschätzt|berechnet|calculated|\bsoll(?:wert)?\b|vorhersage|% ?(?:des |of )?soll/i;
   // A lab line: name, value (with an optional H/L flag), unit, reference "30 - 400", "< 116" or "> 40"
   const LAB_LINE = /^([A-Za-zÄÖÜäöüß][A-Za-zÄÖÜäöüß0-9 \-()./,]{1,40}?)\s+[<>]?\s?(\d{1,5}(?:[.,]\d{1,3})?)\s*(?:[+*!]|\b[HLhl]\b)?\s+([a-zA-Zµμ%/][a-zA-Zµμ%/0-9.^*]{0,11})\s+(?:(\d{1,5}(?:[.,]\d{1,3})?)\s*[-–]\s*(\d{1,5}(?:[.,]\d{1,3})?)|[<≤]\s*(\d{1,5}(?:[.,]\d{1,3})?)|[>≥]\s*(\d{1,5}(?:[.,]\d{1,3})?))/;
@@ -7277,6 +7303,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       if (rule.needs && !rule.needs.test(text)) continue;
       let m = null;
       for (const line of lines) if (!ESTIMATE_LINE.test(line) && (m = rule.re.exec(line))) break;
+      if (!m && rule.label) m = valueBelow(lines, rule);
       const k = MEASURE_KINDS[rule.kind];
       // Of two readings, the one in the plausible range
       const value = m ? reportNumbers(m[1], mark).find((v) => v >= k.min && v <= k.max) : undefined;
@@ -7458,6 +7485,72 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       if (thenManual) openMeasureDialog(null, { file: up.path, date });
     }, 700);
   }
+  // ---- Reports read by themselves. Values that are unambiguous are entered as confirmed, the rest
+  // as proposals for the review box; same rules as selftopo/reports.py. Unambiguous: the report's own
+  // date, the kind once in the report, a plausible value, a name and unit for a blood value, and no
+  // other value for that day and kind. A value that is already there is skipped.
+  const AUTO_SOURCE = "automatisch gelesen";
+  function reportRows(found, file, existing, fallbackDate) {
+    const date = found.date || fallbackDate;
+    if (!date) return [];
+    const same = (a, b) => a.kind === b.kind && (a.kind !== "blood" || (a.name || "").toLowerCase() === (b.name || "").toLowerCase());
+    const suffix = Math.random().toString(36).slice(2, 6);
+    const rows = [];
+    found.items.forEach((it, i) => {
+      const before = existing.filter((m) => m.date === date && same(m, it));
+      if (before.some((m) => m.value === it.value)) return;
+      const k = MEASURE_KINDS[it.kind];
+      const clear = Boolean(found.date) && found.items.filter((x) => same(x, it)).length === 1 && !before.length
+        && (k.min == null || (it.value >= k.min && it.value <= k.max)) && (it.kind !== "blood" || Boolean(it.name && it.unit));
+      rows.push({
+        id: `${date}-${it.kind}-${suffix}${i}`, date, kind: it.kind, name: it.name || "", value: String(it.value),
+        unit: it.kind === "blood" ? it.unit || "" : k.unit, ref_low: it.lo == null ? "" : String(it.lo), ref_high: it.hi == null ? "" : String(it.hi),
+        source: AUTO_SOURCE, note: "", file, status: clear ? "confirmed" : "proposed",
+      });
+    });
+    return rows;
+  }
+  // When the dashboard opens with write access: PDFs under files/ that no row names yet, at most 3 per
+  // visit. A file without a readable value is remembered in this browser (by its version) and left
+  // for the Claude reader of the workflow, which also reads photos and scans.
+  const AUTO_READ_KEY = "selftopo.autoRead";
+  const AUTO_READ_MAX = 3;
+  const unreadReports = (list, rows, tried) => (Array.isArray(list) ? list : [])
+    .filter((f) => f.type === "file" && /\.pdf$/i.test(f.name) && f.size <= REPORT_MAX_BYTES && tried[f.path] !== f.sha
+      && !rows.some((m) => m.file === f.path))
+    .slice(0, AUTO_READ_MAX);
+  async function autoReadReports(cred = loadCredentials()) {
+    if (state.source !== "github" || !cred || cred.repo !== state.dataRepo || state.offlineSince) return [];
+    let list;
+    try {
+      const res = await githubRequest(cred, "/contents/files");
+      if (!res.ok) return [];
+      list = await res.json();
+    } catch { return []; }
+    let tried = {};
+    try { tried = JSON.parse(localStorage.getItem(AUTO_READ_KEY) || "{}") || {}; } catch { /* nothing remembered */ }
+    const done = [];
+    for (const f of unreadReports(list, state.measurements?.list || [], tried)) {
+      let found = null;
+      try {
+        const res = await githubRequest(cred, `/contents/${f.path}`, true);
+        if (res.ok) found = extractMeasures(await pdfText(new Uint8Array(await res.arrayBuffer())));
+      } catch { found = null; }
+      const rows = found ? reportRows(found, f.path, state.measurements?.list || [], /^(\d{4}-\d{2}-\d{2})-/.exec(f.name)?.[1] || null) : [];
+      if (!rows.length) { tried[f.path] = f.sha; continue; }
+      const result = await writeMeasurements({ put: rows }, `Dashboard: read ${rows.length} values from ${f.path}`);
+      if (!result.ok) break; // a read-only token or a conflict: next visit
+      setMeasurements(result.rows);
+      done.push({ file: f.path, confirmed: rows.filter((r) => r.status === "confirmed").length, proposed: rows.filter((r) => r.status === "proposed").length });
+    }
+    try { localStorage.setItem(AUTO_READ_KEY, JSON.stringify(tried)); } catch { /* read again next time */ }
+    if (done.length) { state.autoRead = done; render(); }
+    return done;
+  }
+  const valuesText = (n) => (n === 1 ? T("1 Wert") : T("{0} Werte", [n]));
+  const autoReadText = (done) => done.map((d) => d.proposed
+    ? T("Aus {0} automatisch eingetragen: {1}; {2} warten unten auf dich.", [d.file.split("/").pop(), valuesText(d.confirmed), valuesText(d.proposed)])
+    : T("Aus {0} automatisch eingetragen: {1}.", [d.file.split("/").pop(), valuesText(d.confirmed)])).join(" ");
   function setupReports() {
     $("u-pick").addEventListener("click", () => $("u-input").click());
     $("u-input").addEventListener("change", () => { const f = $("u-input").files[0]; $("u-input").value = ""; if (f) openReport(f); });
@@ -10151,6 +10244,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
           renderRangeButtons();
           render();
           fillSettings();
+          autoReadReports(); // in the background; renders again when it entered something
         } finally {
           for (const b of document.querySelectorAll('[data-action="refresh"]')) { b.classList.remove("busy"); b.disabled = false; }
           loading = null;
