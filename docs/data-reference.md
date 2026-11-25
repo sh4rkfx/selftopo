@@ -209,18 +209,32 @@ has *Contents: Read and write*; with a read-only token it gives you the lines to
 *Befund hochladen* stores a PDF, JPG or PNG (up to 5 MB) under `files/` and, for a PDF with a text
 layer, reads the values in the browser with pdf.js (a copy in `dashboard/vendor/`, no CDN) and fixed rules (resting metabolic rate and
 RER, lab VO2max in ml/kg/min, DEXA values only from a DEXA report, waist, and lab lines with a
-reference range). They are shown ticked for review; values already entered are unticked. Report
+reference range), also a value printed below its heading as in SpiroFit's report tiles ("RMR" …
+"2.455 kcal/d"), never one under a comparison, lifestyle or total figure. They are shown ticked for
+review; values already entered are unticked. Report
 files go to `files/` in the data repository and stay in its Git history, even after they are
 deleted.
 
+**Entered by themselves.** When the dashboard opens with a token that can write, it reads up to
+three PDFs under `files/` that no row names yet (also ones uploaded another way) and enters what it
+finds. A value is *unambiguous* and saved as confirmed when the report's own date was read, its kind
+(for blood values: its name) appears once, it lies in the kind's plausible range, its unit fits
+(blood values need one), and there is no other value for that day and kind; anything else is saved
+as `proposed` for the review box. Values already there are skipped. Rows get `source`
+`automatisch gelesen` and the file; the Befunde card says what was entered. A PDF without readable
+values is remembered in that browser by its version; the Claude reader reads every file once and
+adds what the dashboard missed.
+
 Photos, scans and PDFs without readable values can be read by the Claude API instead
 (`python -m selftopo evaluate-reports`, run by the workflow *Read reports* after each upload, only
-with the secret `ANTHROPIC_API_KEY`). Every file in `files/` that no row points to and that was
-not read before is sent once; up to five per run. Without a legible date on the report, the upload
-date at the start of the file name counts. Its values are added with `status` `proposed` and
-`source` `Claude`; the dashboard shows them in a box to accept or discard and leaves them out of
-everything else until then. `report_evaluations.json` records each file read, when, the result
-(`proposed`, `nothing`, `too_large`, `no_answer` when the model replied without the tool, `error_400` or `error_413` when the API refused the file, which is tried again once the model changes; a wrong key or model stops the run and records nothing; delete an entry to have the file read again) and the model, so no file is sent twice. The model is set
+with the secret `ANTHROPIC_API_KEY`). Every file in `files/` that it has not read before is sent
+once, up to five per run, also one the dashboard took values from: Claude then adds only values for
+a day and measure that has none yet. Without a legible date on the report, the upload
+date at the start of the file name counts, and every value is only proposed. The same rules decide
+between `confirmed` and `proposed`; rows get `source` `automatisch gelesen` and `note` `Claude`, a
+resting metabolic rate also its 95 % and 99 % range if the report prints them. Proposals wait in a
+box to accept or discard and are left out of everything else until then. `report_evaluations.json` records each file read, when, the result
+(`entered` with the number of values and how many were confirmed, `nothing`, `too_large`, `no_answer` when the model replied without the tool, `error_400` or `error_413` when the API refused the file, which is tried again once the model changes; a wrong key or model stops the run and records nothing; delete an entry to have the file read again) and the model, so no file is sent twice. The model is set
 with the repository variable `SELFTOPO_CLAUDE_MODEL` (default `claude-sonnet-5-5`). The daily
 sync does not touch either file.
 

@@ -6,6 +6,25 @@ wording change the patch version; within a major version, data files and setting
 compatible. The workflow in each data repository follows the tag of its major version (`v2`,
 before that `v1`).
 
+## 2.21.0 – 2026-11-25
+
+[#149](https://github.com/sh4rkfx/selftopo/pull/149)
+
+### Dashboard
+
+- Values from an uploaded report are entered by themselves: when the dashboard opens with write
+  access it reads PDFs under `files/` that no row names yet and saves unambiguous values as
+  confirmed (report's own date, the kind once, plausible value, fitting unit, no other value for
+  that day), the rest as proposals for the review box. The Befunde card says what was entered;
+  the rows show *automatisch gelesen*.
+- The PDF reader finds values printed below their heading, as in SpiroFit's resting test
+  (RMR 2,455 kcal/d, RER 0.77), and skips comparison, lifestyle and total figures next to them.
+
+### Reports
+
+- The Claude reader of the workflow applies the same rules: unambiguous values are confirmed,
+  others proposed; it also reads the 95 % and 99 % range of a resting metabolic rate.
+
 ## 2.20.0 – 2026-11-25
 
 [#147](https://github.com/sh4rkfx/selftopo/pull/147)

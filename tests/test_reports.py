@@ -27,14 +27,15 @@ def data(tmp_path, monkeypatch):
     return tmp_path
 
 
-def test_only_new_unreferenced_reports_are_pending(data, given):
-    """A file a row points to, one already evaluated and a text file are skipped."""
+def test_only_new_reports_are_pending(data, given):
+    """One already evaluated and a text file are skipped; a file the dashboard took values from is
+    still read once, for what it missed."""
     for name in ("a.pdf", "b.jpg", "c.png", "notes.txt"):
         (data / "files" / name).write_bytes(b"x")
     rows = [{"file": "files/a.pdf"}]
     pending = reports.pending_files(data, rows, {"files/b.jpg": {"result": "nothing"}})
     given(pending=pending)
-    assert pending == ["files/c.png"]
+    assert pending == ["files/a.pdf", "files/c.png"]
 
 
 def test_symlinks_are_never_sent(data, given):
@@ -60,9 +61,10 @@ def test_a_linked_files_folder_is_not_read(data, tmp_path, given):
     assert pending == []
 
 
-def test_tool_result_becomes_checked_proposals(given):
-    """Plausible values become proposed rows; a VO2max of 4.4 (l/min read as ml/kg/min), a blood value
-    without name and a second Ferritin are dropped; units come from the kind, not from the answer."""
+def test_tool_result_becomes_checked_rows(given):
+    """Plausible values become rows; a VO2max of 4.4 (l/min read as ml/kg/min), a blood value without
+    name and a second Ferritin are dropped; units come from the kind, not from the answer. Ferritin,
+    printed twice with different values, is ambiguous and only proposed."""
     result = {"date": "2026-11-23", "values": [
         {"kind": "rmr_kcal", "value": 2455, "unit": "kcal"},
         {"kind": "rer", "value": 0.77},
@@ -76,7 +78,8 @@ def test_tool_result_becomes_checked_proposals(given):
     assert [(r["kind"], r["name"], r["value"], r["unit"], r["ref_low"], r["ref_high"]) for r in rows] == [
         ("rmr_kcal", "", "2455", "kcal/d", "", ""), ("rer", "", "0.77", "", "", ""),
         ("blood", "Ferritin", "86", "µg/l", "30", "400")]
-    assert {r["status"] for r in rows} == {"proposed"} and {r["file"] for r in rows} == {"files/x.pdf"}
+    assert [r["status"] for r in rows] == ["confirmed", "confirmed", "proposed"] and {r["file"] for r in rows} == {"files/x.pdf"}
+    assert {r["source"] for r in rows} == {"automatisch gelesen"}
 
 
 def test_no_rows_without_a_valid_past_date(given):
@@ -96,8 +99,9 @@ def test_upload_date_in_the_file_name_when_the_report_has_none(given):
     assert [r["date"] for r in none] == ["2026-11-20"] and [r["date"] for r in read] == ["2026-11-18"]
 
 
-def test_evaluate_writes_proposals_and_remembers_files(data, monkeypatch, given):
-    """One file with values, one without; a failing request is not remembered, so it is tried again."""
+def test_evaluate_enters_values_and_remembers_files(data, monkeypatch, given):
+    """One file with values, one without; a failing request is not remembered, so it is tried again.
+    The unambiguous HbA1c is entered as confirmed."""
     for name in ("lab.pdf", "photo.jpg", "broken.png", "chatty.png"):
         (data / "files" / name).write_bytes(b"x")
     write_rows(data / "measurements.csv", reports.FIELDS, [{"id": "a", "date": "2026-11-01", "kind": "waist_cm", "value": "91", "status": "confirmed"}])
@@ -118,7 +122,8 @@ def test_evaluate_writes_proposals_and_remembers_files(data, monkeypatch, given)
     given(counts=counts, ledger=ledger)
     assert counts == {"files": 3, "values": 1, "failed": 1, "waiting": 0}
     assert [(r["kind"], r["name"], r["status"], r["file"]) for r in rows] == [
-        ("blood", "HbA1c", "proposed", "files/lab.pdf"), ("waist_cm", "", "confirmed", "")]
+        ("blood", "HbA1c", "confirmed", "files/lab.pdf"), ("waist_cm", "", "confirmed", "")]
+    assert ledger["files/lab.pdf"]["result"] == "entered" and ledger["files/lab.pdf"]["confirmed"] == 1
     assert set(ledger) == {"files/lab.pdf", "files/photo.jpg", "files/chatty.png"} and ledger["files/photo.jpg"]["result"] == "nothing"
     assert ledger["files/chatty.png"]["result"] == "no_answer"
     assert reports.pending_files(data, rows, ledger) == ["files/broken.png"]
@@ -201,13 +206,65 @@ def test_request_sends_pdf_as_document_with_a_strict_tool(data, monkeypatch, giv
     assert sent["headers"]["x-api-key"] == "key" and body["model"] == "model-x"
 
 
-def test_values_already_entered_are_not_proposed_again(data, monkeypatch, given):
-    """The dashboard saved Ferritin 86 from the same PDF: only the new HbA1c becomes a proposal."""
+def test_values_already_entered_are_not_entered_again(data, monkeypatch, given):
+    """The dashboard saved Ferritin 86 from the same PDF: only the new HbA1c is added."""
     (data / "files" / "lab.pdf").write_bytes(b"x")
     write_rows(data / "measurements.csv", reports.FIELDS, [{"id": "a", "date": "2026-10-30", "kind": "blood", "name": "Ferritin", "value": "86", "status": "confirmed"}])
     monkeypatch.setattr(reports, "ask_claude", lambda *a: {"date": "2026-10-30", "values": [
         {"kind": "blood", "name": "ferritin", "value": 86.0, "unit": "µg/l"}, {"kind": "blood", "name": "HbA1c", "value": 5.4, "unit": "%"}]})
     reports.evaluate(api_key="k", today=TODAY)
-    proposed = [r["name"] for r in read_rows(data / "measurements.csv") if r["status"] == "proposed"]
-    given(proposed=proposed)
-    assert proposed == ["HbA1c"]
+    added = [r["name"] for r in read_rows(data / "measurements.csv") if r["source"] == "automatisch gelesen"]
+    given(added=added)
+    assert added == ["HbA1c"]
+
+
+def test_rows_are_confirmed_only_when_unambiguous(given):
+    """Confirmed only with the report's own date, the kind once, a fitting unit, a unit for blood values
+    and no other value for that day; otherwise a proposal."""
+    def status(values, date="2026-11-23", existing=None, file="files/x.pdf"):
+        return [r["status"] for r in reports.to_rows({"date": date, "values": values}, file, TODAY, existing)]
+    rmr = {"kind": "rmr_kcal", "value": 2455, "unit": "kcal/d"}
+    cases = {
+        "clear": status([rmr]),
+        "date only from the file name": status([rmr], date=None, file="files/2026-11-23-test.pdf"),
+        "twice in the report": status([rmr, {**rmr, "value": 2390}]),
+        "unit does not fit": status([{**rmr, "unit": "kJ/d"}]),
+        "blood without unit": status([{"kind": "blood", "name": "Ferritin", "value": 86, "unit": None}]),
+        "another value that day": status([rmr], existing=[{"date": "2026-11-23", "kind": "rmr_kcal", "value": "2390", "status": "confirmed"}]),
+        "only a proposal that day": status([rmr], existing=[{"date": "2026-11-23", "kind": "rmr_kcal", "value": "2390", "status": "proposed"}]),
+    }
+    given(cases=cases)
+    assert cases == {"clear": ["confirmed"], "date only from the file name": ["proposed"], "twice in the report": ["proposed"],
+                     "unit does not fit": ["proposed"], "blood without unit": ["proposed"], "another value that day": ["proposed"],
+                     "only a proposal that day": ["confirmed"]}
+
+
+def test_rmr_range_is_read(given):
+    """The 95 % and 99 % range of a resting metabolic rate are kept when they contain the value; the schema asks for them."""
+    rows = reports.to_rows({"date": "2026-11-23", "values": [{"kind": "rmr_kcal", "value": 2390, "unit": "kcal/d",
+                            "range95_low": 2110, "range95_high": 2670, "range99_low": 2500, "range99_high": 2760}]}, "files/x.pdf", TODAY)
+    props = reports.TOOL["input_schema"]["properties"]["values"]["items"]["properties"]
+    given(row=rows[0])
+    assert (rows[0]["range95_low"], rows[0]["range95_high"]) == ("2110", "2670") and rows[0]["range99_low"] == ""
+    assert {"range95_low", "range95_high", "range99_low", "range99_high"} <= set(props) and "95 % and 99 % range" in reports.PROMPT
+
+
+def test_rmr_99_range_must_contain_the_95_range(given):
+    """A 99 % range narrower than the 95 % range is dropped; the 95 % range stays."""
+    rows = reports.to_rows({"date": "2026-11-23", "values": [{"kind": "rmr_kcal", "value": 2390, "unit": "kcal/d",
+                            "range95_low": 2110, "range95_high": 2670, "range99_low": 2200, "range99_high": 2600}]}, "files/x.pdf", TODAY)
+    given(row=rows[0])
+    assert (rows[0]["range95_low"], rows[0]["range95_high"], rows[0]["range99_low"], rows[0]["range99_high"]) == ("2110", "2670", "", "")
+
+
+def test_claude_adds_only_what_the_dashboard_missed(data, monkeypatch, given):
+    """The dashboard took RMR 2,455 from the PDF; Claude reads it too and adds only the missed Ferritin."""
+    (data / "files" / "r.pdf").write_bytes(b"x")
+    write_rows(data / "measurements.csv", reports.FIELDS, [{"id": "a", "date": "2026-11-23", "kind": "rmr_kcal", "value": "2455",
+                                                             "status": "confirmed", "file": "files/r.pdf", "source": "automatisch gelesen"}])
+    monkeypatch.setattr(reports, "ask_claude", lambda *a: {"date": "2026-11-23", "values": [
+        {"kind": "rmr_kcal", "value": 2454.8, "unit": "kcal/d"}, {"kind": "blood", "name": "Ferritin", "value": 86, "unit": "µg/l"}]})
+    reports.evaluate(api_key="k", today=TODAY)
+    got = [(r["kind"], r["value"], r["status"]) for r in read_rows(data / "measurements.csv")]
+    given(rows=got)
+    assert sorted(got) == [("blood", "86", "confirmed"), ("rmr_kcal", "2455", "confirmed")]
