@@ -412,7 +412,7 @@ def test_coverage_threshold(given):
     text = js(ADAPT + ["nf", "fmt", "fmtSigned", "fmtDate", "ddmm", "adaptiveText"], f"adaptiveText({json.dumps(short)}).hint")
     given(short=short, enough=enough["ok"], text=text)
     assert short["ok"] is False and short["logged"] == 22 and enough["ok"] is True
-    assert text == "Abgleich mit Aufnahme und Gewicht: nicht genug Daten, 22 von 28 Tagen vollständig geloggt, nötig sind 80 %."
+    assert text == "Abgleich mit Aufnahme und Gewicht: nicht genug Daten, 22 von 28 Tagen mit vollständigem Log und Garmin-Tag, nötig sind 80 %."
 
 
 def test_difference_kcal_and_percent(given):
@@ -502,3 +502,13 @@ def test_newest_measurement_bounds_the_check_without_a_factor(given):
     since = run(["correctionSince"], "[correctionSince({ rmrMode: 'factor' }, [{ from: 1, factor: 1.1 }, { from: 5, factor: null }]), correctionSince({ rmrMode: 'off' }, [{ from: 5, factor: 1 }]) === -Infinity]")
     given(since=since)
     assert since == [5, True]
+
+
+def test_adaptive_sample_needs_garmin_days_too(given):
+    """Complete logs on 28 days but Garmin only on 10 of them: below 80 % of days with both, so no comparison."""
+    expr = """(() => { const t0 = isoToT('2026-11-24') - 39 * DAY, days = [];
+      for (let i = 0; i < 40; i++) days.push({ t: t0 + i * DAY, kcal: 2500, weight: 90 - 0.05 * i, burnedFull: i >= 30 ? 3000 : null, rest: 2390, activeGarmin: 610, tef: null });
+      rollingMean(days, "weight", "weight7", 7); return adaptiveTdee(days, 39, 28); })()"""
+    a = run(ADAPT, expr)
+    given(ok=a["ok"], logged=a["logged"])
+    assert a["ok"] is False and a["logged"] == 10

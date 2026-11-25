@@ -1146,7 +1146,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
         <div class="info" hidden>
           <p>Aus deinen eigenen Messungen berechnet: mittlere Aufnahme der vollständig geloggten Tage der letzten 28 Tage minus die Gewichtsänderung in dieser Zeit, umgerechnet mit 7.700 kcal pro kg. Nimmst du bei 2.000 kcal ein halbes Kilo pro Woche ab, liegt dein Verbrauch bei etwa 2.550 kcal. Das ist das Prinzip, mit dem auch Apps wie MacroFactor arbeiten.</p>
           <p>Er beruht auf deinem Gewichtsverlauf statt auf einer Schätzung der Uhr. Was beim Loggen fehlt oder zu niedrig geschätzt wird, etwa von einer Fotoerkennung, macht ihn um denselben Betrag zu niedrig; er ist also der Verbrauch in deinen geloggten Kalorien. Zum Steuern taugt er trotzdem: Bei dieser geloggten Menge hältst du dein Gewicht. Wasser verschiebt das Gewicht kurzfristig; über 28 Tage gleicht sich das weitgehend aus. Gestrichelt zum Vergleich der Verbrauch laut Garmin im selben Zeitraum.</p>
-          <p>Mit einer Korrektur unter Einstellungen → Energieverbrauch wird daraus der Abgleich: Gewicht als 7-Tage-Mittel an Anfang und Ende des Fensters (Standard 28 Tage), mindestens 80 % vollständig geloggte Tage, verglichen mit dem korrigierten Verbrauch derselben Tage. Liegen beide über mindestens 28 Tage mehr als 10 % auseinander, nennt die Karte den Faktor auf Garmins Aktivkalorien, mit dem sie zusammenpassten. Gesetzt wird er nur von dir.</p>
+          <p>Mit einer Korrektur unter Einstellungen → Energieverbrauch wird daraus der Abgleich: Gewicht als 7-Tage-Mittel an Anfang und Ende des Fensters (Standard 28 Tage), mindestens 80 % der Tage mit vollständigem Log und Garmin-Tag, verglichen mit dem korrigierten Verbrauch derselben Tage. Liegen beide über mindestens 28 Tage mehr als 10 % auseinander, nennt die Karte den Faktor auf Garmins Aktivkalorien, mit dem sie zusammenpassten. Gesetzt wird er nur von dir.</p>
           <p class="source">Quelle: nutrition_daily.csv · calories_kcal · garmin_daily.csv · weight_kg, calories_total · mindestens 14 vollständige Tage und 6 Wiegungen in 28 Tagen</p>
         </div>
         <div class="legend"><span><i class="key-line" style="background:var(--s1)"></i>aus Aufnahme und Gewicht</span><span><i class="key-dash"></i><span id="tdee-burn-key">Garmin, Mittel 28 Tage</span></span></div>
@@ -3673,7 +3673,6 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Verbrauch (Garmin)": "Expenditure (Garmin)",
 "Mit einer Korrektur unter Einstellungen → Energieverbrauch (gemessener Ruheumsatz, Verdauung, Faktor auf Aktivkalorien) ist die gestrichelte Linie der korrigierte Verbrauch, das Band seine Spanne und die senkrechte Linie der Tag der Messung. Die Zeile darüber teilt ihn in Ruheumsatz, Aktivkalorien und Verdauung, gemittelt über die Tage seit der Messung, höchstens 7; Tage, die Garmin noch nicht abgeschlossen hat, zählen nicht.": "With a correction under Settings → Energy expenditure (measured RMR, digestion, factor on active kcal), the dashed line is the corrected expenditure, the band its range and the vertical line the day of the measurement. The line above splits it into resting, active and digestion, averaged over the days since the measurement, at most 7; days Garmin has not finished do not count.",
 "adaptiveTdeeDays muss eine ganze Zahl zwischen 21 und 90 sein, nicht „{0}“.": "adaptiveTdeeDays must be a whole number between 21 and 90, not “{0}”.",
-"Abgleich mit Aufnahme und Gewicht: nicht genug Daten, {0} von {1} Tagen vollständig geloggt, nötig sind 80 %.": "Check against intake and weight: not enough data, {0} of {1} days logged completely, 80 % are needed.",
 "Mehr als 10 % auseinander: am ehesten stimmen Garmins Aktivkalorien nicht. Mit dem Faktor {0} auf die Aktivkalorien (Einstellungen → Energieverbrauch) passten beide zusammen; selftopo setzt ihn nicht selbst.": "More than 10 % apart: most likely Garmin's active kcal are off. A factor of {0} on active kcal (Settings → Energy expenditure) would make both match; selftopo does not set it by itself.",
 "Verbrauch aus Aufnahme und Gewicht, {0} Tage": "Expenditure from intake and weight, {0} days",
 "<i class=\"key-line\" style=\"background:var(--s3)\"></i>aus Aufnahme und Gewicht": "<i class=\"key-line\" style=\"background:var(--s3)\"></i>from intake and weight",
@@ -3684,9 +3683,10 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Verbrauch korrigiert, {0} Tage": "Expenditure corrected, {0} days",
 "Verbrauch korrigiert, Mittel {0} Tage": "Expenditure corrected, {0}-day mean",
 "Garmin, Mittel 28 Tage": "Garmin, 28-day mean",
-"Mit einer Korrektur unter Einstellungen → Energieverbrauch wird daraus der Abgleich: Gewicht als 7-Tage-Mittel an Anfang und Ende des Fensters (Standard 28 Tage), mindestens 80 % vollständig geloggte Tage, verglichen mit dem korrigierten Verbrauch derselben Tage. Liegen beide über mindestens 28 Tage mehr als 10 % auseinander, nennt die Karte den Faktor auf Garmins Aktivkalorien, mit dem sie zusammenpassten. Gesetzt wird er nur von dir.": "With a correction under Settings → Energy expenditure this becomes the check: weight as a 7-day mean at the start and end of the window (28 days by default), at least 80 % completely logged days, compared with the corrected expenditure of the same days. If both are more than 10 % apart over at least 28 days, the card names the factor on Garmin's active kcal that would make them match. Only you set it.",
+"Mit einer Korrektur unter Einstellungen → Energieverbrauch wird daraus der Abgleich: Gewicht als 7-Tage-Mittel an Anfang und Ende des Fensters (Standard 28 Tage), mindestens 80 % der Tage mit vollständigem Log und Garmin-Tag, verglichen mit dem korrigierten Verbrauch derselben Tage. Liegen beide über mindestens 28 Tage mehr als 10 % auseinander, nennt die Karte den Faktor auf Garmins Aktivkalorien, mit dem sie zusammenpassten. Gesetzt wird er nur von dir.": "With a correction under Settings → Energy expenditure this becomes the check: weight as a 7-day mean at the start and end of the window (28 days by default), at least 80 % of the days with a complete log and a complete Garmin day, compared with the corrected expenditure of the same days. If both are more than 10 % apart over at least 28 days, the card names the factor on Garmin's active kcal that would make them match. Only you set it.",
 "Abgleich mit Aufnahme und Gewicht: ab {0} möglich, {1} Tage nach dem Beginn der Korrektur.": "Check against intake and weight: possible from {0}, {1} days after the correction starts.",
-"Abgleich mit Aufnahme und Gewicht: nicht genug Daten, es fehlen Wiegungen am Anfang oder Ende der {0} Tage (mindestens 3 in 7 Tagen).": "Check against intake and weight: not enough data, weigh-ins are missing at the start or end of the {0} days (at least 3 in 7 days)."
+"Abgleich mit Aufnahme und Gewicht: nicht genug Daten, es fehlen Wiegungen am Anfang oder Ende der {0} Tage (mindestens 3 in 7 Tagen).": "Check against intake and weight: not enough data, weigh-ins are missing at the start or end of the {0} days (at least 3 in 7 days).",
+"Abgleich mit Aufnahme und Gewicht: nicht genug Daten, {0} von {1} Tagen mit vollständigem Log und Garmin-Tag, nötig sind 80 %.": "Check against intake and weight: not enough data, {0} of {1} days with a complete log and a complete Garmin day, 80 % are needed."
 }
 </script>
 <script>
@@ -5094,7 +5094,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   // close the gap. Nothing is changed by itself.
   function adaptiveTdee(days, i, window = ADAPTIVE_DAYS, since = -Infinity) {
     const win = days.slice(Math.max(0, i - window + 1), i + 1).filter((d) => d.t > days[i].t - window * DAY);
-    const logged = win.filter((d) => d.kcal != null);
+    // One sample for both sides: days with a complete log and a complete Garmin day
+    const logged = win.filter((d) => d.kcal != null && d.burnedFull != null);
     const coverage = logged.length / window;
     // The window must lie after the start of the correction in force, or it mixes raw and corrected days
     if (win[0].t < since) return { ok: false, coverage, logged: logged.length, window, since, from: since + (window - 1) * DAY };
@@ -5130,7 +5131,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     if (!a) return { main: "", hint: "" };
     if (!a.ok && a.since != null) return { main: "", hint: T("Abgleich mit Aufnahme und Gewicht: ab {0} möglich, {1} Tage nach dem Beginn der Korrektur.", [ddmm(a.from), a.window]) };
     if (!a.ok) return { main: "", hint: a.coverage < ADAPTIVE_COVERAGE
-      ? T("Abgleich mit Aufnahme und Gewicht: nicht genug Daten, {0} von {1} Tagen vollständig geloggt, nötig sind 80 %.", [a.logged, a.window])
+      ? T("Abgleich mit Aufnahme und Gewicht: nicht genug Daten, {0} von {1} Tagen mit vollständigem Log und Garmin-Tag, nötig sind 80 %.", [a.logged, a.window])
       : T("Abgleich mit Aufnahme und Gewicht: nicht genug Daten, es fehlen Wiegungen am Anfang oder Ende der {0} Tage (mindestens 3 in 7 Tagen).", [a.window]) };
     const r = (v) => fmt(Math.round(v / 10) * 10);
     const main = a.corrected == null
@@ -5318,7 +5319,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     rollingMean(days, "burnLowFull", "burnLow7", 7, 3);
     rollingMean(days, "burnHighFull", "burnHigh7", 7, 3);
     // Adaptive check per day, only with a correction (Garmin alone already has "Verbrauch laut deinem Log")
-    const checked = energyCorrected(energy, rmr);
+    const checked = energyCorrected(energy, rmr.slice(-1)); // the correction in force now
     for (let i = 0; i < days.length; i++) {
       const a = checked && days[i].t < today ? adaptiveTdee(days, i, energy.adaptiveDays, correctionSince(energy, rmr)) : null;
       days[i].adaptive = a?.ok ? a.tdee : null;
@@ -7864,7 +7865,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       const corrected = energyCorrected(M.energy, M.rmr);
       // With a correction: does the corrected expenditure match intake and weight?
       const lastFull = Math.min(M.days.length - 1, M.index(todayT() - DAY));
-      const check = corrected && lastFull >= 0 ? adaptiveTdee(M.days, lastFull, M.energy.adaptiveDays, correctionSince(M.energy, M.rmr)) : null;
+      const check = energyCorrected(M.energy, M.rmr.slice(-1)) && lastFull >= 0 ? adaptiveTdee(M.days, lastFull, M.energy.adaptiveDays, correctionSince(M.energy, M.rmr)) : null;
       const words = adaptiveText(check);
       $("tdee-burn-key").textContent = corrected ? T("Verbrauch korrigiert, Mittel {0} Tage", [M.energy.adaptiveDays]) : T("Garmin, Mittel 28 Tage");
       $("adaptive-check").hidden = !words.hint;
