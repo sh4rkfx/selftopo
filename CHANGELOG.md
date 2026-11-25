@@ -6,6 +6,20 @@ wording change the patch version; within a major version, data files and setting
 compatible. The workflow in each data repository follows the tag of its major version (`v2`,
 before that `v1`).
 
+## 2.20.0 – 2026-11-25
+
+[#147](https://github.com/sh4rkfx/selftopo/pull/147)
+
+### Dashboard
+
+- Adaptive check of the corrected expenditure: with a correction on, *Verbrauch laut deinem Log*
+  compares the expenditure from intake and the change of the 7-day mean weight (default 28 days,
+  at least 21, 80 % of the days logged completely, otherwise *not enough data*) with the corrected
+  expenditure of the same days, in kcal and %. More than 10 % apart over at least 28 days names
+  the factor on Garmin's active kcal that would close the gap, or asks to check log and
+  measurement; it is never set by itself. *Kalorien pro Tag* draws the adaptive value as its own
+  line. New setting `adaptiveTdeeDays`.
+
 ## 2.19.0 – 2026-11-25
 
 [#146](https://github.com/sh4rkfx/selftopo/pull/146)

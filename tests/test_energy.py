@@ -21,7 +21,7 @@ from selftopo import energy, reports
 from selftopo.csvstore import write_rows
 
 HELPERS = ["DAY", "isoToT", "tToIso", "RMR_MODES", "RMR_REF_DAYS", "RMR_REF_MIN_DAYS", "TEF_MODES", "TEF_KCAL_PER_G", "TEF_COEFFICIENTS",
-           "TEF_FLAT_PERCENT", "TEF_FALLBACK_DAYS", "ACTIVE_UNCERTAINTY", "readEnergySettings", "rmrReference", "rmrPeriods", "rmrPeriodAt", "tefFor", "applyEnergy"]
+           "TEF_FLAT_PERCENT", "TEF_FALLBACK_DAYS", "ACTIVE_UNCERTAINTY", "ADAPTIVE_DAYS", "ADAPTIVE_MIN_DAYS", "ADAPTIVE_MAX_DAYS", "ADAPTIVE_COVERAGE", "ADAPTIVE_HINT", "ADAPTIVE_MIN_WEIGHINS", "readEnergySettings", "rmrReference", "rmrPeriods", "rmrPeriodAt", "tefFor", "applyEnergy"]
 TODAY = date(2026, 11, 25)
 MEASURED = date(2026, 11, 23)
 
@@ -375,3 +375,165 @@ def test_balance_uses_corrected_total(tmp_path, given):
     assert frame.loc[DAY.isoformat(), "expenditure_kcal"] == pytest.approx(frame.loc[DAY.isoformat(), "resting_kcal"] + frame.loc[DAY.isoformat(), "active_kcal"] + 256.3)
     from selftopo import recommend
     assert 'data.mean("expenditure_kcal", 28, minimum=7)' in open(recommend.__file__, encoding="utf-8").read()
+
+
+# --------------------------------------------------------------------------- adaptive check
+
+ADAPT = HELPERS + ["KCAL_PER_KG", "rollingMean", "adaptiveTdee"]
+
+
+def adaptive(window=28, logged_days=None, burned=3000, noise=0.5, rest=2390, active=700, n=40):
+    """n days ending 24.11.: 2,500 kcal on logged days, weight −0.05 kg/day ± `noise` alternating, the check on the last day."""
+    logged_days = n if logged_days is None else logged_days
+    expr = f"""(() => {{ const t0 = isoToT('2026-11-24') - {n - 1} * DAY, days = [];
+      for (let i = 0; i < {n}; i++) days.push({{ t: t0 + i * DAY, kcal: i >= {n} - {logged_days} ? 2500 : null, weight: 90 - 0.05 * i + (i % 2 ? {noise} : -{noise}),
+        burnedFull: {burned}, rest: {rest}, activeGarmin: {active}, tef: null }});
+      rollingMean(days, "weight", "weight7", 7);
+      return adaptiveTdee(days, days.length - 1, {window}); }})()"""
+    return run(ADAPT, expr)
+
+
+def test_adaptive_tdee_smoothing_and_window(given):
+    """2,500 kcal a day and −0.05 kg a day give 2,500 + 0.05 × 7,700 = 2,885 kcal. With ±0.5 kg from
+    weigh-in to weigh-in, single weigh-ins at both ends would be off by about 285 kcal (1 kg over 27
+    days); the 7-day means stay within 50. 21 days work, 20 are refused."""
+    a28, a21 = adaptive(), adaptive(window=21)
+    problems = run(HELPERS, "(() => { const p = []; const s = readEnergySettings({ adaptiveTdeeDays: 20 }, p); return [s.adaptiveDays, p.length, readEnergySettings({ adaptiveTdeeDays: 21 }).adaptiveDays]; })()")
+    given(tdee_28=a28["tdee"], tdee_21=a21["tdee"], setting_20=problems)
+    raw_error = 1.0 / 27 * 7700
+    assert a28["ok"] and abs(a28["tdee"] - 2885) < 50 < raw_error and a21["ok"] and abs(a21["tdee"] - 2885) < 60
+    assert problems == [28, 1, 21]
+
+
+def test_coverage_threshold(given):
+    """22 of 28 days logged (79 %) is not enough data; 23 of 28 (82 %) is."""
+    from jsdashboard import run as js
+    short, enough = adaptive(logged_days=22), adaptive(logged_days=23)
+    text = js(ADAPT + ["nf", "fmt", "fmtSigned", "fmtDate", "ddmm", "adaptiveText"], f"adaptiveText({json.dumps(short)}).hint")
+    given(short=short, enough=enough["ok"], text=text)
+    assert short["ok"] is False and short["logged"] == 22 and enough["ok"] is True
+    assert text == "Abgleich mit Aufnahme und Gewicht: nicht genug Daten, 22 von 28 Tagen mit vollständigem Log und Garmin-Tag, nötig sind 80 %."
+
+
+def test_difference_kcal_and_percent(given):
+    """Corrected 3,000 against 2,885: +115 kcal, +4 %, shown in the card's subtitle."""
+    a = adaptive()
+    text = run(ADAPT + ["nf", "fmt", "fmtSigned", "fmtDate", "ddmm", "adaptiveText"], f"adaptiveText({json.dumps(a)})")
+    given(diff=a["diff"], pct=a["pct"], text=text)
+    assert a["diff"] == pytest.approx(3000 - a["tdee"]) and a["pct"] == pytest.approx(a["diff"] / a["tdee"] * 100)
+    shown = f"{round(a['tdee'] / 10) * 10:,}".replace(",", ".")
+    assert text["main"] == f"≈ {shown} kcal pro Tag aus Aufnahme und Gewicht · Verbrauch korrigiert 3.000 (+{round(a['pct'])} %), 28 Tage bis 24.11." and text["hint"] == ""
+
+
+def test_hint_over_ten_percent_never_automatic(given):
+    """Corrected 3,300 is about 15 % over the adaptive 2,844: over 28 days a hint with the active-kcal factor (2,844 − 2,390) / 700 = 0.65;
+    over 21 days no hint; a gap no factor in 0.5–1.5 closes names the log and the measurement; the factor is never set."""
+    a = adaptive(burned=3300)
+    short = adaptive(burned=3300, window=21)
+    wide = adaptive(burned=4500, rest=2900)  # resting alone above the adaptive value
+    texts = run(ADAPT + ["nf", "fmt", "fmtSigned", "fmtDate", "ddmm", "adaptiveText"], f"[adaptiveText({json.dumps(a)}).hint, adaptiveText({json.dumps(wide)}).hint, adaptiveText({json.dumps(a)}, true).hint]")
+    from jsdashboard import declaration
+    given(pct=a["pct"], factor=a["factor"], hint=texts[0])
+    assert a["hint"] is True and a["factor"] == round((a["tdee"] - 2390) / 700, 2) == 0.65 and short["hint"] is False
+    assert "Mit dem Faktor 0,65 auf die Aktivkalorien" in texts[0] and "selftopo setzt ihn nicht selbst" in texts[0]
+    assert wide["factor"] is None and "Mahlzeiten fehlen" in texts[1]
+    # with TEF off the gap may be digestion: no factor, switch TEF on first
+    assert "die Verdauung ist ausgeschaltet" in texts[2] and "Faktor 0,65" not in texts[2]
+    assert "activeKcalFactor" not in declaration("adaptiveTdee") and "activeKcalFactor" not in declaration("rebuildModel")
+
+
+def test_adaptive_compares_the_logged_days(given):
+    """Days without a complete log stay out of the corrected mean too: 23 of 28 logged at 3,000 kcal
+    expenditure, the 5 unlogged days at 5,000, and the comparison still uses 3,000."""
+    expr = """(() => { const t0 = isoToT('2026-11-24') - 39 * DAY, days = [];
+      for (let i = 0; i < 40; i++) { const log = i < 35 || i % 2 === 0 || i === 39;
+        days.push({ t: t0 + i * DAY, kcal: log ? 2500 : null, weight: 90 - 0.05 * i, burnedFull: log ? 3000 : 5000, rest: 2390, activeGarmin: 610, tef: null }); }
+      rollingMean(days, "weight", "weight7", 7); return adaptiveTdee(days, 39, 28); })()"""
+    a = run(ADAPT, expr)
+    given(logged=a["logged"], corrected=a["corrected"])
+    assert a["ok"] and a["corrected"] == pytest.approx(3000)
+
+
+def test_adaptive_uses_the_weighed_interval(given):
+    """Weigh-ins from day 4 of the window on, so the smoothed weight (3 weigh-ins) starts on day 6: intake before it (5,000 kcal) stays out."""
+    expr = """(() => { const t0 = isoToT('2026-11-24') - 27 * DAY, days = [];
+      for (let i = 0; i < 28; i++) days.push({ t: t0 + i * DAY, kcal: i < 6 ? 5000 : 2500, weight: i < 4 ? null : 90, burnedFull: 3000, rest: 2390, activeGarmin: 610, tef: null });
+      rollingMean(days, "weight", "weight7", 7); return adaptiveTdee(days, 27, 28); })()"""
+    a = run(ADAPT, expr)
+    given(tdee=a["tdee"])
+    assert a["ok"] and a["tdee"] == pytest.approx(2500)
+
+
+def test_adaptive_waits_for_a_window_after_the_correction(given):
+    """A measurement on 10.11. makes the 28-day window to 24.11. a mix of raw and corrected days: no check,
+    instead the date from which it is possible (37 days after 10.11. minus one: 07.12.)."""
+    expr = """(() => { const t0 = isoToT('2026-11-24') - 39 * DAY, days = [];
+      for (let i = 0; i < 40; i++) days.push({ t: t0 + i * DAY, kcal: 2500, weight: 90 - 0.05 * i, burnedFull: 3000, rest: 2390, activeGarmin: 610, tef: null });
+      rollingMean(days, "weight", "weight7", 7);
+      const a = adaptiveTdee(days, 39, 28, isoToT('2026-11-10'));
+      return [a.ok, tToIso(a.from), adaptiveText(a).hint, adaptiveTdee(days, 39, 28, isoToT('2026-10-20')).ok]; })()"""
+    ok, possible, hint, earlier = run(ADAPT + ["nf", "fmt", "fmtSigned", "fmtDate", "ddmm", "adaptiveText"], expr)
+    given(possible=possible, hint=hint)
+    assert ok is False and possible == "2026-12-07" and hint == "Abgleich mit Aufnahme und Gewicht: ab 07.12. möglich, 28 Tage nach dem Beginn der Korrektur."
+    assert earlier is True
+
+
+def test_adaptive_needs_three_weighins_at_each_end(given):
+    """One weigh-in a week gives a 7-day mean of a single day: not enough; three in the end weeks are."""
+    expr = """(() => { const run = (every) => { const t0 = isoToT('2026-11-24') - 39 * DAY, days = [];
+        for (let i = 0; i < 40; i++) days.push({ t: t0 + i * DAY, kcal: 2500, weight: i % every === 0 ? 90 - 0.05 * i : null, burnedFull: 3000, rest: 2390, activeGarmin: 610, tef: null });
+        rollingMean(days, "weight", "weight7", 7); return adaptiveTdee(days, 39, 28).ok; };
+      return [run(7), run(2)]; })()"""
+    weekly, every_other_day = run(ADAPT, expr)
+    given(weekly=weekly, every_other_day=every_other_day)
+    assert weekly is False and every_other_day is True
+
+
+def test_adaptive_hint_needs_a_28_day_weight_span(given):
+    """Weigh-ins only from day 7 of a 28-day window: the check runs over 21 days but gives no factor hint, even 14 % apart."""
+    expr = """(() => { const t0 = isoToT('2026-11-24') - 39 * DAY, days = [];
+      for (let i = 0; i < 40; i++) days.push({ t: t0 + i * DAY, kcal: 2500, weight: i >= 16 ? 90 - 0.05 * i : null, burnedFull: 3300, rest: 2390, activeGarmin: 700, tef: null });
+      rollingMean(days, "weight", "weight7", 7); return adaptiveTdee(days, 39, 28); })()"""
+    a = run(ADAPT, expr)
+    given(ok=a["ok"], pct=a["pct"], hint=a["hint"])
+    assert a["ok"] and abs(a["pct"]) > 10 and a["hint"] is False
+
+
+def test_newest_measurement_bounds_the_check_without_a_factor(given):
+    """A measurement without a factor bounds the window only when it ends an older correction."""
+    since = run(["correctionSince"], "[correctionSince({ rmrMode: 'factor' }, [{ from: 1, factor: 1.1 }, { from: 5, factor: null }]), correctionSince({ rmrMode: 'off' }, [{ from: 5, factor: 1 }]) === -Infinity,"
+                " correctionSince({ rmrMode: 'factor' }, [{ from: 5, factor: null }]) === -Infinity, correctionSince({ rmrMode: 'factor' }, [{ from: 1, factor: 1.1 }, { from: 3, factor: null }, { from: 7, factor: null }])]")
+    given(since=since)
+    # a factorless measurement after no correction changes nothing; after another factorless one neither
+    assert since == [5, True, True, 3]
+
+
+def test_adaptive_sample_needs_garmin_days_too(given):
+    """Complete logs on 28 days but Garmin only on 10 of them: below 80 % of days with both, so no comparison."""
+    expr = """(() => { const t0 = isoToT('2026-11-24') - 39 * DAY, days = [];
+      for (let i = 0; i < 40; i++) days.push({ t: t0 + i * DAY, kcal: 2500, weight: 90 - 0.05 * i, burnedFull: i >= 30 ? 3000 : null, rest: 2390, activeGarmin: 610, tef: null });
+      rollingMean(days, "weight", "weight7", 7); return adaptiveTdee(days, 39, 28); })()"""
+    a = run(ADAPT, expr)
+    given(ok=a["ok"], logged=a["logged"])
+    assert a["ok"] is False and a["logged"] == 10
+
+
+def test_adaptive_stays_fast_with_a_long_sparse_history(given):
+    """Five years of weekly weigh-ins: checking every day stays well under a second."""
+    expr = """(() => { const n = 1830, t0 = isoToT('2026-11-24') - (n - 1) * DAY, days = [];
+      for (let i = 0; i < n; i++) days.push({ t: t0 + i * DAY, kcal: 2500, weight: i % 7 ? null : 90, burnedFull: 3000, rest: 2390, activeGarmin: 610, tef: null });
+      rollingMean(days, "weight", "weight7", 7); const s = Date.now();
+      for (let i = 0; i < n; i++) adaptiveTdee(days, i, 28); return Date.now() - s; })()"""
+    ms = run(ADAPT, expr)
+    given(ms=ms)
+    assert ms < 1000
+
+
+def test_adaptive_sample_needs_both_garmin_columns(given):
+    """A day with Garmin's total but no active kcal cannot be corrected, so it stays out of the sample."""
+    expr = """(() => { const t0 = isoToT('2026-11-24') - 39 * DAY, days = [];
+      for (let i = 0; i < 40; i++) days.push({ t: t0 + i * DAY, kcal: 2500, weight: 90 - 0.05 * i, burnedFull: 3000, rest: i >= 30 ? 2390 : null, activeGarmin: i >= 30 ? 610 : null, tef: null });
+      rollingMean(days, "weight", "weight7", 7); return adaptiveTdee(days, 39, 28); })()"""
+    a = run(ADAPT, expr)
+    given(ok=a["ok"], logged=a["logged"])
+    assert a["ok"] is False and a["logged"] == 10
