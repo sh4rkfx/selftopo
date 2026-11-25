@@ -58,6 +58,9 @@ def test_value_below_its_label(given):
     # Under a heading of another figure nothing is taken
     other = extract("Ruheumsatz im Vergleich\n1.350 kcal/d\n")
     assert other["items"] == []
+    # Another figure's heading between the RMR heading and a value: that value is not the RMR
+    between = extract("RMR\nTotal energy expenditure\n3.805 kcal/d\n")
+    assert between["items"] == []
 
 
 def test_unambiguous_rules(given):

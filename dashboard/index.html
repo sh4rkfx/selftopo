@@ -7238,7 +7238,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     for (let i = 0; i < lines.length; i++) {
       if (!rule.label.test(lines[i]) || ESTIMATE_LINE.test(lines[i]) || OTHER_FIGURE.test(lines[i])) continue;
       for (let j = i + 1; j <= i + 3 && j < lines.length; j++) {
-        if (ESTIMATE_LINE.test(lines[j])) break;
+        // A formula or another figure's heading in between: what follows belongs to that
+        if (ESTIMATE_LINE.test(lines[j]) || OTHER_FIGURE.test(lines[j])) break;
         const m = rule.below.exec(lines[j]);
         if (m) return m;
       }
