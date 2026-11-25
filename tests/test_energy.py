@@ -527,3 +527,13 @@ def test_adaptive_stays_fast_with_a_long_sparse_history(given):
     ms = run(ADAPT, expr)
     given(ms=ms)
     assert ms < 1000
+
+
+def test_adaptive_sample_needs_both_garmin_columns(given):
+    """A day with Garmin's total but no active kcal cannot be corrected, so it stays out of the sample."""
+    expr = """(() => { const t0 = isoToT('2026-11-24') - 39 * DAY, days = [];
+      for (let i = 0; i < 40; i++) days.push({ t: t0 + i * DAY, kcal: 2500, weight: 90 - 0.05 * i, burnedFull: 3000, rest: i >= 30 ? 2390 : null, activeGarmin: i >= 30 ? 610 : null, tef: null });
+      rollingMean(days, "weight", "weight7", 7); return adaptiveTdee(days, 39, 28); })()"""
+    a = run(ADAPT, expr)
+    given(ok=a["ok"], logged=a["logged"])
+    assert a["ok"] is False and a["logged"] == 10

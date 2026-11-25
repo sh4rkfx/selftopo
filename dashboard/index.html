@@ -5095,7 +5095,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   function adaptiveTdee(days, i, window = ADAPTIVE_DAYS, since = -Infinity) {
     const win = days.slice(Math.max(0, i - window + 1), i + 1).filter((d) => d.t > days[i].t - window * DAY);
     // One sample for both sides: days with a complete log and a complete Garmin day
-    const logged = win.filter((d) => d.kcal != null && d.burnedFull != null);
+    // (with both Garmin columns, so the correction could apply and the factor has its parts)
+    const logged = win.filter((d) => d.kcal != null && d.burnedFull != null && d.rest != null && d.activeGarmin != null);
     const coverage = logged.length / window;
     // The window must lie after the start of the correction in force, or it mixes raw and corrected days
     if (win[0].t < since) return { ok: false, coverage, logged: logged.length, window, since, from: since + (window - 1) * DAY };
