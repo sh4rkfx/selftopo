@@ -214,10 +214,17 @@ def to_rows(result: dict[str, Any], file: str, today: date,
                  and (when.isoformat(), kind, name.lower()) not in known)
         ranges = {f"range{p}_{e}": "" for p in ("95", "99") for e in ("low", "high")}
         if kind == "rmr_kcal":
+            got = {}
             for p in ("95", "99"):
                 lo, hi = _number(item.get(f"range{p}_low")), _number(item.get(f"range{p}_high"))
                 if lo is not None and hi is not None and lo <= value <= hi:
-                    ranges.update({f"range{p}_low": _fmt(lo), f"range{p}_high": _fmt(hi)})
+                    got[p] = (lo, hi)
+            # The 99 % range contains the 95 % range, as the dashboard's dialog requires; otherwise
+            # the 95 % range alone is kept
+            if "95" in got and "99" in got and not (got["99"][0] <= got["95"][0] and got["95"][1] <= got["99"][1]):
+                del got["99"]
+            for p, (lo, hi) in got.items():
+                ranges.update({f"range{p}_low": _fmt(lo), f"range{p}_high": _fmt(hi)})
         rows.append({
             "id": f"{when.isoformat()}-{kind}-{secrets.token_hex(6)}",
             "date": when.isoformat(),

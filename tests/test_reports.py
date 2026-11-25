@@ -246,3 +246,11 @@ def test_rmr_range_is_read(given):
     given(row=rows[0])
     assert (rows[0]["range95_low"], rows[0]["range95_high"]) == ("2110", "2670") and rows[0]["range99_low"] == ""
     assert {"range95_low", "range95_high", "range99_low", "range99_high"} <= set(props) and "95 % and 99 % range" in reports.PROMPT
+
+
+def test_rmr_99_range_must_contain_the_95_range(given):
+    """A 99 % range narrower than the 95 % range is dropped; the 95 % range stays."""
+    rows = reports.to_rows({"date": "2026-11-23", "values": [{"kind": "rmr_kcal", "value": 2390, "unit": "kcal/d",
+                            "range95_low": 2110, "range95_high": 2670, "range99_low": 2200, "range99_high": 2600}]}, "files/x.pdf", TODAY)
+    given(row=rows[0])
+    assert (rows[0]["range95_low"], rows[0]["range95_high"], rows[0]["range99_low"], rows[0]["range99_high"]) == ("2110", "2670", "", "")

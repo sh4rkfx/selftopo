@@ -7535,7 +7535,9 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       list = await res.json();
     } catch { return []; }
     let tried = {};
-    try { tried = JSON.parse(localStorage.getItem(AUTO_READ_KEY) || "{}") || {}; } catch { /* nothing remembered */ }
+    // Per repository: the same file in another data repository is read there too
+    const key = `${AUTO_READ_KEY}:${cred.repo}`;
+    try { tried = JSON.parse(localStorage.getItem(key) || "{}") || {}; } catch { /* nothing remembered */ }
     const done = [];
     for (const f of unreadReports(list, state.measurements?.list || [], tried)) {
       let found = null;
@@ -7551,7 +7553,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       setMeasurements(result.rows);
       done.push({ file: f.path, confirmed: rows.filter((r) => r.status === "confirmed").length, proposed: rows.filter((r) => r.status === "proposed").length });
     }
-    try { localStorage.setItem(AUTO_READ_KEY, JSON.stringify(tried)); } catch { /* read again next time */ }
+    try { localStorage.setItem(key, JSON.stringify(tried)); } catch { /* read again next time */ }
     if (done.length) { state.autoRead = done; render(); }
     return done;
   }

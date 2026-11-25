@@ -121,4 +121,5 @@ def test_auto_read_is_retried_and_never_overlaps(given):
                     existing=[{"date": "2026-11-23", "kind": "rmr_kcal", "value": 2390, "name": "", "status": "proposed"}])
     given(status=[r["status"] for r in proposal])
     assert "if (found) tried[f.path] = f.sha;" in body and "autoReading ||=" in guard
+    assert "const key = `${AUTO_READ_KEY}:${cred.repo}`;" in body  # remembered per data repository
     assert [r["status"] for r in proposal] == ["confirmed"]
