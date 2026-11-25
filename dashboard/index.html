@@ -5029,13 +5029,16 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     return periods;
   }
 
-  // Whether anything changes Garmin's expenditure: a measured RMR in use, TEF or an active factor
-  const energyCorrected = (energy, periods) => (energy.rmrMode !== "off" && periods.length > 0) || energy.tefMode !== "off" || energy.activeKcalFactor !== 1;
+  // Whether anything changes Garmin's expenditure: a measured RMR in use (in factor mode only one
+  // with a factor, i.e. with Garmin data before it), TEF or an active factor
+  const energyCorrected = (energy, periods) => periods.some((p) => energy.rmrMode === "absolute" || (energy.rmrMode === "factor" && p.factor != null))
+    || energy.tefMode !== "off" || energy.activeKcalFactor !== 1;
   // The days of the breakdown: the 7 before today, from the newest measurement in use on, without
   // days Garmin has not finished. Its resting kcal hardly changes from day to day, so a day below 90 %
   // of the median of the last 28 was synced before it ended.
   function breakdownDays(days, periods, energy, today) {
-    const start = energy.rmrMode !== "off" && periods.length ? periods[periods.length - 1].from : -Infinity;
+    const used = periods.filter((p) => energy.rmrMode === "absolute" || (energy.rmrMode === "factor" && p.factor != null));
+    const start = used.length ? used[used.length - 1].from : -Infinity;
     const sorted = days.filter((d) => d.t < today && d.t >= today - 28 * DAY && d.restGarmin > 0).map((d) => d.restGarmin).sort((a, b) => a - b);
     if (!sorted.length) return [];
     const median = sorted.length % 2 ? sorted[sorted.length >> 1] : (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2;

@@ -131,3 +131,13 @@ def test_breakdown_leaves_out_unfinished_days(given):
     given(with_rmr=with_rmr, without=without)
     assert with_rmr == ["2026-11-21", "2026-11-22", "2026-11-23"]
     assert without == ["2026-11-18", "2026-11-19", "2026-11-20", "2026-11-21", "2026-11-22", "2026-11-23"]
+
+
+def test_correction_is_named_only_where_it_applies(given):
+    """A factor-mode RMR without Garmin data before it has no factor: nothing is corrected, so nothing is called corrected."""
+    def corrected(mode, factor, tef="off"):
+        return run(["energyCorrected"], f"energyCorrected({{ rmrMode: '{mode}', tefMode: '{tef}', activeKcalFactor: 1 }}, [{{ factor: {json.dumps(factor)} }}])")
+    cases = {"factor without factor": corrected("factor", None), "factor": corrected("factor", 1.117), "absolute": corrected("absolute", None),
+             "off": corrected("off", 1.117), "tef only": corrected("off", None, "macro")}
+    given(cases=cases)
+    assert cases == {"factor without factor": False, "factor": True, "absolute": True, "off": False, "tef only": True}
