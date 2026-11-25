@@ -450,3 +450,13 @@ def test_adaptive_compares_the_logged_days(given):
     a = run(ADAPT, expr)
     given(logged=a["logged"], corrected=a["corrected"])
     assert a["ok"] and a["corrected"] == pytest.approx(3000)
+
+
+def test_adaptive_uses_the_weighed_interval(given):
+    """Weight only from day 6 of the window on: intake before it (5,000 kcal) stays out, the 2,500 in the weighed span count."""
+    expr = """(() => { const t0 = isoToT('2026-11-24') - 27 * DAY, days = [];
+      for (let i = 0; i < 28; i++) days.push({ t: t0 + i * DAY, kcal: i < 6 ? 5000 : 2500, weight: i < 6 ? null : 90, burnedFull: 3000, rest: 2390, activeGarmin: 610, tef: null });
+      rollingMean(days, "weight", "weight7", 7); return adaptiveTdee(days, 27, 28); })()"""
+    a = run(ADAPT, expr)
+    given(tdee=a["tdee"])
+    assert a["ok"] and a["tdee"] == pytest.approx(2500)

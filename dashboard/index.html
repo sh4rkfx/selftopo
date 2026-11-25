@@ -5097,9 +5097,11 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     const first = win.find((d) => d.weight7 != null), last = [...win].reverse().find((d) => d.weight7 != null);
     const span = first && last ? (last.t - first.t) / DAY : 0;
     if (coverage < ADAPTIVE_COVERAGE || span < window - 7) return { ok: false, coverage, logged: logged.length, window, weight: span >= window - 7 };
-    const tdee = logged.reduce((a, d) => a + d.kcal, 0) / logged.length - ((last.weight7 - first.weight7) / span) * KCAL_PER_KG;
+    // Intake and expenditure over the same days the weight change covers
+    const inSpan = logged.filter((d) => d.t >= first.t && d.t <= last.t);
+    const tdee = inSpan.reduce((a, d) => a + d.kcal, 0) / inSpan.length - ((last.weight7 - first.weight7) / span) * KCAL_PER_KG;
     // The same days as the intake, so a skipped day with unusual activity does not tilt the comparison
-    const burned = logged.filter((d) => d.burnedFull != null);
+    const burned = inSpan.filter((d) => d.burnedFull != null);
     const out = { ok: true, tdee, coverage, logged: logged.length, window, from: win[0].t, to: days[i].t, corrected: null, diff: null, pct: null, hint: false, factor: null };
     if (!burned.length) return out;
     const m = (f) => burned.reduce((a, d) => a + (f(d) ?? 0), 0) / burned.length;
