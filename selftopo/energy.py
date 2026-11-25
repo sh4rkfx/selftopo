@@ -44,6 +44,7 @@ TEF_COEFFICIENTS = {
 TEF_FLAT_PERCENT = 10.0
 TEF_FALLBACK_DAYS = 14  # a day without a complete log: flat % of the mean intake of these days
 MIN_COMPLETE_KCAL = 1200  # same as analyze.MIN_COMPLETE_KCAL and the dashboard
+ACTIVE_UNCERTAINTY = 0.15  # ± share of active kcal in the range of the expenditure
 
 
 @dataclass
@@ -53,6 +54,7 @@ class Settings:
     tef_mode: str = "off"
     tef_flat_percent: float = TEF_FLAT_PERCENT
     tef: dict[str, dict[str, float]] = field(default_factory=lambda: {k: dict(v) for k, v in TEF_COEFFICIENTS.items()})
+    active_kcal_factor: float = 1.0
 
 
 def read_settings(settings: dict[str, Any], problems: list[str] | None = None) -> Settings:
@@ -99,6 +101,13 @@ def read_settings(settings: dict[str, Any], problems: list[str] | None = None) -
                 out.tef[variant][name] = value
             else:
                 problems.append(f'"{key}.{name}" must be a share between 0 and 0.5, not {raw!r}')
+    factor = settings.get("activeKcalFactor")
+    if factor is not None and factor != "":
+        value = _number(factor) if not isinstance(factor, bool) else None
+        if value is not None and 0.5 <= value <= 1.5:
+            out.active_kcal_factor = value
+        else:
+            problems.append(f'"activeKcalFactor" must be a number between 0.5 and 1.5, not {factor!r}')
     return out
 
 
@@ -169,15 +178,19 @@ def periods(measurements: list[dict[str, Any]], resting: pd.Series, today: date,
 
 def apply(days: pd.DataFrame, measurements: list[dict[str, Any]], energy: Settings, today: date,
           day_fraction: float = 1.0) -> list[dict[str, Any]]:
-    """Adds resting_garmin, resting_kcal and expenditure_kcal to `days` (one row per calendar day,
-    with calories_total and calories_active). Returns the periods."""
+    """Adds resting_garmin, resting_kcal, active_kcal, the tef_* columns, expenditure_kcal and its
+    range expenditure_low/expenditure_high to `days` (one row per calendar day, with calories_total
+    and calories_active, and intake_* for TEF). Returns the periods."""
     nan = pd.Series(np.nan, index=days.index)
     total = pd.to_numeric(days["calories_total"], errors="coerce").astype(float) if "calories_total" in days else nan
     active = pd.to_numeric(days["calories_active"], errors="coerce").astype(float) if "calories_active" in days else nan
     garmin = total - active
     days["resting_garmin"] = garmin
     days["resting_kcal"] = garmin
+    days["active_kcal"] = active
     days["expenditure_kcal"] = total
+    rest_half = pd.Series(0.0, index=days.index)  # half the 95 % range of the measured RMR, per day
+    corrected = pd.Series(False, index=days.index)
     found = periods(measurements, garmin, today, energy.rmr_factor_override)
     for p in found if energy.rmr_mode != "off" else []:
         start = pd.Timestamp(p["from"])
@@ -192,8 +205,22 @@ def apply(days: pd.DataFrame, measurements: list[dict[str, Any]], energy: Settin
             if pd.Timestamp(today) in resting.index:
                 resting[pd.Timestamp(today)] = p["rmr"] * day_fraction
         days.loc[rows, "resting_kcal"] = resting
-        days.loc[rows, "expenditure_kcal"] = resting + active[rows]
+        corrected[rows] = True
+        if p["range95"]:
+            rest_half[rows] = (p["range95"][1] - p["range95"][0]) / 2 * resting / p["rmr"]
+    # A factor on active kcal is only what you set yourself (the adaptive check suggests one)
+    days["active_kcal"] = active * energy.active_kcal_factor
+    if energy.active_kcal_factor != 1:
+        corrected |= garmin.notna()
+    days["expenditure_kcal"] = days["expenditure_kcal"].where(~corrected, days["resting_kcal"] + days["active_kcal"])
     _add_tef(days, energy, today)
+    # Range: root-sum-square of the RMR's 95 % half-width, the TEF's distance to its low and high
+    # variant and ±15 % of active kcal; below and above separately, because TEF is skewed
+    base = (ACTIVE_UNCERTAINTY * days["active_kcal"]) ** 2 + rest_half**2
+    low = (days["tef_kcal"] - days["tef_low"]).fillna(0) ** 2
+    high = (days["tef_high"] - days["tef_kcal"]).fillna(0) ** 2
+    days["expenditure_low"] = days["expenditure_kcal"] - np.sqrt(base + low)
+    days["expenditure_high"] = days["expenditure_kcal"] + np.sqrt(base + high)
     return found
 
 

@@ -6,6 +6,25 @@ wording change the patch version; within a major version, data files and setting
 compatible. The workflow in each data repository follows the tag of its major version (`v2`,
 before that `v1`).
 
+## 2.19.0 – 2026-11-25
+
+[#146](https://github.com/sh4rkfx/selftopo/pull/146)
+
+### Dashboard
+
+- With a correction the expenditure is corrected resting kcal + active kcal + TEF, with a range
+  (root-sum-square of half the RMR's 95 % range, the TEF's low and high variant and ±15 % of active
+  kcal). *Kalorien pro Tag* splits it into its parts with Garmin's value next to it, e.g.
+  *3,110 kcal (Ruhe 2,390 · aktiv 460 · TEF 260) · Garmin: 2,600 · Spanne 2,810–3,400*, draws the
+  range as a band and a line on the day of the measurement, also in *Verbrauch laut deinem Log*.
+  Balance and expenditure means use the corrected value.
+- New setting *Factor on Garmin's active kcal* (`activeKcalFactor`, 0.5–1.5), never set by itself.
+
+### Recommendations
+
+- `selftopo/energy.py` adds `active_kcal`, `expenditure_low` and `expenditure_high` and applies
+  `activeKcalFactor` in the same way.
+
 ## 2.18.0 – 2026-11-25
 
 [#145](https://github.com/sh4rkfx/selftopo/pull/145)
