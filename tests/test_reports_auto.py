@@ -123,3 +123,10 @@ def test_auto_read_is_retried_and_never_overlaps(given):
     assert "if (found) tried[f.path] = f.sha;" in body and "autoReading ||=" in guard
     assert "const key = `${AUTO_READ_KEY}:${cred.repo}`;" in body  # remembered per data repository
     assert [r["status"] for r in proposal] == ["confirmed"]
+
+
+def test_file_name_date_is_checked(given):
+    """The date from the file name counts only as a real past day: 2026-02-30 and a future day do not."""
+    got = run(["DAY", "isoToT", "tToIso", "todayT", "fileDate"], "(() => { globalThis.TIMEZONE = 'Europe/Vienna'; return ['2026-11-23-r.pdf', '2026-02-30-r.pdf', '2099-01-01-r.pdf', 'r.pdf'].map(fileDate); })()")
+    given(dates=got)
+    assert got == ["2026-11-23", None, None, None]

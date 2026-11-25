@@ -7526,6 +7526,11 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     autoReading ||= readUnreadReports(cred).finally(() => { autoReading = null; });
     return autoReading;
   }
+  // The upload date at the start of a file name, only a real day that is not in the future
+  const fileDate = (name) => {
+    const iso = /^(\d{4}-\d{2}-\d{2})-/.exec(name)?.[1];
+    return iso && tToIso(isoToT(iso)) === iso && isoToT(iso) <= todayT() ? iso : null;
+  };
   async function readUnreadReports(cred) {
     if (state.source !== "github" || !cred || cred.repo !== state.dataRepo || state.offlineSince) return [];
     let list;
@@ -7545,7 +7550,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
         const res = await githubRequest(cred, `/contents/${f.path}`, true);
         if (res.ok) found = extractMeasures(await pdfText(new Uint8Array(await res.arrayBuffer())));
       } catch { found = null; }
-      const rows = found ? reportRows(found, f.path, state.measurements?.list || [], /^(\d{4}-\d{2}-\d{2})-/.exec(f.name)?.[1] || null) : [];
+      const rows = found ? reportRows(found, f.path, state.measurements?.list || [], fileDate(f.name)) : [];
       // Remembered only when the PDF was read and had nothing to enter; a failed download is retried
       if (!rows.length) { if (found) tried[f.path] = f.sha; continue; }
       const result = await writeMeasurements({ put: rows }, `Dashboard: read ${rows.length} values from ${f.path}`);
