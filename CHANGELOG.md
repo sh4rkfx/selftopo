@@ -6,6 +6,27 @@ wording change the patch version; within a major version, data files and setting
 compatible. The workflow in each data repository follows the tag of its major version (`v2`,
 before that `v1`).
 
+## 2.17.0 – 2026-11-25
+
+[#144](https://github.com/sh4rkfx/selftopo/pull/144)
+
+### Dashboard
+
+- A measured resting metabolic rate corrects Garmin's resting kcal: under gear icon → *General* →
+  *Energy expenditure* choose *Factor on Garmin's resting kcal* (RMR ÷ Garmin's mean of the 14 days
+  up to the measurement, e.g. 2,390 ÷ 2,139 = 1.117) or *Measured value instead of Garmin's*, and
+  optionally an own factor. The settings show the factor and what it rests on. It applies from
+  the day of the measurement until the next one, replaces Garmin's resting kcal and never adds to
+  it; balance, expenditure means and *Verbrauch laut deinem Log* use it. Garmin's raw data stay as
+  they are, and without the setting nothing changes.
+- *Befund eintragen* takes the lab's 95 % and 99 % range of a resting metabolic rate
+  (`range95_low` … `range99_high` in `measurements.csv`, optional).
+
+### Recommendations
+
+- The resting-energy floor of the weight-pace card and the expenditure estimate without YAZIO use
+  the measured RMR in the same way (`selftopo/energy.py`).
+
 ## 2.16.1 – 2026-11-24
 
 [#138](https://github.com/sh4rkfx/selftopo/pull/138)

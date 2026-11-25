@@ -858,6 +858,8 @@ dialog.prefs[open] { display: flex; flex-direction: column; }
 .push-key label { font-size: 0.8125rem; font-weight: 600; }
 @media (pointer: coarse) { .push-key input { height: 44px; } }
 .settings-grid .goal-fields { grid-column: 1 / -1; border: 0; margin: 4px 0 0; padding: 0; min-width: 0; }
+.settings-grid .energy-fields { grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); }
+.settings-grid .energy-fields .wide { grid-column: 1 / -1; margin: 0; }
 .settings-grid .goal-fields legend { font-size: 0.8125rem; font-weight: 600; padding: 0; margin-bottom: 6px; }
 .settings-lifts { margin: 0; font-size: 0.8125rem; color: var(--ink-2); }
 .settings-problems { margin: 0; padding-left: 18px; font-size: 0.8125rem; color: var(--ink); }
@@ -1716,6 +1718,24 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
         <input id="m-hi" type="text" inputmode="decimal" autocomplete="off" placeholder="laut Befund">
         <p class="err" id="m-err-ref" hidden></p>
       </div>
+      <div class="field rmr-only">
+        <label for="m-lo95">95-%-Bereich von (optional)</label>
+        <input id="m-lo95" type="text" inputmode="numeric" autocomplete="off" placeholder="laut Befund">
+      </div>
+      <div class="field rmr-only">
+        <label for="m-hi95">95-%-Bereich bis</label>
+        <input id="m-hi95" type="text" inputmode="numeric" autocomplete="off" placeholder="laut Befund">
+        <p class="err" id="m-err-r95" hidden></p>
+      </div>
+      <div class="field rmr-only">
+        <label for="m-lo99">99-%-Bereich von (optional)</label>
+        <input id="m-lo99" type="text" inputmode="numeric" autocomplete="off" placeholder="laut Befund">
+      </div>
+      <div class="field rmr-only">
+        <label for="m-hi99">99-%-Bereich bis</label>
+        <input id="m-hi99" type="text" inputmode="numeric" autocomplete="off" placeholder="laut Befund">
+        <p class="err" id="m-err-r99" hidden></p>
+      </div>
       <div class="field" id="m-rer-field">
         <label for="m-rer">RER (optional)</label>
         <input id="m-rer" type="text" inputmode="decimal" autocomplete="off" placeholder="z. B. 0,82">
@@ -1867,6 +1887,22 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
             <label for="set-grip-right">Handkraft rechts (Hevy-Übung)</label>
             <input id="set-grip-right" type="text" autocomplete="off" spellcheck="false">
           </div>
+          <fieldset class="goal-fields energy-fields" id="energy-fields">
+            <legend>Energieverbrauch</legend>
+            <div class="field">
+              <label for="set-rmr-mode">Gemessener Ruheumsatz</label>
+              <select id="set-rmr-mode">
+                <option value="off">Aus: Garmins Ruheumsatz</option>
+                <option value="factor">Faktor auf Garmins Ruheumsatz</option>
+                <option value="absolute">Gemessener Wert statt Garmins</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="set-rmr-factor">Eigener Faktor (optional)</label>
+              <input id="set-rmr-factor" type="text" inputmode="decimal" autocomplete="off" placeholder="aus der Messung">
+            </div>
+            <p class="sub wide" id="set-rmr-info"></p>
+          </fieldset>
           <fieldset class="goal-fields" id="goal-fields">
             <legend>Ziele für die Empfehlungen, höchstens eines pro Bereich</legend>
           </fieldset>
@@ -3546,7 +3582,33 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 " · {0} zu prüfen": " · {0} to check",
 "1 Wert · am {0}": "1 value · on {0}",
 "Version {0} · ": "Version {0} · ",
-"Was ist neu": "What’s new"
+"Was ist neu": "What’s new",
+"Ausgeschaltet: alle Werte bleiben wie von Garmin.": "Switched off: every value stays as Garmin has it.",
+"Beide Grenzen als Zahl, oder keine.": "Both bounds as numbers, or neither.",
+"Der 99-%-Bereich umfasst den 95-%-Bereich.": "The 99 % range contains the 95 % range.",
+"Der Messwert muss zwischen den Grenzen liegen.": "The measured value must lie between the bounds.",
+"Faktor {0}": "factor {0}",
+"Garmin hat bis dahin keinen vollständigen Tag, also keinen Faktor": "Garmin has no complete day up to then, so no factor",
+"Garmin im Mittel {0} kcal an {1} Tagen ({2}–{3})": "Garmin's mean {0} kcal on {1} days ({2}–{3})",
+"Garmin mit gemessenem Ruheumsatz": "Garmin with measured RMR",
+"Garmin mit gemessenem Ruheumsatz, 28 Tage": "Garmin with measured RMR, 28 days",
+"Messung {0}: {1} kcal": "Measurement {0}: {1} kcal",
+"Noch kein Ruheumsatz unter Befunde eingetragen. Die Korrektur gilt ab dem Tag der ersten Messung.": "No resting metabolic rate under Lab results yet. The correction applies from the day of the first measurement.",
+"Nur {0} vollständige Garmin-Tage vor der Messung: der Faktor ist unsicher.": "Only {0} complete Garmin days before the measurement: the factor is uncertain.",
+"es gilt dein Faktor {0}": "your factor {0} applies",
+"rmrCorrectionMode muss off, factor oder absolute sein, nicht „{0}“.": "rmrCorrectionMode must be off, factor or absolute, not “{0}”.",
+"rmrFactorOverride muss eine Zahl zwischen 0,5 und 2 sein, nicht „{0}“.": "rmrFactorOverride must be a number between 0.5 and 2, not “{0}”.",
+"Energieverbrauch": "Energy expenditure",
+"Gemessener Ruheumsatz": "Measured resting metabolic rate",
+"Aus: Garmins Ruheumsatz": "Off: Garmin's resting kcal",
+"Faktor auf Garmins Ruheumsatz": "Factor on Garmin's resting kcal",
+"Gemessener Wert statt Garmins": "Measured value instead of Garmin's",
+"Eigener Faktor (optional)": "Own factor (optional)",
+"aus der Messung": "from the measurement",
+"95-%-Bereich von (optional)": "95 % range from (optional)",
+"95-%-Bereich bis": "95 % range to",
+"99-%-Bereich von (optional)": "99 % range from (optional)",
+"99-%-Bereich bis": "99 % range to"
 }
 </script>
 <script>
@@ -3575,7 +3637,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   const DATE_LOCALE = LANG === "de" ? "de-AT" : "en-GB";
   // Semantic version of this dashboard, the same as selftopo.__version__ and the newest entry in
   // CHANGELOG.md (tests/test_versions.py keeps the three equal)
-  const APP_VERSION = "2.16.1";
+  const APP_VERSION = "2.17.0";
   // Day and month: "24.11." in German; in English "24 Nov", because "24/11" reads as a fraction
   // or, to US readers, as month/day
   const DM = LANG === "de" ? { day: "2-digit", month: "2-digit" } : { day: "numeric", month: "short" };
@@ -3862,7 +3924,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     GRIP_EXERCISES = gripMap(grip);
 
     const goals = readGoals(s.goals, problems);
-    return { raw: s, found: Boolean(exists), problems, from, grip, goals };
+    const energy = readEnergySettings(s, problems);
+    return { raw: s, found: Boolean(exists), problems, from, grip, goals, energy };
   }
 
   // Sleep times as minutes relative to midnight of the wake-up date, so that
@@ -4275,7 +4338,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   // One entry per data file for the "Datenquellen" table
   // ---- Befunde: measurements.csv, values from labs and tests that no watch or scale measures.
   // One row per value; the dashboard writes it (Rohdaten → Befunde), the analysis only reads it.
-  const MEASURE_FIELDS = ["id", "date", "kind", "name", "value", "unit", "ref_low", "ref_high", "source", "note", "file", "status"];
+  // range95_*/range99_*: the uncertainty a lab gives for a measured RMR, optional
+  const MEASURE_FIELDS = ["id", "date", "kind", "name", "value", "unit", "ref_low", "ref_high", "source", "note", "file", "status", "range95_low", "range95_high", "range99_low", "range99_high"];
   const MEASURE_GROUPS = [["body", T("Körper")], ["metabolism", T("Stoffwechsel")], ["fitness", T("Fitness")], ["blood", T("Blut")]];
   // Plausible ranges catch a wrong unit (cm typed as mm, kJ as kcal) when entering a value
   const MEASURE_KINDS = {
@@ -4291,6 +4355,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   const MEASURE_UNIT_TEXT = { "kcal/d": T("kcal/Tag") };
   // Rows of measurements.csv as values; rows without a date, a number or a known kind are counted,
   // not shown. Newest first.
+  // A lab's range around a value: both bounds, the value between them; otherwise none
+  const rangeOf = (lo, hi, value) => (lo != null && hi != null && lo <= value && value <= hi ? [lo, hi] : null);
   function parseMeasurements(rows) {
     const num = (v) => { const n = Number(String(v ?? "").trim().replace(",", ".")); return String(v ?? "").trim() !== "" && Number.isFinite(n) ? n : null; };
     const list = [];
@@ -4305,6 +4371,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
         unit: String(r.unit ?? MEASURE_KINDS[kind].unit).trim(), lo: num(r.ref_low), hi: num(r.ref_high),
         source: String(r.source || "").trim(), note: String(r.note || "").trim(), file: String(r.file || "").trim(),
         status: r.status === "proposed" ? "proposed" : "confirmed",
+        range95: rangeOf(num(r.range95_low), num(r.range95_high), value), range99: rangeOf(num(r.range99_low), num(r.range99_high), value),
       });
     }
     list.sort((a, b) => b.t - a.t || a.kind.localeCompare(b.kind));
@@ -4747,6 +4814,101 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     return { climbs, climbSessions };
   }
 
+  // ------------------------------------------------------------------ energy expenditure
+  // Garmin's expenditure = resting kcal (from its profile formula) + active kcal. A measured RMR
+  // (Befunde → Ruheumsatz) replaces the resting part, never adds to it; Garmin's raw columns stay
+  // as they are. Same rules as selftopo/energy.py, see README "Energy expenditure".
+  const RMR_MODES = ["off", "factor", "absolute"];
+  const RMR_REF_DAYS = 14;     // reference window up to and including the measurement date
+  const RMR_REF_MIN_DAYS = 5;  // fewer valid days: the factor is used, with a warning
+  // The energy keys of settings.json; a missing key means off, so old files change nothing
+  function readEnergySettings(s, problems = []) {
+    const out = { rmrMode: "off", rmrFactorOverride: null };
+    if (s.rmrCorrectionMode != null) {
+      if (RMR_MODES.includes(s.rmrCorrectionMode)) out.rmrMode = s.rmrCorrectionMode;
+      else problems.push(T("rmrCorrectionMode muss off, factor oder absolute sein, nicht „{0}“.", [s.rmrCorrectionMode]));
+    }
+    if (s.rmrFactorOverride != null && s.rmrFactorOverride !== "") {
+      const f = Number(s.rmrFactorOverride);
+      if (Number.isFinite(f) && f >= 0.5 && f <= 2) out.rmrFactorOverride = f;
+      else problems.push(T("rmrFactorOverride muss eine Zahl zwischen 0,5 und 2 sein, nicht „{0}“.", [s.rmrFactorOverride]));
+    }
+    return out;
+  }
+  // Garmin's resting kcal on the 14 days up to and including `t`: without the running day, days
+  // without both columns and days below half the window's median (a sync in the middle of a day)
+  function rmrReference(days, t, today) {
+    const win = days.filter((d) => d.t <= t && d.t > t - RMR_REF_DAYS * DAY && d.t < today && d.restGarmin != null && d.restGarmin > 0);
+    if (!win.length) return null;
+    const sorted = win.map((d) => d.restGarmin).sort((a, b) => a - b);
+    const mid = sorted.length >> 1;
+    const median = sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+    const valid = win.filter((d) => d.restGarmin >= median / 2);
+    return {
+      kcal: valid.reduce((a, d) => a + d.restGarmin, 0) / valid.length, n: valid.length,
+      from: valid[0].t, to: valid[valid.length - 1].t, warn: valid.length < RMR_REF_MIN_DAYS,
+    };
+  }
+  // One period per confirmed RMR measurement: from its date until the day before the next one
+  function rmrPeriods(measurements, days, today, override = null) {
+    const byDay = new Map();
+    for (const m of measurements || []) if (m.kind === "rmr_kcal" && m.status === "confirmed") byDay.set(m.t, m);
+    const list = [...byDay.values()].sort((a, b) => a.t - b.t);
+    return list.map((m, i) => {
+      const ref = rmrReference(days, m.t, today);
+      const measured = ref ? Math.round((m.value / ref.kcal) * 1000) / 1000 : null;
+      return {
+        from: m.t, to: i + 1 < list.length ? list[i + 1].t - DAY : null, rmr: m.value, id: m.id,
+        range95: m.range95 || null, range99: m.range99 || null, ref, measuredFactor: measured,
+        factor: override ?? measured, override: override != null,
+      };
+    });
+  }
+  const rmrPeriodAt = (periods, t) => {
+    for (let i = periods.length - 1; i >= 0; i--) if (periods[i].from <= t) return periods[i].to == null || t <= periods[i].to ? periods[i] : null;
+    return null;
+  };
+  // Adds to every day: kcalGarmin, activeGarmin and restGarmin as Garmin has them, rest (resting
+  // kcal after the correction) and kcalBurned, the expenditure every balance and mean uses. With
+  // the mode off or before the first measurement, kcalBurned stays Garmin's total. Returns the
+  // periods, for the settings and the chart.
+  function applyEnergy(days, measurements, energy, today, dayFraction) {
+    for (const d of days) {
+      d.kcalGarmin = d.kcalBurned;
+      d.restGarmin = d.kcalGarmin != null && d.activeGarmin != null ? d.kcalGarmin - d.activeGarmin : null;
+      d.rest = d.restGarmin;
+      d.rmrPeriod = null;
+    }
+    const periods = rmrPeriods(measurements, days, today, energy.rmrFactorOverride);
+    if (energy.rmrMode === "off") return periods;
+    for (const d of days) {
+      const p = rmrPeriodAt(periods, d.t);
+      if (!p || d.restGarmin == null) continue;
+      if (energy.rmrMode === "factor" && p.factor != null) d.rest = d.restGarmin * p.factor;
+      else if (energy.rmrMode === "absolute") d.rest = d.t === today ? p.rmr * dayFraction : p.rmr;
+      else continue;
+      d.rmrPeriod = p;
+      d.kcalBurned = d.rest + d.activeGarmin;
+    }
+    return periods;
+  }
+
+  // Under Settings → Energy: what the newest measurement gives and what it rests on
+  function rmrInfoText(periods, energy) {
+    const p = periods[periods.length - 1];
+    if (!p) return T("Noch kein Ruheumsatz unter Befunde eingetragen. Die Korrektur gilt ab dem Tag der ersten Messung.");
+    const parts = [T("Messung {0}: {1} kcal", [longDate(p.from), fmt(p.rmr)])];
+    if (p.ref) {
+      parts.push(T("Garmin im Mittel {0} kcal an {1} Tagen ({2}–{3})", [fmt(p.ref.kcal), p.ref.n, ddmm(p.ref.from), ddmm(p.ref.to)]));
+      parts.push(T("Faktor {0}", [fmt(p.measuredFactor, 3)]));
+    } else parts.push(T("Garmin hat bis dahin keinen vollständigen Tag, also keinen Faktor"));
+    if (energy.rmrFactorOverride != null) parts.push(T("es gilt dein Faktor {0}", [fmt(energy.rmrFactorOverride, 3)]));
+    let text = `${parts.join(" · ")}.`;
+    if (p.ref?.warn) text += ` ${T("Nur {0} vollständige Garmin-Tage vor der Messung: der Faktor ist unsicher.", [p.ref.n])}`;
+    if (energy.rmrMode === "off") text += ` ${T("Ausgeschaltet: alle Werte bleiben wie von Garmin.")}`;
+    return text;
+  }
+
   // ------------------------------------------------------------------ model
 
   function rollingMean(days, key, out, window, minCount = 1) {
@@ -4826,7 +4988,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
         hrvStatus: r.hrv_status || null,
         rhr: num(r.resting_hr),
         bb: num(r.body_battery_wake) ?? num(r.body_battery_high),
-        steps: num(r.steps), kcalBurned: num(r.calories_total),
+        steps: num(r.steps), kcalBurned: num(r.calories_total), activeGarmin: num(r.calories_active),
         bed: minutesFromMidnight(r.date, r.sleep_start_local), wake: minutesFromMidnight(r.date, r.sleep_end_local),
         ready: num(r.readiness_score), readyLevel: r.readiness_level || null,
         hardSets: 0, tonnage: 0, sessions: new Set(),
@@ -4871,6 +5033,9 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       days[i].sets7Sum = sets;
       days[i].active7Sum = active;
     }
+    // Expenditure: Garmin's, or with a measured RMR in place of its resting kcal (applyEnergy)
+    const energy = extra.energy || readEnergySettings({});
+    const rmr = applyEnergy(days, extra.measurements || [], energy, today, extra.dayFraction ?? 1);
     for (const d of days) d.balance = d.kcal != null && d.kcalBurned != null ? d.kcal - d.kcalBurned : null;
     rollingMean(days, "kcal", "kcal7", 7, 3);
     rollingMean(days, "proteinG", "proteinG7", 7, 3);
@@ -4955,6 +5120,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       exercises, defaultLifts, computeLift, lifts: defaultLifts.map(computeLift),
       grip, bouldering, boulderScale: bouldering.scale,
       sets, muscles: muscleMap(extra.exercises || []), fitness: parseFitness(extra.fitness || []), bp,
+      energy, rmr,
     };
   }
 
@@ -6403,6 +6569,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     id: m.id, date: m.date, kind: m.kind, name: m.name, value: String(m.value), unit: m.unit,
     ref_low: m.lo == null ? "" : String(m.lo), ref_high: m.hi == null ? "" : String(m.hi),
     source: m.source, note: m.note, file: m.file, status,
+    range95_low: m.range95 ? String(m.range95[0]) : "", range95_high: m.range95 ? String(m.range95[1]) : "",
+    range99_low: m.range99 ? String(m.range99[0]) : "", range99_high: m.range99 ? String(m.range99[1]) : "",
   });
   function proposalsByFile(proposed) {
     const files = new Map();
@@ -6423,7 +6591,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
         out.textContent = T("Speichert …");
         const result = await writeMeasurements(change, keep.length ? `Dashboard: confirm ${keep.length} values from ${file}` : `Dashboard: discard values read from ${file}`);
         if (!result.ok) { buttons.forEach((b) => (b.disabled = false)); out.textContent = result.error; return; }
-        state.measurements = parseMeasurements(result.rows);
+        setMeasurements(result.rows);
         render();
       };
       const ok = html("button", { type: "button", class: "primary-btn", text: T("Übernehmen") });
@@ -6449,6 +6617,11 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   }
 
   // ---- Befunde: entering, editing and deleting values in measurements.csv
+  // After a change: the new rows, and the model again when a measured RMR may move the expenditure
+  function setMeasurements(rows) {
+    state.measurements = parseMeasurements(rows);
+    if (state.model && state.settings?.energy?.rmrMode !== "off") rebuildModel();
+  }
 
   const measureUnitText = (kind) => { const u = MEASURE_KINDS[kind].unit; return MEASURE_UNIT_TEXT[u] ?? u; };
   // German or English decimal: "91,5", "91.5"; "2.455" with a thousands dot only for whole values
@@ -6481,6 +6654,17 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       if (Number.isNaN(lo) || Number.isNaN(hi)) errors.ref = T("Referenz nur als Zahl.");
       else if (lo != null && hi != null && lo >= hi) errors.ref = T("„Von“ muss kleiner sein als „bis“.");
     }
+    const range = {};
+    if (f.kind === "rmr_kcal") {
+      for (const [key, lo, hi] of [["r95", f.lo95, f.hi95], ["r99", f.lo99, f.hi99]]) {
+        const a = parseNumber(lo), b = parseNumber(hi);
+        if (a == null && b == null) continue;
+        if (a == null || b == null || Number.isNaN(a) || Number.isNaN(b)) errors[key] = T("Beide Grenzen als Zahl, oder keine.");
+        else if (value != null && !Number.isNaN(value) && !(a <= value && value <= b)) errors[key] = T("Der Messwert muss zwischen den Grenzen liegen.");
+        else range[key] = [a, b];
+      }
+      if (range.r95 && range.r99 && (range.r99[0] > range.r95[0] || range.r99[1] < range.r95[1])) errors.r99 = T("Der 99-%-Bereich umfasst den 95-%-Bereich.");
+    }
     const rer = f.kind === "rmr_kcal" ? parseNumber(f.rer) : null;
     if (rer != null && (Number.isNaN(rer) || rer < MEASURE_KINDS.rer.min || rer > MEASURE_KINDS.rer.max)) errors.rer = T("RER liegt zwischen 0,65 und 1,10.");
     if (Object.keys(errors).length) return { errors };
@@ -6489,6 +6673,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       ...base, id: f.id || newMeasureId(f.date, f.kind), kind: f.kind, name: f.kind === "blood" ? f.name.trim() : "", value: String(value),
       unit: f.kind === "blood" ? f.unit.trim() : MEASURE_KINDS[f.kind].unit, ref_low: lo == null ? "" : String(lo), ref_high: hi == null ? "" : String(hi),
       note: String(f.note || "").trim(),
+      range95_low: range.r95 ? String(range.r95[0]) : "", range95_high: range.r95 ? String(range.r95[1]) : "",
+      range99_low: range.r99 ? String(range.r99[0]) : "", range99_high: range.r99 ? String(range.r99[1]) : "",
     }];
     if (rer != null) rows.push({ ...base, id: f.rerId || newMeasureId(f.date, "rer"), kind: "rer", name: "", value: String(rer), unit: "", ref_low: "", ref_high: "", note: "" });
     return { rows };
@@ -6575,6 +6761,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     $("m-lo").value = m?.lo != null ? String(m.lo).replace(".", DECIMAL) : "";
     $("m-hi").value = m?.hi != null ? String(m.hi).replace(".", DECIMAL) : "";
     $("m-rer").value = rer ? String(rer.value).replace(".", DECIMAL) : "";
+    for (const [id, r, i] of [["m-lo95", m?.range95, 0], ["m-hi95", m?.range95, 1], ["m-lo99", m?.range99, 0], ["m-hi99", m?.range99, 1]]) $(id).value = r ? String(r[i]) : "";
     $("m-source").value = m?.source || "";
     $("m-note").value = m?.note || "";
     $("m-delete").hidden = !m;
@@ -6592,6 +6779,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     const kind = $("m-kind").value, k = MEASURE_KINDS[kind];
     for (const e of document.querySelectorAll("#m-form .blood-only")) e.hidden = kind !== "blood";
     $("m-rer-field").hidden = kind !== "rmr_kcal";
+    for (const e of document.querySelectorAll("#m-form .rmr-only")) e.hidden = kind !== "rmr_kcal";
     $("m-unit-fixed").textContent = kind === "blood" ? $("m-unit").value : measureUnitText(kind);
     const bound = (v) => fmt(v, Number.isInteger(v) ? 0 : k.digits);
     $("m-value").placeholder = k.min != null ? `${bound(k.min)}–${bound(k.max)}` : "";
@@ -6619,6 +6807,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     id: measureDraftIds.id, rerId: measureDraftIds.rerId, file: measureEdit?.file || measureDraftIds.file || "",
     kind, date, value: $("m-value").value, name: $("m-name").value, unit: $("m-unit").value,
     lo: $("m-lo").value, hi: $("m-hi").value, rer: $("m-rer").value, source: $("m-source").value, note: $("m-note").value,
+    lo95: $("m-lo95").value, hi95: $("m-hi95").value, lo99: $("m-lo99").value, hi99: $("m-hi99").value,
   });
   // The lines as they will stand in measurements.csv, also what a read-only token copies
   function previewMeasure() {
@@ -6627,7 +6816,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     if ($("m-kind").value === "blood") $("m-unit-fixed").textContent = $("m-unit").value;
   }
   function showMeasureErrors(errors) {
-    const map = { kind: "m-kind", date: "m-date", value: "m-value", name: "m-name", unit: "m-unit", ref: "m-lo", rer: "m-rer" };
+    const map = { kind: "m-kind", date: "m-date", value: "m-value", name: "m-name", unit: "m-unit", ref: "m-lo", rer: "m-rer", r95: "m-lo95", r99: "m-lo99" };
     let first = null;
     for (const [key, input] of Object.entries(map)) {
       const err = $(`m-err-${key}`);
@@ -6661,7 +6850,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       }
       return;
     }
-    state.measurements = parseMeasurements(result.rows);
+    setMeasurements(result.rows);
     status.className = "sub good";
     status.textContent = okText;
     render();
@@ -6673,7 +6862,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     $("m-kind").addEventListener("change", syncMeasureKind);
     $("m-form").addEventListener("input", (e) => {
       // A corrected field loses its error message right away
-      const key = { "m-kind": "kind", "m-date": "date", "m-value": "value", "m-name": "name", "m-unit": "unit", "m-lo": "ref", "m-hi": "ref", "m-rer": "rer" }[e.target.id];
+      const key = { "m-kind": "kind", "m-date": "date", "m-value": "value", "m-name": "name", "m-unit": "unit", "m-lo": "ref", "m-hi": "ref", "m-rer": "rer", "m-lo95": "r95", "m-hi95": "r95", "m-lo99": "r99", "m-hi99": "r99" }[e.target.id];
       if (key && !$(`m-err-${key}`).hidden) {
         $(`m-err-${key}`).hidden = true;
         e.target.removeAttribute("aria-invalid");
@@ -6954,7 +7143,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       }));
       const result = await writeMeasurements({ put: rows }, `Dashboard: add ${rows.length} values from ${up.path}`);
       if (!result.ok) { $("u-go").disabled = false; return reportProblem(`${T("Die Datei liegt unter {0}, aber die Werte wurden nicht gespeichert:", [up.path])} ${result.error}`); }
-      state.measurements = parseMeasurements(result.rows);
+      setMeasurements(result.rows);
       render();
     }
     $("u-status").className = "sub good";
@@ -7382,15 +7571,16 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     card.hidden = !M.hasNutrition;
     if (M.hasNutrition) {
       const garminNow = e ? e.burned28 : null;
+      const corrected = M.rmr.some((p) => p.from <= M.t1) && M.energy.rmrMode !== "off";
       $("tdee-sub").textContent = e && e.t >= x0
-        ? T("≈ {0} kcal pro Tag", [fmt(Math.round(e.tdee / 10) * 10)]) + (garminNow ? ` · Garmin ${fmt(Math.round(garminNow / 10) * 10)} (${fmtSigned(((garminNow - e.tdee) / e.tdee) * 100)} %)` : "") + T(", Stand {0}", [ddmm(e.t)])
+        ? T("≈ {0} kcal pro Tag", [fmt(Math.round(e.tdee / 10) * 10)]) + (garminNow ? ` · ${corrected ? T("Garmin mit gemessenem Ruheumsatz") : "Garmin"} ${fmt(Math.round(garminNow / 10) * 10)} (${fmtSigned(((garminNow - e.tdee) / e.tdee) * 100)} %)` : "") + T(", Stand {0}", [ddmm(e.t)])
         : T("Noch zu wenige Daten: nötig sind 14 vollständig geloggte Tage und 6 Wiegungen in 28 Tagen");
       mount("c-tdee", (host) => timeChart(host, {
         x0, x1, label: T("Energieverbrauch aus geloggter Aufnahme und Gewichtsverlauf, verglichen mit Garmin"),
         empty: T("Noch zu wenige Daten: nötig sind 14 vollständig geloggte Tage und 6 Wiegungen innerhalb von 28 Tagen."),
         series: [
           { label: T("aus Aufnahme und Gewicht"), color: "var(--s1)", data: series("tdee"), fmt: kcalText, endFmt: (v) => fmt(v), endLabel: true },
-          { label: T("Garmin, 28 Tage"), kind: "dashed", color: "var(--ink-2)", data: days.map((d) => ({ t: d.t, v: d.tdee != null ? d.burned28 : null })), fmt: kcalText },
+          { label: corrected ? T("Garmin mit gemessenem Ruheumsatz, 28 Tage") : T("Garmin, 28 Tage"), kind: "dashed", color: "var(--ink-2)", data: days.map((d) => ({ t: d.t, v: d.tdee != null ? d.burned28 : null })), fmt: kcalText },
         ],
       }));
     }
@@ -8764,6 +8954,12 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     if (out.grip_exercises || JSON.stringify(grip) !== JSON.stringify(DEFAULT_GRIP)) out.grip_exercises = grip;
     const goals = goalsFromForm();
     if (Object.keys(goals).length) out.goals = goals; else delete out.goals;
+    // Energy: written once chosen; "off" stays in a file that had a mode, so the choice is visible
+    const mode = $("set-rmr-mode").value;
+    if (mode !== "off" || out.rmrCorrectionMode != null) out.rmrCorrectionMode = mode;
+    // A factor is never a thousands figure: "1.117" and "1,117" both read 1.117
+    const raw = $("set-rmr-factor").value.trim(), factor = Number(raw.replace(",", "."));
+    if (raw && Number.isFinite(factor)) out.rmrFactorOverride = factor; else delete out.rmrFactorOverride;
     return out;
   }
   // Pending changes that add to what is there: push devices, experiments, hidden recommendations
@@ -8930,6 +9126,9 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     $("set-grip-left").value = st.grip.left.join(", ");
     $("set-grip-right").value = st.grip.right.join(", ");
     fillGoalFields(st.goals || {});
+    $("set-rmr-mode").value = st.energy.rmrMode;
+    $("set-rmr-factor").value = st.energy.rmrFactorOverride != null ? fmt(st.energy.rmrFactorOverride, 3) : "";
+    $("set-rmr-info").textContent = rmrInfoText(state.model?.rmr || [], st.energy);
     $("push-key").value = typeof st.raw?.push?.public_key === "string" ? st.raw.push.public_key : "";
     refreshPush();
     for (const el of document.querySelectorAll("[data-step-goal]")) el.textContent = fmt(STEP_GOAL);
@@ -9542,6 +9741,23 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     renderSources();
   }
 
+  // The model from the loaded files, the settings and the Befunde; again after a Befund changed,
+  // because a measured RMR changes the expenditure of every day from its date on
+  function rebuildModel(data = state.loadedData) {
+    if (!data) return null;
+    const minutes = utcToLocalMinutes(new Date().toISOString());
+    state.model = buildModel(data.garmin, data.hevy, data.activities || [], data.nutrition || [], data.climbs || [], data.climbSessions || [], {
+      exercises: data.exercises || [], fitness: data.fitness || [], bp: data.bp || [],
+      measurements: state.measurements?.list || [], energy: state.settings?.energy, dayFraction: minutes == null ? 1 : minutes / 1440,
+    });
+    if (!state.model) return null;
+    const lifts = loadLiftSelection(state.model);
+    state.liftNames = lifts.names;
+    state.liftCustom = lifts.custom;
+    state.model.lifts = lifts.names.map(state.model.computeLift);
+    state.baseline = computeBaseline(state.model);
+    return state.model;
+  }
   // Loads the data and draws the page. Runs at start, from the refresh button, when the app
   // returns to the foreground after a while and when the connection comes back.
   let loading = null;
@@ -9564,17 +9780,11 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
           state.recommendations = demo ? demoRecommendations() : data.recommendations || null;
           state.recoGoals = demo ? Object.fromEntries(state.recommendations.goals.map((g) => [g.area, g])) : state.settings.goals;
           state.dataBranch = data.branch || null;
-          state.model = buildModel(data.garmin, data.hevy, data.activities || [], data.nutrition || [], data.climbs || [], data.climbSessions || [],
-            { exercises: data.exercises || [], fitness: data.fitness || [], bp: data.bp || [] });
           state.sourceInfo = describeSources(data);
           state.measurements = parseMeasurements(data.measurements);
-          if (!state.model) { renderNoData(); fillSettings(); return; }
+          state.loadedData = data;
+          if (!rebuildModel()) { renderNoData(); fillSettings(); return; }
           if (!rangeAvailable(state.range)) state.range = 0; // shorter data than the saved range: show everything
-          const lifts = loadLiftSelection(state.model);
-          state.liftNames = lifts.names;
-          state.liftCustom = lifts.custom;
-          state.model.lifts = lifts.names.map(state.model.computeLift);
-          state.baseline = computeBaseline(state.model);
           buildLiftPicker();
           renderRangeButtons();
           render();

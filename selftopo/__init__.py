@@ -2,4 +2,4 @@
 
 # Semantic version of this release; every change gets a new one, with its entry in CHANGELOG.md.
 # The dashboard carries the same number (APP_VERSION in dashboard/index.html); a test keeps them equal.
-__version__ = "2.16.1"
+__version__ = "2.17.0"

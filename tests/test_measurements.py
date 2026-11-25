@@ -14,7 +14,7 @@ import json
 import pytest
 from jsdashboard import run
 
-HELPERS = ["isoToT", "tToIso", "MEASURE_KINDS", "MEASURE_GROUPS", "parseMeasurements", "refState", "measurementGroups"]
+HELPERS = ["isoToT", "tToIso", "MEASURE_KINDS", "MEASURE_GROUPS", "rangeOf", "parseMeasurements", "refState", "measurementGroups"]
 
 
 def parse(rows):
@@ -103,7 +103,8 @@ def test_change_replaces_by_id_and_csv_is_sorted_and_quoted(given):
     put = [{"id": "a", "date": "2026-11-23", "kind": "rmr_kcal", "value": "2400", "note": "nüchtern, 7:30"}]
     csv = run(ENTRY, f"measureCsv(applyMeasureChange({json.dumps(rows)}, {{ put: {json.dumps(put)}, remove: ['b'] }}))")
     given(csv=csv)
-    assert csv == 'id,date,kind,name,value,unit,ref_low,ref_high,source,note,file,status\na,2026-11-23,rmr_kcal,,2400,,,,,"nüchtern, 7:30",,\n'
+    assert csv == ('id,date,kind,name,value,unit,ref_low,ref_high,source,note,file,status,range95_low,range95_high,range99_low,range99_high\n'
+                   'a,2026-11-23,rmr_kcal,,2400,,,,,"nüchtern, 7:30",,,,,,\n')
 
 
 READ = ENTRY + ["REPORT_RULES", "ESTIMATE_LINE", "LAB_LINE", "LAB_SKIP", "reportDate", "hasUnclearDate", "decimalMark", "reportNumbers", "extractMeasures"]
@@ -236,4 +237,21 @@ def test_proposals_are_grouped_by_file_and_confirmed_unchanged(given):
     given(groups=groups, raw=raw)
     assert sorted(groups) == [["files/lab.jpg", ["a", "c"]], ["files/spiro.png", ["b"]]]
     assert raw == {"id": "a", "date": "2026-10-30", "kind": "blood", "name": "Ferritin", "value": "86", "unit": "µg/l",
-                   "ref_low": "30", "ref_high": "400", "source": "Claude", "note": "", "file": "files/lab.jpg", "status": "confirmed"}
+                   "ref_low": "30", "ref_high": "400", "source": "Claude", "note": "", "file": "files/lab.jpg", "status": "confirmed",
+                   "range95_low": "", "range95_high": "", "range99_low": "", "range99_high": ""}
+
+
+def test_rmr_range_columns_are_optional(given):
+    """A measured RMR keeps its 95 % and 99 % range; files without the columns still load, a range
+    that does not contain the value is dropped, and the dialog checks both bounds."""
+    rows = [row("2026-11-23", "rmr_kcal", "2390", range95_low="2110", range95_high="2670", range99_low="2020", range99_high="2760"),
+            row("2026-10-01", "rmr_kcal", "2300"), row("2026-09-01", "rmr_kcal", "2300", range95_low="2400", range95_high="2600")]
+    out = {m["date"]: [m["range95"], m["range99"]] for m in parse(rows)["list"]}
+    ok = validate({"kind": "rmr_kcal", "date": "2026-11-23", "value": "2390", "lo95": "2110", "hi95": "2670", "lo99": "2020", "hi99": "2760"})
+    half = validate({"kind": "rmr_kcal", "date": "2026-11-23", "value": "2390", "lo95": "2110"})["errors"]
+    outside = validate({"kind": "rmr_kcal", "date": "2026-11-23", "value": "2390", "lo95": "2400", "hi95": "2670"})["errors"]
+    narrower = validate({"kind": "rmr_kcal", "date": "2026-11-23", "value": "2390", "lo95": "2110", "hi95": "2670", "lo99": "2200", "hi99": "2760"})["errors"]
+    given(parsed=out, row=ok["rows"][0], half=half, outside=outside, narrower=narrower)
+    assert out == {"2026-11-23": [[2110, 2670], [2020, 2760]], "2026-10-01": [None, None], "2026-09-01": [None, None]}
+    assert [ok["rows"][0][k] for k in ("range95_low", "range95_high", "range99_low", "range99_high")] == ["2110", "2670", "2020", "2760"]
+    assert set(half) == {"r95"} and set(outside) == {"r95"} and set(narrower) == {"r99"}
