@@ -131,6 +131,10 @@ def test_breakdown_leaves_out_unfinished_days(given):
     given(with_rmr=with_rmr, without=without)
     assert with_rmr == ["2026-11-21", "2026-11-22", "2026-11-23"]
     assert without == ["2026-11-18", "2026-11-19", "2026-11-20", "2026-11-21", "2026-11-22", "2026-11-23"]
+    # A newer measurement without a factor is still the one in force: the breakdown starts at its date
+    newer = run(["DAY", "isoToT", "tToIso", "breakdownDays"], expr.replace("const p = [{ from: isoToT('2026-11-21'), factor: 1.1 }];",
+                "const p = [{ from: isoToT('2026-11-10'), factor: 1.1 }, { from: isoToT('2026-11-22'), factor: null }];"))[0]
+    assert newer == ["2026-11-22", "2026-11-23"]
 
 
 def test_correction_is_named_only_where_it_applies(given):

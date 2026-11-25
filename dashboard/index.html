@@ -5037,8 +5037,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   // days Garmin has not finished. Its resting kcal hardly changes from day to day, so a day below 90 %
   // of the median of the last 28 was synced before it ended.
   function breakdownDays(days, periods, energy, today) {
-    const used = periods.filter((p) => energy.rmrMode === "absolute" || (energy.rmrMode === "factor" && p.factor != null));
-    const start = used.length ? used[used.length - 1].from : -Infinity;
+    // The period in force today, also one without a factor: older days belong to another measurement
+    const start = energy.rmrMode !== "off" && periods.length ? periods[periods.length - 1].from : -Infinity;
     const sorted = days.filter((d) => d.t < today && d.t >= today - 28 * DAY && d.restGarmin > 0).map((d) => d.restGarmin).sort((a, b) => a - b);
     if (!sorted.length) return [];
     const median = sorted.length % 2 ? sorted[sorted.length >> 1] : (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2;
