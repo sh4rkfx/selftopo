@@ -254,6 +254,7 @@ the dashboard read the same file, and every key is optional.
 | `tefMode` | `off` | both | `flat` or `macro`: adds the thermic effect of food to the expenditure, see *Energy expenditure* |
 | `tefFlatPercent` | `10` | both | Share of intake for `flat`, and for days without a complete log |
 | `tefCoefficients`, `tefCoefficientsLow`, `tefCoefficientsHigh` | see *Energy expenditure* | both | Share of each macronutrient's energy (`protein`, `carbs`, `fat`, `alcohol`); only the values you change |
+| `activeKcalFactor` | `1` | both | Factor (0.5–1.5) on Garmin's active kcal; set it yourself, for example after the adaptive check |
 
 Edit the file under gear icon → *General* and press *Save*. With a token that has *Contents: Read
 and write*, the dashboard commits `settings.json` to the data repository itself
@@ -369,6 +370,26 @@ energy spent on digesting food, so `tefMode` adds it, exactly once:
   20–30 % for protein, 5–10 % for carbohydrates, 0–3 % for fat and about 10 % of total intake for a
   mixed diet; the ISSN position stand on diets and body composition (Aragon et al. 2017) uses the
   same ranges. Values per person vary, so the low and high variants feed the range.
+
+**Corrected total and range.** Expenditure = corrected resting kcal + Garmin's active kcal ×
+`activeKcalFactor` + TEF. Each part has its own uncertainty, combined as a root-sum-square:
+
+    below = total − √(R² + (TEF − TEF_low)² + (0.15 · active)²)
+    above = total + √(R² + (TEF_high − TEF)² + (0.15 · active)²)
+
+R is half the 95 % range of the measured RMR (2,110–2,670 → 280 kcal), scaled to the day's resting
+kcal; without a range or a measurement in use it is 0. The ±15 % on active kcal is a fixed
+assumption; wrist-worn devices often miss energy expenditure by more, which the adaptive check
+below can reveal. Example: 2,390 + 460 + 256 = 3,106 kcal,
+range ±297 → 2,810–3,400.
+
+The energy balance, every expenditure mean and the recommendations use the corrected total. The
+calories chart shows it as the dashed line with its range as a band and a vertical line on the day
+of each measurement in use; the line above the chart splits it into its parts with Garmin's own
+value next to it, for example *3,110 kcal (resting 2,390 · active 460 · TEF 260) · Garmin: 2,600 ·
+range 2,810–3,400*, averaged over the days since the newest measurement, at most the 7 before today,
+without days whose Garmin resting kcal is below 90 % of its 28-day median (synced before the day
+ended).
 
 ## Running locally
 

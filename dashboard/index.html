@@ -1131,13 +1131,14 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     </div>
     <div class="area-body" id="b-ernaehrung">
       <div class="card span2" data-tab="Kalorien" data-icon="flame">
-        <div class="card-head"><h3>Kalorien pro Tag</h3><p class="sub" id="kcal-sub"></p></div>
+        <div class="card-head"><h3>Kalorien pro Tag</h3><p class="sub" id="kcal-sub"></p><p class="sub" id="energy-breakdown" hidden></p></div>
         <div class="info" hidden>
           <p>Punkte sind die in YAZIO geloggten Tage, die Linie ist das 7-Tage-Mittel aus vollständig geloggten Tagen. Tage unter 1.200 kcal gelten als unvollständig, etwa weil eine Mahlzeit fehlt; sie erscheinen grau und zählen in keinem Mittelwert. Der laufende Tag zählt erst ab morgen. Die gestrichelte Linie ist der Gesamtverbrauch laut Garmin; die Uhr schätzt ihn aus Puls und Bewegung, Abweichungen von 10 bis 20 % sind üblich.</p>
+          <p>Mit einer Korrektur unter Einstellungen → Energieverbrauch (gemessener Ruheumsatz, Verdauung, Faktor auf Aktivkalorien) ist die gestrichelte Linie der korrigierte Verbrauch, das Band seine Spanne und die senkrechte Linie der Tag der Messung. Die Zeile darüber teilt ihn in Ruheumsatz, Aktivkalorien und Verdauung, gemittelt über die Tage seit der Messung, höchstens 7; Tage, die Garmin noch nicht abgeschlossen hat, zählen nicht.</p>
           <p>Ein einzelner Tag weit über oder unter allen anderen bestimmt nicht die Achse: Er steht als Dreieck am Rand, sein Wert im Tooltip.</p>
           <p class="source">Quelle: nutrition_daily.csv · calories_kcal (YAZIO) · Verbrauch: garmin_daily.csv · calories_total · Grenze: <code>MIN_COMPLETE_KCAL</code> oben im Skript</p>
         </div>
-        <div class="legend"><span><i class="key-line" style="background:var(--s1)"></i>Ø 7 Tage</span><span><i class="key-dot" style="background:var(--s1)"></i>Tag</span><span><i class="key-dot" style="background:var(--other);opacity:1"></i>unvollständig</span><span><i class="key-dash"></i>Verbrauch (Garmin)</span></div>
+        <div class="legend"><span><i class="key-line" style="background:var(--s1)"></i>Ø 7 Tage</span><span><i class="key-dot" style="background:var(--s1)"></i>Tag</span><span><i class="key-dot" style="background:var(--other);opacity:1"></i>unvollständig</span><span><i class="key-dash"></i><span id="kcal-burn-key">Verbrauch (Garmin)</span></span></div>
         <div class="chart-host" id="c-kcal"></div>
       </div>
       <div class="card span2" data-tab="Verbrauch" data-icon="balance">
@@ -1919,6 +1920,10 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
               <input id="set-tef-flat" type="text" inputmode="decimal" autocomplete="off" placeholder="10">
             </div>
             <p class="sub wide" id="set-tef-info"></p>
+            <div class="field">
+              <label for="set-active-factor">Faktor auf Garmins Aktivkalorien (optional)</label>
+              <input id="set-active-factor" type="text" inputmode="decimal" autocomplete="off" placeholder="1">
+            </div>
             <details class="token-help wide" id="set-tef-coef">
               <summary>Anteile je Makronährstoff anpassen</summary>
               <div class="table-wrap"><table class="tef-table">
@@ -2955,7 +2960,6 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Quelle: nutrition_daily.csv · calories_kcal (YAZIO) · Verbrauch: garmin_daily.csv · calories_total · Grenze: <code>MIN_COMPLETE_KCAL</code> oben im Skript": "Source: nutrition_daily.csv · calories_kcal (YAZIO) · expenditure: garmin_daily.csv · calories_total · limit: <code>MIN_COMPLETE_KCAL</code> at the top of the script",
 "<i class=\"key-dot\" style=\"background:var(--s1)\"></i>Tag": "<i class=\"key-dot\" style=\"background:var(--s1)\"></i>Day",
 "<i class=\"key-dot\" style=\"background:var(--other);opacity:1\"></i>unvollständig": "<i class=\"key-dot\" style=\"background:var(--other);opacity:1\"></i>incomplete",
-"<i class=\"key-dash\"></i>Verbrauch (Garmin)": "<i class=\"key-dash\"></i>Expenditure (Garmin)",
 "Verbrauch laut deinem Log": "Expenditure from your log",
 "Aus deinen eigenen Messungen berechnet: mittlere Aufnahme der vollständig geloggten Tage der letzten 28 Tage minus die Gewichtsänderung in dieser Zeit, umgerechnet mit 7.700 kcal pro kg. Nimmst du bei 2.000 kcal ein halbes Kilo pro Woche ab, liegt dein Verbrauch bei etwa 2.550 kcal. Das ist das Prinzip, mit dem auch Apps wie MacroFactor arbeiten.": "Calculated from your own measurements: mean intake of the fully logged days of the last 28 days minus the weight change in that time, converted at 7,700 kcal per kg. If you lose half a kilo per week on 2,000 kcal, your expenditure is about 2,550 kcal. Apps such as MacroFactor work on the same principle.",
 "Er beruht auf deinem Gewichtsverlauf statt auf einer Schätzung der Uhr. Was beim Loggen fehlt oder zu niedrig geschätzt wird, etwa von einer Fotoerkennung, macht ihn um denselben Betrag zu niedrig; er ist also der Verbrauch in deinen geloggten Kalorien. Zum Steuern taugt er trotzdem: Bei dieser geloggten Menge hältst du dein Gewicht. Wasser verschiebt das Gewicht kurzfristig; über 28 Tage gleicht sich das weitgehend aus. Gestrichelt zum Vergleich der Verbrauch laut Garmin im selben Zeitraum.": "It is based on your weight trend instead of the watch's estimate. Whatever is missing from the log or estimated too low, by photo recognition for example, makes it lower by the same amount; it is the expenditure in your logged calories. It still works for steering: at this logged amount your weight stays the same. Water shifts the weight in the short term; over 28 days that largely evens out. Dashed for comparison: expenditure according to Garmin in the same period.",
@@ -3615,8 +3619,6 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Faktor {0}": "factor {0}",
 "Garmin hat bis dahin keinen vollständigen Tag, also keinen Faktor": "Garmin has no complete day up to then, so no factor",
 "Garmin im Mittel {0} kcal an {1} Tagen ({2}–{3})": "Garmin's mean {0} kcal on {1} days ({2}–{3})",
-"Garmin mit gemessenem Ruheumsatz": "Garmin with measured RMR",
-"Garmin mit gemessenem Ruheumsatz, 28 Tage": "Garmin with measured RMR, 28 days",
 "Messung {0}: {1} kcal": "Measurement {0}: {1} kcal",
 "Noch kein Ruheumsatz unter Befunde eingetragen. Die Korrektur gilt ab dem Tag der ersten Messung.": "No resting metabolic rate under Lab results yet. The correction applies from the day of the first measurement.",
 "Nur {0} vollständige Garmin-Tage vor der Messung: der Faktor ist unsicher.": "Only {0} complete Garmin days before the measurement: the factor is uncertain.",
@@ -3652,7 +3654,21 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Pauschaler Anteil in %": "Flat share in %",
 "Anteile je Makronährstoff anpassen": "Adjust shares per macronutrient",
 "Makronährstoff": "Macronutrient",
-"Anteil der Energie, den die Verdauung kostet: 0,25 heißt 25 %. Leer: Standardwert.": "Share of the energy that digestion costs: 0.25 means 25 %. Empty: default."
+"Anteil der Energie, den die Verdauung kostet: 0,25 heißt 25 %. Leer: Standardwert.": "Share of the energy that digestion costs: 0.25 means 25 %. Empty: default.",
+"activeKcalFactor muss eine Zahl zwischen 0,5 und 1,5 sein, nicht „{0}“.": "activeKcalFactor must be a number between 0.5 and 1.5, not “{0}”.",
+"{0} kcal (Ruhe {1} · aktiv {2} · TEF {3}) · Garmin: {4} · Spanne {5}–{6}": "{0} kcal (resting {1} · active {2} · TEF {3}) · Garmin: {4} · range {5}–{6}",
+"{0} kcal (Ruhe {1} · aktiv {2}) · Garmin: {3} · Spanne {4}–{5}": "{0} kcal (resting {1} · active {2}) · Garmin: {3} · range {4}–{5}",
+"Ruheumsatz gemessen": "RMR measured",
+"Spanne Verbrauch": "Expenditure range",
+"Verbrauch korrigiert, 7-Tage-Mittel": "Expenditure corrected, 7-day mean",
+"Verbrauch korrigiert": "Expenditure corrected",
+"Verbrauch korrigiert, 28 Tage": "Expenditure corrected, 28 days",
+"Faktor auf Garmins Aktivkalorien (optional)": "Factor on Garmin's active kcal (optional)",
+"Verbrauch am {0}: {1}": "Expenditure on {0}: {1}",
+"Verbrauch Ø {0} Tage ab {1}: {2}": "Expenditure, mean of {0} days from {1}: {2}",
+"Verbrauch (korrigiert)": "Expenditure (corrected)",
+"Verbrauch (Garmin)": "Expenditure (Garmin)",
+"Mit einer Korrektur unter Einstellungen → Energieverbrauch (gemessener Ruheumsatz, Verdauung, Faktor auf Aktivkalorien) ist die gestrichelte Linie der korrigierte Verbrauch, das Band seine Spanne und die senkrechte Linie der Tag der Messung. Die Zeile darüber teilt ihn in Ruheumsatz, Aktivkalorien und Verdauung, gemittelt über die Tage seit der Messung, höchstens 7; Tage, die Garmin noch nicht abgeschlossen hat, zählen nicht.": "With a correction under Settings → Energy expenditure (measured RMR, digestion, factor on active kcal), the dashed line is the corrected expenditure, the band its range and the vertical line the day of the measurement. The line above splits it into resting, active and digestion, averaged over the days since the measurement, at most 7; days Garmin has not finished do not count."
 }
 </script>
 <script>
@@ -3681,7 +3697,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   const DATE_LOCALE = LANG === "de" ? "de-AT" : "en-GB";
   // Semantic version of this dashboard, the same as selftopo.__version__ and the newest entry in
   // CHANGELOG.md (tests/test_versions.py keeps the three equal)
-  const APP_VERSION = "2.18.0";
+  const APP_VERSION = "2.19.0";
   // Day and month: "24.11." in German; in English "24 Nov", because "24/11" reads as a fraction
   // or, to US readers, as month/day
   const DM = LANG === "de" ? { day: "2-digit", month: "2-digit" } : { day: "numeric", month: "short" };
@@ -4876,9 +4892,10 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   };
   const TEF_FLAT_PERCENT = 10;
   const TEF_FALLBACK_DAYS = 14; // a day without a complete log: flat % of the mean intake of these days
+  const ACTIVE_UNCERTAINTY = 0.15; // ± share of active kcal in the range of the expenditure
   // The energy keys of settings.json; a missing key means off, so old files change nothing
   function readEnergySettings(s, problems = []) {
-    const out = { rmrMode: "off", rmrFactorOverride: null, tefMode: "off", tefFlatPercent: TEF_FLAT_PERCENT, tef: TEF_COEFFICIENTS };
+    const out = { rmrMode: "off", rmrFactorOverride: null, tefMode: "off", tefFlatPercent: TEF_FLAT_PERCENT, tef: TEF_COEFFICIENTS, activeKcalFactor: 1 };
     if (s.rmrCorrectionMode != null) {
       if (RMR_MODES.includes(s.rmrCorrectionMode)) out.rmrMode = s.rmrCorrectionMode;
       else problems.push(T("rmrCorrectionMode muss off, factor oder absolute sein, nicht „{0}“.", [s.rmrCorrectionMode]));
@@ -4909,6 +4926,11 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       tef[variant] = c;
     }
     out.tef = tef;
+    if (s.activeKcalFactor != null && s.activeKcalFactor !== "") {
+      const v = Number(s.activeKcalFactor);
+      if (Number.isFinite(v) && v >= 0.5 && v <= 1.5) out.activeKcalFactor = v;
+      else problems.push(T("activeKcalFactor muss eine Zahl zwischen 0,5 und 1,5 sein, nicht „{0}“.", [s.activeKcalFactor]));
+    }
     return out;
   }
   // Garmin's resting kcal on the 14 days up to and including `t`: without the running day, days
@@ -4974,13 +4996,17 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     }
     const periods = rmrPeriods(measurements, days, today, energy.rmrFactorOverride);
     for (const d of days) {
+      d.active = d.activeGarmin;
+      d.restHalf = 0; // half the 95 % range of the measured RMR, in kcal of this day
+      if (d.restGarmin == null) continue;
       const p = energy.rmrMode === "off" ? null : rmrPeriodAt(periods, d.t);
-      if (!p || d.restGarmin == null) continue;
-      if (energy.rmrMode === "factor" && p.factor != null) d.rest = d.restGarmin * p.factor;
-      else if (energy.rmrMode === "absolute") d.rest = d.t === today ? p.rmr * dayFraction : p.rmr;
-      else continue;
-      d.rmrPeriod = p;
-      d.kcalBurned = d.rest + d.activeGarmin;
+      if (p && energy.rmrMode === "factor" && p.factor != null) { d.rest = d.restGarmin * p.factor; d.rmrPeriod = p; }
+      else if (p && energy.rmrMode === "absolute") { d.rest = d.t === today ? p.rmr * dayFraction : p.rmr; d.rmrPeriod = p; }
+      // The range scales with the day's resting kcal: a share of the running day, or Garmin × factor
+      if (d.rmrPeriod?.range95) d.restHalf = ((p.range95[1] - p.range95[0]) / 2) * (d.rest / p.rmr);
+      // A factor on active kcal is only what you set yourself (the adaptive check suggests one)
+      d.active = d.activeGarmin * energy.activeKcalFactor;
+      if (d.rmrPeriod || energy.activeKcalFactor !== 1) d.kcalBurned = d.rest + d.active;
     }
     // TEF on top, once, only where Garmin has the day; Garmin's resting kcal does not contain it
     for (let i = 0; i < days.length; i++) {
@@ -4991,9 +5017,46 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       d.tef = tefFor(d, recent, energy, d.t === today);
       if (d.tef) d.kcalBurned += d.tef.mid;
     }
+    // Range: root-sum-square of the RMR's 95 % half-width, the TEF's distance to its low and high
+    // variant and ±15 % of active kcal; below and above separately, because TEF is skewed
+    for (const d of days) {
+      d.kcalLow = d.kcalHigh = null;
+      if (d.kcalBurned == null || d.active == null) continue;
+      const a = (ACTIVE_UNCERTAINTY * d.active) ** 2 + d.restHalf ** 2;
+      d.kcalLow = d.kcalBurned - Math.sqrt(a + (d.tef ? (d.tef.mid - d.tef.low) ** 2 : 0));
+      d.kcalHigh = d.kcalBurned + Math.sqrt(a + (d.tef ? (d.tef.high - d.tef.mid) ** 2 : 0));
+    }
     return periods;
   }
 
+  // Whether anything changes Garmin's expenditure: a measured RMR in use, TEF or an active factor
+  const energyCorrected = (energy, periods) => (energy.rmrMode !== "off" && periods.length > 0) || energy.tefMode !== "off" || energy.activeKcalFactor !== 1;
+  // The days of the breakdown: the 7 before today, from the newest measurement in use on, without
+  // days Garmin has not finished. Its resting kcal hardly changes from day to day, so a day below 90 %
+  // of the median of the last 28 was synced before it ended.
+  function breakdownDays(days, periods, energy, today) {
+    const start = energy.rmrMode !== "off" && periods.length ? periods[periods.length - 1].from : -Infinity;
+    const sorted = days.filter((d) => d.t < today && d.t >= today - 28 * DAY && d.restGarmin > 0).map((d) => d.restGarmin).sort((a, b) => a - b);
+    if (!sorted.length) return [];
+    const median = sorted.length % 2 ? sorted[sorted.length >> 1] : (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2;
+    return days.filter((d) => d.t < today && d.t >= today - 7 * DAY && d.t >= start && d.kcalBurned != null && d.restGarmin >= 0.9 * median);
+  }
+  // The expenditure in parts, as a mean of the given days (the 7 before today), rounded to 10 kcal:
+  // "3.110 kcal (Ruhe 2.390 · aktiv 460 · TEF 260) · Garmin: 2.600 · Spanne 2.790–3.430"
+  function energyBreakdown(days, energy) {
+    const list = days.filter((d) => d.kcalBurned != null && d.rest != null && d.active != null);
+    if (!list.length) return null;
+    const m = (f) => list.reduce((a, d) => a + (f(d) ?? 0), 0) / list.length;
+    const r = (v) => fmt(Math.round(v / 10) * 10);
+    const total = m((d) => d.kcalBurned), garmin = m((d) => d.kcalGarmin), lo = m((d) => d.kcalLow), hi = m((d) => d.kcalHigh);
+    return energy.tefMode !== "off"
+      ? T("{0} kcal (Ruhe {1} · aktiv {2} · TEF {3}) · Garmin: {4} · Spanne {5}–{6}", [r(total), r(m((d) => d.rest)), r(m((d) => d.active)), r(m((d) => d.tef?.mid)), r(garmin), r(lo), r(hi)])
+      : T("{0} kcal (Ruhe {1} · aktiv {2}) · Garmin: {3} · Spanne {4}–{5}", [r(total), r(m((d) => d.rest)), r(m((d) => d.active)), r(garmin), r(lo), r(hi)]);
+  }
+  // A line in the expenditure charts on each day from which a measured RMR applies
+  const correctionMarks = (M) => (M.energy.rmrMode === "off" ? [] : M.rmr
+    .filter((p) => p.factor != null || M.energy.rmrMode === "absolute")
+    .map((p) => ({ t: p.from, label: T("Ruheumsatz gemessen") })));
   const TEF_KEYS = [["mid", "tefCoefficients"], ["low", "tefCoefficientsLow"], ["high", "tefCoefficientsHigh"]];
   const TEF_NAMES = { protein: T("Eiweiß"), carbs: T("Kohlenhydrate"), fat: T("Fett"), alcohol: T("Alkohol") };
   const TEF_VARIANT_NAMES = { mid: T("typisch"), low: T("niedrig"), high: T("hoch") };
@@ -5156,6 +5219,9 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     rollingMean(days, "balance", "balance7", 7, 3);
     for (const d of days) d.burnedFull = d.t < today ? d.kcalBurned : null; // the running day is not over yet
     rollingMean(days, "burnedFull", "burned7", 7, 3);
+    for (const d of days) { d.burnLowFull = d.t < today ? d.kcalLow : null; d.burnHighFull = d.t < today ? d.kcalHigh : null; }
+    rollingMean(days, "burnLowFull", "burnLow7", 7, 3);
+    rollingMean(days, "burnHighFull", "burnHigh7", 7, 3);
     for (const d of days) {
       // Plausible windows only: asleep between 18:00 and 06:00, awake after falling asleep
       if (d.bed == null || d.wake == null || d.wake <= d.bed || d.bed < -360 || d.bed > 360) { d.bed = null; d.wake = null; }
@@ -5537,6 +5603,14 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       svg("path", { d: `M${top.join("L")}L${bottom.join("L")}Z` }, f.root, { fill: "var(--band)" });
     }
 
+    // Days where something changed, such as the start of a correction: a dashed vertical line
+    for (const mk of (o.marks || []).filter((m) => m.t >= o.x0 && m.t <= o.x1)) {
+      const xx = x(mk.t);
+      svg("line", { x1: xx, x2: xx, y1: f.m.t, y2: f.m.t + f.ph, class: "ref-line mark-line" }, f.root);
+      // Near the right edge the label goes to the left of the line
+      const left = xx > f.m.l + f.pw * 0.7;
+      if (mk.label) svgText(f.root, left ? xx - 4 : xx + 4, f.m.t + 11, mk.label, "ref-label", left ? "end" : "start");
+    }
     // Reference values such as a target, drawn dashed and labelled at the left edge
     for (const r of refs) {
       const yy = y(r.v);
@@ -7685,16 +7759,17 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     card.hidden = !M.hasNutrition;
     if (M.hasNutrition) {
       const garminNow = e ? e.burned28 : null;
-      const corrected = M.rmr.some((p) => p.from <= M.t1) && M.energy.rmrMode !== "off";
+      const corrected = energyCorrected(M.energy, M.rmr);
       $("tdee-sub").textContent = e && e.t >= x0
-        ? T("≈ {0} kcal pro Tag", [fmt(Math.round(e.tdee / 10) * 10)]) + (garminNow ? ` · ${corrected ? T("Garmin mit gemessenem Ruheumsatz") : "Garmin"} ${fmt(Math.round(garminNow / 10) * 10)} (${fmtSigned(((garminNow - e.tdee) / e.tdee) * 100)} %)` : "") + T(", Stand {0}", [ddmm(e.t)])
+        ? T("≈ {0} kcal pro Tag", [fmt(Math.round(e.tdee / 10) * 10)]) + (garminNow ? ` · ${corrected ? T("Verbrauch korrigiert") : "Garmin"} ${fmt(Math.round(garminNow / 10) * 10)} (${fmtSigned(((garminNow - e.tdee) / e.tdee) * 100)} %)` : "") + T(", Stand {0}", [ddmm(e.t)])
         : T("Noch zu wenige Daten: nötig sind 14 vollständig geloggte Tage und 6 Wiegungen in 28 Tagen");
       mount("c-tdee", (host) => timeChart(host, {
+        marks: correctionMarks(M),
         x0, x1, label: T("Energieverbrauch aus geloggter Aufnahme und Gewichtsverlauf, verglichen mit Garmin"),
         empty: T("Noch zu wenige Daten: nötig sind 14 vollständig geloggte Tage und 6 Wiegungen innerhalb von 28 Tagen."),
         series: [
           { label: T("aus Aufnahme und Gewicht"), color: "var(--s1)", data: series("tdee"), fmt: kcalText, endFmt: (v) => fmt(v), endLabel: true },
-          { label: corrected ? T("Garmin mit gemessenem Ruheumsatz, 28 Tage") : T("Garmin, 28 Tage"), kind: "dashed", color: "var(--ink-2)", data: days.map((d) => ({ t: d.t, v: d.tdee != null ? d.burned28 : null })), fmt: kcalText },
+          { label: corrected ? T("Verbrauch korrigiert, 28 Tage") : T("Garmin, 28 Tage"), kind: "dashed", color: "var(--ink-2)", data: days.map((d) => ({ t: d.t, v: d.tdee != null ? d.burned28 : null })), fmt: kcalText },
         ],
       }));
     }
@@ -8171,6 +8246,16 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 
     // Calories against Garmin's estimate of the energy burned
     const burnedOnFoodDays = mean(food.map((d) => d.kcalBurned));
+    // With a correction: the expenditure in parts, over the 7 days before today, its range as a band
+    const corrected = energyCorrected(M.energy, M.rmr);
+    const week = breakdownDays(M.days, M.rmr, M.energy, todayT());
+    const breakdown = corrected ? energyBreakdown(week, M.energy) : null;
+    $("kcal-burn-key").textContent = corrected ? T("Verbrauch (korrigiert)") : T("Verbrauch (Garmin)");
+    $("energy-breakdown").hidden = !breakdown;
+    $("energy-breakdown").textContent = !breakdown ? ""
+      : week.length === 1 ? T("Verbrauch am {0}: {1}", [ddmm(week[0].t), breakdown])
+      : T("Verbrauch Ø {0} Tage ab {1}: {2}", [week.length, ddmm(week[0].t), breakdown]);
+    const startMarks = correctionMarks(M);
     $("kcal-sub").textContent = food.length
       ? `Ø ${kcalText(mean(food.map((d) => d.kcal)))}`
         + (burnedOnFoodDays != null ? T(" · Verbrauch Ø {0}", [fmt(burnedOnFoodDays)]) : "")
@@ -8178,11 +8263,13 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       : M.hasNutrition ? none : T("Kalorien, Makronährstoffe und Energiebilanz erscheinen hier, sobald nutrition_daily.csv im Daten-Repository liegt.");
     mount("c-kcal", (host) => (food.length || incomplete.length ? timeChart(host, {
       x0, x1, label: T("Kalorien pro Tag laut YAZIO und Verbrauch laut Garmin"), clipOutliers: true,
+      marks: startMarks,
+      band: corrected ? days.map((d) => ({ t: d.t, lo: d.burnLow7, hi: d.burnHigh7 })) : null, bandLabel: T("Spanne Verbrauch"),
       series: [
         { label: T("Tageswert"), kind: "dots", color: "var(--s1)", data: series("kcal"), fmt: kcalText },
         { label: T("unvollständig geloggt"), kind: "dots", color: "var(--other)", fmt: kcalText,
           data: days.map((d) => ({ t: d.t, v: d.kcalIn != null && !d.foodComplete ? d.kcalIn : null })) },
-        { label: T("Verbrauch laut Garmin, 7-Tage-Mittel"), kind: "dashed", color: "var(--ink-2)", data: series("burned7"), fmt: kcalText },
+        { label: corrected ? T("Verbrauch korrigiert, 7-Tage-Mittel") : T("Verbrauch laut Garmin, 7-Tage-Mittel"), kind: "dashed", color: "var(--ink-2)", data: series("burned7"), fmt: kcalText },
         { label: T("Aufnahme, 7-Tage-Mittel"), color: "var(--s1)", data: series("kcal7"), fmt: kcalText, endFmt: (v) => fmt(v), endLabel: true },
       ],
     }) : emptyNote(host, none)));
@@ -9074,6 +9161,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     // A factor is never a thousands figure: "1.117" and "1,117" both read 1.117
     const raw = $("set-rmr-factor").value.trim(), factor = Number(raw.replace(",", "."));
     if (raw && Number.isFinite(factor)) out.rmrFactorOverride = factor; else delete out.rmrFactorOverride;
+    const activeRaw = $("set-active-factor").value.trim(), active = Number(activeRaw.replace(",", "."));
+    if (activeRaw && Number.isFinite(active) && active !== 1) out.activeKcalFactor = active; else delete out.activeKcalFactor;
     const tefMode = $("set-tef-mode").value;
     if (tefMode !== "off" || out.tefMode != null) out.tefMode = tefMode;
     const flat = Number($("set-tef-flat").value.trim().replace(",", "."));
@@ -9257,6 +9346,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     $("set-rmr-factor").value = st.energy.rmrFactorOverride != null ? fmt(st.energy.rmrFactorOverride, 3) : "";
     $("set-rmr-info").textContent = rmrInfoText(state.model?.rmr || [], st.energy);
     $("set-tef-mode").value = st.energy.tefMode;
+    $("set-active-factor").value = st.energy.activeKcalFactor !== 1 ? fmt(st.energy.activeKcalFactor, 2) : "";
     $("set-tef-flat").value = st.raw.tefFlatPercent != null ? fmt(st.energy.tefFlatPercent, st.energy.tefFlatPercent % 1 ? 1 : 0) : "";
     $("set-tef-rows").replaceChildren(...Object.keys(TEF_KCAL_PER_G).map((n) => html("tr", {}, [
       html("th", { scope: "row", text: TEF_NAMES[n] }),

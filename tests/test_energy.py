@@ -21,7 +21,7 @@ from selftopo import energy, reports
 from selftopo.csvstore import write_rows
 
 HELPERS = ["DAY", "isoToT", "tToIso", "RMR_MODES", "RMR_REF_DAYS", "RMR_REF_MIN_DAYS", "TEF_MODES", "TEF_KCAL_PER_G", "TEF_COEFFICIENTS",
-           "TEF_FLAT_PERCENT", "TEF_FALLBACK_DAYS", "readEnergySettings", "rmrReference", "rmrPeriods", "rmrPeriodAt", "tefFor", "applyEnergy"]
+           "TEF_FLAT_PERCENT", "TEF_FALLBACK_DAYS", "ACTIVE_UNCERTAINTY", "readEnergySettings", "rmrReference", "rmrPeriods", "rmrPeriodAt", "tefFor", "applyEnergy"]
 TODAY = date(2026, 11, 25)
 MEASURED = date(2026, 11, 23)
 
@@ -50,11 +50,13 @@ def dashboard(rows, measurements, settings, today=TODAY, fraction=1.0):
         raw = {"p": r.get("protein_g"), "c": r.get("carbs_g"), "f": r.get("fat_g"), "alc": r.get("alcohol_g")} if kcal is not None else None
         return f"kcalIn: {json.dumps(kcal)}, foodComplete: {json.dumps(complete)}, foodRaw: {json.dumps(raw)}"
     days_js = "[" + ",".join(f"{{t: isoToT('{r['date']}'), kcalBurned: {json.dumps(r.get('calories_total'))}, activeGarmin: {json.dumps(r.get('calories_active'))}, {food(r)}}}" for r in rows) + "]"
-    ms = [{"kind": m["kind"], "status": m["status"], "t": f"isoToT('{m['date']}')", "value": float(m["value"]), "id": m["id"]} for m in measurements]
-    ms_js = "[" + ",".join(f"{{kind: '{m['kind']}', status: '{m['status']}', t: {m['t']}, value: {m['value']}, id: '{m['id']}'}}" for m in ms) + "]"
+    ms = [{"kind": m["kind"], "status": m["status"], "t": f"isoToT('{m['date']}')", "value": float(m["value"]), "id": m["id"],
+           "range95": [float(m["range95_low"]), float(m["range95_high"])] if m.get("range95_low") else None} for m in measurements]
+    ms_js = "[" + ",".join(f"{{kind: '{m['kind']}', status: '{m['status']}', t: {m['t']}, value: {m['value']}, id: '{m['id']}', range95: {json.dumps(m['range95'])}}}" for m in ms) + "]"
     expr = (f"(() => {{ const days = {days_js}; const p = applyEnergy(days, {ms_js}, readEnergySettings({json.dumps(settings)}), isoToT('{today}'), {fraction});"
             " return { days: Object.fromEntries(days.map((d) => [tToIso(d.t), [d.restGarmin, d.rest, d.kcalBurned, d.kcalGarmin]])),"
             " tef: Object.fromEntries(days.map((d) => [tToIso(d.t), d.tef])),"
+            " range: Object.fromEntries(days.map((d) => [tToIso(d.t), [d.kcalLow, d.kcalHigh, d.active]])),"
             " periods: p.map((x) => ({ from: tToIso(x.from), to: x.to == null ? null : tToIso(x.to), rmr: x.rmr, factor: x.factor, measuredFactor: x.measuredFactor,"
             " ref: x.ref && { kcal: x.ref.kcal, n: x.ref.n, from: tToIso(x.ref.from), to: tToIso(x.ref.to), warn: x.ref.warn } })) }; })()")
     return run(HELPERS, expr)
@@ -321,3 +323,55 @@ def test_tef_never_added_to_adaptive_tdee(given):
     out = run(helpers, expr)
     given(off=out["off"], macro=out["macro"])
     assert out["macro"][0] == pytest.approx(out["off"][0]) and out["macro"][1] == pytest.approx(out["off"][1] + 256.3)
+
+
+# --------------------------------------------------------------------------- total and range
+
+
+RANGE = {"range95_low": "2110", "range95_high": "2670", "range99_low": "2020", "range99_high": "2760"}
+
+
+def test_total_is_component_sum(tmp_path, given):
+    """Measured 2,390 + active × activeKcalFactor 0.9 + TEF 256.3; the factor alone also applies to Garmin's resting kcal."""
+    rows = logged(garmin(), DAY, 2500, 160, 285, 80)
+    active = next(r for r in rows if r["date"] == DAY.isoformat())["calories_active"]
+    js, frame = both(tmp_path, rows, {"rmrCorrectionMode": "absolute", "tefMode": "macro", "activeKcalFactor": 0.9}, ms=[rmr(MEASURED, **RANGE)])
+    only, frame_only = both(tmp_path, rows, {"activeKcalFactor": 0.9})
+    total = js["days"][DAY.isoformat()][2]
+    given(active=active, total=total, active_factor_only=only["days"][DAY.isoformat()][2])
+    assert total == pytest.approx(2390 + 0.9 * active + 256.3) and frame.loc[DAY.isoformat(), "expenditure_kcal"] == pytest.approx(total)
+    assert only["days"][DAY.isoformat()][2] == pytest.approx(2139 + 0.9 * active) and frame_only.loc[DAY.isoformat(), "expenditure_kcal"] == pytest.approx(2139 + 0.9 * active)
+
+
+def test_range_root_sum_square(tmp_path, given):
+    """Half the 95 % range (280), 15 % of active kcal and TEF to its low and high variant (71.3 each),
+    added as root-sum-square; in factor mode the RMR term scales with the day's resting kcal."""
+    rows = logged(garmin(), DAY, 2500, 160, 285, 80)
+    active = next(r for r in rows if r["date"] == DAY.isoformat())["calories_active"]
+    js, frame = both(tmp_path, rows, {"rmrCorrectionMode": "absolute", "tefMode": "macro"}, ms=[rmr(MEASURED, **RANGE)])
+    total = js["days"][DAY.isoformat()][2]
+    lo, hi, _ = js["range"][DAY.isoformat()]
+    half = (280 ** 2 + (0.15 * active) ** 2 + 71.3 ** 2) ** 0.5
+    given(total=total, low=lo, high=hi, half_width=half)
+    assert (lo, hi) == pytest.approx((total - half, total + half))
+    assert (frame.loc[DAY.isoformat(), "expenditure_low"], frame.loc[DAY.isoformat(), "expenditure_high"]) == pytest.approx((lo, hi))
+    factor, frame_f = both(tmp_path, rows, {"rmrCorrectionMode": "factor"}, ms=[rmr(MEASURED, **RANGE)])
+    rest = 2139 * 1.117
+    f_lo, f_hi, _ = factor["range"][DAY.isoformat()]
+    expected = ((280 * rest / 2390) ** 2 + (0.15 * active) ** 2) ** 0.5
+    assert factor["days"][DAY.isoformat()][2] - f_lo == pytest.approx(expected) and frame_f.loc[DAY.isoformat(), "expenditure_high"] == pytest.approx(f_hi)
+
+
+def test_balance_uses_corrected_total(tmp_path, given):
+    """In the dashboard the balance, the 7- and 28-day means are computed after applyEnergy from kcalBurned;
+    in the recommendations the expenditure without YAZIO is expenditure_kcal with every correction."""
+    from jsdashboard import declaration
+    model = declaration("buildModel")
+    order = [model.index(k) for k in ("applyEnergy(days", "d.balance = d.kcal != null && d.kcalBurned != null ? d.kcal - d.kcalBurned", "d.burnedFull = d.t < today ? d.kcalBurned")]
+    rows = logged(garmin(), DAY, 2500, 160, 285, 80)
+    _, frame = both(tmp_path, rows, {"rmrCorrectionMode": "absolute", "tefMode": "macro"}, ms=[rmr(MEASURED)])
+    given(order=order)
+    assert order == sorted(order)
+    assert frame.loc[DAY.isoformat(), "expenditure_kcal"] == pytest.approx(frame.loc[DAY.isoformat(), "resting_kcal"] + frame.loc[DAY.isoformat(), "active_kcal"] + 256.3)
+    from selftopo import recommend
+    assert 'data.mean("expenditure_kcal", 28, minimum=7)' in open(recommend.__file__, encoding="utf-8").read()
