@@ -485,3 +485,20 @@ def test_adaptive_needs_three_weighins_at_each_end(given):
     weekly, every_other_day = run(ADAPT, expr)
     given(weekly=weekly, every_other_day=every_other_day)
     assert weekly is False and every_other_day is True
+
+
+def test_adaptive_hint_needs_a_28_day_weight_span(given):
+    """Weigh-ins only from day 7 of a 28-day window: the check runs over 21 days but gives no factor hint, even 14 % apart."""
+    expr = """(() => { const t0 = isoToT('2026-11-24') - 39 * DAY, days = [];
+      for (let i = 0; i < 40; i++) days.push({ t: t0 + i * DAY, kcal: 2500, weight: i >= 16 ? 90 - 0.05 * i : null, burnedFull: 3300, rest: 2390, activeGarmin: 700, tef: null });
+      rollingMean(days, "weight", "weight7", 7); return adaptiveTdee(days, 39, 28); })()"""
+    a = run(ADAPT, expr)
+    given(ok=a["ok"], pct=a["pct"], hint=a["hint"])
+    assert a["ok"] and abs(a["pct"]) > 10 and a["hint"] is False
+
+
+def test_newest_measurement_bounds_the_check_without_a_factor(given):
+    """In factor mode a newest measurement without a factor still bounds the window, because it ends the older correction."""
+    since = run(["correctionSince"], "[correctionSince({ rmrMode: 'factor' }, [{ from: 1, factor: 1.1 }, { from: 5, factor: null }]), correctionSince({ rmrMode: 'off' }, [{ from: 5, factor: 1 }]) === -Infinity]")
+    given(since=since)
+    assert since == [5, True]

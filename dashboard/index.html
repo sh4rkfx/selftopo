@@ -5115,7 +5115,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     out.corrected = m((d) => d.burnedFull);
     out.diff = out.corrected - tdee;
     out.pct = (out.diff / tdee) * 100;
-    out.hint = window >= ADAPTIVE_DAYS && Math.abs(out.pct) > ADAPTIVE_HINT;
+    // The hint needs 28 days of evidence: the weight change itself must span them
+    out.hint = span >= ADAPTIVE_DAYS - 1 && Math.abs(out.pct) > ADAPTIVE_HINT;
     const active = m((d) => d.activeGarmin);
     // The factor that would close the gap; outside 0.5–1.5 active kcal alone cannot explain it
     if (out.hint && active > 0) {
@@ -5141,10 +5142,11 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
         : T("Mehr als 10 % auseinander, mehr als ein Faktor zwischen 0,5 und 1,5 auf die Aktivkalorien erklärt: prüfe, ob im Log Mahlzeiten fehlen und ob die Messung stimmt.");
     return { main, hint };
   }
-  // The day from which the measured RMR in force applies, for the adaptive check
+  // The day from which the measurement in force applies, for the adaptive check
   const correctionSince = (energy, periods) => {
+    // The newest measurement, also one without a factor: it ends the older one's correction
     const p = energy.rmrMode === "off" ? null : periods[periods.length - 1];
-    return p && (energy.rmrMode === "absolute" || p.factor != null) ? p.from : -Infinity;
+    return p ? p.from : -Infinity;
   };
   // A line in the expenditure charts on each day from which a measured RMR applies
   const correctionMarks = (M) => (M.energy.rmrMode === "off" ? [] : M.rmr
