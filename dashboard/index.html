@@ -860,6 +860,10 @@ dialog.prefs[open] { display: flex; flex-direction: column; }
 .settings-grid .goal-fields { grid-column: 1 / -1; border: 0; margin: 4px 0 0; padding: 0; min-width: 0; }
 .settings-grid .energy-fields { grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); }
 .settings-grid .energy-fields .wide { grid-column: 1 / -1; margin: 0; }
+.tef-table { border-collapse: collapse; font-size: 0.8125rem; }
+.tef-table th, .tef-table td { padding: 4px 6px 4px 0; text-align: left; font-weight: 500; }
+.tef-table input { width: 4.25rem; height: 36px; padding: 0 8px; border: 1px solid var(--ring-strong); border-radius: 7px; background: var(--surface); color: var(--ink); font: inherit; font-family: var(--font-mono); }
+@media (pointer: coarse) { .tef-table input { height: 44px; } }
 .settings-grid .goal-fields legend { font-size: 0.8125rem; font-weight: 600; padding: 0; margin-bottom: 6px; }
 .settings-lifts { margin: 0; font-size: 0.8125rem; color: var(--ink-2); }
 .settings-problems { margin: 0; padding-left: 18px; font-size: 0.8125rem; color: var(--ink); }
@@ -1902,6 +1906,27 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
               <input id="set-rmr-factor" type="text" inputmode="decimal" autocomplete="off" placeholder="aus der Messung">
             </div>
             <p class="sub wide" id="set-rmr-info"></p>
+            <div class="field">
+              <label for="set-tef-mode">Verdauung (thermischer Effekt)</label>
+              <select id="set-tef-mode">
+                <option value="off">Aus</option>
+                <option value="flat">Pauschal, Anteil der Aufnahme</option>
+                <option value="macro">Nach Makronährstoffen</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="set-tef-flat">Pauschaler Anteil in %</label>
+              <input id="set-tef-flat" type="text" inputmode="decimal" autocomplete="off" placeholder="10">
+            </div>
+            <p class="sub wide" id="set-tef-info"></p>
+            <details class="token-help wide" id="set-tef-coef">
+              <summary>Anteile je Makronährstoff anpassen</summary>
+              <div class="table-wrap"><table class="tef-table">
+                <thead><tr><th scope="col">Makronährstoff</th><th scope="col">typisch</th><th scope="col">niedrig</th><th scope="col">hoch</th></tr></thead>
+                <tbody id="set-tef-rows"></tbody>
+              </table></div>
+              <p class="sub">Anteil der Energie, den die Verdauung kostet: 0,25 heißt 25 %. Leer: Standardwert.</p>
+            </details>
           </fieldset>
           <fieldset class="goal-fields" id="goal-fields">
             <legend>Ziele für die Empfehlungen, höchstens eines pro Bereich</legend>
@@ -3608,7 +3633,26 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "95-%-Bereich von (optional)": "95 % range from (optional)",
 "95-%-Bereich bis": "95 % range to",
 "99-%-Bereich von (optional)": "99 % range from (optional)",
-"99-%-Bereich bis": "99 % range to"
+"99-%-Bereich bis": "99 % range to",
+"tefMode muss off, flat oder macro sein, nicht „{0}“.": "tefMode must be off, flat or macro, not “{0}”.",
+"tefFlatPercent muss eine Zahl zwischen 0 und 25 sein, nicht „{0}“.": "tefFlatPercent must be a number between 0 and 25, not “{0}”.",
+"{0} muss ein Objekt wie {\"protein\": 0.25} sein.": "{0} must be an object like {\"protein\": 0.25}.",
+"{0}.{1} muss ein Anteil zwischen 0 und 0,5 sein, nicht „{2}“.": "{0}.{1} must be a share between 0 and 0.5, not “{2}”.",
+"Alkohol": "Alcohol",
+"typisch": "typical",
+"Mit gemessenem Ruheumsatz empfohlen: „Nach Makronährstoffen“. Garmins Ruheumsatz und der gemessene enthalten die Verdauung nicht.": "Recommended with a measured RMR: “By macronutrient”. Neither Garmin's resting kcal nor the measured one contains digestion.",
+"Aus: der Verbrauch enthält die Energie für die Verdauung nicht.": "Off: expenditure does not include the energy spent on digestion.",
+"Eiweiß {0} %, Kohlenhydrate {1} %, Fett {2} %, Alkohol {3} % ihrer Energie, aus dem YAZIO-Log des Tages.": "Protein {0} %, carbohydrates {1} %, fat {2} %, alcohol {3} % of their energy, from the day's YAZIO log.",
+"{0} % der geloggten Aufnahme des Tages.": "{0} % of the day's logged intake.",
+"Tage ohne vollständiges Log: {0} % des Mittels der vollständigen Tage aus den 14 davor, als geschätzt markiert.": "Days without a complete log: {0} % of the mean of the complete days among the 14 before, marked as estimated.",
+"Verdauung (thermischer Effekt)": "Digestion (thermic effect)",
+"Aus": "Off",
+"Pauschal, Anteil der Aufnahme": "Flat share of intake",
+"Nach Makronährstoffen": "By macronutrient",
+"Pauschaler Anteil in %": "Flat share in %",
+"Anteile je Makronährstoff anpassen": "Adjust shares per macronutrient",
+"Makronährstoff": "Macronutrient",
+"Anteil der Energie, den die Verdauung kostet: 0,25 heißt 25 %. Leer: Standardwert.": "Share of the energy that digestion costs: 0.25 means 25 %. Empty: default."
 }
 </script>
 <script>
@@ -3637,7 +3681,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   const DATE_LOCALE = LANG === "de" ? "de-AT" : "en-GB";
   // Semantic version of this dashboard, the same as selftopo.__version__ and the newest entry in
   // CHANGELOG.md (tests/test_versions.py keeps the three equal)
-  const APP_VERSION = "2.17.0";
+  const APP_VERSION = "2.18.0";
   // Day and month: "24.11." in German; in English "24 Nov", because "24/11" reads as a fraction
   // or, to US readers, as month/day
   const DM = LANG === "de" ? { day: "2-digit", month: "2-digit" } : { day: "numeric", month: "short" };
@@ -4821,9 +4865,20 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
   const RMR_MODES = ["off", "factor", "absolute"];
   const RMR_REF_DAYS = 14;     // reference window up to and including the measurement date
   const RMR_REF_MIN_DAYS = 5;  // fewer valid days: the factor is used, with a warning
+  // Thermic effect of food: share of each macronutrient's energy spent on digesting it
+  // (Westerterp 2004), with a low and a high variant for the range; kcal per g: 4/4/9/7
+  const TEF_MODES = ["off", "flat", "macro"];
+  const TEF_KCAL_PER_G = { protein: 4, carbs: 4, fat: 9, alcohol: 7 };
+  const TEF_COEFFICIENTS = {
+    mid: { protein: 0.25, carbs: 0.075, fat: 0.015, alcohol: 0.2 },
+    low: { protein: 0.2, carbs: 0.05, fat: 0, alcohol: 0.1 },
+    high: { protein: 0.3, carbs: 0.1, fat: 0.03, alcohol: 0.3 },
+  };
+  const TEF_FLAT_PERCENT = 10;
+  const TEF_FALLBACK_DAYS = 14; // a day without a complete log: flat % of the mean intake of these days
   // The energy keys of settings.json; a missing key means off, so old files change nothing
   function readEnergySettings(s, problems = []) {
-    const out = { rmrMode: "off", rmrFactorOverride: null };
+    const out = { rmrMode: "off", rmrFactorOverride: null, tefMode: "off", tefFlatPercent: TEF_FLAT_PERCENT, tef: TEF_COEFFICIENTS };
     if (s.rmrCorrectionMode != null) {
       if (RMR_MODES.includes(s.rmrCorrectionMode)) out.rmrMode = s.rmrCorrectionMode;
       else problems.push(T("rmrCorrectionMode muss off, factor oder absolute sein, nicht „{0}“.", [s.rmrCorrectionMode]));
@@ -4833,6 +4888,27 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       if (Number.isFinite(f) && f >= 0.5 && f <= 2) out.rmrFactorOverride = f;
       else problems.push(T("rmrFactorOverride muss eine Zahl zwischen 0,5 und 2 sein, nicht „{0}“.", [s.rmrFactorOverride]));
     }
+    if (s.tefMode != null) {
+      if (TEF_MODES.includes(s.tefMode)) out.tefMode = s.tefMode;
+      else problems.push(T("tefMode muss off, flat oder macro sein, nicht „{0}“.", [s.tefMode]));
+    }
+    if (s.tefFlatPercent != null && s.tefFlatPercent !== "") {
+      const v = Number(s.tefFlatPercent);
+      if (Number.isFinite(v) && v >= 0 && v <= 25) out.tefFlatPercent = v;
+      else problems.push(T("tefFlatPercent muss eine Zahl zwischen 0 und 25 sein, nicht „{0}“.", [s.tefFlatPercent]));
+    }
+    // Coefficients: each key may replace one value; anything else keeps the default
+    const tef = {};
+    for (const [variant, key] of [["mid", "tefCoefficients"], ["low", "tefCoefficientsLow"], ["high", "tefCoefficientsHigh"]]) {
+      const given = s[key], c = { ...TEF_COEFFICIENTS[variant] };
+      if (given != null && (typeof given !== "object" || Array.isArray(given))) problems.push(T("{0} muss ein Objekt wie {\"protein\": 0.25} sein.", [key]));
+      else for (const [n, v] of Object.entries(given || {})) {
+        if (n in c && Number.isFinite(Number(v)) && Number(v) >= 0 && Number(v) <= 0.5) c[n] = Number(v);
+        else problems.push(T("{0}.{1} muss ein Anteil zwischen 0 und 0,5 sein, nicht „{2}“.", [key, n, v]));
+      }
+      tef[variant] = c;
+    }
+    out.tef = tef;
     return out;
   }
   // Garmin's resting kcal on the 14 days up to and including `t`: without the running day, days
@@ -4868,6 +4944,23 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     for (let i = periods.length - 1; i >= 0; i--) if (periods[i].from <= t) return periods[i].to == null || t <= periods[i].to ? periods[i] : null;
     return null;
   };
+  // Thermic effect of food of one day: { mid, low, high, estimated } or null. A complete log counts
+  // as logged; the running day counts what is logged so far. Any other day gets the flat share of
+  // the mean intake of the complete days among the 14 before it, marked as estimated.
+  function tefFor(day, recent, energy, isToday) {
+    const flat = (kcal) => ({ mid: kcal * energy.tefFlatPercent / 100, low: kcal * energy.tefFlatPercent / 200, high: kcal * energy.tefFlatPercent * 1.5 / 100 });
+    if (day.foodComplete || (isToday && day.kcalIn != null)) {
+      const f = day.foodRaw;
+      if (energy.tefMode === "macro" && f && f.p != null && f.c != null && f.f != null) {
+        const e = { protein: f.p * TEF_KCAL_PER_G.protein, carbs: f.c * TEF_KCAL_PER_G.carbs, fat: f.f * TEF_KCAL_PER_G.fat, alcohol: (f.alc ?? 0) * TEF_KCAL_PER_G.alcohol };
+        const sum = (c) => Object.keys(e).reduce((a, k) => a + e[k] * c[k], 0);
+        return { mid: sum(energy.tef.mid), low: sum(energy.tef.low), high: sum(energy.tef.high), estimated: false };
+      }
+      return { ...flat(day.kcalIn), estimated: false };
+    }
+    const eaten = recent.filter((d) => d.foodComplete).map((d) => d.kcalIn);
+    return eaten.length ? { ...flat(eaten.reduce((a, b) => a + b, 0) / eaten.length), estimated: true } : null;
+  }
   // Adds to every day: kcalGarmin, activeGarmin and restGarmin as Garmin has them, rest (resting
   // kcal after the correction) and kcalBurned, the expenditure every balance and mean uses. With
   // the mode off or before the first measurement, kcalBurned stays Garmin's total. Returns the
@@ -4880,9 +4973,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       d.rmrPeriod = null;
     }
     const periods = rmrPeriods(measurements, days, today, energy.rmrFactorOverride);
-    if (energy.rmrMode === "off") return periods;
     for (const d of days) {
-      const p = rmrPeriodAt(periods, d.t);
+      const p = energy.rmrMode === "off" ? null : rmrPeriodAt(periods, d.t);
       if (!p || d.restGarmin == null) continue;
       if (energy.rmrMode === "factor" && p.factor != null) d.rest = d.restGarmin * p.factor;
       else if (energy.rmrMode === "absolute") d.rest = d.t === today ? p.rmr * dayFraction : p.rmr;
@@ -4890,9 +4982,31 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       d.rmrPeriod = p;
       d.kcalBurned = d.rest + d.activeGarmin;
     }
+    // TEF on top, once, only where Garmin has the day; Garmin's resting kcal does not contain it
+    for (let i = 0; i < days.length; i++) {
+      const d = days[i];
+      d.tef = null;
+      if (energy.tefMode === "off" || d.kcalBurned == null) continue;
+      const recent = days.slice(Math.max(0, i - TEF_FALLBACK_DAYS), i).filter((x) => x.t >= d.t - TEF_FALLBACK_DAYS * DAY);
+      d.tef = tefFor(d, recent, energy, d.t === today);
+      if (d.tef) d.kcalBurned += d.tef.mid;
+    }
     return periods;
   }
 
+  const TEF_KEYS = [["mid", "tefCoefficients"], ["low", "tefCoefficientsLow"], ["high", "tefCoefficientsHigh"]];
+  const TEF_NAMES = { protein: T("Eiweiß"), carbs: T("Kohlenhydrate"), fat: T("Fett"), alcohol: T("Alkohol") };
+  const TEF_VARIANT_NAMES = { mid: T("typisch"), low: T("niedrig"), high: T("hoch") };
+  // Under Settings → Energy: what the thermic effect adds, and the suggestion once an RMR is measured
+  function tefInfoText(energy, measured) {
+    if (energy.tefMode === "off") return measured
+      ? T("Mit gemessenem Ruheumsatz empfohlen: „Nach Makronährstoffen“. Garmins Ruheumsatz und der gemessene enthalten die Verdauung nicht.")
+      : T("Aus: der Verbrauch enthält die Energie für die Verdauung nicht.");
+    const base = energy.tefMode === "macro"
+      ? T("Eiweiß {0} %, Kohlenhydrate {1} %, Fett {2} %, Alkohol {3} % ihrer Energie, aus dem YAZIO-Log des Tages.", ["protein", "carbs", "fat", "alcohol"].map((n) => fmt(energy.tef.mid[n] * 100, energy.tef.mid[n] * 100 % 1 ? 1 : 0)))
+      : T("{0} % der geloggten Aufnahme des Tages.", [fmt(energy.tefFlatPercent, energy.tefFlatPercent % 1 ? 1 : 0)]);
+    return `${base} ${T("Tage ohne vollständiges Log: {0} % des Mittels der vollständigen Tage aus den 14 davor, als geschätzt markiert.", [fmt(energy.tefFlatPercent, energy.tefFlatPercent % 1 ? 1 : 0)])}`;
+  }
   // Under Settings → Energy: what the newest measurement gives and what it rests on
   function rmrInfoText(periods, energy) {
     const p = periods[periods.length - 1];
@@ -4977,7 +5091,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       const only = (v) => (complete ? v : null);
       days.push({
         kcalIn, foodComplete: complete, water: food ? num(food.water_ml) : null,
-        foodRaw: food ? { p: num(food.protein_g), c: num(food.carbs_g), f: num(food.fat_g) } : null,
+        foodRaw: food ? { p: num(food.protein_g), c: num(food.carbs_g), f: num(food.fat_g), alc: num(food.alcohol_g) } : null,
         kcal: only(kcalIn), proteinG: only(num(food?.protein_g)), carbsG: only(num(food?.carbs_g)), fatG: only(num(food?.fat_g)),
         t,
         weight, fatPct, bmi: num(r.bmi),
@@ -8960,6 +9074,19 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     // A factor is never a thousands figure: "1.117" and "1,117" both read 1.117
     const raw = $("set-rmr-factor").value.trim(), factor = Number(raw.replace(",", "."));
     if (raw && Number.isFinite(factor)) out.rmrFactorOverride = factor; else delete out.rmrFactorOverride;
+    const tefMode = $("set-tef-mode").value;
+    if (tefMode !== "off" || out.tefMode != null) out.tefMode = tefMode;
+    const flat = Number($("set-tef-flat").value.trim().replace(",", "."));
+    if ($("set-tef-flat").value.trim() && Number.isFinite(flat)) out.tefFlatPercent = flat; else delete out.tefFlatPercent;
+    // Only the coefficients that differ from the default are written
+    for (const [variant, key] of TEF_KEYS) {
+      const own = {};
+      for (const n of Object.keys(TEF_KCAL_PER_G)) {
+        const text = $(`set-tef-${variant}-${n}`)?.value.trim() || "", v = Number(text.replace(",", "."));
+        if (text && Number.isFinite(v) && v !== TEF_COEFFICIENTS[variant][n]) own[n] = v;
+      }
+      if (Object.keys(own).length) out[key] = own; else delete out[key];
+    }
     return out;
   }
   // Pending changes that add to what is there: push devices, experiments, hidden recommendations
@@ -9129,6 +9256,17 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     $("set-rmr-mode").value = st.energy.rmrMode;
     $("set-rmr-factor").value = st.energy.rmrFactorOverride != null ? fmt(st.energy.rmrFactorOverride, 3) : "";
     $("set-rmr-info").textContent = rmrInfoText(state.model?.rmr || [], st.energy);
+    $("set-tef-mode").value = st.energy.tefMode;
+    $("set-tef-flat").value = st.raw.tefFlatPercent != null ? fmt(st.energy.tefFlatPercent, st.energy.tefFlatPercent % 1 ? 1 : 0) : "";
+    $("set-tef-rows").replaceChildren(...Object.keys(TEF_KCAL_PER_G).map((n) => html("tr", {}, [
+      html("th", { scope: "row", text: TEF_NAMES[n] }),
+      ...TEF_KEYS.map(([variant]) => html("td", {}, html("input", {
+        id: `set-tef-${variant}-${n}`, type: "text", inputmode: "decimal", autocomplete: "off", "aria-label": `${TEF_NAMES[n]}, ${TEF_VARIANT_NAMES[variant]}`,
+        placeholder: fmt(TEF_COEFFICIENTS[variant][n], 3).replace(/0+$/, "").replace(/[.,]$/, ""),
+        value: st.energy.tef[variant][n] !== TEF_COEFFICIENTS[variant][n] ? String(st.energy.tef[variant][n]).replace(".", DECIMAL) : "",
+      }))),
+    ])));
+    $("set-tef-info").textContent = tefInfoText(st.energy, (state.model?.rmr || []).length > 0);
     $("push-key").value = typeof st.raw?.push?.public_key === "string" ? st.raw.push.public_key : "";
     refreshPush();
     for (const el of document.querySelectorAll("[data-step-goal]")) el.textContent = fmt(STEP_GOAL);

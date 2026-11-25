@@ -62,3 +62,26 @@ def test_a_changed_measurement_rebuilds_the_expenditure(given):
     assert "rebuildModel()" in setter and calls == 3
     assert "state.measurements = parseMeasurements(result.rows)" not in HTML
 
+
+
+def tef_info(settings, measured):
+    return run(TEXT + ["tefInfoText"], f"tefInfoText(readEnergySettings({json.dumps(settings)}), {json.dumps(measured)})")
+
+
+def test_macro_suggested_with_measurement(given):
+    """With an RMR entered and TEF off, the settings suggest "Nach Makronährstoffen"; the texts name the
+    coefficients or the flat share and the estimate for days without a complete log; the form writes
+    tefMode, tefFlatPercent and only coefficients that differ from the default, in German and English."""
+    suggest, plain = tef_info({}, True), tef_info({}, False)
+    macro = tef_info({"tefMode": "macro", "tefCoefficients": {"protein": 0.22}}, True)
+    flat = tef_info({"tefMode": "flat", "tefFlatPercent": 8}, False)
+    form = re.search(r"  function formFields\(out\) \{.*?\n  \}", HTML, re.S).group(0)
+    select = re.findall(r'<option value="(\w+)"', re.search(r'<select id="set-tef-mode">(.*?)</select>', HTML, re.S).group(1))
+    en = json.loads(re.search(r'<script type="application/json" id="i18n-en">(.*?)</script>', HTML, re.S).group(1))
+    given(suggest=suggest, macro=macro, flat=flat)
+    assert suggest.startswith("Mit gemessenem Ruheumsatz empfohlen: „Nach Makronährstoffen“") and plain.startswith("Aus:")
+    assert macro.startswith("Eiweiß 22 %, Kohlenhydrate 7,5 %, Fett 1,5 %, Alkohol 20 %") and "10 % des Mittels" in macro
+    assert flat.startswith("8 % der geloggten Aufnahme") and "8 % des Mittels" in flat
+    assert select == ["off", "flat", "macro"] and "out.tefMode = tefMode" in form and "v !== TEF_COEFFICIENTS[variant][n]" in form
+    for de in ("Verdauung (thermischer Effekt)", "Pauschal, Anteil der Aufnahme", "Nach Makronährstoffen", "Anteile je Makronährstoff anpassen"):
+        assert en.get(de), de

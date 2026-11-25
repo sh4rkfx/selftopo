@@ -251,6 +251,9 @@ the dashboard read the same file, and every key is optional.
 | `push` | none | both | Public key and the devices that receive push notifications; written by the dashboard, see [docs/push.md](docs/push.md) |
 | `rmrCorrectionMode` | `off` | both | `factor` or `absolute`: a measured resting metabolic rate (Befunde) corrects Garmin's resting kcal, see *Energy expenditure* |
 | `rmrFactorOverride` | none | both | Your own factor (0.5–2) instead of the one computed from the measurement |
+| `tefMode` | `off` | both | `flat` or `macro`: adds the thermic effect of food to the expenditure, see *Energy expenditure* |
+| `tefFlatPercent` | `10` | both | Share of intake for `flat`, and for days without a complete log |
+| `tefCoefficients`, `tefCoefficientsLow`, `tefCoefficientsHigh` | see *Energy expenditure* | both | Share of each macronutrient's energy (`protein`, `carbs`, `fat`, `alcohol`); only the values you change |
 
 Edit the file under gear icon → *General* and press *Save*. With a token that has *Contents: Read
 and write*, the dashboard commits `settings.json` to the data repository itself
@@ -342,7 +345,30 @@ replaces it. Choose how under gear icon → *General* → *Energy expenditure*:
 
 Total energy expenditure is resting energy plus the energy of activity plus the thermic effect of
 food (NASEM 2023, *Dietary Reference Intakes for Energy*). Garmin's active kcal covers the
-activity part; the thermic effect of food is not yet included.
+activity part. Neither Garmin's resting kcal nor a measured RMR (fasted, at rest) contains the
+energy spent on digesting food, so `tefMode` adds it, exactly once:
+
+| `tefMode` | Thermic effect of food per day | low – high (for the range) |
+|---|---|---|
+| `off` (default) | none | – |
+| `flat` | `tefFlatPercent` (10) % of the logged intake | half – one and a half of it (5–15 %) |
+| `macro` | 0.25 · E<sub>protein</sub> + 0.075 · E<sub>carbs</sub> + 0.015 · E<sub>fat</sub> + 0.20 · E<sub>alcohol</sub> | 0.20 / 0.05 / 0 / 0.10 – 0.30 / 0.10 / 0.03 / 0.30 |
+
+- E is the energy of each macronutrient from YAZIO's grams: 4 kcal/g protein and carbohydrates,
+  9 fat, 7 alcohol. Example: 160 g protein, 285 g carbohydrates, 80 g fat → 640 · 0.25 + 1,140 ·
+  0.075 + 720 · 0.015 = 256 kcal (low 185, high 328). YAZIO's export has no alcohol yet; a column
+  `alcohol_g` in `nutrition_daily.csv` would be counted.
+- A completely logged day (at least 1,200 kcal, see *MIN_COMPLETE_KCAL*) counts as logged; the
+  running day counts what is logged so far. Any other day, without a log or with an incomplete
+  one, gets `tefFlatPercent` % of the mean intake of the complete days among the 14 before it and
+  is marked as estimated; with none in those 14 days, it gets no TEF.
+- TEF goes only into this component model (resting + active + TEF). It never goes into the
+  expenditure computed from intake and weight change (*Verbrauch laut deinem Log*), which already
+  contains it.
+- Coefficients: Westerterp 2004 (*Diet induced thermogenesis*, Nutrition & Metabolism 1:5) gives
+  20–30 % for protein, 5–10 % for carbohydrates, 0–3 % for fat and about 10 % of total intake for a
+  mixed diet; the ISSN position stand on diets and body composition (Aragon et al. 2017) uses the
+  same ranges. Values per person vary, so the low and high variants feed the range.
 
 ## Running locally
 

@@ -6,6 +6,25 @@ wording change the patch version; within a major version, data files and setting
 compatible. The workflow in each data repository follows the tag of its major version (`v2`,
 before that `v1`).
 
+## 2.18.0 – 2026-11-25
+
+[#145](https://github.com/sh4rkfx/selftopo/pull/145)
+
+### Dashboard
+
+- The thermic effect of food can be added to the expenditure, exactly once: under gear icon →
+  *General* → *Energy expenditure* → *Digestion* choose *By macronutrient* (25 % of the energy from
+  protein, 7.5 % from carbohydrates, 1.5 % from fat, 20 % from alcohol, adjustable) or *Flat share
+  of intake* (10 %). Days without a complete YAZIO log get 10 % of the mean of the complete days
+  among the 14 before, marked as estimated; the running day counts what is logged so far. With a
+  measured resting metabolic rate the settings suggest *By macronutrient*. It never enters the
+  expenditure computed from intake and weight.
+
+### Recommendations
+
+- The expenditure estimate without YAZIO and every value from `selftopo/energy.py` include the
+  same thermic effect when `tefMode` is set.
+
 ## 2.17.0 – 2026-11-25
 
 [#144](https://github.com/sh4rkfx/selftopo/pull/144)
