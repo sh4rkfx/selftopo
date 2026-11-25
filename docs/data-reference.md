@@ -237,8 +237,11 @@ sync does not touch either file.
 | `note` | Free text |
 | `file` | Path of the report in the repository, e.g. `files/2026-11-23-rmr.pdf` |
 | `status` | `confirmed`, or `proposed` for a value read from a report and not yet confirmed |
+| `range95_low`, `range95_high`, `range99_low`, `range99_high` | Only for `rmr_kcal`, optional: the 95 % and 99 % range the lab gives for the measurement; a range that does not contain the value is ignored. Files without these columns still load |
 
 A RER is stored as its own row with the date of its resting metabolic rate and shown next to it.
+A confirmed `rmr_kcal` corrects Garmin's resting kcal from its date on when `rmrCorrectionMode`
+is set in `settings.json`; see *Energy expenditure* in the README.
 Rows without a date, a number or a known `kind`, and `blood` rows without a name, are counted as
 unreadable and left out.
 

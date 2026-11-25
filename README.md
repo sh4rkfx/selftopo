@@ -249,6 +249,8 @@ the dashboard read the same file, and every key is optional.
 | `goals` | none | both | One goal per area for the recommendations, e.g. `{"koerper": {"metric": "weight", "target": 75, "by": "2027-03-31"}}`; see [docs/recommendations.md](docs/recommendations.md) |
 | `experiments`, `recommendations_hidden` | none | both | Running experiments and recommendations hidden with *Later* or *Does not fit*; written by the dashboard |
 | `push` | none | both | Public key and the devices that receive push notifications; written by the dashboard, see [docs/push.md](docs/push.md) |
+| `rmrCorrectionMode` | `off` | both | `factor` or `absolute`: a measured resting metabolic rate (Befunde) corrects Garmin's resting kcal, see *Energy expenditure* |
+| `rmrFactorOverride` | none | both | Your own factor (0.5–2) instead of the one computed from the measurement |
 
 Edit the file under gear icon → *General* and press *Save*. With a token that has *Contents: Read
 and write*, the dashboard commits `settings.json` to the data repository itself
@@ -307,6 +309,40 @@ strength the next day*.
 Results describe association in your own data, not causation. A fixed weekly schedule and weeks
 of illness are the most common sources of misleading results. Method, tested pairs and how to
 read them: [docs/analysis.md](docs/analysis.md).
+
+## Energy expenditure
+
+Garmin's daily expenditure (`calories_total`) is resting kcal plus active kcal. The resting part
+comes from a formula on your profile (age, sex, height, weight), not from a measurement, and can
+be off by 10 % or more for a single person. A resting metabolic rate (RMR) measured by indirect
+calorimetry, entered under Rohdaten → Befunde → *Ruheumsatz* with its 95 % and 99 % range,
+replaces it. Choose how under gear icon → *General* → *Energy expenditure*:
+
+| `rmrCorrectionMode` | Resting kcal per day | Expenditure |
+|---|---|---|
+| `off` (default, also when the key is missing) | Garmin: `calories_total − calories_active` | Garmin's `calories_total` |
+| `factor` | Garmin's resting kcal × factor | resting + `calories_active` |
+| `absolute` | the measured RMR; on the running day the share of the day gone by | resting + `calories_active` |
+
+- **Factor** = RMR ÷ reference, to three decimals, unless `rmrFactorOverride` is set. The
+  reference is the mean of Garmin's resting kcal on the 14 days up to and including the day of the
+  measurement, without the running day, without days lacking either column and without days below
+  half the window's median (a sync in the middle of a day). With fewer than 5 such days the factor
+  is still used and the settings say it is uncertain. Example: 2,390 ÷ 2,139 = 1.117.
+- **Validity.** Each measurement applies from its date until the day before the next one; days
+  before the first measurement stay as Garmin has them. Only confirmed rows count, not proposals.
+- **Never both.** The measured value replaces Garmin's resting kcal; the two are never added.
+  Garmin's columns in `garmin_daily.csv` are not changed; the dashboard and the recommendations
+  compute the corrected values when they load the data (`applyEnergy` in the dashboard,
+  `selftopo/energy.py` for the recommendations, the same rules, tested against each other).
+- **Where it is used.** Energy balance, the expenditure means, the comparison in *Verbrauch laut
+  deinem Log* and, in the recommendations, the resting-energy floor and the expenditure estimate
+  without YAZIO. A changed or confirmed Befund takes effect at once in the dashboard and with the
+  next workflow run in the recommendations.
+
+Total energy expenditure is resting energy plus the energy of activity plus the thermic effect of
+food (NASEM 2023, *Dietary Reference Intakes for Energy*). Garmin's active kcal covers the
+activity part; the thermic effect of food is not yet included.
 
 ## Running locally
 

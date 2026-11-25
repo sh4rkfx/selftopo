@@ -29,7 +29,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from . import analyze, config
+from . import analyze, config, energy
 
 log = logging.getLogger(__name__)
 
@@ -238,9 +238,10 @@ class Data:
         return float(values.mean()) if len(values) >= minimum else None
 
 
-def load(today: date | None = None) -> Data:
+def load(today: date | None = None, settings: dict[str, Any] | None = None) -> Data:
     """Everything the rules read, from the files in DATA_DIR."""
     today = today or config.today()
+    settings = config.SETTINGS if settings is None else settings
     daily = analyze.load_daily()
     garmin = _read(config.GARMIN_CSV)
     if len(garmin):
@@ -258,6 +259,13 @@ def load(today: date | None = None) -> Data:
             days[col] = _num(g, col)
         for col in ("readiness_level", "sleep_start_local", "sleep_end_local"):
             days[col] = g[col] if col in g else None
+    # Expenditure with a measured RMR in place of Garmin's resting kcal (see selftopo/energy.py)
+    for col in ("calories_total", "calories_active"):
+        if col not in days:
+            days[col] = np.nan
+    now = datetime.now(config.TIMEZONE)
+    energy.apply(days, energy.read_measurements(config.MEASUREMENTS_CSV), energy.read_settings(settings), today,
+                 (now.hour * 60 + now.minute) / 1440 if now.date() == today else 1.0)
     food = _read(config.NUTRITION_CSV)
     if len(food):
         f = food.assign(date=pd.to_datetime(food["date"])).drop_duplicates("date", keep="last").set_index("date")
@@ -536,15 +544,16 @@ def rule_weight_pace(data: Data, goal: Goal, progress: dict[str, Any]) -> Card |
     kcal = -gap * KCAL_PER_KG / 7
     measure = text("Abnahmetempo über 28 Tage, Muskelmasse")
     current_text = text("{0} kg/Woche", n(pace, 2))
-    # Safety: the intake this leads to stays above Garmin's resting energy (total minus active
-    # calories). Intake is the mean of completely logged days; without YAZIO it is estimated from
-    # Garmin's expenditure and the observed pace. Without either, there is no card.
-    bmr = (data.days["calories_total"] - data.days["calories_active"]).iloc[-28:].dropna()
+    # Safety: the intake this leads to stays above the resting energy (Garmin's total minus active
+    # calories, or the measured RMR in its place). Intake is the mean of completely logged days;
+    # without YAZIO it is estimated from the expenditure and the observed pace. Without either,
+    # there is no card.
+    bmr = data.days["resting_kcal"].iloc[-28:].dropna()
     if len(bmr) < 7:
         return None
     intake = data.mean("calories_kcal", 14)
     if intake is None:
-        expenditure = data.mean("calories_total", 28, minimum=7)
+        expenditure = data.mean("expenditure_kcal", 28, minimum=7)
         if expenditure is None:
             return None
         intake = expenditure + pace * KCAL_PER_KG / 7

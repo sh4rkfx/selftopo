@@ -36,7 +36,8 @@ MAX_FILES_PER_RUN = 5
 MAX_BYTES = 5 * 1024 * 1024
 MEDIA_TYPES = {".pdf": "application/pdf", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png"}
 
-FIELDS = ["id", "date", "kind", "name", "value", "unit", "ref_low", "ref_high", "source", "note", "file", "status"]
+FIELDS = ["id", "date", "kind", "name", "value", "unit", "ref_low", "ref_high", "source", "note", "file", "status",
+          "range95_low", "range95_high", "range99_low", "range99_high"]  # a measured RMR's range, optional
 # Same kinds, units and plausible ranges as MEASURE_KINDS in the dashboard
 KINDS: dict[str, tuple[str, float | None, float | None]] = {
     "waist_cm": ("cm", 50, 160),

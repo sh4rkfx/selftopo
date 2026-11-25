@@ -25,7 +25,7 @@ def _paths(tmp_path, monkeypatch):
                        ("HEVY_CSV", "hevy_sets.csv"), ("HEVY_EXERCISES_CSV", "hevy_exercises.csv"),
                        ("NUTRITION_CSV", "nutrition_daily.csv"), ("BLOOD_PRESSURE_CSV", "garmin_blood_pressure.csv"),
                        ("FITNESS_CSV", "garmin_fitness.csv"), ("LIFESTYLE_CSV", "garmin_lifestyle.csv"),
-                       ("INSIGHTS_JSON", "insights.json")]:
+                       ("INSIGHTS_JSON", "insights.json"), ("MEASUREMENTS_CSV", "measurements.csv")]:
         monkeypatch.setattr(config, name, tmp_path / file)
 
 
@@ -189,6 +189,21 @@ def test_calorie_advice_never_goes_below_resting_metabolism(tmp_path, monkeypatc
     card = next(c for c in build(data, goals={"koerper": {"metric": "weight", "target": 70, "by": by.isoformat()}})["cards"]
                 if c["rule"] == "weight-pace")
     assert card["kcal_per_day"] == 100
+
+
+def test_floor_uses_corrected_resting(tmp_path, monkeypatch, given):
+    """With a measured RMR of 1,700 kcal the floor drops from Garmin's 1,800: at an intake of 1,900 the
+    card asks for 200 kcal less (absolute) or 201 (factor 0.944 × 1,800 = 1,699.2) instead of 100."""
+    from selftopo import reports
+    by = TODAY + timedelta(weeks=4)
+    food = [{"date": day(i).isoformat(), "calories_kcal": 1900, "protein_g": 140} for i in range(DAYS)]
+    write(tmp_path, monkeypatch, food=food)
+    write_rows(config.MEASUREMENTS_CSV, reports.FIELDS, [{"id": "m", "date": day(60).isoformat(), "kind": "rmr_kcal", "value": "1700", "status": "confirmed"}])
+    goals = {"koerper": {"metric": "weight", "target": 70, "by": by.isoformat()}}
+    kcal = {mode: next(c for c in build(recommend.load(TODAY, {"rmrCorrectionMode": mode}), goals=goals)["cards"] if c["rule"] == "weight-pace")["kcal_per_day"]
+            for mode in ("factor", "absolute", "off")}
+    given(intake_kcal=1900, garmin_resting=1800, measured_rmr=1700, kcal_per_day=kcal)
+    assert kcal == {"factor": 201, "absolute": 200, "off": 100}
 
 
 # --------------------------------------------------------------------------- today
