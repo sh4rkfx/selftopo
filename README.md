@@ -400,8 +400,10 @@ what you ate and how your weight changed (the energy balance principle, Hall et 
 
 - Weight is the 7-day mean at the first and last day of the window, so a single weigh-in with more
   water does not move it. The window is `adaptiveTdeeDays` (default 28, at least 21) and ends
-  yesterday; at least 80 % of its days must be logged completely and the smoothed weight must
-  cover all but 7 of them, otherwise the card says *not enough data*.
+  yesterday; at least 80 % of its days must be logged completely and the smoothed weight (at least
+  3 weigh-ins in its 7 days) must cover all but 7 of them, otherwise the card says *not enough
+  data*. The window must start on or after the day the measured RMR in force applies, so it never
+  mixes raw and corrected days; until then the card names the date from which the check runs.
 - It is compared with the mean corrected expenditure of the same days, in kcal and %. TEF is part
   of the intake here and is never added.
 - More than 10 % apart over at least 28 days gives a hint with the factor on Garmin's active kcal

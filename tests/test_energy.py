@@ -21,7 +21,7 @@ from selftopo import energy, reports
 from selftopo.csvstore import write_rows
 
 HELPERS = ["DAY", "isoToT", "tToIso", "RMR_MODES", "RMR_REF_DAYS", "RMR_REF_MIN_DAYS", "TEF_MODES", "TEF_KCAL_PER_G", "TEF_COEFFICIENTS",
-           "TEF_FLAT_PERCENT", "TEF_FALLBACK_DAYS", "ACTIVE_UNCERTAINTY", "ADAPTIVE_DAYS", "ADAPTIVE_MIN_DAYS", "ADAPTIVE_MAX_DAYS", "ADAPTIVE_COVERAGE", "ADAPTIVE_HINT", "readEnergySettings", "rmrReference", "rmrPeriods", "rmrPeriodAt", "tefFor", "applyEnergy"]
+           "TEF_FLAT_PERCENT", "TEF_FALLBACK_DAYS", "ACTIVE_UNCERTAINTY", "ADAPTIVE_DAYS", "ADAPTIVE_MIN_DAYS", "ADAPTIVE_MAX_DAYS", "ADAPTIVE_COVERAGE", "ADAPTIVE_HINT", "ADAPTIVE_MIN_WEIGHINS", "readEnergySettings", "rmrReference", "rmrPeriods", "rmrPeriodAt", "tefFor", "applyEnergy"]
 TODAY = date(2026, 11, 25)
 MEASURED = date(2026, 11, 23)
 
@@ -453,10 +453,35 @@ def test_adaptive_compares_the_logged_days(given):
 
 
 def test_adaptive_uses_the_weighed_interval(given):
-    """Weight only from day 6 of the window on: intake before it (5,000 kcal) stays out, the 2,500 in the weighed span count."""
+    """Weigh-ins from day 4 of the window on, so the smoothed weight (3 weigh-ins) starts on day 6: intake before it (5,000 kcal) stays out."""
     expr = """(() => { const t0 = isoToT('2026-11-24') - 27 * DAY, days = [];
-      for (let i = 0; i < 28; i++) days.push({ t: t0 + i * DAY, kcal: i < 6 ? 5000 : 2500, weight: i < 6 ? null : 90, burnedFull: 3000, rest: 2390, activeGarmin: 610, tef: null });
+      for (let i = 0; i < 28; i++) days.push({ t: t0 + i * DAY, kcal: i < 6 ? 5000 : 2500, weight: i < 4 ? null : 90, burnedFull: 3000, rest: 2390, activeGarmin: 610, tef: null });
       rollingMean(days, "weight", "weight7", 7); return adaptiveTdee(days, 27, 28); })()"""
     a = run(ADAPT, expr)
     given(tdee=a["tdee"])
     assert a["ok"] and a["tdee"] == pytest.approx(2500)
+
+
+def test_adaptive_waits_for_a_window_after_the_correction(given):
+    """A measurement on 10.11. makes the 28-day window to 24.11. a mix of raw and corrected days: no check,
+    instead the date from which it is possible (37 days after 10.11. minus one: 07.12.)."""
+    expr = """(() => { const t0 = isoToT('2026-11-24') - 39 * DAY, days = [];
+      for (let i = 0; i < 40; i++) days.push({ t: t0 + i * DAY, kcal: 2500, weight: 90 - 0.05 * i, burnedFull: 3000, rest: 2390, activeGarmin: 610, tef: null });
+      rollingMean(days, "weight", "weight7", 7);
+      const a = adaptiveTdee(days, 39, 28, isoToT('2026-11-10'));
+      return [a.ok, tToIso(a.from), adaptiveText(a).hint, adaptiveTdee(days, 39, 28, isoToT('2026-10-20')).ok]; })()"""
+    ok, possible, hint, earlier = run(ADAPT + ["nf", "fmt", "fmtSigned", "fmtDate", "ddmm", "adaptiveText"], expr)
+    given(possible=possible, hint=hint)
+    assert ok is False and possible == "2026-12-07" and hint == "Abgleich mit Aufnahme und Gewicht: ab 07.12. möglich, 28 Tage nach dem Beginn der Korrektur."
+    assert earlier is True
+
+
+def test_adaptive_needs_three_weighins_at_each_end(given):
+    """One weigh-in a week gives a 7-day mean of a single day: not enough; three in the end weeks are."""
+    expr = """(() => { const run = (every) => { const t0 = isoToT('2026-11-24') - 39 * DAY, days = [];
+        for (let i = 0; i < 40; i++) days.push({ t: t0 + i * DAY, kcal: 2500, weight: i % every === 0 ? 90 - 0.05 * i : null, burnedFull: 3000, rest: 2390, activeGarmin: 610, tef: null });
+        rollingMean(days, "weight", "weight7", 7); return adaptiveTdee(days, 39, 28).ok; };
+      return [run(7), run(2)]; })()"""
+    weekly, every_other_day = run(ADAPT, expr)
+    given(weekly=weekly, every_other_day=every_other_day)
+    assert weekly is False and every_other_day is True
