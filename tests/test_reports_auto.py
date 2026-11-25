@@ -111,3 +111,14 @@ def test_auto_entries_are_marked(given):
     assert text == "Aus 2026-11-23-test.pdf automatisch eingetragen: 2 Werte. Aus lab.pdf automatisch eingetragen: 1 Wert; 2 Werte warten unten auf dich."
     assert 'm.source === AUTO_SOURCE ? T("automatisch gelesen")' in HTML and en["automatisch gelesen"] == "read automatically"
     assert 'id="befunde-auto" hidden' in HTML
+
+
+def test_auto_read_is_retried_and_never_overlaps(given):
+    """A failed download is not remembered; two calls during one pass share it; a proposal of that day does not make a value ambiguous."""
+    body = re.search(r"  async function readUnreadReports\(cred\) \{.*?\n  \}", HTML, re.S).group(0)
+    guard = re.search(r"  function autoReadReports\(cred = loadCredentials\(\)\) \{.*?\n  \}", HTML, re.S).group(0)
+    proposal = rows({"date": "2026-11-23", "items": [{"kind": "rmr_kcal", "value": 2455}]},
+                    existing=[{"date": "2026-11-23", "kind": "rmr_kcal", "value": 2390, "name": "", "status": "proposed"}])
+    given(status=[r["status"] for r in proposal])
+    assert "if (found) tried[f.path] = f.sha;" in body and "autoReading ||=" in guard
+    assert [r["status"] for r in proposal] == ["confirmed"]

@@ -7500,7 +7500,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       const before = existing.filter((m) => m.date === date && same(m, it));
       if (before.some((m) => m.value === it.value)) return;
       const k = MEASURE_KINDS[it.kind];
-      const clear = Boolean(found.date) && found.items.filter((x) => same(x, it)).length === 1 && !before.length
+      // Only a confirmed value of that day makes it ambiguous, as in selftopo/reports.py
+      const clear = Boolean(found.date) && found.items.filter((x) => same(x, it)).length === 1 && !before.some((m) => m.status !== "proposed")
         && (k.min == null || (it.value >= k.min && it.value <= k.max)) && (it.kind !== "blood" || Boolean(it.name && it.unit));
       rows.push({
         id: `${date}-${it.kind}-${suffix}${i}`, date, kind: it.kind, name: it.name || "", value: String(it.value),
@@ -7519,7 +7520,13 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     .filter((f) => f.type === "file" && /\.pdf$/i.test(f.name) && f.size <= REPORT_MAX_BYTES && tried[f.path] !== f.sha
       && !rows.some((m) => m.file === f.path))
     .slice(0, AUTO_READ_MAX);
-  async function autoReadReports(cred = loadCredentials()) {
+  // One pass at a time: a refresh during a pass waits for it instead of reading the same file again
+  let autoReading = null;
+  function autoReadReports(cred = loadCredentials()) {
+    autoReading ||= readUnreadReports(cred).finally(() => { autoReading = null; });
+    return autoReading;
+  }
+  async function readUnreadReports(cred) {
     if (state.source !== "github" || !cred || cred.repo !== state.dataRepo || state.offlineSince) return [];
     let list;
     try {
@@ -7537,7 +7544,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
         if (res.ok) found = extractMeasures(await pdfText(new Uint8Array(await res.arrayBuffer())));
       } catch { found = null; }
       const rows = found ? reportRows(found, f.path, state.measurements?.list || [], /^(\d{4}-\d{2}-\d{2})-/.exec(f.name)?.[1] || null) : [];
-      if (!rows.length) { tried[f.path] = f.sha; continue; }
+      // Remembered only when the PDF was read and had nothing to enter; a failed download is retried
+      if (!rows.length) { if (found) tried[f.path] = f.sha; continue; }
       const result = await writeMeasurements({ put: rows }, `Dashboard: read ${rows.length} values from ${f.path}`);
       if (!result.ok) break; // a read-only token or a conflict: next visit
       setMeasurements(result.rows);
