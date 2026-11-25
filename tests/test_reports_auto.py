@@ -130,3 +130,14 @@ def test_file_name_date_is_checked(given):
     got = run(["DAY", "isoToT", "tToIso", "todayT", "fileDate"], "(() => { globalThis.TIMEZONE = 'Europe/Vienna'; return ['2026-11-23-r.pdf', '2026-02-30-r.pdf', '2099-01-01-r.pdf', 'r.pdf'].map(fileDate); })()")
     given(dates=got)
     assert got == ["2026-11-23", None, None, None]
+
+
+def test_two_devices_write_one_copy(given):
+    """The same file read on two devices gives the same ids; a second write adds nothing and keeps an edit."""
+    found = {"date": "2026-11-23", "items": [{"kind": "rmr_kcal", "value": 2455}, {"kind": "rer", "value": 0.77}]}
+    a, b = rows(found), rows(found)
+    edited = [{**a[0], "value": "2390"}, a[1]]
+    merged = run(["applyMeasureChange"], f"applyMeasureChange({json.dumps(edited)}, {{ add: {json.dumps(b)} }})")
+    given(ids=[r["id"] for r in a], merged=[(r["kind"], r["value"]) for r in merged])
+    assert [r["id"] for r in a] == [r["id"] for r in b] and len({r["id"] for r in a}) == 2
+    assert [(r["kind"], r["value"]) for r in merged] == [("rmr_kcal", "2390"), ("rer", "0.77")]

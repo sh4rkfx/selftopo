@@ -7004,9 +7004,13 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     return `${[MEASURE_FIELDS.join(","), ...sorted.map(measureCsvLine)].join("\n")}\n`;
   }
   // Changes on top of the current file: rows with the same id are replaced, `remove` ids dropped
-  function applyMeasureChange(rows, { put = [], remove = [] }) {
+  // put replaces rows by id, remove deletes, add inserts only rows whose id is not there yet (an
+  // automatic entry another device already wrote, perhaps edited since, stays as it is)
+  function applyMeasureChange(rows, { put = [], remove = [], add = [] }) {
     const ids = new Set([...put.map((r) => r.id), ...remove]);
-    return [...rows.filter((r) => !ids.has(r.id)), ...put];
+    const kept = rows.filter((r) => !ids.has(r.id));
+    const there = new Set(kept.map((r) => r.id));
+    return [...kept, ...put, ...add.filter((r) => !there.has(r.id))];
   }
 
   // Reads measurements.csv from the data repository, applies the change and commits; one retry when
@@ -7494,9 +7498,10 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     const date = found.date || fallbackDate;
     if (!date) return [];
     const same = (a, b) => a.kind === b.kind && (a.kind !== "blood" || (a.name || "").toLowerCase() === (b.name || "").toLowerCase());
-    const suffix = Math.random().toString(36).slice(2, 6);
+    // Stable ids: the same file read on two devices gives the same rows, not two copies
+    const stable = (text) => { let h = 5381; for (const c of text) h = ((h * 33) ^ c.codePointAt(0)) >>> 0; return h.toString(36); };
     const rows = [];
-    found.items.forEach((it, i) => {
+    found.items.forEach((it) => {
       const before = existing.filter((m) => m.date === date && same(m, it));
       if (before.some((m) => m.value === it.value)) return;
       const k = MEASURE_KINDS[it.kind];
@@ -7504,7 +7509,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       const clear = Boolean(found.date) && found.items.filter((x) => same(x, it)).length === 1 && !before.some((m) => m.status !== "proposed")
         && (k.min == null || (it.value >= k.min && it.value <= k.max)) && (it.kind !== "blood" || Boolean(it.name && it.unit));
       rows.push({
-        id: `${date}-${it.kind}-${suffix}${i}`, date, kind: it.kind, name: it.name || "", value: String(it.value),
+        id: `${date}-${it.kind}-auto-${stable(`${file}|${it.kind}|${(it.name || "").toLowerCase()}`)}`, date, kind: it.kind, name: it.name || "", value: String(it.value),
         unit: it.kind === "blood" ? it.unit || "" : k.unit, ref_low: it.lo == null ? "" : String(it.lo), ref_high: it.hi == null ? "" : String(it.hi),
         source: AUTO_SOURCE, note: "", file, status: clear ? "confirmed" : "proposed",
       });
@@ -7553,7 +7558,7 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       const rows = found ? reportRows(found, f.path, state.measurements?.list || [], fileDate(f.name)) : [];
       // Remembered only when the PDF was read and had nothing to enter; a failed download is retried
       if (!rows.length) { if (found) tried[f.path] = f.sha; continue; }
-      const result = await writeMeasurements({ put: rows }, `Dashboard: read ${rows.length} values from ${f.path}`);
+      const result = await writeMeasurements({ add: rows }, `Dashboard: read ${rows.length} values from ${f.path}`);
       if (!result.ok) break; // a read-only token or a conflict: next visit
       setMeasurements(result.rows);
       done.push({ file: f.path, confirmed: rows.filter((r) => r.status === "confirmed").length, proposed: rows.filter((r) => r.status === "proposed").length });
