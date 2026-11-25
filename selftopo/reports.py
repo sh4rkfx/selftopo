@@ -1,12 +1,12 @@
 """Values from report files in files/, read by the Claude API and entered by themselves.
 
 The dashboard uploads reports (PDF, JPG, PNG) to files/ in the data repository and reads PDFs with a
-text layer itself. Everything else, photos and scans above all, is evaluated here: each file that no
-row of measurements.csv points to and that was not evaluated before goes to the Anthropic Messages
-API once. Unambiguous values are written as confirmed rows (source "automatisch gelesen"), the
-others with status `proposed`, which count only after they are confirmed in the dashboard; see
-to_rows for the rules. report_evaluations.json records which file was evaluated when
-and with what result, so no file is sent twice.
+text layer itself. Everything else, photos and scans above all, is evaluated here: each file that
+was not evaluated before goes to the Anthropic Messages API once, also one the dashboard already
+read, for the values it missed. Unambiguous values are written as confirmed rows (source
+"automatisch gelesen"), the others with status `proposed`, which count only after they are
+confirmed in the dashboard; see to_rows for the rules. report_evaluations.json records which file
+was evaluated when and with what result, so no file is sent twice.
 
 Needs the secret ANTHROPIC_API_KEY. The report leaves the repository for this: it is sent to the
 Anthropic API.
@@ -117,20 +117,20 @@ def _done(entry: Any, model: str | None) -> bool:
 
 def pending_files(data_dir: Path, rows: list[dict[str, str]], evaluated: dict[str, Any],
                   model: str | None = None) -> list[str]:
-    """Report files under files/ that no row points to and that were not evaluated yet, oldest name first."""
+    """Report files under files/ that were not evaluated yet, oldest name first. Also a file the
+    dashboard already took values from: its reader may have missed some, and evaluate adds only
+    values for a day and measure that has none (`rows` is kept for the callers)."""
     folder = data_dir / "files"
     # files/ itself must be a real folder inside the data repository, not a link elsewhere
     if not folder.is_dir() or folder.is_symlink() or not folder.resolve().is_relative_to(data_dir.resolve()):
         return []
-    referenced = {r.get("file", "") for r in rows}
     found = []
     for path in sorted(folder.rglob("*")):
         rel = path.relative_to(data_dir).as_posix()
         # Never a symlink: it could point at a file that is not a report
         if path.is_symlink() or not path.resolve().is_relative_to(folder.resolve()):
             continue
-        if path.is_file() and path.suffix.lower() in MEDIA_TYPES and rel not in referenced \
-                and not _done(evaluated.get(rel), model):
+        if path.is_file() and path.suffix.lower() in MEDIA_TYPES and not _done(evaluated.get(rel), model):
             found.append(rel)
     return found
 
@@ -313,9 +313,10 @@ def evaluate(api_key: str | None = None, model: str | None = None, today: date |
             continue
         # A value already in the file (same day, measure and number) is not entered again, e.g.
         # one the dashboard read from the same PDF while this run started
-        same = {(r.get("date"), r.get("kind"), (r.get("name") or "").lower(), _number(r.get("value"))) for r in rows}
-        found = [r for r in to_rows(answer, rel, today, rows)
-                 if (r["date"], r["kind"], r["name"].lower(), _number(r["value"])) not in same]
+        # Only what is missing: a day and measure that has a value (entered, read by the dashboard or
+        # proposed) gets nothing more from this file, so nothing is entered twice
+        has = {(r.get("date"), r.get("kind"), (r.get("name") or "").strip().lower()) for r in rows}
+        found = [r for r in to_rows(answer, rel, today, rows) if (r["date"], r["kind"], r["name"].lower()) not in has]
         # Ids must be unique: the dashboard edits and deletes by id
         taken = {r.get("id") for r in rows}
         for row in found:

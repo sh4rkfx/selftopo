@@ -222,12 +222,14 @@ finds. A value is *unambiguous* and saved as confirmed when the report's own dat
 (blood values need one), and there is no other value for that day and kind; anything else is saved
 as `proposed` for the review box. Values already there are skipped. Rows get `source`
 `automatisch gelesen` and the file; the Befunde card says what was entered. A PDF without readable
-values is remembered in that browser by its version and left for the Claude reader.
+values is remembered in that browser by its version; the Claude reader reads every file once and
+adds what the dashboard missed.
 
 Photos, scans and PDFs without readable values can be read by the Claude API instead
 (`python -m selftopo evaluate-reports`, run by the workflow *Read reports* after each upload, only
-with the secret `ANTHROPIC_API_KEY`). Every file in `files/` that no row points to and that was
-not read before is sent once; up to five per run. Without a legible date on the report, the upload
+with the secret `ANTHROPIC_API_KEY`). Every file in `files/` that it has not read before is sent
+once, up to five per run, also one the dashboard took values from: Claude then adds only values for
+a day and measure that has none yet. Without a legible date on the report, the upload
 date at the start of the file name counts, and every value is only proposed. The same rules decide
 between `confirmed` and `proposed`; rows get `source` `automatisch gelesen` and `note` `Claude`, a
 resting metabolic rate also its 95 % and 99 % range if the report prints them. Proposals wait in a

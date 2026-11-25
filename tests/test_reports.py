@@ -27,14 +27,15 @@ def data(tmp_path, monkeypatch):
     return tmp_path
 
 
-def test_only_new_unreferenced_reports_are_pending(data, given):
-    """A file a row points to, one already evaluated and a text file are skipped."""
+def test_only_new_reports_are_pending(data, given):
+    """One already evaluated and a text file are skipped; a file the dashboard took values from is
+    still read once, for what it missed."""
     for name in ("a.pdf", "b.jpg", "c.png", "notes.txt"):
         (data / "files" / name).write_bytes(b"x")
     rows = [{"file": "files/a.pdf"}]
     pending = reports.pending_files(data, rows, {"files/b.jpg": {"result": "nothing"}})
     given(pending=pending)
-    assert pending == ["files/c.png"]
+    assert pending == ["files/a.pdf", "files/c.png"]
 
 
 def test_symlinks_are_never_sent(data, given):
@@ -254,3 +255,16 @@ def test_rmr_99_range_must_contain_the_95_range(given):
                             "range95_low": 2110, "range95_high": 2670, "range99_low": 2200, "range99_high": 2600}]}, "files/x.pdf", TODAY)
     given(row=rows[0])
     assert (rows[0]["range95_low"], rows[0]["range95_high"], rows[0]["range99_low"], rows[0]["range99_high"]) == ("2110", "2670", "", "")
+
+
+def test_claude_adds_only_what_the_dashboard_missed(data, monkeypatch, given):
+    """The dashboard took RMR 2,455 from the PDF; Claude reads it too and adds only the missed Ferritin."""
+    (data / "files" / "r.pdf").write_bytes(b"x")
+    write_rows(data / "measurements.csv", reports.FIELDS, [{"id": "a", "date": "2026-11-23", "kind": "rmr_kcal", "value": "2455",
+                                                             "status": "confirmed", "file": "files/r.pdf", "source": "automatisch gelesen"}])
+    monkeypatch.setattr(reports, "ask_claude", lambda *a: {"date": "2026-11-23", "values": [
+        {"kind": "rmr_kcal", "value": 2454.8, "unit": "kcal/d"}, {"kind": "blood", "name": "Ferritin", "value": 86, "unit": "µg/l"}]})
+    reports.evaluate(api_key="k", today=TODAY)
+    got = [(r["kind"], r["value"], r["status"]) for r in read_rows(data / "measurements.csv")]
+    given(rows=got)
+    assert sorted(got) == [("blood", "86", "confirmed"), ("rmr_kcal", "2455", "confirmed")]
