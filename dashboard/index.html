@@ -5100,7 +5100,8 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     // The window must lie after the start of the correction in force, or it mixes raw and corrected days
     if (win[0].t < since) return { ok: false, coverage, logged: logged.length, window, since, from: since + (window - 1) * DAY };
     // A smoothed weight needs at least 3 weigh-ins in its 7 days, or it is just one day's water
-    const weighins = (d) => days.filter((x) => x.weight != null && x.t <= d.t && x.t > d.t - 7 * DAY).length;
+    const near = days.slice(Math.max(0, i - window - 7), i + 1); // only the window and the week before it
+    const weighins = (d) => near.filter((x) => x.weight != null && x.t <= d.t && x.t > d.t - 7 * DAY).length;
     const smooth = (d) => d.weight7 != null && weighins(d) >= ADAPTIVE_MIN_WEIGHINS;
     const first = win.find(smooth), last = [...win].reverse().find(smooth);
     const span = first && last ? (last.t - first.t) / DAY : 0;
@@ -7870,10 +7871,11 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
     card.hidden = !M.hasNutrition;
     if (M.hasNutrition) {
       const garminNow = e ? e.burned28 : null;
-      const corrected = energyCorrected(M.energy, M.rmr);
+      // The card follows the correction in force now; the adaptive series exists only with it
+      const corrected = energyCorrected(M.energy, M.rmr.slice(-1));
       // With a correction: does the corrected expenditure match intake and weight?
       const lastFull = Math.min(M.days.length - 1, M.index(todayT() - DAY));
-      const check = energyCorrected(M.energy, M.rmr.slice(-1)) && lastFull >= 0 ? adaptiveTdee(M.days, lastFull, M.energy.adaptiveDays, correctionSince(M.energy, M.rmr)) : null;
+      const check = corrected && lastFull >= 0 ? adaptiveTdee(M.days, lastFull, M.energy.adaptiveDays, correctionSince(M.energy, M.rmr)) : null;
       const words = adaptiveText(check);
       $("tdee-burn-key").textContent = corrected ? T("Verbrauch korrigiert, Mittel {0} Tage", [M.energy.adaptiveDays]) : T("Garmin, Mittel 28 Tage");
       $("adaptive-check").hidden = !words.hint;

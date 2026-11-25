@@ -514,3 +514,14 @@ def test_adaptive_sample_needs_garmin_days_too(given):
     a = run(ADAPT, expr)
     given(ok=a["ok"], logged=a["logged"])
     assert a["ok"] is False and a["logged"] == 10
+
+
+def test_adaptive_stays_fast_with_a_long_sparse_history(given):
+    """Five years of weekly weigh-ins: checking every day stays well under a second."""
+    expr = """(() => { const n = 1830, t0 = isoToT('2026-11-24') - (n - 1) * DAY, days = [];
+      for (let i = 0; i < n; i++) days.push({ t: t0 + i * DAY, kcal: 2500, weight: i % 7 ? null : 90, burnedFull: 3000, rest: 2390, activeGarmin: 610, tef: null });
+      rollingMean(days, "weight", "weight7", 7); const s = Date.now();
+      for (let i = 0; i < n; i++) adaptiveTdee(days, i, 28); return Date.now() - s; })()"""
+    ms = run(ADAPT, expr)
+    given(ms=ms)
+    assert ms < 1000
