@@ -3665,7 +3665,6 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
 "Ruheumsatz gemessen": "RMR measured",
 "Spanne Verbrauch": "Expenditure range",
 "Verbrauch korrigiert, 7-Tage-Mittel": "Expenditure corrected, 7-day mean",
-"Verbrauch korrigiert": "Expenditure corrected",
 "Faktor auf Garmins Aktivkalorien (optional)": "Factor on Garmin's active kcal (optional)",
 "Verbrauch am {0}: {1}": "Expenditure on {0}: {1}",
 "Verbrauch Ø {0} Tage ab {1}: {2}": "Expenditure, mean of {0} days from {1}: {2}",
@@ -7880,9 +7879,11 @@ footer .link-btn { background: none; border: 0; padding: 0; color: var(--ink-2);
       $("tdee-burn-key").textContent = corrected ? T("Verbrauch korrigiert, Mittel {0} Tage", [M.energy.adaptiveDays]) : T("Garmin, Mittel 28 Tage");
       $("adaptive-check").hidden = !words.hint;
       $("adaptive-check").textContent = words.hint;
-      // With a correction the card uses the adaptive check (smoothed weight, 80 % logged days)
+      // With a correction the card uses the adaptive check (smoothed weight, 80 % logged days); when
+      // that is not possible yet, it shows the plain estimate without a comparison, never one of
+      // mismatched samples
       $("tdee-sub").textContent = words.main || (e && e.t >= x0
-        ? T("≈ {0} kcal pro Tag", [fmt(Math.round(e.tdee / 10) * 10)]) + (garminNow ? ` · ${corrected ? T("Verbrauch korrigiert") : "Garmin"} ${fmt(Math.round(garminNow / 10) * 10)} (${fmtSigned(((garminNow - e.tdee) / e.tdee) * 100)} %)` : "") + T(", Stand {0}", [ddmm(e.t)])
+        ? T("≈ {0} kcal pro Tag", [fmt(Math.round(e.tdee / 10) * 10)]) + (garminNow && !corrected ? ` · Garmin ${fmt(Math.round(garminNow / 10) * 10)} (${fmtSigned(((garminNow - e.tdee) / e.tdee) * 100)} %)` : "") + T(", Stand {0}", [ddmm(e.t)])
         : T("Noch zu wenige Daten: nötig sind 14 vollständig geloggte Tage und 6 Wiegungen in 28 Tagen"));
       mount("c-tdee", (host) => timeChart(host, {
         marks: correctionMarks(M),

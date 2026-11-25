@@ -157,5 +157,6 @@ def test_adaptive_line_in_chart(given):
     assert 'const checked = energyCorrected(energy, rmr.slice(-1));' in model and "days[i].adaptive = a?.ok ? a.tdee : null;" in model
     assert '...(corrected ? [{ label: T("Verbrauch aus Aufnahme und Gewicht, {0} Tage", [M.energy.adaptiveDays]), color: "var(--s3)", data: series("adaptive")' in HTML
     assert 'data: series(corrected ? "adaptive" : "tdee")' in HTML
-    assert 'const corrected = energyCorrected(M.energy, M.rmr.slice(-1));' in HTML  # the card follows the correction in force and 'data: series("adaptiveBurned")' in HTML
+    assert 'const corrected = energyCorrected(M.energy, M.rmr.slice(-1));' in HTML  # the card follows the correction in force
+    assert '(garminNow && !corrected ? ` · Garmin ' in HTML  # without a valid check, no mismatched comparison and 'data: series("adaptiveBurned")' in HTML
     assert 'id="kcal-adaptive-key" hidden' in HTML and '$("kcal-adaptive-key").hidden = !corrected;' in HTML
