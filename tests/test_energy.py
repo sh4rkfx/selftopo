@@ -438,3 +438,15 @@ def test_hint_over_ten_percent_never_automatic(given):
     assert "Mit dem Faktor 0,65 auf die Aktivkalorien" in texts[0] and "selftopo setzt ihn nicht selbst" in texts[0]
     assert wide["factor"] is None and "Mahlzeiten fehlen" in texts[1]
     assert "activeKcalFactor" not in declaration("adaptiveTdee") and "activeKcalFactor" not in declaration("rebuildModel")
+
+
+def test_adaptive_compares_the_logged_days(given):
+    """Days without a complete log stay out of the corrected mean too: 23 of 28 logged at 3,000 kcal
+    expenditure, the 5 unlogged days at 5,000, and the comparison still uses 3,000."""
+    expr = """(() => { const t0 = isoToT('2026-11-24') - 39 * DAY, days = [];
+      for (let i = 0; i < 40; i++) { const log = i < 35 || i % 2 === 0 || i === 39;
+        days.push({ t: t0 + i * DAY, kcal: log ? 2500 : null, weight: 90 - 0.05 * i, burnedFull: log ? 3000 : 5000, rest: 2390, activeGarmin: 610, tef: null }); }
+      rollingMean(days, "weight", "weight7", 7); return adaptiveTdee(days, 39, 28); })()"""
+    a = run(ADAPT, expr)
+    given(logged=a["logged"], corrected=a["corrected"])
+    assert a["ok"] and a["corrected"] == pytest.approx(3000)
