@@ -124,7 +124,7 @@ def test_breakdown_leaves_out_unfinished_days(given):
     day Garmin synced before it ended (resting kcal below 90 % of its 28-day median)."""
     rows = [{"t": f"isoToT('2026-11-{d:02d}')", "rest": 1275 if d == 24 else 2139} for d in range(1, 26)]
     days = "[" + ",".join(f"{{t: {r['t']}, restGarmin: {r['rest']}, kcalBurned: 1}}" for r in rows) + "]"
-    expr = (f"(() => {{ const days = {days}; const p = [{{ from: isoToT('2026-11-21') }}];"
+    expr = (f"(() => {{ const days = {days}; const p = [{{ from: isoToT('2026-11-21'), factor: 1.1 }}];"
             " return [breakdownDays(days, p, { rmrMode: 'factor' }, isoToT('2026-11-25')), breakdownDays(days, p, { rmrMode: 'off' }, isoToT('2026-11-25'))]"
             ".map((l) => l.map((d) => tToIso(d.t))); })()")
     with_rmr, without = run(["DAY", "isoToT", "tToIso", "breakdownDays"], expr)
